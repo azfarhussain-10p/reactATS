@@ -34,7 +34,8 @@ import {
   Alert,
   Snackbar,
   Stack,
-  Grid
+  Grid,
+  Popover
 } from '@mui/material';
 import { 
   Search as SearchIcon, 
@@ -47,7 +48,11 @@ import {
   MoreVert as MoreVertIcon,
   FilterList as FilterListIcon,
   GetApp as DownloadIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
+  FolderZip as ZipIcon,
+  Description as CsvIcon,
+  TableView as ExcelIcon,
+  ArrowDropDown as ArrowDropDownIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -170,6 +175,9 @@ const CandidatesList: React.FC = () => {
   // Get unique positions and sources for filters
   const positions = ['All', ...Array.from(new Set(candidates.map(c => c.position)))];
   const sources = ['All', ...Array.from(new Set(candidates.map(c => c.source)))];
+  
+  // Add new state for export menu
+  const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
   
   // Apply filters and search
   useEffect(() => {
@@ -325,7 +333,15 @@ const CandidatesList: React.FC = () => {
     setEmailRecipient(null);
   };
   
-  const handleExportCandidates = () => {
+  const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setExportAnchorEl(event.currentTarget);
+  };
+  
+  const handleExportMenuClose = () => {
+    setExportAnchorEl(null);
+  };
+  
+  const handleExportToCSV = () => {
     try {
       // Create CSV content from the filteredCandidates data
       const headers = ['Name', 'Email', 'Position', 'Status', 'Stage', 'Applied Date', 'Source', 'Skills'];
@@ -333,22 +349,19 @@ const CandidatesList: React.FC = () => {
       let csvContent = headers.join(',') + '\n';
       
       filteredCandidates.forEach(candidate => {
-        // Format skills as a semicolon-separated string inside quotes
-        const skillsFormatted = `"${candidate.skills.join('; ')}"`;
-        
-        // Create a row with candidate data
-        const row = [
-          candidate.name,
-          candidate.email,
-          candidate.position,
-          candidate.status,
-          candidate.stage,
-          new Date(candidate.appliedDate).toLocaleDateString(),
-          candidate.source,
-          skillsFormatted
+        // Properly escape values with quotes to handle commas in fields
+        const rowData = [
+          `"${candidate.name}"`,
+          `"${candidate.email}"`,
+          `"${candidate.position}"`,
+          `"${candidate.status}"`,
+          `"${candidate.stage}"`,
+          `"${new Date(candidate.appliedDate).toLocaleDateString()}"`,
+          `"${candidate.source}"`,
+          `"${candidate.skills.join('; ')}"`
         ];
         
-        csvContent += row.join(',') + '\n';
+        csvContent += rowData.join(',') + '\n';
       });
       
       // Create a Blob with the CSV content
@@ -365,13 +378,106 @@ const CandidatesList: React.FC = () => {
       link.click();
       document.body.removeChild(link);
       
-      setSnackbarMessage('Candidates data exported successfully');
+      setSnackbarMessage('Candidates data exported to CSV successfully');
       setSnackbarOpen(true);
     } catch (error) {
-      console.error('Export failed:', error);
-      setSnackbarMessage('Failed to export candidates data');
+      console.error('CSV Export failed:', error);
+      setSnackbarMessage('Failed to export candidates data to CSV');
       setSnackbarOpen(true);
     }
+    
+    handleExportMenuClose();
+  };
+  
+  const handleExportToExcel = () => {
+    try {
+      // Create table data in HTML format
+      const table = document.createElement('table');
+      
+      // Create header row
+      const headerRow = document.createElement('tr');
+      ['Name', 'Email', 'Position', 'Status', 'Stage', 'Applied Date', 'Source', 'Skills'].forEach(headerText => {
+        const header = document.createElement('th');
+        header.textContent = headerText;
+        headerRow.appendChild(header);
+      });
+      table.appendChild(headerRow);
+      
+      // Create data rows
+      filteredCandidates.forEach(candidate => {
+        const row = document.createElement('tr');
+        
+        // Add data cells
+        [
+          candidate.name,
+          candidate.email,
+          candidate.position,
+          candidate.status,
+          candidate.stage,
+          new Date(candidate.appliedDate).toLocaleDateString(),
+          candidate.source,
+          candidate.skills.join('; ')
+        ].forEach(cellData => {
+          const cell = document.createElement('td');
+          cell.textContent = cellData;
+          row.appendChild(cell);
+        });
+        
+        table.appendChild(row);
+      });
+      
+      // Create a workbook and add the table
+      const htmlString = table.outerHTML;
+      
+      // For browsers with TableExport support
+      const blob = new Blob([
+        `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="UTF-8">
+          <title>Candidates Export</title>
+          <!--[if gte mso 9]>
+          <xml>
+            <x:ExcelWorkbook>
+              <x:ExcelWorksheets>
+                <x:ExcelWorksheet>
+                  <x:Name>Candidates</x:Name>
+                  <x:WorksheetOptions>
+                    <x:DisplayGridlines/>
+                  </x:WorksheetOptions>
+                </x:ExcelWorksheet>
+              </x:ExcelWorksheets>
+            </x:ExcelWorkbook>
+          </xml>
+          <![endif]-->
+        </head>
+        <body>
+          ${htmlString}
+        </body>
+        </html>`
+      ], { type: 'application/vnd.ms-excel' });
+      
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `candidates_export_${new Date().toISOString().split('T')[0]}.xls`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      setSnackbarMessage('Candidates data exported to Excel successfully');
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('Excel Export failed:', error);
+      setSnackbarMessage('Failed to export candidates data to Excel format');
+      setSnackbarOpen(true);
+    }
+    
+    handleExportMenuClose();
+  };
+  
+  const handleExportCandidates = () => {
+    // This function is now just an opener for the export menu
+    // The actual export happens in handleExportToCSV and handleExportToExcel
   };
   
   return (
@@ -472,10 +578,42 @@ const CandidatesList: React.FC = () => {
                 <Button
                   variant="outlined"
                   startIcon={<DownloadIcon />}
-                  onClick={handleExportCandidates}
+                  endIcon={<ArrowDropDownIcon />}
+                  onClick={handleExportMenuOpen}
+                  aria-controls="export-menu"
+                  aria-haspopup="true"
                 >
                   Export
                 </Button>
+                <Menu
+                  id="export-menu"
+                  anchorEl={exportAnchorEl}
+                  keepMounted
+                  open={Boolean(exportAnchorEl)}
+                  onClose={handleExportMenuClose}
+                  PaperProps={{
+                    elevation: 3,
+                    sx: { 
+                      minWidth: 200,
+                      '& .MuiMenuItem-root': {
+                        py: 1
+                      }
+                    }
+                  }}
+                >
+                  <MenuItem onClick={handleExportToCSV}>
+                    <ListItemIcon>
+                      <CsvIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText primary="Export as CSV" />
+                  </MenuItem>
+                  <MenuItem onClick={handleExportToExcel}>
+                    <ListItemIcon>
+                      <ExcelIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText primary="Export as Excel" />
+                  </MenuItem>
+                </Menu>
               </Box>
             </Grid>
           </Grid>

@@ -41,7 +41,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 // Mock data - in a real app, this would come from an API or props
 const candidatesData = [
   {
-    id: "1",
+    id: 1,
     name: 'John Doe',
     email: 'johndoe@example.com',
     phone: '(555) 123-4567',
@@ -104,7 +104,7 @@ const candidatesData = [
     ]
   },
   {
-    id: "2",
+    id: 2,
     name: 'Jane Smith',
     email: 'jane.smith@example.com',
     phone: '(555) 987-6543',
@@ -170,7 +170,7 @@ function CandidateProfile() {
     // Simulate API call to fetch candidate data
     setLoading(true);
     setTimeout(() => {
-      const candidate = candidatesData.find(c => c.id === id);
+      const candidate = candidatesData.find(c => c.id === Number(id));
       if (candidate) {
         setCandidateData(candidate);
         setError(false);
