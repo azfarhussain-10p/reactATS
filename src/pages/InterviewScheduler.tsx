@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -38,6 +38,8 @@ import {
 } from '@mui/icons-material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import { useNavigate, useParams } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 // Mock candidates
 const candidates = [
@@ -118,14 +120,16 @@ interface InterviewForm {
   candidateId: number | '';
   jobId: number | '';
   interviewType: string;
-  start: Date | null;
-  end: Date | null;
+  start: dayjs.Dayjs | null;
+  end: dayjs.Dayjs | null;
   interviewers: number[];
   location: string;
   notes: string;
 }
 
 function InterviewScheduler() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [interviews, setInterviews] = useState(initialInterviews);
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<InterviewForm>({
@@ -145,6 +149,27 @@ function InterviewScheduler() {
   const [error, setError] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
 
+  // Check for URL param to pre-select candidate
+  useEffect(() => {
+    if (id) {
+      const candidateId = parseInt(id, 10);
+      if (!isNaN(candidateId) && candidates.some(c => c.id === candidateId)) {
+        // Open the dialog automatically with the candidate pre-selected
+        setFormData({
+          candidateId: candidateId,
+          jobId: '',
+          interviewType: '',
+          start: dayjs(),
+          end: dayjs().add(1, 'hour'),
+          interviewers: [],
+          location: '',
+          notes: ''
+        });
+        setOpen(true);
+      }
+    }
+  }, [id]);
+
   // Open dialog for new interview
   const handleNewInterview = () => {
     setIsEdit(false);
@@ -152,8 +177,8 @@ function InterviewScheduler() {
       candidateId: '',
       jobId: '',
       interviewType: '',
-      start: new Date(),
-      end: new Date(new Date().getTime() + 60 * 60 * 1000), // 1 hour later
+      start: dayjs(),
+      end: dayjs().add(1, 'hour'),
       interviewers: [],
       location: '',
       notes: ''
@@ -171,8 +196,8 @@ function InterviewScheduler() {
         candidateId: interview.candidateId,
         jobId: interview.jobId,
         interviewType: interview.interviewType,
-        start: interview.start,
-        end: interview.end,
+        start: dayjs(interview.start),
+        end: dayjs(interview.end),
         interviewers: interview.interviewers,
         location: interview.location,
         notes: interview.notes
@@ -204,7 +229,7 @@ function InterviewScheduler() {
   };
 
   // Handle date/time changes
-  const handleDateChange = (dateField: 'start' | 'end', newDate: Date | null) => {
+  const handleDateChange = (dateField: 'start' | 'end', newDate: dayjs.Dayjs | null) => {
     setFormData({
       ...formData,
       [dateField]: newDate
@@ -220,7 +245,7 @@ function InterviewScheduler() {
     if (!formData.end) return 'Please select an end time';
     if (formData.interviewers.length === 0) return 'Please select at least one interviewer';
     if (!formData.location) return 'Please specify a location';
-    if (formData.start && formData.end && formData.start >= formData.end) {
+    if (formData.start && formData.end && formData.start.isAfter(formData.end)) {
       return 'End time must be after start time';
     }
     return '';
@@ -247,8 +272,8 @@ function InterviewScheduler() {
                   candidateId: formData.candidateId as number,
                   jobId: formData.jobId as number,
                   interviewType: formData.interviewType,
-                  start: formData.start as Date,
-                  end: formData.end as Date,
+                  start: formData.start?.toDate() as Date,
+                  end: formData.end?.toDate() as Date,
                   interviewers: formData.interviewers,
                   location: formData.location,
                   notes: formData.notes,
@@ -264,8 +289,8 @@ function InterviewScheduler() {
             candidateId: formData.candidateId as number,
             jobId: formData.jobId as number,
             interviewType: formData.interviewType,
-            start: formData.start as Date,
-            end: formData.end as Date,
+            start: formData.start?.toDate() as Date,
+            end: formData.end?.toDate() as Date,
             interviewers: formData.interviewers,
             location: formData.location,
             notes: formData.notes,
@@ -280,6 +305,10 @@ function InterviewScheduler() {
       setTimeout(() => {
         setSuccess(false);
         setOpen(false);
+        // Redirect to main interviews page if came from a candidate-specific URL
+        if (id) {
+          navigate('/interviews');
+        }
       }, 1500);
     }, 1000);
   };
@@ -422,8 +451,8 @@ function InterviewScheduler() {
               {error}
             </Alert>
           )}
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} md={6}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 1, mx: -1 }}>
+            <Box sx={{ width: { xs: '100%', md: '50%' }, p: 1 }}>
               <FormControl fullWidth required>
                 <InputLabel>Candidate</InputLabel>
                 <Select
@@ -439,8 +468,8 @@ function InterviewScheduler() {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6}>
+            </Box>
+            <Box sx={{ width: { xs: '100%', md: '50%' }, p: 1 }}>
               <FormControl fullWidth required>
                 <InputLabel>Position</InputLabel>
                 <Select
@@ -456,8 +485,8 @@ function InterviewScheduler() {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ width: '100%', p: 1 }}>
               <FormControl fullWidth required>
                 <InputLabel>Interview Type</InputLabel>
                 <Select
@@ -473,8 +502,8 @@ function InterviewScheduler() {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6}>
+            </Box>
+            <Box sx={{ width: { xs: '100%', md: '50%' }, p: 1 }}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DateTimePicker
                   label="Start Time"
@@ -483,8 +512,8 @@ function InterviewScheduler() {
                   slotProps={{ textField: { fullWidth: true, required: true } }}
                 />
               </LocalizationProvider>
-            </Grid>
-            <Grid item xs={12} md={6}>
+            </Box>
+            <Box sx={{ width: { xs: '100%', md: '50%' }, p: 1 }}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DateTimePicker
                   label="End Time"
@@ -493,8 +522,8 @@ function InterviewScheduler() {
                   slotProps={{ textField: { fullWidth: true, required: true } }}
                 />
               </LocalizationProvider>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ width: '100%', p: 1 }}>
               <FormControl fullWidth required>
                 <InputLabel>Interviewers</InputLabel>
                 <Select
@@ -525,8 +554,8 @@ function InterviewScheduler() {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ width: '100%', p: 1 }}>
               <TextField
                 fullWidth
                 required
@@ -541,8 +570,8 @@ function InterviewScheduler() {
                   ),
                 }}
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ width: '100%', p: 1 }}>
               <TextField
                 fullWidth
                 multiline
@@ -553,8 +582,8 @@ function InterviewScheduler() {
                 onChange={handleChange}
                 placeholder="Add interview instructions, focus areas, or preparation notes..."
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>

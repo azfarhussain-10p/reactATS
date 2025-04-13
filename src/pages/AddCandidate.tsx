@@ -22,6 +22,7 @@ import {
   Delete as DeleteIcon,
   CloudUpload as CloudUploadIcon
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 // Mock job openings for the dropdown
 const jobOpenings = [
@@ -52,6 +53,8 @@ interface ExperienceEntry {
 }
 
 function AddCandidate() {
+  const navigate = useNavigate();
+
   // Form states
   const [formData, setFormData] = useState({
     firstName: '',
@@ -255,6 +258,11 @@ function AddCandidate() {
         setSuccess(false);
       }, 3000);
     }, 1500);
+  };
+
+  // Handle cancel button click
+  const handleCancel = () => {
+    navigate('/candidates');
   };
 
   return (
@@ -635,6 +643,7 @@ function AddCandidate() {
               type="button" 
               variant="outlined" 
               sx={{ mr: 1 }}
+              onClick={handleCancel}
             >
               Cancel
             </Button>

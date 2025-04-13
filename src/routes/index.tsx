@@ -78,6 +78,7 @@ const AppRoutes = () => {
         <Route path="/candidates/add" element={<AddCandidate />} />
         <Route path="/candidates/rankings" element={<CandidateRanking />} />
         <Route path="/interviews" element={<InterviewScheduler />} />
+        <Route path="/interviews/schedule/:id" element={<InterviewScheduler />} />
         <Route path="/recruitment-pipeline" element={<RecruitmentPipeline />} />
         <Route path="/interviews/feedback/:id" element={<InterviewerFeedbackForm />} />
         <Route path="/evaluation/:id" element={<CandidateEvaluation />} />

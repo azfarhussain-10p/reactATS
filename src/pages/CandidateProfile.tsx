@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -15,7 +15,9 @@ import {
   Card,
   CardContent,
   TextField,
-  IconButton
+  IconButton,
+  ListItemIcon,
+  Alert
 } from '@mui/material';
 import { 
   Email as EmailIcon, 
@@ -37,69 +39,112 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 
 // Mock data - in a real app, this would come from an API or props
-const candidateData = {
-  id: 1,
-  name: 'John Doe',
-  email: 'johndoe@example.com',
-  phone: '(555) 123-4567',
-  location: 'New York, NY',
-  role: 'Frontend Developer',
-  status: 'Interview',
-  appliedDate: '2023-11-15',
-  profileImage: '',
-  resumeUrl: '#',
-  skills: ['React', 'TypeScript', 'JavaScript', 'HTML', 'CSS', 'Material UI', 'Redux'],
-  experience: [
-    {
-      id: 1,
-      company: 'Previous Company',
-      position: 'Frontend Developer',
-      duration: 'Jan 2020 - Present',
-      description: 'Developed and maintained web applications using React and TypeScript. Collaborated with design and backend teams to implement new features.'
-    },
-    {
-      id: 2,
-      company: 'Another Company',
-      position: 'Web Developer',
-      duration: 'Jun 2018 - Dec 2019',
-      description: 'Built responsive websites using JavaScript, HTML, and CSS. Worked on performance optimization and accessibility improvements.'
-    }
-  ],
-  education: [
-    {
-      id: 1,
-      institution: 'University of Technology',
-      degree: 'Bachelor of Science in Computer Science',
-      duration: '2014 - 2018',
-      gpa: '3.8/4.0'
-    }
-  ],
-  interviewNotes: [
-    {
-      id: 1,
-      date: '2023-11-20',
-      interviewer: 'Jane Smith',
-      title: 'Technical Interview',
-      notes: 'Strong technical skills, especially in React and TypeScript. Good problem-solving approach. Could improve communication of complex concepts.'
-    }
-  ],
-  documents: [
-    {
-      id: 1,
-      name: 'Resume.pdf',
-      type: 'pdf',
-      size: '1.2 MB',
-      uploaded: '2023-11-15'
-    },
-    {
-      id: 2,
-      name: 'Cover Letter.pdf',
-      type: 'pdf',
-      size: '0.8 MB',
-      uploaded: '2023-11-15'
-    }
-  ]
-};
+const candidatesData = [
+  {
+    id: "1",
+    name: 'John Doe',
+    email: 'johndoe@example.com',
+    phone: '(555) 123-4567',
+    location: 'New York, NY',
+    role: 'Frontend Developer',
+    status: 'Interview',
+    appliedDate: '2023-11-15',
+    profileImage: '',
+    resumeUrl: '#',
+    skills: ['React', 'TypeScript', 'JavaScript', 'HTML', 'CSS', 'Material UI', 'Redux'],
+    experience: [
+      {
+        id: 1,
+        company: 'Previous Company',
+        position: 'Frontend Developer',
+        duration: 'Jan 2020 - Present',
+        description: 'Developed and maintained web applications using React and TypeScript. Collaborated with design and backend teams to implement new features.'
+      },
+      {
+        id: 2,
+        company: 'Another Company',
+        position: 'Web Developer',
+        duration: 'Jun 2018 - Dec 2019',
+        description: 'Built responsive websites using JavaScript, HTML, and CSS. Worked on performance optimization and accessibility improvements.'
+      }
+    ],
+    education: [
+      {
+        id: 1,
+        institution: 'University of Technology',
+        degree: 'Bachelor of Science in Computer Science',
+        duration: '2014 - 2018',
+        gpa: '3.8/4.0'
+      }
+    ],
+    interviewNotes: [
+      {
+        id: 1,
+        date: '2023-11-20',
+        interviewer: 'Jane Smith',
+        title: 'Technical Interview',
+        notes: 'Strong technical skills, especially in React and TypeScript. Good problem-solving approach. Could improve communication of complex concepts.'
+      }
+    ],
+    documents: [
+      {
+        id: 1,
+        name: 'Resume.pdf',
+        type: 'pdf',
+        size: '1.2 MB',
+        uploaded: '2023-11-15'
+      },
+      {
+        id: 2,
+        name: 'Cover Letter.pdf',
+        type: 'pdf',
+        size: '0.8 MB',
+        uploaded: '2023-11-15'
+      }
+    ]
+  },
+  {
+    id: "2",
+    name: 'Jane Smith',
+    email: 'jane.smith@example.com',
+    phone: '(555) 987-6543',
+    location: 'San Francisco, CA',
+    role: 'UX Designer',
+    status: 'Screening',
+    appliedDate: '2023-11-12',
+    profileImage: '',
+    resumeUrl: '#',
+    skills: ['UI/UX', 'Figma', 'User Research', 'Wireframing', 'Prototyping'],
+    experience: [
+      {
+        id: 1,
+        company: 'Design Studio',
+        position: 'UX Designer',
+        duration: 'Mar 2020 - Present',
+        description: 'Created user-centered designs and prototypes for various clients.'
+      }
+    ],
+    education: [
+      {
+        id: 1,
+        institution: 'Design Institute',
+        degree: 'Bachelor of Fine Arts in Design',
+        duration: '2016 - 2020',
+        gpa: '3.9/4.0'
+      }
+    ],
+    interviewNotes: [],
+    documents: [
+      {
+        id: 1,
+        name: 'Portfolio.pdf',
+        type: 'pdf',
+        size: '4.5 MB',
+        uploaded: '2023-11-12'
+      }
+    ]
+  }
+];
 
 // Status color mapping
 const statusColors: Record<string, "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning"> = {
@@ -117,6 +162,24 @@ function CandidateProfile() {
   const [tabValue, setTabValue] = useState(0);
   const [editingNotes, setEditingNotes] = useState(false);
   const [notes, setNotes] = useState('');
+  const [candidateData, setCandidateData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    // Simulate API call to fetch candidate data
+    setLoading(true);
+    setTimeout(() => {
+      const candidate = candidatesData.find(c => c.id === id);
+      if (candidate) {
+        setCandidateData(candidate);
+        setError(false);
+      } else {
+        setError(true);
+      }
+      setLoading(false);
+    }, 500);
+  }, [id]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -125,6 +188,31 @@ function CandidateProfile() {
   const handleEvaluateCandidate = () => {
     navigate(`/candidates/${id}/evaluate`);
   };
+  
+  const handleGoBack = () => {
+    navigate('/candidates');
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+        <Typography>Loading candidate profile...</Typography>
+      </Box>
+    );
+  }
+
+  if (error || !candidateData) {
+    return (
+      <Box sx={{ maxWidth: 1200, mx: 'auto', py: 3 }}>
+        <Alert severity="error" sx={{ mb: 3 }}>
+          Candidate not found. The candidate you're looking for may not exist or has been removed.
+        </Alert>
+        <Button variant="contained" onClick={handleGoBack}>
+          Go Back to Candidates List
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', py: 3 }}>
@@ -210,7 +298,7 @@ function CandidateProfile() {
                   <Typography variant="h6">Skills</Typography>
                 </Box>
                 <Box>
-                  {candidateData.skills.map((skill) => (
+                  {candidateData.skills.map((skill: string) => (
                     <Chip key={skill} label={skill} sx={{ m: 0.5 }} />
                   ))}
                 </Box>
@@ -279,7 +367,7 @@ function CandidateProfile() {
         {tabValue === 1 && (
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>Work Experience</Typography>
-            {candidateData.experience.map((exp) => (
+            {candidateData.experience.map((exp: any) => (
               <Box key={exp.id} sx={{ mb: 3 }}>
                 <Typography variant="h6">{exp.position}</Typography>
                 <Typography variant="subtitle1" color="text.secondary">{exp.company}</Typography>
@@ -295,7 +383,7 @@ function CandidateProfile() {
         {tabValue === 2 && (
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>Education</Typography>
-            {candidateData.education.map((edu) => (
+            {candidateData.education.map((edu: any) => (
               <Box key={edu.id} sx={{ mb: 3 }}>
                 <Typography variant="h6">{edu.degree}</Typography>
                 <Typography variant="subtitle1" color="text.secondary">{edu.institution}</Typography>
@@ -315,7 +403,7 @@ function CandidateProfile() {
               <Button variant="contained">Add Interview Note</Button>
             </Box>
             
-            {candidateData.interviewNotes.map((note) => (
+            {candidateData.interviewNotes.map((note: any) => (
               <Card key={note.id} sx={{ mb: 2 }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
@@ -347,7 +435,7 @@ function CandidateProfile() {
             </Box>
             
             <List>
-              {candidateData.documents.map((doc) => (
+              {candidateData.documents.map((doc: any) => (
                 <ListItem 
                   key={doc.id}
                   secondaryAction={

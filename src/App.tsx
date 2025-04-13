@@ -527,10 +527,10 @@ function DashboardContent() {
   ];
 
   return (
-    <Box>
-      <Grid component="div" container spacing={4}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', margin: -1.5 }}>
         {stats.map((stat, index) => (
-          <Grid component="div" item xs={12} md={6} lg={3} key={index}>
+          <Box key={index} sx={{ width: { xs: '100%', sm: '50%', md: '25%' }, padding: 1.5 }}>
             <Card sx={{ bgcolor: stat.color }} className="dashboard-card">
               <CardContent>
                 <Typography variant="h4" component="div">
@@ -541,12 +541,12 @@ function DashboardContent() {
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
-      <Grid component="div" container spacing={3}>
-        <Grid component="div" item xs={12} md={8}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', margin: -1.5 }}>
+        <Box sx={{ width: { xs: '100%', md: '66.666%' }, padding: 1.5 }}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               Recent Activities
@@ -563,8 +563,8 @@ function DashboardContent() {
               </Typography>
             </Box>
           </Paper>
-        </Grid>
-        <Grid component="div" item xs={12} md={4}>
+        </Box>
+        <Box sx={{ width: { xs: '100%', md: '33.333%' }, padding: 1.5 }}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               Upcoming Interviews
@@ -578,8 +578,8 @@ function DashboardContent() {
               </Typography>
             </Box>
           </Paper>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 }
