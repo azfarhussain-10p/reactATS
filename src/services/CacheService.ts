@@ -1,21 +1,14 @@
 /**
- * A simple in-memory cache service that simulates Redis-like functionality.
- * In a production application, this would be implemented using a real Redis client.
+ * A cache service for storing and retrieving data with expiration support
  */
-interface CacheEntry<T> {
-  value: T;
-  expiry: number | null; // null means no expiry
-}
-
 class CacheService {
   private static instance: CacheService;
-  private cache: Map<string, CacheEntry<any>>;
-  private keyPrefix: string = 'ats_cache:';
+  private cache: Map<string, { data: any; expires: number | null; tags?: string[] }>;
+  private tagToKeys: Map<string, Set<string>>;
   
   private constructor() {
     this.cache = new Map();
-    // Start cleanup interval to remove expired items
-    this.startCleanupInterval();
+    this.tagToKeys = new Map();
   }
   
   /**
@@ -29,177 +22,201 @@ class CacheService {
   }
   
   /**
-   * Set a value in the cache with an optional TTL (time to live) in seconds
-   * @param key Cache key
-   * @param value Value to cache
+   * Store a value in the cache
+   * @param key The cache key
+   * @param data The data to store
    * @param ttl Time to live in seconds (null for no expiry)
+   * @param tags Optional tags for cache invalidation
    */
-  public set<T>(key: string, value: T, ttl: number | null = 300): void {
-    const fullKey = this.keyPrefix + key;
-    const expiry = ttl ? Date.now() + (ttl * 1000) : null;
+  public set<T>(key: string, data: T, ttl: number | null = null, tags?: string[]): void {
+    const expires = ttl ? Date.now() + ttl * 1000 : null;
     
-    this.cache.set(fullKey, {
-      value,
-      expiry
+    this.cache.set(key, { 
+      data, 
+      expires,
+      tags
     });
+    
+    // Store key-tag mappings
+    if (tags && tags.length > 0) {
+      this.addTagsToKey(key, tags);
+    }
+    
+    // Store as session data if the key is appropriate
+    if (key.startsWith('session:')) {
+      try {
+        sessionStorage.setItem(key, JSON.stringify({
+          data,
+          expires
+        }));
+      } catch (e) {
+        console.warn('Failed to store in sessionStorage:', e);
+      }
+    }
+  }
+  
+  /**
+   * Add tags to a cached key
+   * @param key The cache key
+   * @param tags Tags to associate with the key
+   */
+  private addTagsToKey(key: string, tags: string[]): void {
+    // Associate each tag with this key
+    tags.forEach(tag => {
+      if (!this.tagToKeys.has(tag)) {
+        this.tagToKeys.set(tag, new Set());
+      }
+      this.tagToKeys.get(tag)!.add(key);
+    });
+    
+    // Update the cached item's tags
+    const item = this.cache.get(key);
+    if (item) {
+      item.tags = [...new Set([...(item.tags || []), ...tags])];
+    }
   }
   
   /**
    * Get a value from the cache
-   * @param key Cache key
-   * @returns The cached value or null if not found or expired
+   * @param key The cache key
+   * @returns The cached data or undefined if not found or expired
    */
-  public get<T>(key: string): T | null {
-    const fullKey = this.keyPrefix + key;
-    const entry = this.cache.get(fullKey);
+  public get<T>(key: string): T | undefined {
+    // Try in-memory cache first
+    const item = this.cache.get(key);
     
-    if (!entry) {
-      return null;
+    if (item) {
+      if (item.expires === null || item.expires > Date.now()) {
+        return item.data as T;
+      } else {
+        // Expired, remove it
+        this.delete(key);
+      }
     }
     
-    // Check if entry has expired
-    if (entry.expiry && Date.now() > entry.expiry) {
-      this.cache.delete(fullKey);
-      return null;
+    // Try session storage as fallback
+    if (key.startsWith('session:')) {
+      try {
+        const sessionItem = sessionStorage.getItem(key);
+        if (sessionItem) {
+          const { data, expires } = JSON.parse(sessionItem);
+          
+          if (expires === null || expires > Date.now()) {
+            // Restore to memory cache
+            this.cache.set(key, { data, expires });
+            return data as T;
+          } else {
+            // Expired, remove it
+            sessionStorage.removeItem(key);
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to read from sessionStorage:', e);
+      }
     }
     
-    return entry.value as T;
+    return undefined;
   }
   
   /**
-   * Check if a key exists in the cache
-   * @param key Cache key
-   * @returns True if the key exists and has not expired
+   * Delete a value from the cache
+   * @param key The cache key
    */
-  public has(key: string): boolean {
-    const fullKey = this.keyPrefix + key;
-    const entry = this.cache.get(fullKey);
-    
-    if (!entry) {
-      return false;
+  public delete(key: string): void {
+    // Remove from tag maps first
+    const item = this.cache.get(key);
+    if (item && item.tags) {
+      item.tags.forEach(tag => {
+        const keys = this.tagToKeys.get(tag);
+        if (keys) {
+          keys.delete(key);
+          if (keys.size === 0) {
+            this.tagToKeys.delete(tag);
+          }
+        }
+      });
     }
     
-    // Check if entry has expired
-    if (entry.expiry && Date.now() > entry.expiry) {
-      this.cache.delete(fullKey);
-      return false;
-    }
+    // Then remove from cache
+    this.cache.delete(key);
     
-    return true;
+    // Remove from session storage if applicable
+    if (key.startsWith('session:')) {
+      try {
+        sessionStorage.removeItem(key);
+      } catch (e) {
+        console.warn('Failed to remove from sessionStorage:', e);
+      }
+    }
   }
   
   /**
-   * Delete a key from the cache
-   * @param key Cache key
+   * Get all keys in the cache
+   * @returns Array of cache keys
    */
-  public delete(key: string): boolean {
-    const fullKey = this.keyPrefix + key;
-    return this.cache.delete(fullKey);
+  public getAllKeys(): string[] {
+    return Array.from(this.cache.keys());
   }
   
   /**
-   * Clear all entries in the cache
+   * Get all keys associated with the given tags
+   * @param tags The tags to match
+   * @returns Array of matching cache keys
+   */
+  public getKeysByTags(tags: string[]): string[] {
+    if (tags.length === 0) return [];
+    
+    // Get all keys for the first tag
+    const firstTagKeys = this.tagToKeys.get(tags[0]) || new Set<string>();
+    
+    if (tags.length === 1) {
+      return Array.from(firstTagKeys);
+    }
+    
+    // For multiple tags, find the intersection
+    const keySets = tags.map(tag => this.tagToKeys.get(tag) || new Set<string>());
+    
+    return Array.from(firstTagKeys).filter(key => 
+      keySets.every(keySet => keySet.has(key))
+    );
+  }
+  
+  /**
+   * Get all tenant-specific keys
+   * @param tenantId The tenant ID
+   * @returns Array of tenant-specific cache keys
+   */
+  public getTenantKeys(tenantId: string): string[] {
+    const tenantTag = `tenant:${tenantId}`;
+    return this.getKeysByTags([tenantTag]);
+  }
+  
+  /**
+   * Clear all values from the cache
    */
   public clear(): void {
     this.cache.clear();
-  }
-  
-  /**
-   * Get all keys matching a pattern
-   * This simulates Redis KEYS command
-   * @param pattern Pattern to match
-   * @returns Array of matching keys
-   */
-  public keys(pattern: string): string[] {
-    const fullPattern = this.keyPrefix + pattern;
-    const regex = new RegExp(
-      '^' + 
-      fullPattern
-        .replace(/\./g, '\\.')
-        .replace(/\*/g, '.*')
-        .replace(/\?/g, '.') + 
-      '$'
-    );
+    this.tagToKeys.clear();
     
-    const matchingKeys: string[] = [];
-    
-    for (const key of this.cache.keys()) {
-      if (regex.test(key)) {
-        // Check if key has expired
-        const entry = this.cache.get(key);
-        if (entry && (!entry.expiry || Date.now() <= entry.expiry)) {
-          // Return the key without the prefix
-          matchingKeys.push(key.substring(this.keyPrefix.length));
+    // Clear session storage entries related to our cache
+    try {
+      Object.keys(sessionStorage).forEach(key => {
+        if (key.startsWith('session:')) {
+          sessionStorage.removeItem(key);
         }
-      }
+      });
+    } catch (e) {
+      console.warn('Failed to clear sessionStorage:', e);
     }
-    
-    return matchingKeys;
   }
   
   /**
-   * Delete all keys matching a pattern
-   * @param pattern Pattern to match
-   * @returns Number of keys deleted
+   * Clear tenant-specific data from the cache
+   * @param tenantId The tenant ID to clear data for
    */
-  public deletePattern(pattern: string): number {
-    const keys = this.keys(pattern);
-    let count = 0;
-    
-    for (const key of keys) {
-      if (this.delete(key)) {
-        count++;
-      }
-    }
-    
-    return count;
-  }
-  
-  /**
-   * Increment a numeric value in the cache
-   * @param key Cache key
-   * @param increment Amount to increment (default: 1)
-   * @returns New value or null if key doesn't exist or value is not a number
-   */
-  public increment(key: string, increment: number = 1): number | null {
-    const fullKey = this.keyPrefix + key;
-    const entry = this.cache.get(fullKey);
-    
-    if (!entry) {
-      this.set(key, increment);
-      return increment;
-    }
-    
-    // Check if entry has expired
-    if (entry.expiry && Date.now() > entry.expiry) {
-      this.cache.delete(fullKey);
-      this.set(key, increment);
-      return increment;
-    }
-    
-    if (typeof entry.value !== 'number') {
-      return null;
-    }
-    
-    const newValue = entry.value + increment;
-    this.set(key, newValue, entry.expiry ? Math.floor((entry.expiry - Date.now()) / 1000) : null);
-    return newValue;
-  }
-  
-  /**
-   * Start interval to clean up expired cache entries
-   */
-  private startCleanupInterval(): void {
-    // Clean up every 5 minutes
-    setInterval(() => {
-      const now = Date.now();
-      
-      for (const [key, entry] of this.cache.entries()) {
-        if (entry.expiry && now > entry.expiry) {
-          this.cache.delete(key);
-        }
-      }
-    }, 5 * 60 * 1000);
+  public clearTenantData(tenantId: string): void {
+    const tenantKeys = this.getTenantKeys(tenantId);
+    tenantKeys.forEach(key => this.delete(key));
   }
 }
 

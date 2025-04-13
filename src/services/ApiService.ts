@@ -34,6 +34,8 @@ class ApiService {
   private static instance: ApiService;
   private cacheService: CacheService;
   private pendingRequests: Map<string, Promise<any>>;
+  private customHeaders: Record<string, string> = {};
+  private tenantId: string | null = null;
   
   private constructor() {
     this.cacheService = CacheService.getInstance();
@@ -45,6 +47,17 @@ class ApiService {
         // Add API URL if not absolute
         if (config.url && !config.url.startsWith('http')) {
           config.url = `${API_URL}${config.url.startsWith('/') ? '' : '/'}${config.url}`;
+        }
+
+        // Apply custom headers, including tenant header if available
+        config.headers = {
+          ...config.headers,
+          ...this.customHeaders,
+        };
+        
+        // Add tenant header if available
+        if (this.tenantId && !config.headers['X-Tenant-ID']) {
+          config.headers['X-Tenant-ID'] = this.tenantId;
         }
         
         return config;
@@ -95,6 +108,50 @@ class ApiService {
   }
   
   /**
+   * Set custom headers for all API requests
+   * @param headers Key-value pairs of headers
+   */
+  public setHeaders(headers: Record<string, string>): void {
+    this.customHeaders = {
+      ...this.customHeaders,
+      ...headers
+    };
+  }
+
+  /**
+   * Set the current tenant ID for API requests
+   * @param tenantId The tenant ID
+   */
+  public setTenantId(tenantId: string | null): void {
+    this.tenantId = tenantId;
+    
+    if (tenantId) {
+      this.setHeaders({ 'X-Tenant-ID': tenantId });
+    } else {
+      // Remove tenant header
+      const { 'X-Tenant-ID': _, ...restHeaders } = this.customHeaders;
+      this.customHeaders = restHeaders;
+    }
+  }
+
+  /**
+   * Get the current tenant ID
+   * @returns The current tenant ID
+   */
+  public getTenantId(): string | null {
+    return this.tenantId;
+  }
+
+  /**
+   * Clear tenant-specific cached data
+   */
+  public clearTenantCache(): void {
+    if (this.tenantId) {
+      this.invalidateByUrlPattern(`/tenants/${this.tenantId}`);
+    }
+  }
+  
+  /**
    * Generate a cache key for a request
    * @param config Request configuration
    * @returns Cache key
@@ -105,6 +162,11 @@ class ApiService {
       method.toUpperCase(),
       url
     ];
+    
+    // Add tenant ID to cache key if available
+    if (this.tenantId) {
+      segments.push(`tenant:${this.tenantId}`);
+    }
     
     if (params) {
       segments.push(JSON.stringify(params));
@@ -153,6 +215,16 @@ class ApiService {
           if (cache?.tags && cache.tags.length > 0) {
             const tagKey = `tags:${cacheKey}`;
             this.cacheService.set(tagKey, cache.tags);
+          }
+          
+          // Add tenant tag automatically
+          if (this.tenantId) {
+            const tagKey = `tags:${cacheKey}`;
+            const existingTags = this.cacheService.get<string[]>(tagKey) || [];
+            
+            if (!existingTags.includes(`tenant:${this.tenantId}`)) {
+              this.cacheService.set(tagKey, [...existingTags, `tenant:${this.tenantId}`]);
+            }
           }
           
           // Invalidate cache tags if specified
@@ -205,7 +277,11 @@ class ApiService {
         console.log(`Offline mode: Queueing ${method} request to ${axiosConfig.url} for later submission`);
         
         // Save the request for later processing
-        const headers = { ...(axiosConfig.headers as Record<string, string> || {}) };
+        const headers = { 
+          ...(axiosConfig.headers as Record<string, string> || {}),
+          // Make sure tenant ID is included when offline
+          ...(this.tenantId ? { 'X-Tenant-ID': this.tenantId } : {})
+        };
         await saveFormForLater(
           axiosConfig.url || '',
           method,
@@ -246,7 +322,7 @@ class ApiService {
    * POST request
    * @param url URL to request
    * @param data Request body
-   * @param cacheOptions Caching options (for invalidation only)
+   * @param cacheOptions Caching options
    * @returns Promise that resolves to the response data
    */
   public async post<T>(url: string, data?: any, cacheOptions?: CacheOptions): Promise<T> {
@@ -254,7 +330,7 @@ class ApiService {
       method: 'POST',
       url,
       data,
-      cache: { enabled: false, ...cacheOptions }
+      cache: cacheOptions
     });
   }
   
@@ -262,7 +338,7 @@ class ApiService {
    * PUT request
    * @param url URL to request
    * @param data Request body
-   * @param cacheOptions Caching options (for invalidation only)
+   * @param cacheOptions Caching options
    * @returns Promise that resolves to the response data
    */
   public async put<T>(url: string, data?: any, cacheOptions?: CacheOptions): Promise<T> {
@@ -270,7 +346,7 @@ class ApiService {
       method: 'PUT',
       url,
       data,
-      cache: { enabled: false, ...cacheOptions }
+      cache: cacheOptions
     });
   }
   
@@ -278,7 +354,7 @@ class ApiService {
    * PATCH request
    * @param url URL to request
    * @param data Request body
-   * @param cacheOptions Caching options (for invalidation only)
+   * @param cacheOptions Caching options
    * @returns Promise that resolves to the response data
    */
   public async patch<T>(url: string, data?: any, cacheOptions?: CacheOptions): Promise<T> {
@@ -286,65 +362,59 @@ class ApiService {
       method: 'PATCH',
       url,
       data,
-      cache: { enabled: false, ...cacheOptions }
+      cache: cacheOptions
     });
   }
   
   /**
    * DELETE request
    * @param url URL to request
-   * @param cacheOptions Caching options (for invalidation only)
+   * @param cacheOptions Caching options
    * @returns Promise that resolves to the response data
    */
   public async delete<T>(url: string, cacheOptions?: CacheOptions): Promise<T> {
     return this.request<T>({
       method: 'DELETE',
       url,
-      cache: { enabled: false, ...cacheOptions }
+      cache: cacheOptions
     });
   }
   
   /**
-   * Invalidate cache entries by tags
+   * Invalidate cached data by tags
    * @param tags Tags to invalidate
    */
   public invalidateByTags(tags: string[]): void {
-    for (const tag of tags) {
-      // Find all cache keys with this tag
-      const pattern = `tags:*`;
-      const tagKeys = this.cacheService.keys(pattern);
-      
-      for (const tagKey of tagKeys) {
-        const cachedTags = this.cacheService.get<string[]>(tagKey);
-        if (cachedTags && cachedTags.includes(tag)) {
-          // Delete the cache entry
-          const cacheKey = tagKey.replace('tags:', '');
-          this.cacheService.delete(cacheKey);
-          // Delete the tag entry
-          this.cacheService.delete(tagKey);
-        }
-      }
-    }
+    // Find all cache keys with the given tags
+    const keys = this.cacheService.getKeysByTags(tags);
+    
+    // Invalidate the cache entries
+    keys.forEach(key => {
+      this.cacheService.delete(key);
+    });
   }
   
   /**
-   * Clear the entire cache
+   * Clear all cached data
    */
   public clearCache(): void {
     this.cacheService.clear();
   }
   
   /**
-   * Invalidate cache entries by URL pattern
+   * Invalidate cached data by URL pattern
    * @param urlPattern URL pattern to match
    */
   public invalidateByUrlPattern(urlPattern: string): void {
-    const pattern = `GET:${API_URL}${urlPattern}*`;
-    this.cacheService.deletePattern(pattern);
+    const cacheKeys = this.cacheService.getAllKeys();
+    
+    cacheKeys.forEach(key => {
+      if (key.includes(urlPattern)) {
+        this.cacheService.delete(key);
+      }
+    });
   }
 }
-
-export default ApiService;
 
 // Export a pre-configured instance for easy use
 export const api = ApiService.getInstance(); 

@@ -168,7 +168,7 @@ const Dashboard: React.FC = () => {
           </Typography>
           
           <Grid container spacing={3}>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
               <Card 
                 sx={{ 
                   p: 2, 
@@ -205,7 +205,7 @@ const Dashboard: React.FC = () => {
               </Card>
             </Grid>
             
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
               <Card 
                 sx={{ 
                   p: 2, 
@@ -242,7 +242,7 @@ const Dashboard: React.FC = () => {
               </Card>
             </Grid>
             
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
               <Card 
                 sx={{ 
                   p: 2, 
@@ -279,7 +279,7 @@ const Dashboard: React.FC = () => {
               </Card>
             </Grid>
             
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
               <Card 
                 sx={{ 
                   p: 2, 
@@ -332,7 +332,7 @@ const Dashboard: React.FC = () => {
             Candidate Statistics
           </Typography>
           <Grid container spacing={3}>
-            <Grid size={{ xs: 12, md: 8 }}>
+            <Grid item xs={12} md={8}>
               <Box sx={{ position: 'relative' }}>
                 {candidates && candidates.length > 0 ? (
                   <CandidateStats 
@@ -349,7 +349,7 @@ const Dashboard: React.FC = () => {
                 )}
               </Box>
             </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
+            <Grid item xs={12} md={4}>
               <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 3 }}>
                 {candidates && candidates.length > 0 ? (
                   <CandidateStats 
@@ -388,7 +388,7 @@ const Dashboard: React.FC = () => {
         </Box>
         
         <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid item xs={12} md={6}>
             <Paper 
               elevation={1} 
               sx={{ 
@@ -456,7 +456,7 @@ const Dashboard: React.FC = () => {
             </Paper>
           </Grid>
           
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid item xs={12} md={6}>
             <Paper 
               elevation={1} 
               sx={{ 
@@ -571,7 +571,7 @@ const Dashboard: React.FC = () => {
             <Divider sx={{ mb: 2 }} />
             
             <Grid container spacing={2}>
-              <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+              <Grid item xs={6} sm={4} md={2}>
                 <Button
                   variant="outlined"
                   startIcon={<DescriptionIcon />}
@@ -588,7 +588,7 @@ const Dashboard: React.FC = () => {
                   Documents
                 </Button>
               </Grid>
-              <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+              <Grid item xs={6} sm={4} md={2}>
                 <Button
                   variant="outlined"
                   startIcon={<SchoolIcon />}
@@ -605,7 +605,7 @@ const Dashboard: React.FC = () => {
                   Skills Gap
                 </Button>
               </Grid>
-              <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+              <Grid item xs={6} sm={4} md={2}>
                 <Button
                   variant="outlined"
                   startIcon={<EmailIcon />}
@@ -622,7 +622,7 @@ const Dashboard: React.FC = () => {
                   Email Campaigns
                 </Button>
               </Grid>
-              <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+              <Grid item xs={6} sm={4} md={2}>
                 <Button
                   variant="outlined"
                   startIcon={<AssignmentIcon />}
@@ -639,7 +639,7 @@ const Dashboard: React.FC = () => {
                   Interview Kits
                 </Button>
               </Grid>
-              <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+              <Grid item xs={6} sm={4} md={2}>
                 <Button
                   variant="outlined"
                   startIcon={<FileIcon />}
@@ -656,7 +656,7 @@ const Dashboard: React.FC = () => {
                   Resume Parser
                 </Button>
               </Grid>
-              <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+              <Grid item xs={6} sm={4} md={2}>
                 <Button
                   variant="outlined"
                   startIcon={<BarChartIcon />}
@@ -697,7 +697,7 @@ const Dashboard: React.FC = () => {
               </Typography>
               
               <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <Grid item xs={12} sm={6} md={4}>
                   <Button
                     variant="contained"
                     color="secondary"
@@ -714,7 +714,7 @@ const Dashboard: React.FC = () => {
                     User Management
                   </Button>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <Grid item xs={12} sm={6} md={4}>
                   <Button
                     variant="contained"
                     color="secondary"
@@ -731,7 +731,7 @@ const Dashboard: React.FC = () => {
                     System Settings
                   </Button>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <Grid item xs={12} sm={6} md={4}>
                   <Button
                     variant="contained"
                     color="secondary"
