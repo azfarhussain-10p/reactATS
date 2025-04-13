@@ -201,4 +201,31 @@
 
 .login-page .container.active .toggle-right {
     transform: translateX(200%);
+}
+
+/* Error message styling */
+.login-page .error-message {
+    color: #d32f2f;
+    margin: 10px 0;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: rgba(211, 47, 47, 0.1);
+    padding: 8px 12px;
+    border-radius: 4px;
+    width: 100%;
+    text-align: center;
+}
+
+/* Demo credentials styling */
+.login-page .demo-credentials {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: rgba(25, 118, 210, 0.1);
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.login-page .demo-credentials p {
+    margin: 5px 0;
+    color: #444;
 } 

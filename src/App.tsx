@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import {
   CssBaseline,
   ThemeProvider,
@@ -18,9 +17,15 @@ import { ResumeParsingProvider } from './contexts/ResumeParsingContext';
 import { AnalyticsProvider } from './contexts/AnalyticsContext';
 import { EmailCampaignProvider } from './contexts/EmailCampaignContext';
 import { FormBuilderProvider } from './contexts/FormBuilderContext';
+import { ATSIntegrationProvider } from './contexts/ATSIntegrationContext';
+import { AdvancedDashboardProvider } from './contexts/AdvancedDashboardContext';
 import AppRoutes from './routes';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const [accessibilitySettings, setAccessibilitySettings] = useState<AccessibilitySettings>(() => {
     // Try to load saved settings from localStorage
     const savedSettings = localStorage.getItem('accessibilitySettings');
@@ -166,25 +171,29 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ScreenReaderAnnouncer />
-      <AdvancedAnalyticsProvider>
-        <CandidateProvider>
-          <JobPostingProvider>
-            <PipelineProvider>
-              <EvaluationProvider>
-                <ResumeParsingProvider>
-                  <AnalyticsProvider>
-                    <EmailCampaignProvider>
-                      <FormBuilderProvider>
-                        <AppRoutes />
-                      </FormBuilderProvider>
-                    </EmailCampaignProvider>
-                  </AnalyticsProvider>
-                </ResumeParsingProvider>
-              </EvaluationProvider>
-            </PipelineProvider>
-          </JobPostingProvider>
-        </CandidateProvider>
-      </AdvancedAnalyticsProvider>
+      <ATSIntegrationProvider>
+        <AdvancedDashboardProvider>
+          <AdvancedAnalyticsProvider>
+            <CandidateProvider>
+              <JobPostingProvider>
+                <PipelineProvider>
+                  <EvaluationProvider>
+                    <ResumeParsingProvider>
+                      <AnalyticsProvider>
+                        <EmailCampaignProvider>
+                          <FormBuilderProvider>
+                            <AppRoutes />
+                          </FormBuilderProvider>
+                        </EmailCampaignProvider>
+                      </AnalyticsProvider>
+                    </ResumeParsingProvider>
+                  </EvaluationProvider>
+                </PipelineProvider>
+              </JobPostingProvider>
+            </CandidateProvider>
+          </AdvancedAnalyticsProvider>
+        </AdvancedDashboardProvider>
+      </ATSIntegrationProvider>
       
       {/* Skip links for keyboard users */}
       <a href="#main-content" className="skip-link">

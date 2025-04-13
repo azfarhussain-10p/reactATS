@@ -25,8 +25,8 @@ import DashboardLayout from '../components/DashboardLayout';
 import { AccessibilitySettings } from '../components/AccessibilityMenu';
 // import Analytics from '../pages/Analytics';
 
-// Force the initial state to false (not authenticated) to ensure login page is shown
-localStorage.removeItem('isAuthenticated');
+// Comment out this line to allow user to stay logged in
+// localStorage.removeItem('isAuthenticated');
 
 const AppRoutes = () => {
   // Get authentication state from localStorage

@@ -36,6 +36,8 @@ import {
   Keyboard as KeyboardIcon,
   Description as DescriptionIcon,
   ChevronLeft as ChevronLeftIcon,
+  BarChart as BarChartIcon,
+  PieChart as PieChartIcon,
 } from '@mui/icons-material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AccessibilitySettings } from './AccessibilityMenu';
@@ -102,13 +104,28 @@ export default function DashboardLayout({
     { text: 'Candidates', icon: <PersonIcon />, path: '/candidates', ariaLabel: 'Navigate to candidates list' },
     { text: 'Job Board', icon: <WorkIcon />, path: '/job-openings', ariaLabel: 'Navigate to job board' },
     { text: 'Interviews', icon: <EventIcon />, path: '/interviews', ariaLabel: 'Navigate to interview scheduler' },
-    { text: 'Reports', icon: <AssessmentIcon />, path: '/reports', ariaLabel: 'Navigate to reports and analytics' },
+    { text: 'Analytics', icon: <BarChartIcon />, path: '/analytics', ariaLabel: 'Navigate to analytics dashboard' },
+    { text: 'Reports', icon: <PieChartIcon />, path: '/reports', ariaLabel: 'Navigate to reports' },
     { text: 'Documents', icon: <DescriptionIcon />, path: '/document-sharing', ariaLabel: 'Navigate to document sharing' },
   ];
 
   const handleAccessibilityChange = (newSettings: AccessibilitySettings) => {
     onAccessibilityChange(newSettings);
     announce("Accessibility settings updated");
+  };
+
+  const handleNavigation = (path: string) => {
+    // This function ensures navigation works consistently across the app
+    navigate(path);
+    
+    // Close mobile drawer if open
+    if (mobileOpen) {
+      setMobileOpen(false);
+    }
+    
+    // Announce the navigation for screen readers
+    const pageName = navigationItems.find(item => item.path === path)?.text || 'Page';
+    announce(`Navigated to ${pageName}`);
   };
 
   const drawer = (
@@ -136,8 +153,7 @@ export default function DashboardLayout({
           return (
             <ListItem key={item.text} disablePadding>
               <ListItemButton 
-                component={Link} 
-                to={item.path}
+                onClick={() => handleNavigation(item.path)}
                 selected={isActive}
                 aria-label={item.ariaLabel}
                 aria-current={isActive ? 'page' : undefined}

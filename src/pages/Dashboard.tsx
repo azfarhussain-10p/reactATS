@@ -38,6 +38,7 @@ import {
   PeopleAlt as PeopleAltIcon,
   ArrowForward as ArrowForwardIcon
 } from '@mui/icons-material';
+import useAnalyticsNavigation from '../hooks/useAnalyticsNavigation';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ const Dashboard: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const { goToAnalytics } = useAnalyticsNavigation();
 
   // Mock data for dashboard
   const upcomingInterviews = [
@@ -272,7 +274,7 @@ const Dashboard: React.FC = () => {
                   },
                   borderRadius: 2
                 }}
-                onClick={() => navigateTo('/analytics')}
+                onClick={() => goToAnalytics()}
               >
                 <CardContent sx={{ flexGrow: 1, textAlign: 'center', p: 3 }}>
                   <Box sx={{
@@ -285,7 +287,7 @@ const Dashboard: React.FC = () => {
                     justifyContent: 'center',
                     margin: '0 auto 16px'
                   }}>
-                    <AssessmentIcon sx={{ fontSize: 40, color: 'primary.main' }} />
+                    <BarChartIcon sx={{ fontSize: 40, color: 'primary.main' }} />
                   </Box>
                   <Typography variant="h6" component="div" gutterBottom>
                     Analytics
@@ -295,7 +297,12 @@ const Dashboard: React.FC = () => {
                   </Typography>
                 </CardContent>
                 <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
-                  <Button size="small" color="primary" endIcon={<ArrowForwardIcon />}>
+                  <Button 
+                    variant="contained" 
+                    color="primary"
+                    onClick={() => goToAnalytics()}
+                    startIcon={<BarChartIcon />}
+                  >
                     View Analytics
                   </Button>
                 </CardActions>

@@ -3,6 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/Login.css';
 import { announce } from '../components/ScreenReaderAnnouncer';
 
+// Safe announce function that won't throw errors
+const safeAnnounce = (message: string, politeness: 'polite' | 'assertive' = 'polite') => {
+  try {
+    announce(message, politeness);
+  } catch (error) {
+    console.log('Screen reader announcement failed:', message);
+  }
+};
+
 function Login() {
   const [isActive, setIsActive] = useState(false);
   const [signInEmail, setSignInEmail] = useState('');
@@ -19,36 +28,42 @@ function Login() {
     // Simple validation
     if (!signInEmail.trim() || !signInPassword.trim()) {
       setError('Email and password are required');
-      announce('Login failed. Email and password are required.', 'assertive');
+      safeAnnounce('Login failed. Email and password are required.', 'assertive');
       return;
     }
     
-    // Admin login
-    if (signInEmail === 'admin@example.com' && signInPassword === 'admin123') {
-      // Set authentication flag
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userRole', 'admin');
-      
-      // Dispatch event for same-tab navigation
-      window.dispatchEvent(new Event('auth-change'));
-      
-      announce('Login successful. Redirecting to dashboard.', 'polite');
-      navigate('/dashboard');
-    } 
-    // Recruiter login
-    else if (signInEmail === 'demo@example.com' && signInPassword === 'password') {
-      // Set authentication flag
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userRole', 'recruiter');
-      
-      // Dispatch event for same-tab navigation
-      window.dispatchEvent(new Event('auth-change'));
-      
-      announce('Login successful. Redirecting to dashboard.', 'polite');
-      navigate('/dashboard');
-    } else {
-      setError('Invalid email or password');
-      announce('Login failed. Invalid email or password.', 'assertive');
+    try {
+      // Admin login
+      if (signInEmail === 'admin@example.com' && signInPassword === 'admin123') {
+        // Set authentication flag
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userRole', 'admin');
+        
+        // Dispatch event for same-tab navigation
+        window.dispatchEvent(new Event('auth-change'));
+        
+        safeAnnounce('Login successful. Redirecting to dashboard.', 'polite');
+        navigate('/dashboard');
+      } 
+      // Recruiter login
+      else if (signInEmail === 'demo@example.com' && signInPassword === 'password') {
+        // Set authentication flag
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userRole', 'recruiter');
+        
+        // Dispatch event for same-tab navigation
+        window.dispatchEvent(new Event('auth-change'));
+        
+        safeAnnounce('Login successful. Redirecting to dashboard.', 'polite');
+        navigate('/dashboard');
+      } else {
+        setError('Invalid email or password');
+        safeAnnounce('Login failed. Invalid email or password.', 'assertive');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('An error occurred during login. Please try again.');
+      safeAnnounce('Login failed. An error occurred.', 'assertive');
     }
   };
 
@@ -58,15 +73,21 @@ function Login() {
     // Simple validation
     if (!signUpName.trim() || !signUpEmail.trim() || !signUpPassword.trim()) {
       setError('All fields are required for registration');
-      announce('Registration failed. All fields are required.', 'assertive');
+      safeAnnounce('Registration failed. All fields are required.', 'assertive');
       return;
     }
     
-    // In a real app, would call API to register
-    // Mock successful registration
-    setError('');
-    announce('Registration successful. You can now sign in.', 'polite');
-    setIsActive(false);
+    try {
+      // In a real app, would call API to register
+      // Mock successful registration
+      setError('');
+      safeAnnounce('Registration successful. You can now sign in.', 'polite');
+      setIsActive(false);
+    } catch (error) {
+      console.error('Registration error:', error);
+      setError('An error occurred during registration. Please try again.');
+      safeAnnounce('Registration failed. An error occurred.', 'assertive');
+    }
   };
 
   return (
@@ -82,13 +103,14 @@ function Login() {
               <a href="#" className="icon"><i className="fa-brands fa-linkedin-in"></i></a>
             </div>
             <span>or use your email for registration</span>
-            {error && <div className="error-message">{error}</div>}
+            {error && <div className="error-message" role="alert">{error}</div>}
             <input 
               type="text" 
               placeholder="Name" 
               value={signUpName}
               onChange={(e) => setSignUpName(e.target.value)}
               required
+              aria-label="Name"
             />
             <input 
               type="email" 
@@ -96,6 +118,7 @@ function Login() {
               value={signUpEmail}
               onChange={(e) => setSignUpEmail(e.target.value)}
               required
+              aria-label="Email"
             />
             <input 
               type="password" 
@@ -103,10 +126,12 @@ function Login() {
               value={signUpPassword}
               onChange={(e) => setSignUpPassword(e.target.value)}
               required
+              aria-label="Password"
             />
             <button type="submit">Sign Up</button>
           </form>
         </div>
+        
         <div className="form-container sign-in">
           <form onSubmit={handleSignIn}>
             <h1>Sign In</h1>
@@ -117,13 +142,14 @@ function Login() {
               <a href="#" className="icon"><i className="fa-brands fa-linkedin-in"></i></a>
             </div>
             <span>or use your email password</span>
-            {error && <div className="error-message">{error}</div>}
+            {error && <div className="error-message" role="alert">{error}</div>}
             <input 
               type="email" 
               placeholder="Email" 
               value={signInEmail}
               onChange={(e) => setSignInEmail(e.target.value)}
               required
+              aria-label="Email"
             />
             <input 
               type="password" 
@@ -131,6 +157,7 @@ function Login() {
               value={signInPassword}
               onChange={(e) => setSignInPassword(e.target.value)}
               required
+              aria-label="Password"
             />
             <a href="#">Forget Your Password?</a>
             <button type="submit">Sign In</button>
@@ -140,6 +167,7 @@ function Login() {
             </div>
           </form>
         </div>
+        
         <div className="toggle-container">
           <div className="toggle">
             <div className="toggle-panel toggle-left">
