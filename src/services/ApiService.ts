@@ -1,10 +1,12 @@
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import CacheService from './CacheService';
+import { saveFormForLater } from '../utils/offlineFormHandler';
 
 // API configuration
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const CACHE_ENABLED = import.meta.env.VITE_CACHE_ENABLED !== 'false';
 const DEFAULT_CACHE_TTL = 300; // 5 minutes in seconds
+const OFFLINE_ENABLED = import.meta.env.VITE_OFFLINE_ENABLED !== 'false';
 
 // Configurable cache options
 interface CacheOptions {
@@ -18,6 +20,14 @@ interface CacheOptions {
 // Request configuration with cache options
 interface ApiRequestConfig extends AxiosRequestConfig {
   cache?: CacheOptions;
+  enableOfflineSupport?: boolean;
+}
+
+// Response wrapper for offline-queued requests
+interface OfflineQueuedResponse {
+  success: boolean;
+  offlineQueued: boolean;
+  message: string;
 }
 
 class ApiService {
@@ -113,7 +123,7 @@ class ApiService {
    * @returns Promise that resolves to the response data
    */
   public async request<T>(config: ApiRequestConfig): Promise<T> {
-    const { cache, ...axiosConfig } = config;
+    const { cache, enableOfflineSupport = OFFLINE_ENABLED, ...axiosConfig } = config;
     const cacheEnabled = cache?.enabled ?? CACHE_ENABLED;
     const cacheTTL = cache?.ttl ?? DEFAULT_CACHE_TTL;
     const method = (axiosConfig.method || 'GET').toUpperCase();
@@ -158,6 +168,13 @@ class ApiService {
         .catch((error) => {
           // Remove from pending requests
           this.pendingRequests.delete(cacheKey);
+          
+          // If it's a network error and we're offline, we might be able to serve from cache even for non-GET
+          if (!navigator.onLine && error.message === 'Network Error' && cachedData) {
+            console.warn('Offline mode: Serving cached data even though it might be stale');
+            return cachedData;
+          }
+          
           throw error;
         });
       
@@ -167,15 +184,46 @@ class ApiService {
       return requestPromise;
     }
     
-    // Non-cached request
-    const response = await axios(axiosConfig);
-    
-    // Invalidate cache tags if specified
-    if (cache?.invalidateTags && cache.invalidateTags.length > 0) {
-      this.invalidateByTags(cache.invalidateTags);
+    try {
+      // Try the normal request
+      const response = await axios(axiosConfig);
+      
+      // Invalidate cache tags if specified
+      if (cache?.invalidateTags && cache.invalidateTags.length > 0) {
+        this.invalidateByTags(cache.invalidateTags);
+      }
+      
+      return response.data;
+    } catch (error) {
+      // If we're offline and this is a modifying request, save it for later
+      if (
+        enableOfflineSupport && 
+        !navigator.onLine && 
+        method !== 'GET' &&
+        (!error.response || error.message === 'Network Error')
+      ) {
+        console.log(`Offline mode: Queueing ${method} request to ${axiosConfig.url} for later submission`);
+        
+        // Save the request for later processing
+        const headers = { ...(axiosConfig.headers as Record<string, string> || {}) };
+        await saveFormForLater(
+          axiosConfig.url || '',
+          method,
+          headers,
+          axiosConfig.data
+        );
+        
+        // Return a specially formatted response that indicates this was queued
+        return {
+          success: true,
+          offlineQueued: true,
+          message: 'Your request has been saved and will be submitted when you are back online'
+        } as unknown as T;
+      }
+      
+      // For other errors, just rethrow
+      throw error;
     }
-    
-    return response.data;
   }
   
   /**

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're Offline - ATS Application</title>
+  <style>
+    :root {
+      --primary-color: #3f51b5;
+      --secondary-color: #f50057;
+      --background-color: #f5f5f5;
+      --text-color: #333;
+      --light-gray: #e0e0e0;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .container {
+      max-width: 600px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      margin-bottom: 20px;
+    }
+    
+    h1 {
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      font-size: 2rem;
+    }
+    
+    .icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+    }
+    
+    p {
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+    
+    .button {
+      display: inline-block;
+      background-color: var(--primary-color);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.3s;
+      border: none;
+      cursor: pointer;
+      margin: 8px;
+    }
+    
+    .button:hover {
+      background-color: #303f9f;
+    }
+    
+    .button.secondary {
+      background-color: var(--light-gray);
+      color: var(--text-color);
+    }
+    
+    .button.secondary:hover {
+      background-color: #d5d5d5;
+    }
+    
+    .feature-list {
+      text-align: left;
+      margin: 20px 0;
+    }
+    
+    .feature-list li {
+      margin-bottom: 10px;
+      list-style-type: none;
+      padding-left: 25px;
+      position: relative;
+    }
+    
+    .feature-list li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--primary-color);
+    }
+    
+    .footer {
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: #666;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📶</div>
+    <h1>You're Offline</h1>
+    <p>It seems you're not connected to the internet right now, but don't worry. Our ATS application can still work with limited functionality.</p>
+    
+    <div class="feature-list">
+      <p><strong>While offline, you can still:</strong></p>
+      <ul>
+        <li>Access previously viewed pages</li>
+        <li>Review cached candidate profiles</li>
+        <li>View saved job postings</li>
+        <li>Work with any forms you've previously opened</li>
+      </ul>
+    </div>
+    
+    <p>Connect to the internet to access all features and sync your changes.</p>
+    
+    <div>
+      <button class="button" onclick="window.location.reload()">Try Again</button>
+      <button class="button secondary" onclick="window.history.back()">Go Back</button>
+    </div>
+  </div>
+  
+  <div class="footer">
+    ATS Application - Offline Mode
+  </div>
+
+  <script>
+    // Check if we're back online
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+    
+    // Try to access home page if it's cached
+    document.querySelector('.button.secondary').addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      // Try to navigate home if back doesn't make sense
+      if (window.history.length <= 1) {
+        window.location.href = '/';
+        return;
+      }
+      
+      window.history.back();
+    });
+  </script>
+</body>
+</html> 

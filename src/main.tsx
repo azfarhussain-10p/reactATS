@@ -13,9 +13,13 @@ import { ResumeParsingProvider } from './contexts/ResumeParsingContext'
 import { StructuredInterviewKitProvider } from './contexts/StructuredInterviewKitContext'
 import { CollaborationProvider } from './contexts/CollaborationContext'
 import ScreenReaderAnnouncer from './components/ScreenReaderAnnouncer'
+import { setupOfflineFormSync } from './utils/offlineFormHandler'
 
 const container = document.getElementById('root')
 const root = createRoot(container!)
+
+// Initialize offline form synchronization
+setupOfflineFormSync()
 
 root.render(
   <StrictMode>
@@ -43,3 +47,25 @@ root.render(
     </BrowserRouter>
   </StrictMode>,
 )
+
+// Register Service Worker for PWA support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('Service Worker registered with scope:', registration.scope);
+      })
+      .catch(error => {
+        console.error('Service Worker registration failed:', error);
+      });
+  });
+
+  // Handle SW updates
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
+  });
+}

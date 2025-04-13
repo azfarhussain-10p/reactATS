@@ -45,7 +45,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AccessibilitySettings } from './AccessibilityMenu';
 import AccessibilityMenu from './AccessibilityMenu';
 import KeyboardShortcutsHelp from './KeyboardShortcutsHelp';
-import { announce } from './ScreenReaderAnnouncer';
+import OnlineStatusIndicator from './OnlineStatusIndicator';
+import { announce, disableAnnouncementsTemporarily } from './ScreenReaderAnnouncer';
 
 const drawerWidth = 240;
 const collapsedDrawerWidth = 60;
@@ -89,11 +90,22 @@ export default function DashboardLayout({
 
   const handleLogout = () => {
     handleUserMenuClose();
+    
+    // Temporarily disable other announcements during logout
+    disableAnnouncementsTemporarily(3000);
+    
+    // Clear auth data
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userRole');
+    
+    // Trigger auth change event and navigate
     window.dispatchEvent(new Event('auth-change'));
     navigate('/login');
-    announce("You have been logged out");
+    
+    // Announce logout after a short delay to ensure it's the only announcement
+    setTimeout(() => {
+      announce("You have been logged out");
+    }, 100);
   };
 
   const handleSettingsClick = () => {
@@ -219,6 +231,7 @@ export default function DashboardLayout({
           </Typography>
           
           <Box sx={{ display: 'flex', mr: 2 }}>
+            <OnlineStatusIndicator />
             <AccessibilityMenu 
               onChange={handleAccessibilityChange} 
               initialSettings={accessibilitySettings} 
