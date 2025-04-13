@@ -14,6 +14,8 @@ node_modules
 
 # Testing
 /coverage
+/cypress/videos/
+/cypress/screenshots/
 
 # Production
 /build
@@ -21,7 +23,7 @@ dist
 dist-ssr
 *.local
 
-# Misc
+# Environment variables
 .env
 .env.local
 .env.development.local
@@ -40,6 +42,24 @@ dist-ssr
 *.sln
 *.sw?
 
-# Cache
-.eslintcache
+# Misc
 .cache
+.project
+.settings
+.tmproj
+*.esproj
+*.sublime-project
+*.sublime-workspace
+.history/
+
+# Package managers
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.yarn-integrity
+.npm
+.yarn
+.pnpm-store/
+
+# TypeScript
+*.tsbuildinfo

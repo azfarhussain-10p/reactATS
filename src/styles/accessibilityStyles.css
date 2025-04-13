@@ -1,0 +1,190 @@
+/* Global Accessibility Variables */
+:root {
+  --font-size-multiplier: 1;
+  --transition-duration: 0.3s;
+  --focus-outline-color: #1976d2;
+  --high-contrast-bg: #ffffff;
+  --high-contrast-text: #000000;
+  --high-contrast-primary: #0000EE;
+  --high-contrast-secondary: #551A8B;
+  --high-contrast-error: #B22222;
+  --high-contrast-success: #008000;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  --mui-palette-primary-main: var(--high-contrast-primary);
+  --mui-palette-secondary-main: var(--high-contrast-secondary);
+  --mui-palette-error-main: var(--high-contrast-error);
+  --mui-palette-success-main: var(--high-contrast-success);
+}
+
+.high-contrast .MuiPaper-root {
+  background-color: var(--high-contrast-bg);
+  color: var(--high-contrast-text);
+  border: 1px solid #000000;
+}
+
+.high-contrast .MuiTableCell-root {
+  border-color: #000000;
+}
+
+.high-contrast .MuiChip-outlined {
+  border-width: 2px;
+}
+
+.high-contrast .MuiButton-outlined {
+  border-width: 2px;
+}
+
+.high-contrast .MuiLinearProgress-bar {
+  border-radius: 3px;
+}
+
+/* Large Text Mode */
+.large-text {
+  font-size: calc(1rem * var(--font-size-multiplier));
+}
+
+.large-text h1 {
+  font-size: calc(2.125rem * var(--font-size-multiplier));
+}
+
+.large-text h2 {
+  font-size: calc(1.875rem * var(--font-size-multiplier));
+}
+
+.large-text h3 {
+  font-size: calc(1.5rem * var(--font-size-multiplier));
+}
+
+.large-text h4 {
+  font-size: calc(1.25rem * var(--font-size-multiplier));
+}
+
+.large-text h5 {
+  font-size: calc(1.125rem * var(--font-size-multiplier));
+}
+
+.large-text h6 {
+  font-size: calc(1rem * var(--font-size-multiplier));
+}
+
+.large-text .MuiButton-root {
+  font-size: calc(0.875rem * var(--font-size-multiplier));
+}
+
+.large-text .MuiChip-root {
+  font-size: calc(0.8125rem * var(--font-size-multiplier));
+}
+
+.large-text .MuiMenuItem-root {
+  font-size: calc(1rem * var(--font-size-multiplier));
+}
+
+/* Keyboard Focus Indicators */
+.keyboard-focus-visible :focus-visible {
+  outline: 3px solid var(--focus-outline-color);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip Links */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #000;
+  color: white;
+  padding: 8px;
+  z-index: 9999;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.001s !important;
+    animation-duration: 0.001s !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body.reduced-motion * {
+  transition-duration: 0.001s !important;
+  animation-duration: 0.001s !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+}
+
+/* ARIA Announcement Container */
+.sr-only-announcement {
+  position: absolute;
+  height: 1px;
+  width: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Styles for screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Improved focus styling for data tables */
+.accessible-table .MuiTableRow-root:focus-within {
+  background-color: rgba(25, 118, 210, 0.08);
+}
+
+.accessible-table .MuiTableCell-root:focus-within {
+  background-color: rgba(25, 118, 210, 0.12);
+}
+
+/* Improve contrast for disabled elements */
+.high-contrast .Mui-disabled {
+  color: #666666 !important;
+  opacity: 0.8;
+}
+
+/* Ensure form controls have sufficient spacing */
+.accessible-form .MuiFormControl-root {
+  margin-bottom: 16px;
+}
+
+/* Improve tap target sizes on mobile */
+@media (max-width: 600px) {
+  .accessible-ui .MuiButtonBase-root {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  .accessible-ui .MuiIconButton-root {
+    padding: 12px;
+  }
+  
+  .accessible-ui .MuiListItem-root {
+    min-height: 48px;
+  }
+}
+
+/* Ensure links have underlines for better visibility */
+.high-contrast a:not(.MuiButton-root):not(.MuiIconButton-root) {
+  text-decoration: underline;
+} 
