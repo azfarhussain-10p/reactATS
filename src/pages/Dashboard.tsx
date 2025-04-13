@@ -334,41 +334,54 @@ const Dashboard: React.FC = () => {
                   <ListItem
                     key={interview.id}
                     disablePadding
-                    secondaryAction={
-                      <Chip 
-                        label={`${interview.time}, ${interview.date}`} 
-                        size="small" 
-                        variant="outlined"
-                        sx={{ ml: 1 }}
-                      />
-                    }
                     sx={{ 
                       mb: 1.5, 
                       p: 1.5, 
                       backgroundColor: 'background.paper', 
                       borderRadius: 1,
                       boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                      '&:hover': { backgroundColor: '#f8f9fa' }
+                      '&:hover': { backgroundColor: '#f8f9fa' },
+                      flexDirection: 'column',
+                      alignItems: 'flex-start'
                     }}
                   >
-                    <ListItemIcon sx={{ minWidth: { xs: 42, sm: 52 } }}>
-                      <Avatar sx={{ bgcolor: 'primary.light', width: 40, height: 40 }}>
+                    <Box sx={{ 
+                      display: 'flex',
+                      width: '100%',
+                      alignItems: 'center',
+                      mb: 1
+                    }}>
+                      <Avatar sx={{ 
+                        bgcolor: 'primary.light', 
+                        width: 40, 
+                        height: 40,
+                        mr: 2
+                      }}>
                         {interview.candidateName.charAt(0)}
                       </Avatar>
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={
+                      <Box sx={{ 
+                        flexGrow: 1,
+                        overflow: 'hidden'
+                      }}>
                         <Typography variant="body1" fontWeight="500" noWrap>
                           {interview.candidateName}
                         </Typography>
-                      }
-                      secondary={
                         <Typography variant="body2" color="text.secondary" noWrap>
                           {interview.position}
                         </Typography>
-                      }
-                      sx={{ my: 0 }}
-                    />
+                      </Box>
+                    </Box>
+                    <Box sx={{ 
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'flex-end'
+                    }}>
+                      <Chip 
+                        label={`${interview.time}, ${interview.date}`} 
+                        size="small" 
+                        variant="outlined"
+                      />
+                    </Box>
                   </ListItem>
                 ))}
               </List>
@@ -410,42 +423,55 @@ const Dashboard: React.FC = () => {
                   <ListItem
                     key={candidate.id}
                     disablePadding
-                    secondaryAction={
-                      <Chip 
-                        label={candidate.status} 
-                        size="small" 
-                        color="primary" 
-                        variant="outlined"
-                        sx={{ ml: 1 }}
-                      />
-                    }
                     sx={{ 
                       mb: 1.5, 
                       p: 1.5, 
                       backgroundColor: 'background.paper', 
                       borderRadius: 1,
                       boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                      '&:hover': { backgroundColor: '#f8f9fa' }
+                      '&:hover': { backgroundColor: '#f8f9fa' },
+                      flexDirection: 'column',
+                      alignItems: 'flex-start'
                     }}
                   >
-                    <ListItemIcon sx={{ minWidth: { xs: 42, sm: 52 } }}>
-                      <Avatar sx={{ bgcolor: 'secondary.light', width: 40, height: 40 }}>
+                    <Box sx={{ 
+                      display: 'flex',
+                      width: '100%',
+                      alignItems: 'center',
+                      mb: 1
+                    }}>
+                      <Avatar sx={{ 
+                        bgcolor: 'secondary.light', 
+                        width: 40, 
+                        height: 40,
+                        mr: 2
+                      }}>
                         {candidate.name.charAt(0)}
                       </Avatar>
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={
+                      <Box sx={{ 
+                        flexGrow: 1,
+                        overflow: 'hidden'
+                      }}>
                         <Typography variant="body1" fontWeight="500" noWrap>
                           {candidate.name}
                         </Typography>
-                      }
-                      secondary={
                         <Typography variant="body2" color="text.secondary" noWrap>
                           {candidate.position}
                         </Typography>
-                      }
-                      sx={{ my: 0 }}
-                    />
+                      </Box>
+                    </Box>
+                    <Box sx={{ 
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'flex-end'
+                    }}>
+                      <Chip 
+                        label={candidate.status} 
+                        size="small" 
+                        color="primary" 
+                        variant="outlined"
+                      />
+                    </Box>
                   </ListItem>
                 ))}
               </List>
@@ -487,50 +513,55 @@ const Dashboard: React.FC = () => {
                   <ListItem
                     key={job.id}
                     disablePadding
-                    secondaryAction={
-                      <Chip 
-                        label={`${job.applicants} applicants`} 
-                        size="small" 
-                        color="success" 
-                        variant="outlined"
-                        sx={{ ml: 1 }}
-                      />
-                    }
                     sx={{ 
                       mb: 1.5, 
                       p: 1.5, 
                       backgroundColor: 'background.paper', 
                       borderRadius: 1,
                       boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                      '&:hover': { backgroundColor: '#f8f9fa' }
+                      '&:hover': { backgroundColor: '#f8f9fa' },
+                      flexDirection: 'column',
+                      alignItems: 'flex-start'
                     }}
                   >
-                    <ListItemIcon sx={{ minWidth: { xs: 42, sm: 52 } }}>
-                      <Box sx={{
-                        bgcolor: 'success.lighter',
-                        width: 40,
+                    <Box sx={{ 
+                      display: 'flex',
+                      width: '100%',
+                      alignItems: 'center',
+                      mb: 1
+                    }}>
+                      <Avatar sx={{ 
+                        bgcolor: 'success.light', 
+                        width: 40, 
                         height: 40,
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
+                        mr: 2
                       }}>
-                        <WorkIcon sx={{ color: 'success.main' }} />
-                      </Box>
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={
+                        <WorkIcon />
+                      </Avatar>
+                      <Box sx={{ 
+                        flexGrow: 1,
+                        overflow: 'hidden'
+                      }}>
                         <Typography variant="body1" fontWeight="500" noWrap>
                           {job.title}
                         </Typography>
-                      }
-                      secondary={
                         <Typography variant="body2" color="text.secondary" noWrap>
                           {job.department}
                         </Typography>
-                      }
-                      sx={{ my: 0 }}
-                    />
+                      </Box>
+                    </Box>
+                    <Box sx={{ 
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'flex-end'
+                    }}>
+                      <Chip 
+                        label={`${job.applicants} applicants`} 
+                        size="small" 
+                        color="success" 
+                        variant="outlined"
+                      />
+                    </Box>
                   </ListItem>
                 ))}
               </List>
