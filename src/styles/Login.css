@@ -216,6 +216,19 @@
     text-align: center;
 }
 
+/* Success message styling */
+.login-page .success-message {
+    color: #388e3c;
+    margin: 10px 0;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: rgba(56, 142, 60, 0.1);
+    padding: 8px 12px;
+    border-radius: 4px;
+    width: 100%;
+    text-align: center;
+}
+
 /* Demo credentials styling */
 .login-page .demo-credentials {
     margin-top: 15px;
@@ -228,4 +241,79 @@
 .login-page .demo-credentials p {
     margin: 5px 0;
     color: #444;
+}
+
+/* Register page container */
+.login-page .register-container {
+    width: 450px;
+    min-height: 580px;
+}
+
+.login-page .register-form {
+    width: 100%;
+    position: relative;
+}
+
+/* Forgot and Reset Password containers */
+.login-page .forgot-password-container,
+.login-page .reset-password-container {
+    width: 450px;
+    min-height: 380px;
+}
+
+.login-page .forgot-password-form,
+.login-page .reset-password-form {
+    width: 100%;
+    position: relative;
+}
+
+.login-page .form-description {
+    color: #555;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-page .form-links {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.login-page .button-link {
+    display: inline-block;
+    background-color: #512da8;
+    color: white !important;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.login-page .token-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    text-align: center;
+}
+
+/* Disabled button styling */
+.login-page .container button:disabled {
+    background-color: #9e9e9e;
+    cursor: not-allowed;
+}
+
+/* Login link on register page */
+.login-page .login-link {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.login-page .login-link a {
+    color: #512da8;
+    font-weight: 600;
 } 

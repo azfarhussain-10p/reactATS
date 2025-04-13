@@ -55,6 +55,7 @@ import {
   ArrowDropDown as ArrowDropDownIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import CandidateStats from '../components/CandidateStats';
 
 // Mock data for candidates
 interface Candidate {
@@ -620,142 +621,152 @@ const CandidatesList: React.FC = () => {
         </CardContent>
       </Card>
       
-      <TableContainer component={Paper}>
-        <Table aria-label="candidates table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Candidate</TableCell>
-              <TableCell>Position</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Stage</TableCell>
-              <TableCell>Applied Date</TableCell>
-              <TableCell>Source</TableCell>
-              <TableCell>Skills</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredCandidates
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((candidate) => (
-                <TableRow 
-                  hover 
-                  key={candidate.id}
-                  onClick={() => navigate(`/candidates/${candidate.id}`)}
-                  sx={{ 
-                    cursor: 'pointer',
-                    '&:hover': {
-                      backgroundColor: '#f5f5f5',
-                    }
-                  }}
-                >
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
-                        {candidate.imageUrl ? 
-                          <img src={candidate.imageUrl} alt={candidate.name} style={{ width: '100%', height: '100%' }} /> : 
-                          candidate.name.charAt(0)
-                        }
-                      </Avatar>
-                      <Box>
-                        <Typography variant="body1" fontWeight="500">
-                          {candidate.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {candidate.email}
-                        </Typography>
+      {/* Candidate Stats Overview */}
+      <Box sx={{ mb: 3 }}>
+        <CandidateStats 
+          variant="compact"
+          selectedStatus={statusFilter === 'all' ? 'all' : statusFilter as CandidateStatus}
+        />
+      </Box>
+      
+      <Paper elevation={1} sx={{ p: 0, borderRadius: 2, overflow: 'hidden', height: 'calc(100vh - 340px)' }}>
+        <TableContainer component={Paper}>
+          <Table aria-label="candidates table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Candidate</TableCell>
+                <TableCell>Position</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Stage</TableCell>
+                <TableCell>Applied Date</TableCell>
+                <TableCell>Source</TableCell>
+                <TableCell>Skills</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredCandidates
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((candidate) => (
+                  <TableRow 
+                    hover 
+                    key={candidate.id}
+                    onClick={() => navigate(`/candidates/${candidate.id}`)}
+                    sx={{ 
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: '#f5f5f5',
+                      }
+                    }}
+                  >
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
+                          {candidate.imageUrl ? 
+                            <img src={candidate.imageUrl} alt={candidate.name} style={{ width: '100%', height: '100%' }} /> : 
+                            candidate.name.charAt(0)
+                          }
+                        </Avatar>
+                        <Box>
+                          <Typography variant="body1" fontWeight="500">
+                            {candidate.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {candidate.email}
+                          </Typography>
+                        </Box>
                       </Box>
-                    </Box>
-                  </TableCell>
-                  <TableCell>{candidate.position}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={candidate.status} 
-                      size="small" 
-                      color={(statusColors[candidate.status] as any) || 'default'}
-                      variant={candidate.status === 'New' ? 'outlined' : 'filled'}
-                    />
-                  </TableCell>
-                  <TableCell>{candidate.stage}</TableCell>
-                  <TableCell>{new Date(candidate.appliedDate).toLocaleDateString()}</TableCell>
-                  <TableCell>{candidate.source}</TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={0.5} flexWrap="wrap">
-                      {candidate.skills.slice(0, 2).map((skill, index) => (
-                        <Chip 
-                          key={index} 
-                          label={skill} 
-                          size="small" 
-                          variant="outlined"
-                        />
-                      ))}
-                      {candidate.skills.length > 2 && (
-                        <Chip 
-                          label={`+${candidate.skills.length - 2}`} 
-                          size="small" 
-                          variant="outlined"
-                        />
-                      )}
-                    </Stack>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <Tooltip title="View Profile">
+                    </TableCell>
+                    <TableCell>{candidate.position}</TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={candidate.status} 
+                        size="small" 
+                        color={(statusColors[candidate.status] as any) || 'default'}
+                        variant={candidate.status === 'New' ? 'outlined' : 'filled'}
+                      />
+                    </TableCell>
+                    <TableCell>{candidate.stage}</TableCell>
+                    <TableCell>{new Date(candidate.appliedDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{candidate.source}</TableCell>
+                    <TableCell>
+                      <Stack direction="row" spacing={0.5} flexWrap="wrap">
+                        {candidate.skills.slice(0, 2).map((skill, index) => (
+                          <Chip 
+                            key={index} 
+                            label={skill} 
+                            size="small" 
+                            variant="outlined"
+                          />
+                        ))}
+                        {candidate.skills.length > 2 && (
+                          <Chip 
+                            label={`+${candidate.skills.length - 2}`} 
+                            size="small" 
+                            variant="outlined"
+                          />
+                        )}
+                      </Stack>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Tooltip title="View Profile">
+                          <IconButton 
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/candidates/${candidate.id}`);
+                            }}
+                          >
+                            <VisibilityIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Schedule Interview">
+                          <IconButton 
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/interviews/schedule/${candidate.id}`);
+                            }}
+                          >
+                            <AssignmentIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                         <IconButton 
                           size="small"
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/candidates/${candidate.id}`);
+                            handleMenuOpen(e, candidate.id);
                           }}
                         >
-                          <VisibilityIcon fontSize="small" />
+                          <MoreVertIcon fontSize="small" />
                         </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Schedule Interview">
-                        <IconButton 
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/interviews/schedule/${candidate.id}`);
-                          }}
-                        >
-                          <AssignmentIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <IconButton 
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleMenuOpen(e, candidate.id);
-                        }}
-                      >
-                        <MoreVertIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              
+              {filteredCandidates.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={8} align="center">
+                    No candidates found matching your criteria
                   </TableCell>
                 </TableRow>
-              ))}
-              
-            {filteredCandidates.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={8} align="center">
-                  No candidates found matching your criteria
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-        
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={filteredCandidates.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </TableContainer>
+              )}
+            </TableBody>
+          </Table>
+          
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={filteredCandidates.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </TableContainer>
+      </Paper>
       
       {/* Action Menu - With added animations */}
       <div

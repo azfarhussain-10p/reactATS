@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import '../styles/Login.css';
 import { announce } from '../components/ScreenReaderAnnouncer';
+import { useAuth } from '../contexts/AuthContext';
 
 // Safe announce function that won't throw errors
 const safeAnnounce = (message: string, politeness: 'polite' | 'assertive' = 'polite') => {
@@ -21,8 +22,9 @@ function Login() {
   const [signUpPassword, setSignUpPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login, register } = useAuth();
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Simple validation
@@ -33,27 +35,9 @@ function Login() {
     }
     
     try {
-      // Admin login
-      if (signInEmail === 'admin@example.com' && signInPassword === 'admin123') {
-        // Set authentication flag
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userRole', 'admin');
-        
-        // Dispatch event for same-tab navigation
-        window.dispatchEvent(new Event('auth-change'));
-        
-        safeAnnounce('Login successful. Redirecting to dashboard.', 'polite');
-        navigate('/dashboard');
-      } 
-      // Recruiter login
-      else if (signInEmail === 'demo@example.com' && signInPassword === 'password') {
-        // Set authentication flag
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userRole', 'recruiter');
-        
-        // Dispatch event for same-tab navigation
-        window.dispatchEvent(new Event('auth-change'));
-        
+      const success = await login(signInEmail, signInPassword);
+      
+      if (success) {
         safeAnnounce('Login successful. Redirecting to dashboard.', 'polite');
         navigate('/dashboard');
       } else {
@@ -67,7 +51,7 @@ function Login() {
     }
   };
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Simple validation
@@ -78,11 +62,20 @@ function Login() {
     }
     
     try {
-      // In a real app, would call API to register
-      // Mock successful registration
-      setError('');
-      safeAnnounce('Registration successful. You can now sign in.', 'polite');
-      setIsActive(false);
+      const success = await register({
+        email: signUpEmail,
+        password: signUpPassword,
+        firstName: signUpName.split(' ')[0],
+        lastName: signUpName.split(' ').slice(1).join(' ') || '',
+      });
+      
+      if (success) {
+        safeAnnounce('Registration successful. Redirecting to dashboard.', 'polite');
+        navigate('/dashboard');
+      } else {
+        setError('Registration failed. Please try again.');
+        safeAnnounce('Registration failed. Please try again.', 'assertive');
+      }
     } catch (error) {
       console.error('Registration error:', error);
       setError('An error occurred during registration. Please try again.');
@@ -159,7 +152,7 @@ function Login() {
               required
               aria-label="Password"
             />
-            <a href="#">Forget Your Password?</a>
+            <Link to="/forgot-password">Forgot Your Password?</Link>
             <button type="submit">Sign In</button>
             <div className="demo-credentials">
               <p>Admin: admin@example.com / admin123</p>

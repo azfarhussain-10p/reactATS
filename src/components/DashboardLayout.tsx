@@ -22,6 +22,8 @@ import {
   Avatar,
   Menu,
   MenuItem,
+  Grow,
+  Fade,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -96,7 +98,8 @@ export default function DashboardLayout({
 
   const handleSettingsClick = () => {
     handleUserMenuClose();
-    announce("Settings opened");
+    navigate('/settings');
+    announce("Settings page opened");
   };
 
   const navigationItems = [
@@ -233,6 +236,17 @@ export default function DashboardLayout({
               aria-haspopup="true"
               aria-expanded={isMenuOpen ? 'true' : undefined}
               color="inherit"
+              sx={{
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                  boxShadow: '0 0 10px rgba(255,255,255,0.5)',
+                },
+                ...(isMenuOpen && {
+                  transform: 'scale(1.1)',
+                  boxShadow: '0 0 10px rgba(255,255,255,0.5)',
+                })
+              }}
             >
               <Avatar sx={{ width: 32, height: 32 }}>HR</Avatar>
             </IconButton>
@@ -245,18 +259,106 @@ export default function DashboardLayout({
             MenuListProps={{
               'aria-labelledby': 'user-menu-button',
             }}
+            TransitionComponent={Grow}
+            TransitionProps={{ 
+              timeout: {
+                enter: 200,
+                exit: 150
+              } 
+            }}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            PaperProps={{
+              elevation: 8,
+              sx: {
+                bgcolor: 'background.paper',
+                color: 'text.primary',
+                boxShadow: 6,
+                minWidth: 180,
+                overflow: 'visible',
+                filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.2))',
+                mt: 1.5,
+                '&:before': {
+                  content: '""',
+                  display: 'block',
+                  position: 'absolute',
+                  top: 0,
+                  right: 14,
+                  width: 10,
+                  height: 10,
+                  bgcolor: 'background.paper',
+                  transform: 'translateY(-50%) rotate(45deg)',
+                  zIndex: 0,
+                },
+                '& .MuiTypography-root': {
+                  color: 'text.primary',
+                  fontWeight: 'medium',
+                  display: 'block'
+                },
+                '& .MuiMenuItem-root': {
+                  py: 1.5,
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    transition: 'background-color 0.2s ease'
+                  }
+                }
+              }
+            }}
           >
-            <MenuItem onClick={handleSettingsClick}>
+            <MenuItem 
+              onClick={handleSettingsClick} 
+              sx={{ 
+                color: 'text.primary',
+                animation: 'fadeIn 0.3s ease-in-out forwards',
+                '@keyframes fadeIn': {
+                  '0%': {
+                    opacity: 0,
+                    transform: 'translateY(-8px)'
+                  },
+                  '100%': {
+                    opacity: 1,
+                    transform: 'translateY(0)'
+                  }
+                }
+              }}
+            >
               <ListItemIcon>
-                <SettingsIcon fontSize="small" />
+                <SettingsIcon fontSize="small" color="primary" />
               </ListItemIcon>
-              <ListItemText>Settings</ListItemText>
+              <Typography variant="body1" sx={{ display: 'inline-block', color: 'text.primary', ml: 1 }}>
+                Settings
+              </Typography>
             </MenuItem>
-            <MenuItem onClick={handleLogout}>
+            <MenuItem 
+              onClick={handleLogout} 
+              sx={{ 
+                color: 'text.primary',
+                animation: 'fadeIn 0.3s ease-in-out forwards',
+                animationDelay: '0.1s',
+                '@keyframes fadeIn': {
+                  '0%': {
+                    opacity: 0,
+                    transform: 'translateY(-8px)'
+                  },
+                  '100%': {
+                    opacity: 1,
+                    transform: 'translateY(0)'
+                  }
+                }
+              }}
+            >
               <ListItemIcon>
-                <LogoutIcon fontSize="small" />
+                <LogoutIcon fontSize="small" color="error" />
               </ListItemIcon>
-              <ListItemText>Logout</ListItemText>
+              <Typography variant="body1" sx={{ display: 'inline-block', color: 'text.primary', ml: 1 }}>
+                Logout
+              </Typography>
             </MenuItem>
           </Menu>
         </Toolbar>

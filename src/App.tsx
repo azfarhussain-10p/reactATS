@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
   CssBaseline,
-  ThemeProvider,
+  ThemeProvider as MuiThemeProvider,
   createTheme,
-  responsiveFontSizes
+  responsiveFontSizes,
+  PaletteMode
 } from '@mui/material';
 import { AccessibilitySettings } from './components/AccessibilityMenu';
 import ScreenReaderAnnouncer from './components/ScreenReaderAnnouncer';
@@ -19,12 +20,26 @@ import { EmailCampaignProvider } from './contexts/EmailCampaignContext';
 import { FormBuilderProvider } from './contexts/FormBuilderContext';
 import { ATSIntegrationProvider } from './contexts/ATSIntegrationContext';
 import { AdvancedDashboardProvider } from './contexts/AdvancedDashboardContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { SecurityProvider } from './contexts/SecurityContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import AppRoutes from './routes';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Get preferred mode from localStorage or system preference
+  const [mode, setMode] = useState<PaletteMode>(() => {
+    const savedMode = localStorage.getItem('darkMode');
+    if (savedMode) {
+      return savedMode === 'true' ? 'dark' : 'light';
+    }
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches 
+      ? 'dark' 
+      : 'light';
+  });
   
   const [accessibilitySettings, setAccessibilitySettings] = useState<AccessibilitySettings>(() => {
     // Try to load saved settings from localStorage
@@ -45,11 +60,12 @@ function App() {
     };
   });
 
-  // Create a theme that respects accessibility settings
+  // Create a theme that respects accessibility settings and dark mode
   const theme = React.useMemo(() => {
+    const isDarkMode = mode === 'dark';
     let theme = createTheme({
       palette: {
-        mode: 'light',
+        mode: mode,
         primary: {
           main: accessibilitySettings.highContrast ? '#0000EE' : '#1976d2',
           dark: accessibilitySettings.highContrast ? '#00008B' : '#115293',
@@ -68,13 +84,19 @@ function App() {
         success: {
           main: accessibilitySettings.highContrast ? '#008000' : '#2e7d32',
         },
-        text: {
-          primary: accessibilitySettings.highContrast ? '#000000' : '#212121',
-          secondary: accessibilitySettings.highContrast ? '#444444' : '#757575',
-        },
-        background: {
+        background: isDarkMode ? {
+          default: '#121212',
+          paper: '#1e1e1e',
+        } : {
           default: accessibilitySettings.highContrast ? '#FFFFFF' : '#f5f5f5',
           paper: accessibilitySettings.highContrast ? '#FFFFFF' : '#ffffff',
+        },
+        text: isDarkMode ? {
+          primary: '#ffffff',
+          secondary: '#b0b0b0',
+        } : {
+          primary: accessibilitySettings.highContrast ? '#000000' : '#212121',
+          secondary: accessibilitySettings.highContrast ? '#444444' : '#757575',
         },
       },
       typography: {
@@ -100,8 +122,30 @@ function App() {
         },
         MuiCssBaseline: {
           styleOverrides: {
+            '@keyframes pulse': {
+              '0%': {
+                opacity: 0.6,
+                transform: 'scale(1)',
+              },
+              '50%': {
+                opacity: 1,
+                transform: 'scale(1.1)',
+              },
+              '100%': {
+                opacity: 0.6,
+                transform: 'scale(1)',
+              }
+            },
+            '@keyframes spin': {
+              '0%': {
+                transform: 'rotate(0deg)',
+              },
+              '100%': {
+                transform: 'rotate(360deg)',
+              }
+            },
             body: {
-              transition: accessibilitySettings.reducedMotion ? 'none' : undefined,
+              transition: accessibilitySettings.reducedMotion ? 'none' : 'background-color 0.3s ease-in-out, color 0.3s ease-in-out',
               '& *': {
                 transition: accessibilitySettings.reducedMotion ? 'none !important' : undefined,
                 animation: accessibilitySettings.reducedMotion ? 'none !important' : undefined,
@@ -122,7 +166,7 @@ function App() {
     }
     
     return theme;
-  }, [accessibilitySettings]);
+  }, [accessibilitySettings, mode]);
 
   // Update body classes based on accessibility settings
   useEffect(() => {
@@ -167,38 +211,51 @@ function App() {
     localStorage.setItem('accessibilitySettings', JSON.stringify(settings));
   };
 
+  // Handle theme change
+  const toggleDarkMode = () => {
+    const newMode = mode === 'light' ? 'dark' : 'light';
+    setMode(newMode);
+    localStorage.setItem('darkMode', newMode === 'dark' ? 'true' : 'false');
+  };
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <ScreenReaderAnnouncer />
-      <ATSIntegrationProvider>
-        <AdvancedDashboardProvider>
-          <AdvancedAnalyticsProvider>
-            <CandidateProvider>
-              <JobPostingProvider>
-                <PipelineProvider>
-                  <EvaluationProvider>
-                    <ResumeParsingProvider>
-                      <AnalyticsProvider>
-                        <EmailCampaignProvider>
-                          <FormBuilderProvider>
-                            <AppRoutes />
-                          </FormBuilderProvider>
-                        </EmailCampaignProvider>
-                      </AnalyticsProvider>
-                    </ResumeParsingProvider>
-                  </EvaluationProvider>
-                </PipelineProvider>
-              </JobPostingProvider>
-            </CandidateProvider>
-          </AdvancedAnalyticsProvider>
-        </AdvancedDashboardProvider>
-      </ATSIntegrationProvider>
-      
-      {/* Skip links for keyboard users */}
-      <a href="#main-content" className="skip-link">
-        Skip to main content
-      </a>
+    <ThemeProvider value={{ isDarkMode: mode === 'dark', toggleDarkMode }}>
+      <MuiThemeProvider theme={theme}>
+        <CssBaseline />
+        <ScreenReaderAnnouncer />
+        <AuthProvider>
+          <SecurityProvider>
+            <ATSIntegrationProvider>
+              <AdvancedDashboardProvider>
+                <AdvancedAnalyticsProvider>
+                  <CandidateProvider>
+                    <JobPostingProvider>
+                      <PipelineProvider>
+                        <EvaluationProvider>
+                          <ResumeParsingProvider>
+                            <AnalyticsProvider>
+                              <EmailCampaignProvider>
+                                <FormBuilderProvider>
+                                  <AppRoutes />
+                                </FormBuilderProvider>
+                              </EmailCampaignProvider>
+                            </AnalyticsProvider>
+                          </ResumeParsingProvider>
+                        </EvaluationProvider>
+                      </PipelineProvider>
+                    </JobPostingProvider>
+                  </CandidateProvider>
+                </AdvancedAnalyticsProvider>
+              </AdvancedDashboardProvider>
+            </ATSIntegrationProvider>
+          </SecurityProvider>
+        </AuthProvider>
+        
+        {/* Skip links for keyboard users */}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+      </MuiThemeProvider>
     </ThemeProvider>
   );
 }

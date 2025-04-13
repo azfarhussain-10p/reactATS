@@ -438,6 +438,13 @@ export const CandidateProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   // Get candidate statistics
   const getCandidatesStats = (): CandidateStats => {
+    // TODO: In the future, this will be replaced with a direct API call to PostgreSQL
+    // Example future implementation:
+    // async function fetchCandidateStats() {
+    //   const response = await fetch('/api/candidates/stats');
+    //   return response.json();
+    // }
+    
     const total = candidates.length;
     
     // Initialize status counts object

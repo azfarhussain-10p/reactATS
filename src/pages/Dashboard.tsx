@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Box, 
@@ -9,6 +9,7 @@ import {
   Card, 
   CardContent, 
   CardActions, 
+  CardHeader, 
   Divider,
   IconButton,
   List,
@@ -19,7 +20,8 @@ import {
   Chip,
   Container,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  CircularProgress
 } from '@mui/material';
 import { 
   Person as PersonIcon, 
@@ -36,9 +38,16 @@ import {
   BarChart as BarChartIcon,
   Note as NoteIcon,
   PeopleAlt as PeopleAltIcon,
-  ArrowForward as ArrowForwardIcon
+  ArrowForward as ArrowForwardIcon,
+  Settings as SettingsIcon,
+  Dashboard as DashboardIcon,
+  PersonAdd as PersonAddIcon,
+  ArrowUpward,
+  ArrowDownward
 } from '@mui/icons-material';
 import useAnalyticsNavigation from '../hooks/useAnalyticsNavigation';
+import CandidateStats from '../components/CandidateStats';
+import { useCandidateContext } from '../contexts/CandidateContext';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -47,6 +56,9 @@ const Dashboard: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const { goToAnalytics } = useAnalyticsNavigation();
+  const { candidates } = useCandidateContext();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Mock data for dashboard
   const upcomingInterviews = [
@@ -69,8 +81,51 @@ const Dashboard: React.FC = () => {
 
   // Helper functions for navigation
   const navigateTo = (path: string) => {
-    navigate(path);
+    console.log(`Navigating to: ${path}`);
+    if (path === '/jobs/create') {
+      navigate('/job-openings');
+    } else if (path === '/schedule-interview') {
+      navigate('/interviews');
+    } else {
+      navigate(path);
+    }
   };
+
+  // Add error handling
+  useEffect(() => {
+    const handleErrors = () => {
+      try {
+        // Only check this once, not inside the effect's callback
+        if (!candidates) {
+          console.warn('Candidate data not available');
+        }
+      } catch (err) {
+        console.error('Error in Dashboard:', err);
+        setError('Error loading dashboard components');
+      }
+    };
+
+    handleErrors();
+  }, [candidates]);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography color="error" variant="h6">{error}</Typography>
+        <Button variant="contained" onClick={() => window.location.reload()} sx={{ mt: 2 }}>
+          Retry
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ 
@@ -107,6 +162,163 @@ const Dashboard: React.FC = () => {
           </Typography>
         </Paper>
         
+        <Box sx={{ mt: 4, mb: 4 }}>
+          <Typography variant="h5" component="h2" fontWeight="500" sx={{ mb: 3 }}>
+            Quick Actions
+          </Typography>
+          
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card 
+                sx={{ 
+                  p: 2, 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  height: '100%',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: 3
+                  }
+                }}
+                onClick={() => navigateTo('/candidates/add')}
+              >
+                <Box
+                  sx={{
+                    bgcolor: 'primary.light',
+                    p: 2,
+                    borderRadius: '50%',
+                    mb: 2
+                  }}
+                >
+                  <PersonAddIcon sx={{ fontSize: 40, color: 'primary.main' }} />
+                </Box>
+                <Typography variant="h6" gutterBottom>
+                  Add Candidate
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Create a new candidate profile in the system
+                </Typography>
+              </Card>
+            </Grid>
+            
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card 
+                sx={{ 
+                  p: 2, 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  height: '100%',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: 3
+                  }
+                }}
+                onClick={() => navigateTo('/jobs/create')}
+              >
+                <Box
+                  sx={{
+                    bgcolor: '#e3f2fd',
+                    p: 2,
+                    borderRadius: '50%',
+                    mb: 2
+                  }}
+                >
+                  <WorkIcon sx={{ fontSize: 40, color: '#1976d2' }} />
+                </Box>
+                <Typography variant="h6" gutterBottom>
+                  Post Job
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Create and publish a new job opening
+                </Typography>
+              </Card>
+            </Grid>
+            
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card 
+                sx={{ 
+                  p: 2, 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  height: '100%',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: 3
+                  }
+                }}
+                onClick={() => navigateTo('/schedule-interview')}
+              >
+                <Box
+                  sx={{
+                    bgcolor: '#e8f5e9',
+                    p: 2,
+                    borderRadius: '50%',
+                    mb: 2
+                  }}
+                >
+                  <EventIcon sx={{ fontSize: 40, color: '#2e7d32' }} />
+                </Box>
+                <Typography variant="h6" gutterBottom>
+                  Schedule Interview
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Set up interviews with candidates
+                </Typography>
+              </Card>
+            </Grid>
+            
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card 
+                sx={{ 
+                  p: 2, 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  height: '100%',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: 3
+                  }
+                }}
+                onClick={() => navigateTo('/analytics')}
+              >
+                <Box
+                  sx={{
+                    bgcolor: '#fce4ec',
+                    p: 2,
+                    borderRadius: '50%',
+                    mb: 2
+                  }}
+                >
+                  <BarChartIcon sx={{ fontSize: 40, color: '#c2185b' }} />
+                </Box>
+                <Typography variant="h6" gutterBottom>
+                  Analytics
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  View detailed hiring analytics
+                </Typography>
+              </Card>
+            </Grid>
+          </Grid>
+        </Box>
+        
+        {/* Candidate Statistics Section */}
         <Box sx={{ mb: 4 }}>
           <Typography 
             variant="h5" 
@@ -117,203 +329,66 @@ const Dashboard: React.FC = () => {
               px: { xs: 1, sm: 0 }
             }}
           >
-            Quick Actions
+            Candidate Statistics
           </Typography>
-          <Grid container spacing={{ xs: 2, md: 3 }}>
-            {/* Candidates Management */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card 
-                elevation={1} 
-                sx={{ 
-                  height: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: 4
-                  },
-                  borderRadius: 2
-                }}
-                onClick={() => navigateTo('/candidates')}
-              >
-                <CardContent sx={{ flexGrow: 1, textAlign: 'center', p: 3 }}>
-                  <Box sx={{
-                    bgcolor: 'primary.lighter',
-                    width: 80,
-                    height: 80,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 16px'
-                  }}>
-                    <PersonIcon sx={{ fontSize: 40, color: 'primary.main' }} />
-                  </Box>
-                  <Typography variant="h6" component="div" gutterBottom>
-                    Candidates
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    View and manage your candidate pipeline
-                  </Typography>
-                </CardContent>
-                <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
-                  <Button size="small" color="primary" endIcon={<ArrowForwardIcon />}>
-                    View Candidates
-                  </Button>
-                </CardActions>
-              </Card>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 8 }}>
+              <Box sx={{ position: 'relative' }}>
+                {candidates && candidates.length > 0 ? (
+                  <CandidateStats 
+                    variant="detailed" 
+                    showTitle={false} 
+                    maxTagsToShow={8}
+                  />
+                ) : (
+                  <Card sx={{ p: 3 }}>
+                    <Typography variant="body1" align="center">
+                      No candidate data available
+                    </Typography>
+                  </Card>
+                )}
+              </Box>
             </Grid>
-            
-            {/* Job Openings */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card 
-                elevation={1} 
-                sx={{ 
-                  height: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: 4
-                  },
-                  borderRadius: 2
-                }}
-                onClick={() => navigateTo('/job-openings')}
-              >
-                <CardContent sx={{ flexGrow: 1, textAlign: 'center', p: 3 }}>
-                  <Box sx={{
-                    bgcolor: 'primary.lighter',
-                    width: 80,
-                    height: 80,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 16px'
-                  }}>
-                    <WorkIcon sx={{ fontSize: 40, color: 'primary.main' }} />
-                  </Box>
-                  <Typography variant="h6" component="div" gutterBottom>
-                    Job Openings
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Create and manage job listings
-                  </Typography>
-                </CardContent>
-                <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
-                  <Button size="small" color="primary" endIcon={<ArrowForwardIcon />}>
-                    View Jobs
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-            
-            {/* Interview Scheduler */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card 
-                elevation={1} 
-                sx={{ 
-                  height: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: 4
-                  },
-                  borderRadius: 2
-                }}
-                onClick={() => navigateTo('/interviews')}
-              >
-                <CardContent sx={{ flexGrow: 1, textAlign: 'center', p: 3 }}>
-                  <Box sx={{
-                    bgcolor: 'primary.lighter',
-                    width: 80,
-                    height: 80,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 16px'
-                  }}>
-                    <EventIcon sx={{ fontSize: 40, color: 'primary.main' }} />
-                  </Box>
-                  <Typography variant="h6" component="div" gutterBottom>
-                    Interviews
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Schedule and manage interviews
-                  </Typography>
-                </CardContent>
-                <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
-                  <Button size="small" color="primary" endIcon={<ArrowForwardIcon />}>
-                    View Schedule
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-            
-            {/* Analytics */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card 
-                elevation={1} 
-                sx={{ 
-                  height: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: 4
-                  },
-                  borderRadius: 2
-                }}
-                onClick={() => goToAnalytics()}
-              >
-                <CardContent sx={{ flexGrow: 1, textAlign: 'center', p: 3 }}>
-                  <Box sx={{
-                    bgcolor: 'primary.lighter',
-                    width: 80,
-                    height: 80,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 16px'
-                  }}>
-                    <BarChartIcon sx={{ fontSize: 40, color: 'primary.main' }} />
-                  </Box>
-                  <Typography variant="h6" component="div" gutterBottom>
-                    Analytics
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Track recruitment metrics
-                  </Typography>
-                </CardContent>
-                <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
-                  <Button 
-                    variant="contained" 
-                    color="primary"
-                    onClick={() => goToAnalytics()}
-                    startIcon={<BarChartIcon />}
-                  >
-                    View Analytics
-                  </Button>
-                </CardActions>
-              </Card>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 3 }}>
+                {candidates && candidates.length > 0 ? (
+                  <CandidateStats 
+                    variant="compact" 
+                    showTitle={true}
+                  />
+                ) : (
+                  <Card sx={{ p: 3 }}>
+                    <Typography variant="body1" align="center">
+                      No candidate data available
+                    </Typography>
+                  </Card>
+                )}
+                <Card sx={{ flexGrow: 1 }}>
+                  <CardHeader 
+                    title="Hiring Progress" 
+                    titleTypographyProps={{ variant: 'h6' }}
+                  />
+                  <Divider />
+                  <CardContent sx={{ pt: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                      <Button 
+                        variant="contained" 
+                        color="primary"
+                        onClick={() => navigateTo('/advanced-analytics')}
+                        endIcon={<BarChartIcon />}
+                      >
+                        View Detailed Analytics
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Box>
             </Grid>
           </Grid>
         </Box>
         
         <Grid container spacing={3}>
-          {/* Upcoming Interviews Section */}
-          <Grid item xs={12} md={6} lg={4}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Paper 
               elevation={1} 
               sx={{ 
@@ -336,7 +411,7 @@ const Dashboard: React.FC = () => {
               </Box>
               <Divider sx={{ mb: 2 }} />
               
-              <List disablePadding>
+              <List sx={{ p: 0 }}>
                 {upcomingInterviews.map(interview => (
                   <ListItem
                     key={interview.id}
@@ -347,62 +422,41 @@ const Dashboard: React.FC = () => {
                       backgroundColor: 'background.paper', 
                       borderRadius: 1,
                       boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                      '&:hover': { backgroundColor: '#f8f9fa' },
-                      flexDirection: 'column',
-                      alignItems: 'flex-start'
+                      '&:hover': { backgroundColor: '#f8f9fa' }
                     }}
                   >
-                    <Box sx={{ 
-                      display: 'flex',
-                      width: '100%',
-                      alignItems: 'center',
-                      mb: 1
-                    }}>
-                      <Avatar sx={{ 
-                        bgcolor: 'primary.light', 
-                        width: 40, 
-                        height: 40,
-                        mr: 2
-                      }}>
+                    <ListItemIcon sx={{ minWidth: '40px' }}>
+                      <Avatar sx={{ bgcolor: 'secondary.light', width: 36, height: 36 }}>
                         {interview.candidateName.charAt(0)}
                       </Avatar>
-                      <Box sx={{ 
-                        flexGrow: 1,
-                        overflow: 'hidden'
-                      }}>
-                        <Typography variant="body1" fontWeight="500" noWrap>
-                          {interview.candidateName}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" noWrap>
-                          {interview.position}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box sx={{ 
-                      width: '100%',
-                      display: 'flex',
-                      justifyContent: 'flex-end'
-                    }}>
-                      <Chip 
-                        label={`${interview.time}, ${interview.date}`} 
-                        size="small" 
-                        variant="outlined"
-                      />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={interview.candidateName}
+                      secondary={interview.position}
+                    />
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        {interview.time}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {interview.date}
+                      </Typography>
                     </Box>
                   </ListItem>
                 ))}
               </List>
               
               {upcomingInterviews.length === 0 && (
-                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
-                  No upcoming interviews scheduled
-                </Typography>
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    No upcoming interviews
+                  </Typography>
+                </Box>
               )}
             </Paper>
           </Grid>
           
-          {/* Recent Candidates Section */}
-          <Grid item xs={12} md={6} lg={4}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Paper 
               elevation={1} 
               sx={{ 
@@ -425,7 +479,7 @@ const Dashboard: React.FC = () => {
               </Box>
               <Divider sx={{ mb: 2 }} />
               
-              <List disablePadding>
+              
                 {recentCandidates.map(candidate => (
                   <ListItem
                     key={candidate.id}
@@ -467,121 +521,41 @@ const Dashboard: React.FC = () => {
                         </Typography>
                       </Box>
                     </Box>
+                    
                     <Box sx={{ 
-                      width: '100%',
+                      width: '100%', 
                       display: 'flex',
-                      justifyContent: 'flex-end'
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      pl: { xs: 0, sm: 7 }
                     }}>
                       <Chip 
-                        label={candidate.status} 
-                        size="small" 
-                        color="primary" 
-                        variant="outlined"
+                        label={candidate.status}
+                        size="small"
+                        color="primary"
+                        variant={candidate.status === 'New' ? 'outlined' : 'filled'}
                       />
+                      <Button 
+                        size="small" 
+                        onClick={() => navigateTo(`/candidates/${candidate.id}`)}
+                      >
+                        View Profile
+                      </Button>
                     </Box>
                   </ListItem>
                 ))}
-              </List>
               
               {recentCandidates.length === 0 && (
-                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
-                  No recent candidates
-                </Typography>
-              )}
-            </Paper>
-          </Grid>
-          
-          {/* Active Jobs Section */}
-          <Grid item xs={12} md={6} lg={4}>
-            <Paper 
-              elevation={1} 
-              sx={{ 
-                p: { xs: 2, sm: 3 }, 
-                height: '100%',
-                borderRadius: 2
-              }}
-            >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" component="h3" fontWeight="500">
-                  Active Job Postings
-                </Typography>
-                <Button 
-                  size="small" 
-                  onClick={() => navigateTo('/job-openings')}
-                  endIcon={<ArrowForwardIcon />}
-                >
-                  View All
-                </Button>
-              </Box>
-              <Divider sx={{ mb: 2 }} />
-              
-              <List disablePadding>
-                {activeJobs.map(job => (
-                  <ListItem
-                    key={job.id}
-                    disablePadding
-                    sx={{ 
-                      mb: 1.5, 
-                      p: 1.5, 
-                      backgroundColor: 'background.paper', 
-                      borderRadius: 1,
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                      '&:hover': { backgroundColor: '#f8f9fa' },
-                      flexDirection: 'column',
-                      alignItems: 'flex-start'
-                    }}
-                  >
-                    <Box sx={{ 
-                      display: 'flex',
-                      width: '100%',
-                      alignItems: 'center',
-                      mb: 1
-                    }}>
-                      <Avatar sx={{ 
-                        bgcolor: 'success.light', 
-                        width: 40, 
-                        height: 40,
-                        mr: 2
-                      }}>
-                        <WorkIcon />
-                      </Avatar>
-                      <Box sx={{ 
-                        flexGrow: 1,
-                        overflow: 'hidden'
-                      }}>
-                        <Typography variant="body1" fontWeight="500" noWrap>
-                          {job.title}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" noWrap>
-                          {job.department}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box sx={{ 
-                      width: '100%',
-                      display: 'flex',
-                      justifyContent: 'flex-end'
-                    }}>
-                      <Chip 
-                        label={`${job.applicants} applicants`} 
-                        size="small" 
-                        color="success" 
-                        variant="outlined"
-                      />
-                    </Box>
-                  </ListItem>
-                ))}
-              </List>
-              
-              {activeJobs.length === 0 && (
-                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
-                  No active job postings
-                </Typography>
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    No recent candidates
+                  </Typography>
+                </Box>
               )}
             </Paper>
           </Grid>
         </Grid>
-        
+
         {/* More Features Section */}
         <Box sx={{ mt: 4 }}>
           <Paper 
@@ -597,7 +571,7 @@ const Dashboard: React.FC = () => {
             <Divider sx={{ mb: 2 }} />
             
             <Grid container spacing={2}>
-              <Grid item xs={6} sm={4} md={2}>
+              <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                 <Button
                   variant="outlined"
                   startIcon={<DescriptionIcon />}
@@ -614,7 +588,7 @@ const Dashboard: React.FC = () => {
                   Documents
                 </Button>
               </Grid>
-              <Grid item xs={6} sm={4} md={2}>
+              <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                 <Button
                   variant="outlined"
                   startIcon={<SchoolIcon />}
@@ -631,7 +605,7 @@ const Dashboard: React.FC = () => {
                   Skills Gap
                 </Button>
               </Grid>
-              <Grid item xs={6} sm={4} md={2}>
+              <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                 <Button
                   variant="outlined"
                   startIcon={<EmailIcon />}
@@ -648,7 +622,7 @@ const Dashboard: React.FC = () => {
                   Email Campaigns
                 </Button>
               </Grid>
-              <Grid item xs={6} sm={4} md={2}>
+              <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                 <Button
                   variant="outlined"
                   startIcon={<AssignmentIcon />}
@@ -665,7 +639,7 @@ const Dashboard: React.FC = () => {
                   Interview Kits
                 </Button>
               </Grid>
-              <Grid item xs={6} sm={4} md={2}>
+              <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                 <Button
                   variant="outlined"
                   startIcon={<FileIcon />}
@@ -682,7 +656,7 @@ const Dashboard: React.FC = () => {
                   Resume Parser
                 </Button>
               </Grid>
-              <Grid item xs={6} sm={4} md={2}>
+              <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                 <Button
                   variant="outlined"
                   startIcon={<BarChartIcon />}
@@ -723,7 +697,7 @@ const Dashboard: React.FC = () => {
               </Typography>
               
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                   <Button
                     variant="contained"
                     color="secondary"
@@ -740,12 +714,12 @@ const Dashboard: React.FC = () => {
                     User Management
                   </Button>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                   <Button
                     variant="contained"
                     color="secondary"
-                    startIcon={<BarChartIcon />}
-                    onClick={() => navigateTo('/advanced-analytics')}
+                    startIcon={<SettingsIcon />}
+                    onClick={() => navigateTo('/settings')}
                     fullWidth
                     sx={{ 
                       textTransform: 'none', 
@@ -754,15 +728,15 @@ const Dashboard: React.FC = () => {
                       boxShadow: 2
                     }}
                   >
-                    Advanced Analytics
+                    System Settings
                   </Button>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                   <Button
                     variant="contained"
                     color="secondary"
-                    startIcon={<NoteIcon />}
-                    onClick={() => navigateTo('/application-forms')}
+                    startIcon={<DashboardIcon />}
+                    onClick={() => navigateTo('/advanced-dashboard')}
                     fullWidth
                     sx={{ 
                       textTransform: 'none', 
@@ -771,159 +745,13 @@ const Dashboard: React.FC = () => {
                       boxShadow: 2
                     }}
                   >
-                    Form Builder
+                    Custom Dashboards
                   </Button>
                 </Grid>
               </Grid>
             </Paper>
           </Box>
         )}
-        
-        {/* Additional Dashboard Widgets - Add more feature integrations */}
-        <Box sx={{ mt: 6 }}>
-          <Typography 
-            variant="h5" 
-            component="h2" 
-            fontWeight="500" 
-            sx={{ 
-              mb: 3,
-              px: { xs: 1, sm: 0 }
-            }}
-          >
-            Advanced Features
-          </Typography>
-          
-          <Grid container spacing={{ xs: 2, md: 3 }}>
-            {/* Advanced Analytics */}
-            <Grid item xs={12} sm={6} md={4}>
-              <Card 
-                elevation={1} 
-                sx={{ 
-                  height: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: 4
-                  },
-                  borderRadius: 2
-                }}
-                onClick={() => navigateTo('/advanced-analytics')}
-              >
-                <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Avatar sx={{ bgcolor: 'primary.light', mr: 2 }}>
-                      <BarChartIcon />
-                    </Avatar>
-                    <Typography variant="h6" component="div">
-                      Advanced Analytics
-                    </Typography>
-                  </Box>
-                  <Typography variant="body2" color="text.secondary" paragraph>
-                    Access in-depth recruitment analytics, custom reports, and performance metrics
-                  </Typography>
-                  <Button 
-                    variant="outlined" 
-                    color="primary" 
-                    endIcon={<ArrowForwardIcon />}
-                    sx={{ mt: 1 }}
-                    fullWidth
-                  >
-                    View Analytics
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-            
-            {/* Reports */}
-            <Grid item xs={12} sm={6} md={4}>
-              <Card 
-                elevation={1} 
-                sx={{ 
-                  height: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: 4
-                  },
-                  borderRadius: 2
-                }}
-                onClick={() => navigateTo('/reports')}
-              >
-                <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Avatar sx={{ bgcolor: 'success.light', mr: 2 }}>
-                      <AssignmentIcon />
-                    </Avatar>
-                    <Typography variant="h6" component="div">
-                      Report Viewer
-                    </Typography>
-                  </Box>
-                  <Typography variant="body2" color="text.secondary" paragraph>
-                    Generate, customize, and export reports for all recruitment activities
-                  </Typography>
-                  <Button 
-                    variant="outlined" 
-                    color="success" 
-                    endIcon={<ArrowForwardIcon />}
-                    sx={{ mt: 1 }}
-                    fullWidth
-                  >
-                    View Reports
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-            
-            {/* Document Sharing */}
-            <Grid item xs={12} sm={6} md={4}>
-              <Card 
-                elevation={1} 
-                sx={{ 
-                  height: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: 4
-                  },
-                  borderRadius: 2
-                }}
-                onClick={() => navigateTo('/document-sharing')}
-              >
-                <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Avatar sx={{ bgcolor: 'warning.light', mr: 2 }}>
-                      <DescriptionIcon />
-                    </Avatar>
-                    <Typography variant="h6" component="div">
-                      Document Sharing
-                    </Typography>
-                  </Box>
-                  <Typography variant="body2" color="text.secondary" paragraph>
-                    Share, manage, and collaborate on recruitment documents with your team
-                  </Typography>
-                  <Button 
-                    variant="outlined" 
-                    color="warning" 
-                    endIcon={<ArrowForwardIcon />}
-                    sx={{ mt: 1 }}
-                    fullWidth
-                  >
-                    Access Documents
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Box>
       </Container>
     </Box>
   );

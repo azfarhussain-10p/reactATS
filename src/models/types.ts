@@ -762,7 +762,12 @@ export interface CustomApplicationForm {
       logo?: string;
       fontFamily?: string;
     };
+    storeSubmissions?: boolean;
+    notifyOnSubmission?: boolean;
+    notificationEmails?: string;
+    defaultSubmissionStatus?: string;
   };
+  submissions?: FormSubmission[];
   createdAt: string;
   updatedAt: string;
 }
