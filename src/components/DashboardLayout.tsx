@@ -35,6 +35,7 @@ import {
   Accessibility as AccessibilityIcon,
   Keyboard as KeyboardIcon,
   Description as DescriptionIcon,
+  ChevronLeft as ChevronLeftIcon,
 } from '@mui/icons-material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AccessibilitySettings } from './AccessibilityMenu';
@@ -43,6 +44,7 @@ import KeyboardShortcutsHelp from './KeyboardShortcutsHelp';
 import { announce } from './ScreenReaderAnnouncer';
 
 const drawerWidth = 240;
+const collapsedDrawerWidth = 60;
 
 interface DashboardLayoutProps {
   accessibilitySettings?: AccessibilitySettings;
@@ -55,6 +57,7 @@ export default function DashboardLayout({
 }: DashboardLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
@@ -65,6 +68,11 @@ export default function DashboardLayout({
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
     announce(mobileOpen ? "Navigation menu closed" : "Navigation menu opened");
+  };
+
+  const handleToggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+    announce(sidebarCollapsed ? "Sidebar expanded" : "Sidebar collapsed");
   };
 
   const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -92,7 +100,7 @@ export default function DashboardLayout({
   const navigationItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', ariaLabel: 'Navigate to dashboard' },
     { text: 'Candidates', icon: <PersonIcon />, path: '/candidates', ariaLabel: 'Navigate to candidates list' },
-    { text: 'Job Board', icon: <WorkIcon />, path: '/jobs', ariaLabel: 'Navigate to job board' },
+    { text: 'Job Board', icon: <WorkIcon />, path: '/job-openings', ariaLabel: 'Navigate to job board' },
     { text: 'Interviews', icon: <EventIcon />, path: '/interviews', ariaLabel: 'Navigate to interview scheduler' },
     { text: 'Reports', icon: <AssessmentIcon />, path: '/reports', ariaLabel: 'Navigate to reports and analytics' },
     { text: 'Documents', icon: <DescriptionIcon />, path: '/document-sharing', ariaLabel: 'Navigate to document sharing' },
@@ -105,10 +113,20 @@ export default function DashboardLayout({
 
   const drawer = (
     <div role="navigation" aria-label="Main navigation">
-      <Toolbar>
-        <Typography variant="h6" noWrap component="div">
-          ATS Dashboard
-        </Typography>
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
+        {!sidebarCollapsed && (
+          <Typography variant="h6" noWrap component="div">
+            ATS Dashboard
+          </Typography>
+        )}
+        <IconButton 
+          onClick={handleToggleSidebar} 
+          size="small"
+          sx={{ ml: sidebarCollapsed ? 0 : 'auto' }}
+          aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {sidebarCollapsed ? <MenuIcon /> : <ChevronLeftIcon />}
+        </IconButton>
       </Toolbar>
       <Divider />
       <List>
@@ -123,9 +141,24 @@ export default function DashboardLayout({
                 selected={isActive}
                 aria-label={item.ariaLabel}
                 aria-current={isActive ? 'page' : undefined}
+                sx={{
+                  minHeight: 48,
+                  justifyContent: sidebarCollapsed ? 'center' : 'initial',
+                  px: 2.5,
+                }}
               >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: sidebarCollapsed ? 'auto' : 3,
+                    justifyContent: 'center',
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                {!sidebarCollapsed && (
+                  <ListItemText primary={item.text} />
+                )}
               </ListItemButton>
             </ListItem>
           );
@@ -140,8 +173,16 @@ export default function DashboardLayout({
       <AppBar
         position="fixed"
         sx={{
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          ml: { md: `${drawerWidth}px` },
+          width: { 
+            sm: `calc(100% - ${sidebarCollapsed ? collapsedDrawerWidth : drawerWidth}px)` 
+          },
+          ml: { 
+            sm: `${sidebarCollapsed ? collapsedDrawerWidth : drawerWidth}px` 
+          },
+          transition: theme => theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
         }}
       >
         <Toolbar>
@@ -206,7 +247,16 @@ export default function DashboardLayout({
       </AppBar>
       <Box
         component="nav"
-        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+        sx={{ 
+          width: { 
+            sm: sidebarCollapsed ? collapsedDrawerWidth : drawerWidth 
+          }, 
+          flexShrink: { sm: 0 }, 
+          transition: theme => theme.transitions.create('width', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
+        }}
         aria-label="navigation menu"
       >
         <Drawer
@@ -218,7 +268,14 @@ export default function DashboardLayout({
           }}
           sx={{
             display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth,
+              transition: theme => theme.transitions.create('width', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
+            },
           }}
         >
           {drawer}
@@ -227,7 +284,15 @@ export default function DashboardLayout({
           variant="permanent"
           sx={{
             display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: sidebarCollapsed ? collapsedDrawerWidth : drawerWidth,
+              overflowX: 'hidden',
+              transition: theme => theme.transitions.create('width', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
+            },
           }}
           open
         >
@@ -239,9 +304,16 @@ export default function DashboardLayout({
         sx={{
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
-          width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
+          width: { 
+            xs: '100%', 
+            md: `calc(100% - ${sidebarCollapsed ? collapsedDrawerWidth : drawerWidth}px)` 
+          },
           mt: { xs: '56px', sm: '64px' },
-          overflow: 'auto'
+          overflow: 'auto',
+          transition: theme => theme.transitions.create('width', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
         }}
         id="main-content"
         tabIndex={-1}

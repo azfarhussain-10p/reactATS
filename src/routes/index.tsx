@@ -80,6 +80,7 @@ const AppRoutes = () => {
         <Route path="/interviews" element={<InterviewScheduler />} />
         <Route path="/interviews/schedule/:id" element={<InterviewScheduler />} />
         <Route path="/recruitment-pipeline" element={<RecruitmentPipeline />} />
+        <Route path="/pipeline" element={<RecruitmentPipeline />} />
         <Route path="/interviews/feedback/:id" element={<InterviewerFeedbackForm />} />
         <Route path="/evaluation/:id" element={<CandidateEvaluation />} />
         <Route path="/analytics" element={<AdvancedAnalytics />} />
