@@ -80,3 +80,7 @@ export default tseslint.config({
 - Separate environments for development, staging, and production
 - Automated daily backups with 30-day retention
 - Disaster recovery plan with RPO < 24 hours and RTO < 4 hours
+
+## Documentation
+
+For detailed instructions on how to use the ATS application, please refer to the [User Guide](docs/USER_GUIDE.md).
