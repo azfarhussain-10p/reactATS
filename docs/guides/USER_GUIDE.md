@@ -44,6 +44,8 @@ Our ATS is built on a modern technology stack:
 - **Security**: JWT-based authentication, role-based access control
 - **Integrations**: Job boards, email services, calendar systems, and assessment platforms
 
+![ATS System Architecture](../assets/screenshots/system-architecture.png)
+
 ---
 
 ## Getting Started
@@ -53,6 +55,8 @@ Our ATS is built on a modern technology stack:
 1. Navigate to your organization's custom subdomain: `https://[your-company].ats-app.com`
 2. Enter your email address and password
 3. For first-time login, you'll be prompted to change your password and complete your profile
+
+![Login Screen](../assets/screenshots/login-screen.png)
 
 ### User Interface Overview
 
@@ -66,6 +70,8 @@ The ATS features a clean, intuitive interface organized into these main sections
 - **Reports**: Access analytics and generate reports
 - **Settings**: Configure system preferences and integrations
 
+![Main Dashboard](../assets/screenshots/main-dashboard.png)
+
 ### Navigation Basics
 
 - **Main Menu**: Located on the left sidebar, providing access to all major sections
@@ -73,6 +79,8 @@ The ATS features a clean, intuitive interface organized into these main sections
 - **Search**: Global search function accessible from the top bar
 - **User Menu**: Access your profile, preferences, and logout option
 - **Notifications**: Real-time alerts for important activities and tasks
+
+![Navigation Elements](../assets/screenshots/navigation-elements.png)
 
 ---
 
@@ -88,12 +96,16 @@ Your personalized dashboard provides at-a-glance insights into your recruitment 
 - **Tasks**: Upcoming interviews, pending reviews, and action items
 - **Quick Links**: Shortcuts to frequently used features
 
+![Dashboard Features](../assets/screenshots/dashboard-features.png)
+
 ### Customization Options
 
 1. Click the "Customize" button in the top-right corner of the dashboard
 2. Add, remove, or rearrange widgets by dragging and dropping
 3. Configure each widget's settings to display relevant information
 4. Save your layout for future sessions
+
+![Dashboard Customization](../assets/screenshots/dashboard-customization.png)
 
 ---
 
@@ -138,6 +150,8 @@ The ATS supports five primary user roles, each with specific permissions and acc
 - Schedule interviews
 - Complete assessments
 
+![User Roles & Permissions Matrix](../assets/screenshots/user-roles-permissions.png)
+
 ---
 
 ## Recruiting Workflow
@@ -153,6 +167,8 @@ The ATS supports a customizable recruitment workflow, with a default pipeline in
 5. **Offer**: Offer extension and negotiation
 6. **Hired**: Successful completion of the process
 
+![Recruitment Pipeline Visualization](../assets/screenshots/recruitment-pipeline.png)
+
 ### Customizing Your Workflow
 
 Administrators can customize the recruitment pipeline by:
@@ -161,6 +177,8 @@ Administrators can customize the recruitment pipeline by:
 3. Creating department-specific workflows
 4. Defining automatic actions at each stage
 5. Setting up approval requirements
+
+![Workflow Customization Screen](../assets/screenshots/workflow-customization.png)
 
 ---
 
@@ -181,6 +199,8 @@ Administrators can customize the recruitment pipeline by:
 6. Configure screening questions (optional)
 7. Review and publish (or save as draft)
 
+![Job Creation Form](../assets/screenshots/job-creation-form.png)
+
 ### Job Posting Templates
 
 Save time by creating templates for similar positions:
@@ -188,6 +208,8 @@ Save time by creating templates for similar positions:
 2. Click "Save as Template" before publishing
 3. Give your template a name and category
 4. Access templates when creating new positions
+
+![Job Templates Library](../assets/screenshots/job-templates.png)
 
 ### Managing Active Jobs
 
@@ -198,14 +220,7 @@ Monitor and manage your active job postings:
 - Clone positions for similar roles
 - Archive jobs for future reference
 
-### Job Approval Workflows
-
-For organizations requiring approval processes:
-1. Create job posting and submit for review
-2. System notifies approvers based on configured workflow
-3. Approvers can review and approve/reject with comments
-4. Once fully approved, job can be published
-5. Track approval status in real-time
+![Active Jobs Dashboard](../assets/screenshots/active-jobs-dashboard.png)
 
 ---
 

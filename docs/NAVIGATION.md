@@ -1,10 +1,10 @@
 # ATS Documentation Navigation Map
 
 ## 📍 Quick Access
-- [Main Documentation](/docs/README.md)
-- [User Guide](/docs/guides/USER_GUIDE.md)
-- [API Reference](/docs/api/README.md)
-- [Database Guide](/docs/technical/database-structure.md)
+- [Main Documentation](../README.md)
+- [User Guide](./guides/USER_GUIDE.md)
+- [API Reference](./api/README.md)
+- [Database Guide](./technical/database-structure.md)
 
 ## 📚 Documentation Structure
 

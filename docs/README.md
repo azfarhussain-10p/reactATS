@@ -1,3 +1,10 @@
+# ⚠️ DEPRECATED - Content Moved
+
+> **Note**: This documentation file is deprecated. All content has been moved to the root [README.md](/README.md) file in the project root directory.
+> Please refer to the main README.md file for the most up-to-date documentation.
+
+---
+
 # ATS Application Documentation
 
 Welcome to the documentation for our Applicant Tracking System (ATS). This comprehensive documentation covers everything from user guides to technical implementation details.
