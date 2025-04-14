@@ -48,6 +48,10 @@ interface TabPanelProps {
   value: number;
 }
 
+interface StructuredInterviewKitProps {
+  standalone?: boolean;
+}
+
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
@@ -75,7 +79,7 @@ function a11yProps(index: number) {
   };
 }
 
-export default function StructuredInterviewKit() {
+export default function StructuredInterviewKit({ standalone = false }: StructuredInterviewKitProps) {
   const {
     loading,
     questionCategories,
@@ -152,15 +156,17 @@ export default function StructuredInterviewKit() {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ width: '100%', mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Structured Interview Kits
-        </Typography>
-        <Typography variant="body1" color="text.secondary" paragraph>
-          Create and manage standardized interview kits to ensure consistent candidate evaluation
-        </Typography>
-        <Divider />
-      </Box>
+      {standalone && (
+        <Box sx={{ width: '100%', mb: 4 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Structured Interview Kits
+          </Typography>
+          <Typography variant="body1" color="text.secondary" paragraph>
+            Create and manage standardized interview kits to ensure consistent candidate evaluation
+          </Typography>
+          <Divider />
+        </Box>
+      )}
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="interview kit tabs">
@@ -197,47 +203,64 @@ export default function StructuredInterviewKit() {
         </Box>
 
         <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
+          <Grid xs={12} md={4}>
             <Paper elevation={3} sx={{ height: '100%' }}>
               <List component="nav" aria-label="interview kits list">
                 {interviewKits.map((kit) => (
                   <ListItem 
-                    button 
                     key={kit.id}
                     selected={selectedKit?.id === kit.id}
                     onClick={() => handleKitSelect(kit)}
+                    sx={{ 
+                      flexDirection: 'column', 
+                      alignItems: 'flex-start',
+                      py: 2 
+                    }}
                   >
-                    <ListItemIcon>
-                      <AssignmentIcon />
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary={kit.name} 
-                      secondary={
-                        <>
-                          <Typography component="span" variant="body2" color="text.primary">
-                            {kit.questions.length} Questions
-                          </Typography>
-                          {` — ${kit.description.substring(0, 40)}${kit.description.length > 40 ? '...' : ''}`}
-                        </>
-                      }
-                    />
-                    <Chip 
-                      label={kit.status} 
-                      size="small" 
-                      color={kit.status === 'active' ? 'success' : kit.status === 'draft' ? 'default' : 'error'} 
-                    />
+                    <Box sx={{ display: 'flex', width: '100%', mb: 1 }}>
+                      <ListItemIcon sx={{ minWidth: 36 }}>
+                        <AssignmentIcon />
+                      </ListItemIcon>
+                      <Typography variant="subtitle1" noWrap>
+                        {kit.name}
+                      </Typography>
+                      <Box sx={{ ml: 'auto' }}>
+                        <Chip 
+                          label={kit.status} 
+                          size="small" 
+                          color={kit.status === 'active' ? 'success' : kit.status === 'draft' ? 'default' : 'error'} 
+                        />
+                      </Box>
+                    </Box>
+                    <Box sx={{ pl: 4.5, width: '100%' }}>
+                      <Typography component="span" variant="body2" color="text.primary">
+                        {kit.questions.length} Questions
+                      </Typography>
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary"
+                        sx={{ 
+                          display: 'block',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                        title={kit.description}
+                      >
+                        {kit.description}
+                      </Typography>
+                    </Box>
                   </ListItem>
                 ))}
               </List>
             </Paper>
           </Grid>
 
-          <Grid item xs={12} md={8}>
+          <Grid xs={12} md={8}>
             {selectedKit ? (
               <Card elevation={3}>
                 <CardContent>
-                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                    <Typography variant="h5" component="h2">
+                  <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
+                    <Typography variant="h5" component="h2" sx={{ wordBreak: 'break-word', mr: 2 }}>
                       {selectedKit.name}
                     </Typography>
                     <Box>
@@ -258,7 +281,12 @@ export default function StructuredInterviewKit() {
                     </Box>
                   </Box>
 
-                  <Typography variant="body2" color="text.secondary" paragraph>
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary" 
+                    paragraph
+                    sx={{ whiteSpace: 'pre-line' }}
+                  >
                     {selectedKit.description}
                   </Typography>
 
@@ -356,7 +384,7 @@ export default function StructuredInterviewKit() {
         </Box>
 
         <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
+          <Grid xs={12} md={4}>
             <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
               <Typography variant="subtitle1" gutterBottom>
                 Filter Questions
@@ -394,7 +422,7 @@ export default function StructuredInterviewKit() {
             </Paper>
           </Grid>
 
-          <Grid item xs={12} md={8}>
+          <Grid xs={12} md={8}>
             <Paper elevation={3}>
               <List>
                 {interviewQuestions.map((question) => {
@@ -474,7 +502,7 @@ export default function StructuredInterviewKit() {
               sx={{ mb: 2 }}
             />
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
+              <Grid xs={12} sm={4}>
                 <FormControl fullWidth>
                   <InputLabel id="category-select-label">Category</InputLabel>
                   <Select
@@ -491,7 +519,7 @@ export default function StructuredInterviewKit() {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid xs={12} sm={4}>
                 <FormControl fullWidth>
                   <InputLabel id="difficulty-select-label">Difficulty Level</InputLabel>
                   <Select
@@ -508,7 +536,7 @@ export default function StructuredInterviewKit() {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid xs={12} sm={4}>
                 <TextField
                   type="number"
                   label="Time Guideline (minutes)"
@@ -543,7 +571,7 @@ export default function StructuredInterviewKit() {
 
         <Grid container spacing={3}>
           {scheduleTemplates.map((template) => (
-            <Grid item key={template.id} xs={12} md={6}>
+            <Grid key={template.id} xs={12} md={6}>
               <Card elevation={3}>
                 <CardContent>
                   <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -609,7 +637,7 @@ export default function StructuredInterviewKit() {
 
       <TabPanel value={tabValue} index={3}>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
+          <Grid xs={12} md={6}>
             <Paper elevation={3} sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Question Categories
@@ -642,7 +670,7 @@ export default function StructuredInterviewKit() {
             </Paper>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid xs={12} md={6}>
             <Paper elevation={3} sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Difficulty Levels
@@ -675,7 +703,7 @@ export default function StructuredInterviewKit() {
             </Paper>
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid xs={12}>
             <Paper elevation={3} sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Scoring Criteria

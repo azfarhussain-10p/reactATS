@@ -43,7 +43,15 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Opened cache:', CACHE_NAME);
-        return cache.addAll(STATIC_CACHE_URLS);
+        // Use a more resilient approach that won't fail if some files don't exist
+        return Promise.allSettled(
+          STATIC_CACHE_URLS.map(url => 
+            cache.add(url).catch(error => {
+              console.warn(`Failed to cache ${url}: ${error.message}`);
+              return null; // Don't fail the whole installation
+            })
+          )
+        );
       })
       .then(() => {
         // Skip waiting to allow the new service worker to activate immediately

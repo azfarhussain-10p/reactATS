@@ -1,3 +1,16 @@
+/**
+ * Accessibility Styles - Core CSS styles for application accessibility features
+ * 
+ * Copyright (c) 2024-2025 Syed Azfar Hussain - Principal Test Consultant at 10Pearls Pakistan
+ * All rights reserved.
+ * 
+ * Licensed under the terms of 10Pearls proprietary license.
+ * Unauthorized copying, redistribution, or use of this file is strictly prohibited.
+ * 
+ * These styles implement WCAG 2.1 AA compliance requirements and provide visual
+ * enhancements for users with various accessibility needs.
+ */
+
 /* Global Accessibility Variables */
 :root {
   --font-size-multiplier: 1;
@@ -11,75 +24,110 @@
   --high-contrast-success: #008000;
 }
 
-/* High Contrast Mode */
+/* High Contrast Mode - MORE PRONOUNCED */
 .high-contrast {
   --mui-palette-primary-main: var(--high-contrast-primary);
   --mui-palette-secondary-main: var(--high-contrast-secondary);
   --mui-palette-error-main: var(--high-contrast-error);
   --mui-palette-success-main: var(--high-contrast-success);
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.high-contrast * {
+  border-color: #000000 !important;
+}
+
+.high-contrast h1, 
+.high-contrast h2, 
+.high-contrast h3, 
+.high-contrast h4, 
+.high-contrast h5, 
+.high-contrast h6 {
+  color: #000000 !important;
+}
+
+.high-contrast a {
+  color: #0000EE !important;
+}
+
+.high-contrast button {
+  border: 2px solid #000000 !important;
+}
+
+.high-contrast .MuiButton-contained {
+  background-color: #0000EE !important;
+  color: #ffffff !important;
 }
 
 .high-contrast .MuiPaper-root {
-  background-color: var(--high-contrast-bg);
-  color: var(--high-contrast-text);
-  border: 1px solid #000000;
+  background-color: var(--high-contrast-bg) !important;
+  color: var(--high-contrast-text) !important;
+  border: 1px solid #000000 !important;
 }
 
 .high-contrast .MuiTableCell-root {
-  border-color: #000000;
+  border-color: #000000 !important;
 }
 
 .high-contrast .MuiChip-outlined {
-  border-width: 2px;
+  border-width: 2px !important;
 }
 
 .high-contrast .MuiButton-outlined {
-  border-width: 2px;
+  border-width: 2px !important;
 }
 
 .high-contrast .MuiLinearProgress-bar {
-  border-radius: 3px;
+  border-radius: 3px !important;
 }
 
-/* Large Text Mode */
+/* Large Text Mode - MORE PRONOUNCED */
 .large-text {
-  font-size: calc(1rem * var(--font-size-multiplier));
+  font-size: calc(1rem * var(--font-size-multiplier)) !important;
+}
+
+.large-text * {
+  font-size: 1.2em !important;
 }
 
 .large-text h1 {
-  font-size: calc(2.125rem * var(--font-size-multiplier));
+  font-size: calc(2.125rem * var(--font-size-multiplier)) !important;
 }
 
 .large-text h2 {
-  font-size: calc(1.875rem * var(--font-size-multiplier));
+  font-size: calc(1.875rem * var(--font-size-multiplier)) !important;
 }
 
 .large-text h3 {
-  font-size: calc(1.5rem * var(--font-size-multiplier));
+  font-size: calc(1.5rem * var(--font-size-multiplier)) !important;
 }
 
 .large-text h4 {
-  font-size: calc(1.25rem * var(--font-size-multiplier));
+  font-size: calc(1.25rem * var(--font-size-multiplier)) !important;
 }
 
 .large-text h5 {
-  font-size: calc(1.125rem * var(--font-size-multiplier));
+  font-size: calc(1.125rem * var(--font-size-multiplier)) !important;
 }
 
 .large-text h6 {
-  font-size: calc(1rem * var(--font-size-multiplier));
+  font-size: calc(1rem * var(--font-size-multiplier)) !important;
 }
 
 .large-text .MuiButton-root {
-  font-size: calc(0.875rem * var(--font-size-multiplier));
+  font-size: calc(0.95rem * var(--font-size-multiplier)) !important;
+  padding: 10px 16px !important;
 }
 
 .large-text .MuiChip-root {
-  font-size: calc(0.8125rem * var(--font-size-multiplier));
+  font-size: calc(0.9rem * var(--font-size-multiplier)) !important;
+  height: 36px !important;
 }
 
 .large-text .MuiMenuItem-root {
-  font-size: calc(1rem * var(--font-size-multiplier));
+  font-size: calc(1.1rem * var(--font-size-multiplier)) !important;
+  min-height: 48px !important;
 }
 
 /* Keyboard Focus Indicators */
@@ -105,21 +153,46 @@
   top: 0;
 }
 
-/* Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition-duration: 0.001s !important;
-    animation-duration: 0.001s !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-  }
-}
-
+/* Reduced Motion - MORE PRONOUNCED */
 body.reduced-motion * {
   transition-duration: 0.001s !important;
   animation-duration: 0.001s !important;
   animation-iteration-count: 1 !important;
   scroll-behavior: auto !important;
+  transition-property: none !important;
+  transform: none !important;
+}
+
+body.reduced-motion *:hover {
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Visual indicator that reduced motion is active */
+body.reduced-motion::after {
+  content: "";
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #43a047;
+  box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.2);
+  z-index: 9000;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(67, 160, 71, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(67, 160, 71, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(67, 160, 71, 0);
+  }
 }
 
 /* ARIA Announcement Container */

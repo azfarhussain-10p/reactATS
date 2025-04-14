@@ -252,7 +252,7 @@ const MainAppContainer: React.FC = () => {
               <Typography paragraph>
                 Create and manage standardized interview kits to ensure consistent candidate evaluation
               </Typography>
-              <StructuredInterviewKit />
+              <StructuredInterviewKit standalone={true} />
             </Box>
           </StructuredInterviewKitProvider>
         </TabPanel>

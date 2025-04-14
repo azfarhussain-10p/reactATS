@@ -63,3 +63,12 @@ yarn-debug.log
 
 # TypeScript
 *.tsbuildinfo
+.tscache/
+tsconfig.tsbuildinfo
+src/.temporary.*
+
+# Build artifacts
+.vite
+.temp
+.vercel
+vite.config.js.timestamp-*

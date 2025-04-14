@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ${TARGET:-production}
+    image: ats-webapp:${TAG:-latest}
+    ports:
+      - "${PORT:-80}:80"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - VITE_API_URL=${VITE_API_URL:-/api}
+      - VITE_CACHE_ENABLED=${VITE_CACHE_ENABLED:-true}
+      - VITE_OFFLINE_ENABLED=${VITE_OFFLINE_ENABLED:-true}
+    volumes:
+      - app-logs:/app/logs
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - ats-network
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    image: ats-api:${TAG:-latest}
+    ports:
+      - "${API_PORT:-5000}:5000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - DB_HOST=${DB_HOST:-database}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME:-ats}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - database
+    volumes:
+      - api-logs:/app/logs
+      - api-data:/app/data
+    restart: unless-stopped
+    networks:
+      - ats-network
+
+  database:
+    image: postgres:15-alpine
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME:-ats}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    networks:
+      - ats-network
+
+volumes:
+  app-logs:
+  api-logs:
+  api-data:
+  db-data:
+
+networks:
+  ats-network:
+    driver: bridge 

@@ -316,4 +316,15 @@
 .login-page .login-link a {
     color: #512da8;
     font-weight: 600;
+}
+
+.copyright-footer {
+    text-align: center;
+    padding: 10px;
+    font-size: 0.85rem;
+    color: #666;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
 } 

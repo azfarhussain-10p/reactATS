@@ -1,12 +1,25 @@
+/**
+ * React ATS Application
+ * Main App Component
+ * 
+ * Copyright (c) 2024-2025 Syed Azfar Hussain - Principal Test Consultant at 10Pearls Pakistan
+ * All rights reserved.
+ * 
+ * Licensed under the terms of 10Pearls proprietary license.
+ * Unauthorized copying, redistribution, or use of this file is strictly prohibited.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   CssBaseline,
   ThemeProvider as MuiThemeProvider,
   createTheme,
   responsiveFontSizes,
-  PaletteMode
+  PaletteMode,
+  Box
 } from '@mui/material';
 import { AccessibilitySettings } from './components/AccessibilityMenu';
+import AccessibilityMenu from './components/AccessibilityMenu';
 import ScreenReaderAnnouncer from './components/ScreenReaderAnnouncer';
 import './styles/accessibilityStyles.css';
 import { AdvancedAnalyticsProvider } from './contexts/AdvancedAnalyticsContext';
@@ -110,6 +123,40 @@ function App() {
           styleOverrides: {
             root: {
               transition: accessibilitySettings.reducedMotion ? 'none' : undefined,
+            },
+          },
+        },
+        MuiMenu: {
+          styleOverrides: {
+            paper: {
+              backgroundColor: isDarkMode ? '#1e1e1e' : '#ffffff',
+              color: isDarkMode ? '#ffffff' : '#212121',
+              border: '1px solid',
+              borderColor: isDarkMode ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)',
+            },
+          },
+        },
+        MuiMenuItem: {
+          styleOverrides: {
+            root: {
+              color: isDarkMode ? '#ffffff' : '#212121',
+              '&:hover': {
+                backgroundColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+              },
+              '& .MuiSvgIcon-root': {
+                color: isDarkMode ? '#ffffff' : 'inherit',
+              },
+              '& .MuiListItemText-primary': {
+                color: isDarkMode ? '#ffffff' : '#212121',
+                fontWeight: 500,
+              },
+              '& .MuiListItemText-secondary': {
+                color: isDarkMode ? '#b0b0b0' : '#666666',
+              },
+              '& .MuiListItemIcon-root': {
+                color: 'primary.main',
+                minWidth: '40px',
+              },
             },
           },
         },
@@ -236,6 +283,12 @@ function App() {
                             <AnalyticsProvider>
                               <EmailCampaignProvider>
                                 <FormBuilderProvider>
+                                  <Box sx={{ position: 'fixed', top: 16, right: 16, zIndex: 1200 }}>
+                                    <AccessibilityMenu 
+                                      onChange={handleAccessibilityChange}
+                                      initialSettings={accessibilitySettings}
+                                    />
+                                  </Box>
                                   <AppRoutes />
                                 </FormBuilderProvider>
                               </EmailCampaignProvider>

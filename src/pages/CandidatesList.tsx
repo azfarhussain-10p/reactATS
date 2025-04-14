@@ -592,12 +592,41 @@ const CandidatesList: React.FC = () => {
                   keepMounted
                   open={Boolean(exportAnchorEl)}
                   onClose={handleExportMenuClose}
+                  TransitionProps={{
+                    style: { transformOrigin: 'top right' },
+                    timeout: { enter: 300, exit: 200 }
+                  }}
                   PaperProps={{
                     elevation: 3,
                     sx: { 
                       minWidth: 200,
+                      backgroundColor: '#ffffff !important',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                      animation: 'slideInFromTop 0.3s ease',
                       '& .MuiMenuItem-root': {
-                        py: 1
+                        py: 1.5,
+                        px: 2,
+                        color: '#212121 !important',
+                        opacity: 0,
+                        animation: 'fadeIn 0.4s ease forwards',
+                        '&:nth-of-type(1)': {
+                          animationDelay: '0.1s',
+                        },
+                        '&:nth-of-type(2)': {
+                          animationDelay: '0.2s',
+                        },
+                      },
+                      '& .MuiListItemIcon-root': {
+                        color: '#1976d2 !important',
+                        minWidth: 36
+                      },
+                      '& .MuiListItemText-primary': {
+                        color: '#212121 !important',
+                        fontWeight: 500,
+                        ml: 1
+                      },
+                      '& .MuiListItemText-secondary': {
+                        color: '#757575 !important',
                       }
                     }
                   }}
@@ -886,6 +915,26 @@ const CandidatesList: React.FC = () => {
           to {
             opacity: 1;
             transform: translateX(0);
+          }
+        }
+        
+        @keyframes slideInFromTop {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
           }
         }
       `}} />

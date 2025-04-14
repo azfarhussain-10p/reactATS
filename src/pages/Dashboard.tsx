@@ -1,3 +1,16 @@
+/**
+ * React ATS Application - Dashboard Component
+ * 
+ * Main dashboard view that provides an overview of hiring activities,
+ * candidate statistics, and quick access to key features.
+ * 
+ * Copyright (c) 2024-2025 Syed Azfar Hussain - Principal Test Consultant at 10Pearls Pakistan
+ * All rights reserved.
+ * 
+ * Licensed under the terms of 10Pearls proprietary license.
+ * Unauthorized copying, redistribution, or use of this file is strictly prohibited.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -753,6 +766,18 @@ const Dashboard: React.FC = () => {
           </Box>
         )}
       </Container>
+      <Box 
+        sx={{ 
+          textAlign: 'center',
+          padding: '16px',
+          fontSize: '0.85rem',
+          color: 'text.secondary',
+          mt: 4,
+          borderTop: '1px solid #e0e0e0'
+        }}
+      >
+        &copy; 2024-2025 Syed Azfar Hussain - 10Pearls Pakistan. All rights reserved.
+      </Box>
     </Box>
   );
 };
