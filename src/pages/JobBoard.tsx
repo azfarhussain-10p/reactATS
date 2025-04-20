@@ -13,7 +13,8 @@ import {
   Divider, 
   FormControl, 
   InputLabel, 
-  Select, 
+  Select,
+  SelectChangeEvent,
   MenuItem,
   Dialog,
   DialogTitle,
@@ -24,7 +25,19 @@ import {
   Stack,
   CardActionArea,
   CardActions,
-  Snackbar
+  Snackbar,
+  FormControlLabel,
+  Checkbox,
+  Tabs,
+  Tab,
+  ToggleButton,
+  ToggleButtonGroup,
+  Switch,
+  Link,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  ButtonGroup
 } from '@mui/material';
 import { 
   Search as SearchIcon, 
@@ -43,7 +56,22 @@ import {
   FilterList as FilterIcon,
   Close as CloseIcon,
   Visibility as VisibilityIcon,
-  CloudUpload as CloudUploadIcon
+  CloudUpload as CloudUploadIcon,
+  Pause as PauseIcon,
+  PlayArrow as PlayArrowIcon,
+  Star as StarIcon,
+  StarBorder as StarBorderIcon,
+  Info as InfoIcon,
+  FormatBold as FormatBoldIcon,
+  FormatItalic as FormatItalicIcon,
+  FormatUnderlined as FormatUnderlinedIcon,
+  FormatListBulleted as FormatListBulletedIcon,
+  FormatListNumbered as FormatListNumberedIcon,
+  FormatAlignLeft as FormatAlignLeftIcon,
+  FormatAlignCenter as FormatAlignCenterIcon,
+  FormatAlignRight as FormatAlignRightIcon,
+  FormatClear as FormatClearIcon,
+  Block as BlockIcon
 } from '@mui/icons-material';
 
 interface Job {
@@ -58,7 +86,8 @@ interface Job {
   description: string;
   responsibilities: string[];
   requirements: string[];
-  status: 'Active' | 'Paused' | 'Closed';
+  benefits: string; // Add benefits to the Job interface
+  status: 'Active' | 'On-Hold' | 'Closed' | 'Draft';
   applicants: number;
   isFeatured?: boolean;
   isBookmarked?: boolean;
@@ -89,6 +118,7 @@ const mockJobs: Job[] = [
       'Thorough understanding of React.js and its core principles',
       'Experience with popular React.js workflows such as Flux or Redux'
     ],
+    benefits: 'Comprehensive health insurance, 401k matching, generous vacation time',
     status: 'Active',
     applicants: 24,
     isFeatured: true
@@ -117,6 +147,7 @@ const mockJobs: Job[] = [
       'Knowledge of HTML, CSS, and JavaScript is a plus',
       'Problem-solving attitude with an eye for detail'
     ],
+    benefits: 'Flexible work hours, remote work options, professional development opportunities',
     status: 'Active',
     applicants: 18
   },
@@ -144,6 +175,7 @@ const mockJobs: Job[] = [
       'Experience with CI/CD tools (Jenkins, GitLab CI, GitHub Actions)',
       'Strong scripting skills (Bash, Python)'
     ],
+    benefits: 'Comprehensive health insurance, 401k matching, professional development opportunities',
     status: 'Active',
     applicants: 12
   },
@@ -171,6 +203,7 @@ const mockJobs: Job[] = [
       'Excellent communication and presentation skills',
       'Technical background or knowledge of B2B SaaS products'
     ],
+    benefits: 'Comprehensive health insurance, 401k matching, professional development opportunities',
     status: 'Active',
     applicants: 15,
     isFeatured: true
@@ -199,10 +232,20 @@ const mockJobs: Job[] = [
       'Understanding of frontend build pipelines and tools',
       'Good understanding of web fundamentals and best practices'
     ],
-    status: 'Paused',
+    benefits: 'Comprehensive health insurance, 401k matching, generous vacation time',
+    status: 'On-Hold',
     applicants: 30
   }
 ];
+
+interface TextEditorState {
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  bulletList: boolean;
+  numberList: boolean;
+  alignment: 'left' | 'center' | 'right';
+}
 
 const JobBoard: React.FC = () => {
   const [jobs, setJobs] = useState<Job[]>(mockJobs);
@@ -227,12 +270,102 @@ const JobBoard: React.FC = () => {
   const [shareMessage, setShareMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [editMode, setEditMode] = useState(false);
+  const [editJobId, setEditJobId] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
+  
+  // New state for job form
+  const [newJobForm, setNewJobForm] = useState({
+    // Job Summary
+    title: '',
+    department: '',
+    location: '',
+    type: 'Full-time',
+    
+    // Job Outline
+    description: '',
+    responsibilities: '',
+    
+    // Qualifications & Experience
+    requirements: '',
+    experience: '',
+    skills: '',
+    
+    // Salary & Benefits
+    salary: '',
+    benefits: '',
+    
+    isFeatured: false
+  });
+  const [formErrors, setFormErrors] = useState({
+    title: false,
+    department: false,
+    location: false,
+    description: false,
+    responsibilities: false,
+    requirements: false,
+    experience: false,
+    skills: false,
+    salary: false,
+    benefits: false
+  });
+
+  // Text formatting state for each field
+  const [textFormatState, setTextFormatState] = useState<{
+    [key: string]: TextEditorState
+  }>({
+    description: {
+      bold: false,
+      italic: false,
+      underline: false,
+      bulletList: false,
+      numberList: false,
+      alignment: 'left'
+    },
+    responsibilities: {
+      bold: false,
+      italic: false,
+      underline: false,
+      bulletList: false,
+      numberList: false,
+      alignment: 'left'
+    },
+    requirements: {
+      bold: false,
+      italic: false,
+      underline: false,
+      bulletList: false,
+      numberList: false,
+      alignment: 'left'
+    },
+    skills: {
+      bold: false,
+      italic: false,
+      underline: false,
+      bulletList: false,
+      numberList: false,
+      alignment: 'left'
+    },
+    benefits: {
+      bold: false,
+      italic: false,
+      underline: false,
+      bulletList: false,
+      numberList: false,
+      alignment: 'left'
+    }
+  });
+  
+  // State for preview dialog
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [previewContent, setPreviewContent] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
 
   // Get unique departments, locations, and types for filters
   const departments = ['All', ...Array.from(new Set(jobs.map(job => job.department)))];
   const locations = ['All', ...Array.from(new Set(jobs.map(job => job.location)))];
   const types = ['All', ...Array.from(new Set(jobs.map(job => job.type)))];
-  const statuses = ['All', 'Active', 'Paused', 'Closed'];
+  const statuses = ['All', 'Active', 'On-Hold', 'Closed', 'Draft'];
 
   // Calculate days ago from posted date
   const getDaysAgo = (dateString: string) => {
@@ -276,6 +409,18 @@ const JobBoard: React.FC = () => {
       result = result.filter(job => job.status === statusFilter);
     }
     
+    // Sort results: Featured jobs first, then by posted date (newest first)
+    result.sort((a, b) => {
+      // First sort by featured status
+      if (a.isFeatured && !b.isFeatured) return -1;
+      if (!a.isFeatured && b.isFeatured) return 1;
+      
+      // Then sort by posted date (newest first)
+      const dateA = new Date(a.postedDate).getTime();
+      const dateB = new Date(b.postedDate).getTime();
+      return dateB - dateA;
+    });
+    
     setFilteredJobs(result);
   }, [jobs, searchTerm, departmentFilter, locationFilter, typeFilter, statusFilter]);
 
@@ -311,34 +456,255 @@ const JobBoard: React.FC = () => {
     }
   };
 
+  // Toggle job status
+  const toggleJobStatus = (jobId: number, newStatus: 'Active' | 'On-Hold' | 'Closed', e: React.MouseEvent) => {
+    e.stopPropagation();
+    setJobs(jobs.map(job => {
+      if (job.id === jobId) {
+        return { ...job, status: newStatus };
+      }
+      return job;
+    }));
+  };
+
+  // Handle form input changes
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
+    const { name, value } = e.target;
+    setNewJobForm({
+      ...newJobForm,
+      [name as string]: value,
+    });
+    
+    // Clear error when field is being edited
+    if (formErrors[name as keyof typeof formErrors]) {
+      setFormErrors({
+        ...formErrors,
+        [name as string]: false,
+      });
+    }
+  };
+
+  // Handle checkbox changes
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setNewJobForm({
+      ...newJobForm,
+      [name]: checked,
+    });
+  };
+
+  // Validate form fields
+  const validateForm = (asDraft: boolean = false) => {
+    // For drafts, only title is required
+    if (asDraft) {
+      const titleError = !newJobForm.title;
+      setFormErrors({
+        ...formErrors,
+        title: titleError
+      });
+      return !titleError;
+    }
+
+    // For publishing, all fields are required
+    const errors = {
+      title: !newJobForm.title,
+      department: !newJobForm.department,
+      location: !newJobForm.location,
+      description: !newJobForm.description,
+      responsibilities: !newJobForm.responsibilities,
+      requirements: !newJobForm.requirements,
+      experience: !newJobForm.experience,
+      skills: !newJobForm.skills,
+      salary: !newJobForm.salary,
+      benefits: !newJobForm.benefits
+    };
+    
+    setFormErrors(errors);
+    return !Object.values(errors).some(error => error);
+  };
+
+  // Handle tab change
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
+
   // Handle opening the new job dialog
   const handleOpenNewJobDialog = () => {
+    // Reset form when opening the dialog
+    setNewJobForm({
+      title: '',
+      department: '',
+      location: '',
+      type: 'Full-time',
+      description: '',
+      responsibilities: '',
+      requirements: '',
+      experience: '',
+      skills: '',
+      salary: '',
+      benefits: '',
+      isFeatured: false
+    });
+    setFormErrors({
+      title: false,
+      department: false,
+      location: false,
+      description: false,
+      responsibilities: false,
+      requirements: false,
+      experience: false,
+      skills: false,
+      salary: false,
+      benefits: false
+    });
+    setEditMode(false);
+    setEditJobId(null);
+    setActiveTab(0);
+    setNewJobDialogOpen(true);
+  };
+  
+  // Edit an existing job
+  const handleEditJob = (job: Job, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    // Only allow editing of draft jobs
+    if (job.status !== 'Draft') {
+      setSnackbarMessage('Only draft jobs can be edited. Published jobs cannot be modified.');
+      setSnackbarOpen(true);
+      return;
+    }
+    
+    setNewJobForm({
+      title: job.title,
+      department: job.department,
+      location: job.location,
+      type: job.type,
+      experience: job.experience || '',
+      salary: job.salary || '',
+      description: job.description,
+      responsibilities: job.responsibilities ? job.responsibilities.join('\n') : '',
+      requirements: job.requirements ? job.requirements.join('\n') : '',
+      skills: '',
+      benefits: '',
+      isFeatured: job.isFeatured || false
+    });
+    setFormErrors({
+      title: false,
+      department: false,
+      location: false,
+      description: false,
+      responsibilities: false,
+      requirements: false,
+      experience: false,
+      skills: false,
+      salary: false,
+      benefits: false
+    });
+    setEditMode(true);
+    setEditJobId(job.id);
+    setActiveTab(0);
     setNewJobDialogOpen(true);
   };
 
-  // Handle creating a new job (mock implementation)
-  const handleCreateNewJob = () => {
-    // In a real app, you would collect and validate job data from a form
+  // Handle creating a new job
+  const handleCreateNewJob = (asDraft: boolean = false) => {
+    if (!validateForm(asDraft)) {
+      return;
+    }
+
+    // Important - split the text inputs on newlines for requirements and responsibilities
     const newJob: Job = {
-      id: jobs.length + 1,
-      title: 'New Job Position',
-      location: 'Remote',
-      department: 'Engineering',
-      type: 'Full-time',
-      experience: '2-4 years',
-      salary: '$80,000 - $100,000',
-      postedDate: new Date().toISOString().split('T')[0],
-      description: 'This is a new job position.',
-      responsibilities: ['Responsibility 1', 'Responsibility 2', 'Responsibility 3'],
-      requirements: ['Requirement 1', 'Requirement 2', 'Requirement 3'],
-      status: 'Active',
-      applicants: 0
+      id: Math.floor(Math.random() * 10000),
+      title: newJobForm.title,
+      department: newJobForm.department || '',
+      location: newJobForm.location || '',
+      type: newJobForm.type || 'Full-time',
+      experience: newJobForm.experience || '',
+      salary: newJobForm.salary || '',
+      description: newJobForm.description || '',
+      responsibilities: newJobForm.responsibilities 
+        ? newJobForm.responsibilities.split('\n').filter(item => item.trim() !== '')
+        : [],
+      requirements: newJobForm.requirements
+        ? newJobForm.requirements.split('\n').filter(item => item.trim() !== '')
+        : [],
+      benefits: newJobForm.benefits || '',
+      postedDate: new Date().toISOString().substring(0, 10),
+      status: asDraft ? 'Draft' : 'Active',
+      applicants: 0,
+      isFeatured: newJobForm.isFeatured || false
     };
+
+    if (editMode && editJobId) {
+      // Update existing job
+      const jobToEdit = jobs.find(job => job.id === editJobId);
+      
+      // Double-check that we're only editing a draft job
+      if (jobToEdit && jobToEdit.status !== 'Draft' && !asDraft) {
+        setSnackbarMessage('Only draft jobs can be published. This job has already been published.');
+        setSnackbarOpen(true);
+        return;
+      }
+      
+      setJobs(jobs.map(job => {
+        if (job.id === editJobId) {
+          return {
+            ...job,
+            title: newJob.title,
+            location: newJob.location,
+            department: newJob.department,
+            type: newJob.type,
+            experience: newJob.experience || 'Not specified',
+            salary: newJob.salary || 'Not specified',
+            description: newJob.description,
+            responsibilities: newJob.responsibilities,
+            requirements: newJob.requirements,
+            benefits: newJob.benefits,
+            status: asDraft ? 'Draft' : 'Active',
+            isFeatured: newJob.isFeatured
+          };
+        }
+        return job;
+      }));
+      
+      setSnackbarMessage(asDraft ? 'Job saved as draft' : 'Job published successfully!');
+    } else {
+      // Create new job
+      setJobs([...jobs, newJob]);
+      setSnackbarMessage(asDraft ? 'Job saved as draft' : 'New job posting created successfully!');
+    }
     
-    setJobs([...jobs, newJob]);
     setNewJobDialogOpen(false);
-    setSnackbarMessage('New job posting created successfully!');
     setSnackbarOpen(true);
+    
+    // Reset form
+    setNewJobForm({
+      title: '',
+      department: '',
+      location: '',
+      type: 'Full-time',
+      description: '',
+      responsibilities: '',
+      requirements: '',
+      experience: '',
+      skills: '',
+      salary: '',
+      benefits: '',
+      isFeatured: false
+    });
+    setEditMode(false);
+    setEditJobId(null);
+    setActiveTab(0);
+  };
+
+  // Navigation to next tab
+  const handleNextTab = () => {
+    setActiveTab((prev) => Math.min(prev + 1, 3));
+  };
+
+  // Navigation to previous tab
+  const handlePrevTab = () => {
+    setActiveTab((prev) => Math.max(prev - 1, 0));
   };
 
   // Handle opening the share dialog
@@ -381,6 +747,515 @@ const JobBoard: React.FC = () => {
     setJobToApply(null);
     setSnackbarMessage('Your application has been submitted successfully!');
     setSnackbarOpen(true);
+  };
+
+  // Handle switch change
+  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewJobForm({
+      ...newJobForm,
+      isFeatured: event.target.checked
+    });
+  };
+
+  // Apply formatting to text
+  const applyFormatting = (fieldName: string, format: keyof TextEditorState, value: any) => {
+    // Get current text and selection
+    const textField = document.getElementById(fieldName) as HTMLTextAreaElement;
+    if (!textField) return;
+    
+    const start = textField.selectionStart;
+    const end = textField.selectionEnd;
+    const selectedText = newJobForm[fieldName as keyof typeof newJobForm]?.toString().substring(start, end) || '';
+    
+    if (selectedText.length === 0) {
+      // Just update the format state if no text is selected
+      // For list buttons, ensure they're mutually exclusive
+      if (format === 'bulletList' && value === true) {
+        setTextFormatState(prev => ({
+          ...prev,
+          [fieldName]: {
+            ...prev[fieldName],
+            [format]: value,
+            numberList: false
+          }
+        }));
+      } else if (format === 'numberList' && value === true) {
+        setTextFormatState(prev => ({
+          ...prev,
+          [fieldName]: {
+            ...prev[fieldName],
+            [format]: value,
+            bulletList: false
+          }
+        }));
+      } else {
+        setTextFormatState(prev => ({
+          ...prev,
+          [fieldName]: {
+            ...prev[fieldName],
+            [format]: value
+          }
+        }));
+      }
+      return;
+    }
+    
+    // Get the current text
+    const fullText = newJobForm[fieldName as keyof typeof newJobForm]?.toString() || '';
+    const before = fullText.substring(0, start);
+    const after = fullText.substring(end);
+    
+    // Check if text already has formatting
+    let newText = '';
+    let isFormatted = false;
+    let formattedText = selectedText;
+    
+    switch (format) {
+      case 'bold':
+        isFormatted = selectedText.startsWith('**') && selectedText.endsWith('**');
+        if (value && !isFormatted) {
+          // Apply bold
+          formattedText = `**${selectedText}**`;
+        } else if (!value || isFormatted) {
+          // Remove bold
+          formattedText = selectedText.replace(/^\*\*(.*)\*\*$/g, '$1');
+        }
+        break;
+      case 'italic':
+        isFormatted = selectedText.startsWith('_') && selectedText.endsWith('_');
+        if (value && !isFormatted) {
+          // Apply italic
+          formattedText = `_${selectedText}_`;
+        } else if (!value || isFormatted) {
+          // Remove italic
+          formattedText = selectedText.replace(/^_(.*?)_$/g, '$1');
+        }
+        break;
+      case 'underline':
+        isFormatted = selectedText.startsWith('__') && selectedText.endsWith('__');
+        if (value && !isFormatted) {
+          // Apply underline
+          formattedText = `__${selectedText}__`;
+        } else if (!value || isFormatted) {
+          // Remove underline
+          formattedText = selectedText.replace(/^__(.*?)__$/g, '$1');
+        }
+        break;
+      case 'bulletList':
+        // Check if text already has bullet points and remove any existing numbered list formatting
+        isFormatted = selectedText.split('\n').every(line => line.startsWith('• '));
+        const hasNumbering = selectedText.split('\n').some(line => /^\d+\.\s/.test(line));
+        
+        let cleanedText = selectedText;
+        if (hasNumbering) {
+          // Remove numbered list formatting first
+          cleanedText = selectedText.split('\n').map(line => line.replace(/^\d+\.\s/, '')).join('\n');
+        }
+        
+        if (value && !isFormatted) {
+          // Apply bullet list to clean text (without numbers)
+          formattedText = cleanedText.split('\n').map(line => `• ${line}`).join('\n');
+        } else if (!value || isFormatted) {
+          // Remove bullet list
+          formattedText = selectedText.split('\n').map(line => line.replace(/^• /, '')).join('\n');
+        }
+        
+        // Also update the numberList state to false since they're mutually exclusive
+        setTextFormatState(prev => ({
+          ...prev,
+          [fieldName]: {
+            ...prev[fieldName],
+            numberList: false
+          }
+        }));
+        break;
+      case 'numberList':
+        // Check if text already has numbering and remove any existing bullet list formatting
+        isFormatted = selectedText.split('\n').every((line, index) => 
+          line.match(new RegExp(`^${index + 1}\\. `))
+        );
+        const hasBullets = selectedText.split('\n').some(line => line.startsWith('• '));
+        
+        let cleanTextForNumbering = selectedText;
+        if (hasBullets) {
+          // Remove bullet list formatting first
+          cleanTextForNumbering = selectedText.split('\n').map(line => line.replace(/^• /, '')).join('\n');
+        }
+        
+        if (value && !isFormatted) {
+          // Apply numbered list to clean text (without bullets)
+          formattedText = cleanTextForNumbering.split('\n').map((line, index) => 
+            `${index + 1}. ${line}`
+          ).join('\n');
+        } else if (!value || isFormatted) {
+          // Remove numbered list
+          formattedText = selectedText.split('\n').map(line => 
+            line.replace(/^\d+\. /, '')
+          ).join('\n');
+        }
+        
+        // Also update the bulletList state to false since they're mutually exclusive
+        setTextFormatState(prev => ({
+          ...prev,
+          [fieldName]: {
+            ...prev[fieldName],
+            bulletList: false
+          }
+        }));
+        break;
+      case 'alignment':
+        // Check for existing alignment tags
+        const centerFormatted = selectedText.match(/^<center>(.*)<\/center>$/s);
+        const rightFormatted = selectedText.match(/^<right>(.*)<\/right>$/s);
+        
+        // Remove any existing alignment formatting first
+        let cleanTextForAlignment = selectedText;
+        if (centerFormatted) {
+          cleanTextForAlignment = centerFormatted[1];
+          isFormatted = value === 'center';
+        } else if (rightFormatted) {
+          cleanTextForAlignment = rightFormatted[1];
+          isFormatted = value === 'right';
+        }
+        
+        // Apply new alignment if needed
+        if (value === 'left' || isFormatted) {
+          formattedText = cleanTextForAlignment; // No tags for left alignment
+        } else if (value === 'center') {
+          formattedText = `<center>${cleanTextForAlignment}</center>`;
+        } else if (value === 'right') {
+          formattedText = `<right>${cleanTextForAlignment}</right>`;
+        }
+        break;
+      default:
+        formattedText = selectedText;
+        break;
+    }
+    
+    // Apply the formatted text
+    newText = before + formattedText + after;
+    
+    // Update form state
+    setNewJobForm({
+      ...newJobForm,
+      [fieldName]: newText
+    });
+    
+    // Update formatting state based on the result
+    const newFormatState = { ...textFormatState[fieldName] };
+    switch (format) {
+      case 'bold':
+        newFormatState.bold = formattedText.startsWith('**') && formattedText.endsWith('**');
+        break;
+      case 'italic':
+        newFormatState.italic = formattedText.startsWith('_') && formattedText.endsWith('_');
+        break;
+      case 'underline':
+        newFormatState.underline = formattedText.startsWith('__') && formattedText.endsWith('__');
+        break;
+      case 'bulletList':
+        newFormatState.bulletList = formattedText.split('\n').every(line => line.startsWith('• '));
+        newFormatState.numberList = false; // Make sure numberList is off when bulletList is on
+        break;
+      case 'numberList':
+        newFormatState.numberList = formattedText.split('\n').every((line, index) => 
+          line.match(new RegExp(`^${index + 1}\\. `))
+        );
+        newFormatState.bulletList = false; // Make sure bulletList is off when numberList is on
+        break;
+      case 'alignment':
+        if (formattedText.match(/^<center>.*<\/center>$/s)) {
+          newFormatState.alignment = 'center';
+        } else if (formattedText.match(/^<right>.*<\/right>$/s)) {
+          newFormatState.alignment = 'right';
+        } else {
+          newFormatState.alignment = 'left';
+        }
+        break;
+    }
+
+    setTextFormatState(prev => ({
+      ...prev,
+      [fieldName]: newFormatState
+    }));
+    
+    // Set focus back to the text field and update selection
+    setTimeout(() => {
+      textField.focus();
+      
+      // Calculate new selection positions based on the changes to the text
+      const selectionDiff = formattedText.length - selectedText.length;
+      const newSelectionStart = start;
+      const newSelectionEnd = end + selectionDiff;
+      
+      textField.setSelectionRange(newSelectionStart, newSelectionEnd);
+    }, 10);
+  };
+
+  // Clear all formatting
+  const clearFormatting = (fieldName: string) => {
+    const textField = document.getElementById(fieldName) as HTMLTextAreaElement;
+    if (!textField) return;
+    
+    const start = textField.selectionStart;
+    const end = textField.selectionEnd;
+    const selectedText = newJobForm[fieldName as keyof typeof newJobForm]?.toString().substring(start, end) || '';
+    
+    // Remove all formatting markers
+    let cleanText = selectedText
+      .replace(/\*\*(.*?)\*\*/g, '$1') // bold
+      .replace(/_(.*?)_/g, '$1')      // italic
+      .replace(/__(.*?)__/g, '$1')    // underline
+      .replace(/^• /gm, '')          // bullet points
+      .replace(/^\d+\. /gm, '')      // numbered lists
+      .replace(/<center>(.*?)<\/center>/gs, '$1') // center alignment
+      .replace(/<right>(.*?)<\/right>/gs, '$1'); // right alignment
+    
+    // Apply the clean text
+    const newText = newJobForm[fieldName as keyof typeof newJobForm]?.toString() || '';
+    const before = newText.substring(0, start);
+    const after = newText.substring(end);
+    const updatedText = before + cleanText + after;
+    
+    setNewJobForm({
+      ...newJobForm,
+      [fieldName]: updatedText
+    });
+    
+    // Reset formatting options for this field only
+        setTextFormatState(prev => ({
+          ...prev,
+          [fieldName]: {
+        bold: false,
+        italic: false,
+        underline: false,
+        bulletList: false,
+        numberList: false,
+        alignment: 'left'
+          }
+        }));
+    
+    // Set focus back to the text field
+    setTimeout(() => {
+      textField.focus();
+      // Preserve the actual selected text position
+      textField.setSelectionRange(start, start + cleanText.length);
+    }, 10);
+  };
+
+  // Handle alignment format change
+  const handleAlignmentChange = (fieldName: string, alignment: 'left' | 'center' | 'right' | null) => {
+    if (alignment) {
+      applyFormatting(fieldName, 'alignment', alignment);
+    }
+  };
+
+  // Show preview dialog for formatted text
+  const showPreview = (fieldName: string, fieldLabel: string) => {
+    const content = newJobForm[fieldName as keyof typeof newJobForm]?.toString() || '';
+    
+    // Apply markdown-like formatting for display
+    let formattedContent = content
+      // Bold
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      // Italic
+      .replace(/_(.*?)_/g, '<em>$1</em>')
+      // Underline
+      .replace(/__(.*?)__/g, '<u>$1</u>')
+      // Bullet lists
+      .replace(/^• (.*)$/gm, '<li>$1</li>')
+      // Numbered lists
+      .replace(/^\d+\. (.*)$/gm, '<li>$1</li>')
+      // Center alignment
+      .replace(/<center>(.*?)<\/center>/gs, '<div style="text-align: center">$1</div>')
+      // Right alignment
+      .replace(/<right>(.*?)<\/right>/gs, '<div style="text-align: right">$1</div>');
+    
+    // Add proper list tags
+    if (formattedContent.includes('<li>')) {
+      formattedContent = '<ul>' + formattedContent + '</ul>';
+      // Fix nested lists if any
+      formattedContent = formattedContent.replace(/<\/ul><ul>/g, '');
+    }
+    
+    // Add paragraph tags for better readability
+    formattedContent = formattedContent
+      .split('\n\n')
+      .map(para => para.trim().length > 0 ? `<p>${para}</p>` : '')
+      .join('');
+    
+    setPreviewContent(formattedContent);
+    setPreviewTitle(fieldLabel);
+    setPreviewDialogOpen(true);
+  };
+
+  // Render a text editor toolbar for a given field
+  const renderTextEditorToolbar = (fieldName: string, fieldLabel: string) => {
+    const formatState = textFormatState[fieldName];
+    
+    return (
+      <Box sx={{ mb: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+        <ToggleButtonGroup size="small">
+          <ToggleButton 
+            value="bold" 
+            selected={formatState.bold}
+            onChange={(_, value) => applyFormatting(fieldName, 'bold', value)}
+            aria-label="bold"
+          >
+            <FormatBoldIcon fontSize="small" />
+          </ToggleButton>
+          <ToggleButton 
+            value="italic" 
+            selected={formatState.italic}
+            onChange={(_, value) => applyFormatting(fieldName, 'italic', value)}
+            aria-label="italic"
+          >
+            <FormatItalicIcon fontSize="small" />
+          </ToggleButton>
+          <ToggleButton 
+            value="underline" 
+            selected={formatState.underline}
+            onChange={(_, value) => applyFormatting(fieldName, 'underline', value)}
+            aria-label="underline"
+          >
+            <FormatUnderlinedIcon fontSize="small" />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        
+        <ToggleButtonGroup size="small">
+          <ToggleButton 
+            value="bulletList" 
+            selected={formatState.bulletList}
+            onChange={(_, value) => applyFormatting(fieldName, 'bulletList', value)}
+            aria-label="bullet list"
+          >
+            <FormatListBulletedIcon fontSize="small" />
+          </ToggleButton>
+          <ToggleButton 
+            value="numberList" 
+            selected={formatState.numberList}
+            onChange={(_, value) => applyFormatting(fieldName, 'numberList', value)}
+            aria-label="number list"
+          >
+            <FormatListNumberedIcon fontSize="small" />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        
+        <ToggleButtonGroup 
+          exclusive 
+          size="small"
+          value={formatState.alignment}
+          onChange={(_, value) => handleAlignmentChange(fieldName, value)}
+        >
+          <ToggleButton value="left" aria-label="align left">
+            <FormatAlignLeftIcon fontSize="small" />
+          </ToggleButton>
+          <ToggleButton value="center" aria-label="align center">
+            <FormatAlignCenterIcon fontSize="small" />
+          </ToggleButton>
+          <ToggleButton value="right" aria-label="align right">
+            <FormatAlignRightIcon fontSize="small" />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        
+        <IconButton 
+          size="small" 
+          onClick={() => clearFormatting(fieldName)}
+          aria-label="clear formatting"
+        >
+          <FormatClearIcon fontSize="small" />
+        </IconButton>
+        
+        <Button 
+          size="small" 
+          startIcon={<VisibilityIcon />}
+          onClick={() => showPreview(fieldName, fieldLabel)}
+          sx={{ ml: 'auto' }}
+        >
+          Preview
+        </Button>
+      </Box>
+    );
+  };
+
+  // Format salary with thousand separators
+  const formatSalary = (value: string) => {
+    // Remove any non-digit characters except decimal point
+    let sanitized = value.replace(/[^\d.]/g, '');
+    
+    // Ensure only one decimal point
+    const parts = sanitized.split('.');
+    if (parts.length > 2) {
+      sanitized = parts[0] + '.' + parts.slice(1).join('');
+    }
+    
+    // Split by decimal point to handle integers and decimals separately
+    const [integerPart, decimalPart] = sanitized.split('.');
+    
+    // Add thousand separators to the integer part
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    
+    // Combine the parts
+    return decimalPart !== undefined 
+      ? `${formattedInteger}.${decimalPart}` 
+      : formattedInteger;
+  };
+
+  // Handle salary input with thousand separator formatting
+  const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const formattedValue = formatSalary(value);
+    
+    setNewJobForm({
+      ...newJobForm,
+      salary: formattedValue
+    });
+  };
+
+  // Render the responsibilities, requirements and other sections in job details view
+  const renderFormattedContent = (content: string | string[]) => {
+    if (!content) return null;
+    
+    // Convert array to string if needed
+    const contentStr = Array.isArray(content) ? content.join('\n') : content;
+    
+    // Replace bullet points to avoid double bullets in view mode
+    let formattedContent = contentStr
+      // Bold
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      // Italic
+      .replace(/_(.*?)_/g, '<em>$1</em>')
+      // Underline
+      .replace(/__(.*?)__/g, '<u>$1</u>')
+      // Bullet lists (avoid adding <li> tags since we'll manually add list items below)
+      .replace(/^• (.*)$/gm, '$1')
+      // Numbered lists (avoid adding <li> tags since we'll manually add list items below)
+      .replace(/^\d+\. (.*)$/gm, '$1')
+      // Center alignment
+      .replace(/<center>(.*?)<\/center>/gs, '<div style="text-align: center">$1</div>')
+      // Right alignment
+      .replace(/<right>(.*?)<\/right>/gs, '<div style="text-align: right">$1</div>');
+    
+    // Split by new line and create list items
+    const items = formattedContent.split('\n').filter(item => item.trim() !== '');
+    
+    return (
+      <ul>
+        {items.map((item, index) => (
+          <li key={index} dangerouslySetInnerHTML={{ __html: item }} />
+        ))}
+      </ul>
+    );
+  };
+
+  // Toggle job feature status
+  const toggleJobFeatured = (jobId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setJobs(jobs.map(job => 
+      job.id === jobId 
+        ? { ...job, isFeatured: !job.isFeatured } 
+        : job
+    ));
   };
 
   return (
@@ -495,7 +1370,8 @@ const JobBoard: React.FC = () => {
                   display: 'flex', 
                   flexDirection: 'column',
                   position: 'relative',
-                  border: job.isFeatured ? '1px solid #f0c14b' : 'none'
+                  border: job.isFeatured ? '1px solid #f0c14b' : 'none',
+                  opacity: job.status === 'Draft' ? 0.7 : 1
                 }}
               >
                 {job.isFeatured && (
@@ -509,6 +1385,18 @@ const JobBoard: React.FC = () => {
                       right: 10,
                       bgcolor: '#f0c14b',
                       color: 'black'
+                    }} 
+                  />
+                )}
+                {job.status === 'Draft' && (
+                  <Chip 
+                    label="Draft" 
+                    color="info" 
+                    size="small" 
+                    sx={{ 
+                      position: 'absolute', 
+                      top: job.isFeatured ? 40 : 10, 
+                      right: 10
                     }} 
                   />
                 )}
@@ -552,7 +1440,14 @@ const JobBoard: React.FC = () => {
                       {job.description}
                     </Typography>
                     
-                    <Stack direction="row" spacing={1} mb={1}>
+                    <Stack 
+                      direction="row" 
+                      spacing={1} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
+                    >
                       <Chip 
                         label={job.type} 
                         size="small" 
@@ -563,15 +1458,58 @@ const JobBoard: React.FC = () => {
                         size="small" 
                         variant="outlined" 
                       />
-                      <Chip 
-                        label={job.status} 
+                      <ButtonGroup 
                         size="small" 
-                        color={
-                          job.status === 'Active' ? 'success' : 
-                          job.status === 'Paused' ? 'warning' : 'error'
-                        }
-                        variant={job.status === 'Active' ? 'filled' : 'outlined'}
-                      />
+                        aria-label="job status" 
+                        sx={{ mb: 1 }}
+                        disableRipple
+                      >
+                        <Button 
+                          size="small"
+                          variant={job.status === 'Active' ? 'contained' : 'outlined'}
+                          color="success"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            toggleJobStatus(job.id, 'Active', e);
+                          }}
+                          sx={{ fontSize: '0.7rem', py: 0 }}
+                          disabled={job.status === 'Draft'}
+                          disableRipple
+                        >
+                          Active
+                        </Button>
+                        <Button 
+                          size="small"
+                          variant={job.status === 'On-Hold' ? 'contained' : 'outlined'}
+                          color="warning"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            toggleJobStatus(job.id, 'On-Hold', e);
+                          }}
+                          sx={{ fontSize: '0.7rem', py: 0 }}
+                          disabled={job.status === 'Draft'}
+                          disableRipple
+                        >
+                          On-Hold
+                        </Button>
+                        <Button 
+                          size="small"
+                          variant={job.status === 'Closed' ? 'contained' : 'outlined'}
+                          color="error"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            toggleJobStatus(job.id, 'Closed', e);
+                          }}
+                          sx={{ fontSize: '0.7rem', py: 0 }}
+                          disabled={job.status === 'Draft'}
+                          disableRipple
+                        >
+                          Closed
+                        </Button>
+                      </ButtonGroup>
                     </Stack>
 
                     <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -585,7 +1523,11 @@ const JobBoard: React.FC = () => {
                       <Box display="flex" alignItems="center">
                         <DateIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
                         <Typography variant="body2" color="text.secondary">
-                          {getDaysAgo(job.postedDate)} days ago
+                          Posted: {new Date(job.postedDate).toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                          })}
                         </Typography>
                       </Box>
                     </Box>
@@ -613,10 +1555,33 @@ const JobBoard: React.FC = () => {
                       </IconButton>
                     </Tooltip>
                     
+                    <Tooltip title={job.isFeatured ? "Remove Featured" : "Mark as Featured"}>
+                      <IconButton 
+                        size="small"
+                        color={job.isFeatured ? "warning" : "default"}
+                        onClick={(e) => toggleJobFeatured(job.id, e)}
+                      >
+                        {job.isFeatured ? <StarIcon /> : <StarBorderIcon />}
+                      </IconButton>
+                    </Tooltip>
+
+                    {job.status === 'Draft' && (
+                      <Tooltip title="Edit Draft">
+                        <IconButton 
+                          size="small"
+                          color="primary"
+                          onClick={(e) => handleEditJob(job, e)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    
                     <Tooltip title="Share">
                       <IconButton 
                         size="small"
                         onClick={(e) => handleOpenShareDialog(job, e)}
+                        disabled={job.status === 'Draft'}
                       >
                         <ShareIcon />
                       </IconButton>
@@ -672,7 +1637,7 @@ const JobBoard: React.FC = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12} md={8}>
                   <Box mb={3}>
-                    <Typography variant="h6" gutterBottom>Job Description</Typography>
+                    <Typography variant="h6" gutterBottom>Job Summary</Typography>
                     <Typography variant="body1" paragraph>
                       {selectedJob.description}
                     </Typography>
@@ -680,34 +1645,28 @@ const JobBoard: React.FC = () => {
                   
                   <Box mb={3}>
                     <Typography variant="h6" gutterBottom>Responsibilities</Typography>
-                    <ul style={{ paddingLeft: '20px', marginTop: 0 }}>
-                      {selectedJob.responsibilities.map((resp, index) => (
-                        <li key={index}>
-                          <Typography variant="body1" paragraph>
-                            {resp}
-                          </Typography>
-                        </li>
-                      ))}
-                    </ul>
+                    {renderFormattedContent(selectedJob.responsibilities)}
                   </Box>
                   
                   <Box mb={3}>
-                    <Typography variant="h6" gutterBottom>Requirements</Typography>
-                    <ul style={{ paddingLeft: '20px', marginTop: 0 }}>
-                      {selectedJob.requirements.map((req, index) => (
-                        <li key={index}>
-                          <Typography variant="body1" paragraph>
-                            {req}
-                          </Typography>
-                        </li>
-                      ))}
-                    </ul>
+                    <Typography variant="h6" gutterBottom>Candidate Requirements</Typography>
+                    {renderFormattedContent(selectedJob.requirements)}
+                  </Box>
+                  
+                  {/* Benefits section */}
+                  <Box mb={3}>
+                    <Typography variant="h6" gutterBottom>Compensation and Benefits</Typography>
+                    {selectedJob.benefits ? renderFormattedContent(selectedJob.benefits) : (
+                      <Typography variant="body2" color="text.secondary">
+                        No benefits specified
+                      </Typography>
+                    )}
                   </Box>
                 </Grid>
                 
                 <Grid item xs={12} md={4}>
                   <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-                    <Typography variant="subtitle1" gutterBottom>Job Details</Typography>
+                    <Typography variant="subtitle1" gutterBottom>Job Information</Typography>
                     
                     <Box display="flex" alignItems="center" mb={1}>
                       <LocationIcon fontSize="small" color="action" sx={{ mr: 1 }} />
@@ -822,93 +1781,375 @@ const JobBoard: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Post New Job Dialog */}
+      {/* Post New Job Dialog - Redesigned with tabs and more space */}
       <Dialog
         open={newJobDialogOpen}
         onClose={() => setNewJobDialogOpen(false)}
         fullWidth
-        maxWidth="md"
+        maxWidth="lg"
+        PaperProps={{
+          sx: { minHeight: '80vh' }
+        }}
       >
-        <DialogTitle>Post New Job</DialogTitle>
-        <DialogContent>
-          <Typography sx={{ mb: 2 }}>
-            Fill out the form below to create a new job posting.
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Job Title"
-                margin="normal"
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Department"
-                margin="normal"
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Location"
-                margin="normal"
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Job Type</InputLabel>
-                <Select
-                  label="Job Type"
-                  defaultValue="Full-time"
-                >
-                  <MenuItem value="Full-time">Full-time</MenuItem>
-                  <MenuItem value="Part-time">Part-time</MenuItem>
-                  <MenuItem value="Contract">Contract</MenuItem>
-                  <MenuItem value="Temporary">Temporary</MenuItem>
-                  <MenuItem value="Internship">Internship</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Experience Required"
-                margin="normal"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Salary Range"
-                margin="normal"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Job Description"
-                margin="normal"
-                multiline
-                rows={4}
-                required
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setNewJobDialogOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
-            color="primary"
-            onClick={handleCreateNewJob}
+        <DialogTitle>
+          {editMode ? 'Edit Job' : 'Post New Job'}
+          <IconButton
+            aria-label="close"
+            onClick={() => setNewJobDialogOpen(false)}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
           >
-            Create Job Posting
-          </Button>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Box sx={{ width: '100%' }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+              <Tabs 
+                value={activeTab} 
+                onChange={handleTabChange}
+                variant="scrollable"
+                scrollButtons="auto"
+                aria-label="job creation tabs"
+              >
+                <Tab label="Job Summary" />
+                <Tab label="Job Outline" />
+                <Tab label="Qualifications & Experience" />
+                <Tab label="Salary & Benefits" />
+              </Tabs>
+            </Box>
+            
+            {/* Tab 1: Job Summary */}
+            {activeTab === 0 && (
+              <Box sx={{ p: 1 }}>
+                <Typography variant="h6" gutterBottom>Basic Job Information</Typography>
+                <TextField
+                  fullWidth
+                  label="Job Title"
+                  name="title"
+                  margin="normal"
+                  required
+                  value={newJobForm.title}
+                  onChange={handleFormChange}
+                  error={formErrors.title}
+                  helperText={formErrors.title ? "Job title is required" : ""}
+                />
+                
+                <Grid container spacing={2} sx={{ mt: 1 }}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Department"
+                      name="department"
+                      required
+                      value={newJobForm.department}
+                      onChange={handleFormChange}
+                      error={formErrors.department}
+                      helperText={formErrors.department ? "Department is required" : ""}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Location"
+                      name="location"
+                      required
+                      value={newJobForm.location}
+                      onChange={handleFormChange}
+                      error={formErrors.location}
+                      helperText={formErrors.location ? "Location is required" : ""}
+                    />
+                  </Grid>
+                </Grid>
+                
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Job Type</InputLabel>
+                  <Select
+                    label="Job Type"
+                    name="type"
+                    value={newJobForm.type}
+                    onChange={handleFormChange}
+                    required
+                  >
+                    <MenuItem value="Full-time">Full-time</MenuItem>
+                    <MenuItem value="Part-time">Part-time</MenuItem>
+                    <MenuItem value="Contract">Contract</MenuItem>
+                    <MenuItem value="Temporary">Temporary</MenuItem>
+                    <MenuItem value="Internship">Internship</MenuItem>
+                  </Select>
+                </FormControl>
+                
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle1" gutterBottom>Featured Status</Typography>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={newJobForm.isFeatured}
+                        onChange={handleSwitchChange}
+                        color="primary"
+                      />
+                    }
+                    label={
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        {newJobForm.isFeatured ? <StarIcon color="warning" sx={{ mr: 1 }} /> : <StarBorderIcon sx={{ mr: 1 }} />}
+                        {newJobForm.isFeatured ? "Featured Job" : "Standard Job"}
+                      </Box>
+                    }
+                  />
+                </Box>
+              </Box>
+            )}
+            
+            {/* Tab 2: Job Outline */}
+            {activeTab === 1 && (
+              <Box sx={{ p: 1 }}>
+                <Typography variant="h6" gutterBottom>Job Description and Responsibilities</Typography>
+                
+                <Box sx={{ position: 'relative', mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="subtitle1" component="label" htmlFor="description">
+                      Job Description
+                      <Typography component="span" color="error">*</Typography>
+                    </Typography>
+                    <Tooltip title="Provide a comprehensive overview of the job, including its purpose, main duties, and how it fits into the organization">
+                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                    </Tooltip>
+                  </Box>
+                  {renderTextEditorToolbar('description', 'Job Description')}
+                  <TextField
+                    id="description"
+                    fullWidth
+                    name="description"
+                    multiline
+                    rows={8}
+                    required
+                    value={newJobForm.description}
+                    onChange={handleFormChange}
+                    error={formErrors.description}
+                    helperText={formErrors.description ? "Job description is required" : "Max 2000 characters"}
+                    inputProps={{ maxLength: 2000 }}
+                  />
+                </Box>
+                
+                <Box sx={{ position: 'relative' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="subtitle1" component="label" htmlFor="responsibilities">
+                      Responsibilities
+                      <Typography component="span" color="error">*</Typography>
+                    </Typography>
+                    <Tooltip title="List the key responsibilities for this position, enter each responsibility on a new line">
+                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                    </Tooltip>
+                  </Box>
+                  {renderTextEditorToolbar('responsibilities', 'Responsibilities')}
+                  <TextField
+                    id="responsibilities"
+                    fullWidth
+                    name="responsibilities"
+                    multiline
+                    rows={8}
+                    value={newJobForm.responsibilities}
+                    onChange={handleFormChange}
+                    placeholder="Enter each responsibility on a new line"
+                    helperText={formErrors.responsibilities ? "Responsibilities are required" : "Max 1000 characters"}
+                    inputProps={{ maxLength: 1000 }}
+                    required
+                    error={formErrors.responsibilities}
+                  />
+                </Box>
+              </Box>
+            )}
+            
+            {/* Tab 3: Qualifications & Experience */}
+            {activeTab === 2 && (
+              <Box sx={{ p: 1 }}>
+                <Typography variant="h6" gutterBottom>Candidate Requirements</Typography>
+                
+                <Box sx={{ position: 'relative', mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="subtitle1" component="label" htmlFor="experience">
+                      Experience Required
+                      <Typography component="span" color="error">*</Typography>
+                    </Typography>
+                    <Tooltip title="Specify the years of experience needed for this position">
+                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                    </Tooltip>
+                  </Box>
+                  <TextField
+                    id="experience"
+                    fullWidth
+                    name="experience"
+                    margin="normal"
+                    value={newJobForm.experience}
+                    onChange={handleFormChange}
+                    placeholder="e.g., 3-5 years in similar role"
+                    helperText={formErrors.experience ? "Experience is required" : "Max 100 characters"}
+                    inputProps={{ maxLength: 100 }}
+                    required
+                    error={formErrors.experience}
+                  />
+                </Box>
+                
+                <Box sx={{ position: 'relative', mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="subtitle1" component="label" htmlFor="requirements">
+                      Qualifications
+                      <Typography component="span" color="error">*</Typography>
+                    </Typography>
+                    <Tooltip title="List the qualifications required for this position, such as education, certifications, or knowledge areas">
+                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                    </Tooltip>
+                  </Box>
+                  {renderTextEditorToolbar('requirements', 'Qualifications')}
+                  <TextField
+                    id="requirements"
+                    fullWidth
+                    name="requirements"
+                    multiline
+                    rows={6}
+                    value={newJobForm.requirements}
+                    onChange={handleFormChange}
+                    placeholder="Enter each qualification on a new line"
+                    helperText={formErrors.requirements ? "Qualifications are required" : "Max 1000 characters"}
+                    inputProps={{ maxLength: 1000 }}
+                    required
+                    error={formErrors.requirements}
+                  />
+                </Box>
+                
+                <Box sx={{ position: 'relative' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="subtitle1" component="label" htmlFor="skills">
+                      Skills
+                      <Typography component="span" color="error">*</Typography>
+                    </Typography>
+                    <Tooltip title="Specify technical or soft skills needed for the role, one per line">
+                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                    </Tooltip>
+                  </Box>
+                  {renderTextEditorToolbar('skills', 'Skills')}
+                  <TextField
+                    id="skills"
+                    fullWidth
+                    name="skills"
+                    multiline
+                    rows={4}
+                    value={newJobForm.skills}
+                    onChange={handleFormChange}
+                    placeholder="Enter each skill on a new line"
+                    helperText={formErrors.skills ? "Skills are required" : "Max 500 characters"}
+                    inputProps={{ maxLength: 500 }}
+                    required
+                    error={formErrors.skills}
+                  />
+                </Box>
+              </Box>
+            )}
+            
+            {/* Tab 4: Salary & Benefits */}
+            {activeTab === 3 && (
+              <Box sx={{ p: 1 }}>
+                <Typography variant="h6" gutterBottom>Compensation and Benefits</Typography>
+                
+                <Box sx={{ position: 'relative', mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="subtitle1" component="label" htmlFor="salary">
+                      Salary Range
+                      <Typography component="span" color="error">*</Typography>
+                    </Typography>
+                    <Tooltip title="Provide a salary range to attract the right candidates">
+                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                    </Tooltip>
+                  </Box>
+                  <TextField
+                    id="salary"
+                    fullWidth
+                    name="salary"
+                    margin="normal"
+                    value={newJobForm.salary}
+                    onChange={handleSalaryChange}
+                    placeholder="e.g., $80,000 - $100,000"
+                    helperText={formErrors.salary ? "Salary is required" : "Max 100 characters"}
+                    inputProps={{ maxLength: 100 }}
+                    required
+                    error={formErrors.salary}
+                  />
+                </Box>
+                
+                <Box sx={{ position: 'relative' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="subtitle1" component="label" htmlFor="benefits">
+                      Benefits
+                      <Typography component="span" color="error">*</Typography>
+                    </Typography>
+                    <Tooltip title="List benefits such as healthcare, 401k, time off, work-from-home options, etc.">
+                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                    </Tooltip>
+                  </Box>
+                  {renderTextEditorToolbar('benefits', 'Benefits')}
+                  <TextField
+                    id="benefits"
+                    fullWidth
+                    name="benefits"
+                    multiline
+                    rows={8}
+                    value={newJobForm.benefits}
+                    onChange={handleFormChange}
+                    placeholder="Enter each benefit on a new line"
+                    helperText={formErrors.benefits ? "Benefits are required" : "Max 1000 characters"}
+                    inputProps={{ maxLength: 1000 }}
+                    required
+                    error={formErrors.benefits}
+                  />
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2, justifyContent: 'space-between' }}>
+          <Box>
+            {activeTab > 0 && (
+              <Button onClick={handlePrevTab} sx={{ mr: 1 }}>
+                Previous
+              </Button>
+            )}
+            <Button 
+              variant="outlined" 
+              color="primary"
+              onClick={() => handleCreateNewJob(true)}
+            >
+              {editMode ? 'Update as Draft' : 'Save as Draft'}
+            </Button>
+          </Box>
+          <Box>
+            <Button 
+              onClick={() => setNewJobDialogOpen(false)} 
+              sx={{ mr: 1 }}
+            >
+              Cancel
+            </Button>
+            {activeTab < 3 ? (
+              <Button 
+                variant="contained" 
+                color="primary"
+                onClick={handleNextTab}
+              >
+                Next
+              </Button>
+            ) : (
+              <Button 
+                variant="contained" 
+                color="primary"
+                onClick={() => handleCreateNewJob(false)}
+              >
+                {editMode ? 'Update Job' : 'Publish Job'}
+              </Button>
+            )}
+          </Box>
         </DialogActions>
       </Dialog>
 
@@ -1060,6 +2301,31 @@ const JobBoard: React.FC = () => {
           >
             Submit Application
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Preview Dialog */}
+      <Dialog
+        open={previewDialogOpen}
+        onClose={() => setPreviewDialogOpen(false)}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h6">Preview: {previewTitle}</Typography>
+            <IconButton onClick={() => setPreviewDialogOpen(false)} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Box sx={{ p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+            <div dangerouslySetInnerHTML={{ __html: previewContent }} />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPreviewDialogOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
 
