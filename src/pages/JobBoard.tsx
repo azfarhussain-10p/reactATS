@@ -13,7 +13,7 @@ import {
   Divider, 
   FormControl, 
   InputLabel, 
-  Select,
+  Select, 
   SelectChangeEvent,
   MenuItem,
   Dialog,
@@ -562,7 +562,7 @@ const JobBoard: React.FC = () => {
     setActiveTab(0);
     setNewJobDialogOpen(true);
   };
-  
+
   // Edit an existing job
   const handleEditJob = (job: Job, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -670,7 +670,7 @@ const JobBoard: React.FC = () => {
       setSnackbarMessage(asDraft ? 'Job saved as draft' : 'Job published successfully!');
     } else {
       // Create new job
-      setJobs([...jobs, newJob]);
+    setJobs([...jobs, newJob]);
       setSnackbarMessage(asDraft ? 'Job saved as draft' : 'New job posting created successfully!');
     }
     
@@ -1659,7 +1659,7 @@ const JobBoard: React.FC = () => {
                     {selectedJob.benefits ? renderFormattedContent(selectedJob.benefits) : (
                       <Typography variant="body2" color="text.secondary">
                         No benefits specified
-                      </Typography>
+                          </Typography>
                     )}
                   </Box>
                 </Grid>
@@ -1827,61 +1827,61 @@ const JobBoard: React.FC = () => {
             {activeTab === 0 && (
               <Box sx={{ p: 1 }}>
                 <Typography variant="h6" gutterBottom>Basic Job Information</Typography>
-                <TextField
-                  fullWidth
-                  label="Job Title"
+              <TextField
+                fullWidth
+                label="Job Title"
                   name="title"
-                  margin="normal"
-                  required
+                margin="normal"
+                required
                   value={newJobForm.title}
                   onChange={handleFormChange}
                   error={formErrors.title}
                   helperText={formErrors.title ? "Job title is required" : ""}
-                />
+              />
                 
                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Department"
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Department"
                       name="department"
-                      required
+                required
                       value={newJobForm.department}
                       onChange={handleFormChange}
                       error={formErrors.department}
                       helperText={formErrors.department ? "Department is required" : ""}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Location"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Location"
                       name="location"
-                      required
+                required
                       value={newJobForm.location}
                       onChange={handleFormChange}
                       error={formErrors.location}
                       helperText={formErrors.location ? "Location is required" : ""}
-                    />
-                  </Grid>
+              />
+            </Grid>
                 </Grid>
                 
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Job Type</InputLabel>
-                  <Select
-                    label="Job Type"
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Job Type</InputLabel>
+                <Select
+                  label="Job Type"
                     name="type"
                     value={newJobForm.type}
                     onChange={handleFormChange}
                     required
-                  >
-                    <MenuItem value="Full-time">Full-time</MenuItem>
-                    <MenuItem value="Part-time">Part-time</MenuItem>
-                    <MenuItem value="Contract">Contract</MenuItem>
-                    <MenuItem value="Temporary">Temporary</MenuItem>
-                    <MenuItem value="Internship">Internship</MenuItem>
-                  </Select>
-                </FormControl>
+                >
+                  <MenuItem value="Full-time">Full-time</MenuItem>
+                  <MenuItem value="Part-time">Part-time</MenuItem>
+                  <MenuItem value="Contract">Contract</MenuItem>
+                  <MenuItem value="Temporary">Temporary</MenuItem>
+                  <MenuItem value="Internship">Internship</MenuItem>
+                </Select>
+              </FormControl>
                 
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="subtitle1" gutterBottom>Featured Status</Typography>
@@ -1920,9 +1920,9 @@ const JobBoard: React.FC = () => {
                     </Tooltip>
                   </Box>
                   {renderTextEditorToolbar('description', 'Job Description')}
-                  <TextField
+              <TextField
                     id="description"
-                    fullWidth
+                fullWidth
                     name="description"
                     multiline
                     rows={8}
@@ -1946,9 +1946,9 @@ const JobBoard: React.FC = () => {
                     </Tooltip>
                   </Box>
                   {renderTextEditorToolbar('responsibilities', 'Responsibilities')}
-                  <TextField
+              <TextField
                     id="responsibilities"
-                    fullWidth
+                fullWidth
                     name="responsibilities"
                     multiline
                     rows={8}
@@ -1979,11 +1979,11 @@ const JobBoard: React.FC = () => {
                       <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
                     </Tooltip>
                   </Box>
-                  <TextField
+              <TextField
                     id="experience"
-                    fullWidth
+                fullWidth
                     name="experience"
-                    margin="normal"
+                margin="normal"
                     value={newJobForm.experience}
                     onChange={handleFormChange}
                     placeholder="e.g., 3-5 years in similar role"
@@ -2036,14 +2036,14 @@ const JobBoard: React.FC = () => {
                     id="skills"
                     fullWidth
                     name="skills"
-                    multiline
-                    rows={4}
+                multiline
+                rows={4}
                     value={newJobForm.skills}
                     onChange={handleFormChange}
                     placeholder="Enter each skill on a new line"
                     helperText={formErrors.skills ? "Skills are required" : "Max 500 characters"}
                     inputProps={{ maxLength: 500 }}
-                    required
+                required
                     error={formErrors.skills}
                   />
                 </Box>
@@ -2133,13 +2133,13 @@ const JobBoard: React.FC = () => {
               Cancel
             </Button>
             {activeTab < 3 ? (
-              <Button 
-                variant="contained" 
-                color="primary"
+          <Button 
+            variant="contained" 
+            color="primary"
                 onClick={handleNextTab}
-              >
+          >
                 Next
-              </Button>
+          </Button>
             ) : (
               <Button 
                 variant="contained" 

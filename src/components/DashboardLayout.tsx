@@ -40,6 +40,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
   BarChart as BarChartIcon,
   PieChart as PieChartIcon,
+  Share as ShareIcon,
 } from '@mui/icons-material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AccessibilitySettings } from './AccessibilityMenu';
@@ -118,6 +119,7 @@ export default function DashboardLayout({
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', ariaLabel: 'Navigate to dashboard' },
     { text: 'Candidates', icon: <PersonIcon />, path: '/candidates', ariaLabel: 'Navigate to candidates list' },
     { text: 'Job Board', icon: <WorkIcon />, path: '/job-openings', ariaLabel: 'Navigate to job board' },
+    { text: 'Job Distribution', icon: <ShareIcon />, path: '/job-distribution', ariaLabel: 'Navigate to job distribution' },
     { text: 'Interviews', icon: <EventIcon />, path: '/interviews', ariaLabel: 'Navigate to interview scheduler' },
     { text: 'Analytics', icon: <BarChartIcon />, path: '/analytics', ariaLabel: 'Navigate to analytics dashboard' },
     { text: 'Reports', icon: <PieChartIcon />, path: '/reports', ariaLabel: 'Navigate to reports' },

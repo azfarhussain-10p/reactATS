@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Typography,
   Paper,
   Grid,
-  Card,
-  CardContent,
-  CardActions,
   Button,
   Chip,
+  Avatar,
   Table,
   TableBody,
   TableCell,
@@ -16,416 +14,769 @@ import {
   TableHead,
   TableRow,
   IconButton,
-  Tooltip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Divider,
   TextField,
+  MenuItem,
+  Select,
   FormControl,
   InputLabel,
-  Select,
-  MenuItem,
-  FormControlLabel,
-  Switch,
-  CircularProgress,
-  Tabs,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Tooltip,
   Tab,
-  Divider,
-  Link,
-  Alert,
+  Tabs,
   Badge,
-  Avatar,
-  Snackbar
+  Stack,
+  Switch,
+  FormControlLabel,
+  Alert,
+  Snackbar,
+  Card,
+  CardContent,
+  InputAdornment
 } from '@mui/material';
-
 import {
   Add as AddIcon,
+  Refresh as RefreshIcon,
+  ContentCopy as CopyIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Visibility as ViewIcon,
-  PlayArrow as PublishIcon,
-  Pause as PauseIcon,
-  Refresh as RefreshIcon,
-  Link as LinkIcon,
-  BarChart as ChartIcon,
-  Facebook as FacebookIcon,
+  CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon,
+  Share as ShareIcon,
+  Visibility as VisibilityIcon,
+  FilterList as FilterListIcon,
+  Search as SearchIcon,
   LinkedIn as LinkedInIcon,
   Twitter as TwitterIcon,
+  Facebook as FacebookIcon,
   Language as WebsiteIcon,
-  Warning as WarningIcon,
-  Share as ShareIcon,
-  CheckCircle as CheckCircleIcon,
+  Link as LinkIcon,
   Error as ErrorIcon
 } from '@mui/icons-material';
+import { SelectChangeEvent } from '@mui/material/Select';
 
-import { useJobPosting } from '../contexts/JobPostingContext';
-import { JobPlatform, ExternalJobPosting } from '../models/types';
+// Define types
+interface JobBoard {
+  id: string;
+  name: string;
+  logo: string;
+  type: 'Premium' | 'Free' | 'Paid';
+  status: 'Connected' | 'Disconnected';
+  cost: number;
+  features: string[];
+  recommendedFor: string[];
+  color: string;
+  jobsPosted: number;
+  connectedDate: string;
+  costPerJob: number;
+  apiKey: string;
+}
 
-// Define platform icons
-const PlatformIcon = ({ platform }: { platform: JobPlatform }) => {
-  switch (platform) {
-    case 'LinkedIn':
-      return <LinkedInIcon style={{ color: '#0077b5' }} />;
-    case 'Facebook':
-      return <FacebookIcon style={{ color: '#1877f2' }} />;
-    case 'Twitter':
-      return <TwitterIcon style={{ color: '#1da1f2' }} />;
-    case 'CompanyWebsite':
-      return <WebsiteIcon style={{ color: '#4caf50' }} />;
+interface Job {
+  id: number;
+  title: string;
+  location: string;
+  department: string;
+  type: string;
+  salary: string;
+  postedDate: string;
+  status: 'Active' | 'On-Hold' | 'Closed' | 'Draft';
+  distribution: {
+    boardId: string;
+    status: 'Published' | 'Failed' | 'Pending' | 'Draft';
+    postedDate?: string;
+    expiryDate?: string;
+    applicants?: number;
+    views?: number;
+    clicks?: number;
+    cost?: number;
+  }[];
+}
+
+interface DistributionHistory {
+  id: number;
+  jobId: number;
+  jobTitle: string;
+  boardId: string;
+  boardName: string;
+  status: 'Published' | 'Failed' | 'Pending' | 'Draft';
+  postedDate: string;
+  expiryDate: string;
+  applicants: number;
+  views: number;
+  clicks: number;
+  cost: number;
+  date?: string;
+  platforms?: string[];
+}
+
+type TabValue = 'boards' | 'distribution' | 'history';
+
+// Define JobBoardStatus type for better type safety
+type JobBoardStatus = 'Connected' | 'Disconnected';
+
+// Custom components
+const PlatformIcon: React.FC<{ platform: string; size?: 'small' | 'medium' }> = ({ platform, size = 'medium' }) => {
+  const getIcon = () => {
+    switch (platform.toLowerCase()) {
+      case 'linkedin':
+        return <LinkedInIcon fontSize={size} />;
+      case 'twitter':
+        return <TwitterIcon fontSize={size} />;
+      case 'facebook':
+        return <FacebookIcon fontSize={size} />;
     default:
-      return <Language />;
-  }
+        return <WebsiteIcon fontSize={size} />;
+    }
+  };
+
+  return getIcon();
 };
 
-// Status label component
-const StatusLabel = ({ status }: { status: string }) => {
-  let color = 'default';
+const StatusLabel: React.FC<{ status: string; type?: 'board' | 'job' | 'distribution' }> = ({ status, type = 'job' }) => {
+  const getColor = () => {
+    if (type === 'board') {
+      return status === 'Connected' ? 'success' : 'error';
+    }
+    
+    if (type === 'distribution') {
   switch (status) {
     case 'Published':
-      color = 'success';
-      break;
+          return 'success';
+        case 'Failed':
+          return 'error';
+        case 'Pending':
+          return 'warning';
     case 'Draft':
-      color = 'default';
-      break;
-    case 'Expired':
-      color = 'error';
-      break;
-    case 'Paused':
-      color = 'warning';
-      break;
-  }
-  return <Chip label={status} color={color as any} size="small" />;
+          return 'default';
+        default:
+          return 'default';
+      }
+    }
+    
+    // Default job status colors
+    switch (status) {
+      case 'Active':
+        return 'success';
+      case 'On-Hold':
+        return 'warning';
+      case 'Closed':
+        return 'error';
+      case 'Draft':
+        return 'default';
+      default:
+        return 'default';
+    }
+  };
+
+  return (
+    <Chip 
+      label={status} 
+      size="small" 
+      color={getColor()} 
+      variant={type === 'board' && status === 'Connected' ? 'filled' : 'outlined'}
+    />
+  );
 };
 
-// Mock data for job listings
-const mockJobs = [
-  { id: 1, title: 'Frontend Developer', department: 'Engineering', status: 'Published', applicants: 12 },
-  { id: 2, title: 'UX Designer', department: 'Design', status: 'Published', applicants: 8 },
-  { id: 3, title: 'Product Manager', department: 'Product', status: 'Draft', applicants: 0 },
-  { id: 4, title: 'DevOps Engineer', department: 'Engineering', status: 'Published', applicants: 5 },
-  { id: 5, title: 'Marketing Specialist', department: 'Marketing', status: 'Draft', applicants: 0 },
+// Mock data
+const mockJobBoards: JobBoard[] = [
+  {
+    id: 'linkedin',
+    name: 'LinkedIn',
+    logo: '/logos/linkedin.png',
+    type: 'Premium',
+    status: 'Connected',
+    cost: 299,
+    features: ['Premium placement', 'Candidate matching', 'Smart alerts', 'Performance analytics'],
+    recommendedFor: ['Tech jobs', 'Professional roles', 'Corporate positions'],
+    color: '#0077B5',
+    jobsPosted: 0,
+    connectedDate: '',
+    costPerJob: 0,
+    apiKey: ''
+  },
+  {
+    id: 'indeed',
+    name: 'Indeed',
+    logo: '/logos/indeed.png',
+    type: 'Free',
+    status: 'Connected',
+    cost: 0,
+    features: ['Free posting', 'Basic analytics', 'Mobile optimization'],
+    recommendedFor: ['Entry-level positions', 'High-volume hiring', 'General job categories'],
+    color: '#003A9B',
+    jobsPosted: 0,
+    connectedDate: '',
+    costPerJob: 0,
+    apiKey: ''
+  },
+  {
+    id: 'glassdoor',
+    name: 'Glassdoor',
+    logo: '/logos/glassdoor.png',
+    type: 'Paid',
+    status: 'Disconnected',
+    cost: 199,
+    features: ['Company branding', 'Enhanced visibility', 'Review management'],
+    recommendedFor: ['Building employer brand', 'Competitive industries'],
+    color: '#0CAA41',
+    jobsPosted: 0,
+    connectedDate: '',
+    costPerJob: 0,
+    apiKey: ''
+  },
+  {
+    id: 'monster',
+    name: 'Monster',
+    logo: '/logos/monster.png',
+    type: 'Paid',
+    status: 'Connected',
+    cost: 249,
+    features: ['Resume search', 'Precision matching', 'Featured listings'],
+    recommendedFor: ['Specialized roles', 'Healthcare', 'Technical positions'],
+    color: '#6E2585',
+    jobsPosted: 0,
+    connectedDate: '',
+    costPerJob: 0,
+    apiKey: ''
+  },
+  {
+    id: 'ziprecruiter',
+    name: 'ZipRecruiter',
+    logo: '/logos/ziprecruiter.png',
+    type: 'Premium',
+    status: 'Disconnected',
+    cost: 349,
+    features: ['AI-powered matching', 'One-click apply', 'Multi-platform distribution'],
+    recommendedFor: ['Small businesses', 'Diverse hiring needs', 'Quick hiring'],
+    color: '#1D9CEA',
+    jobsPosted: 0,
+    connectedDate: '',
+    costPerJob: 0,
+    apiKey: ''
+  }
 ];
 
-// Mock data for job boards
-const mockJobBoards = [
-  { id: 1, name: 'LinkedIn', icon: <LinkedInIcon />, connected: true, color: '#0077B5' },
-  { id: 2, name: 'Indeed', icon: <WebsiteIcon />, connected: true, color: '#003A9B' },
-  { id: 3, name: 'Glassdoor', icon: <WebsiteIcon />, connected: false, color: '#0CAA41' },
-  { id: 4, name: 'Facebook Jobs', icon: <FacebookIcon />, connected: true, color: '#4267B2' },
-  { id: 5, name: 'Twitter', icon: <TwitterIcon />, connected: false, color: '#1DA1F2' },
-  { id: 6, name: 'Company Website', icon: <WebsiteIcon />, connected: true, color: '#FF5722' },
+const mockJobs: Job[] = [
+  {
+    id: 1,
+    title: 'Senior Frontend Developer',
+    location: 'New York, NY',
+    department: 'Engineering',
+    type: 'Full-time',
+    salary: '$100,000 - $130,000',
+    postedDate: '2023-07-15',
+    status: 'Active',
+    distribution: [
+      { 
+        boardId: 'linkedin', 
+        status: 'Published', 
+        postedDate: '2023-07-16', 
+        expiryDate: '2023-08-16',
+        applicants: 24,
+        views: 523,
+        clicks: 89,
+        cost: 299
+      },
+      { 
+        boardId: 'indeed', 
+        status: 'Published', 
+        postedDate: '2023-07-16', 
+        expiryDate: '2023-08-16',
+        applicants: 18,
+        views: 412,
+        clicks: 67,
+        cost: 0
+      },
+      { 
+        boardId: 'monster', 
+        status: 'Failed', 
+      }
+    ]
+  },
+  {
+    id: 2,
+    title: 'UX Designer',
+    location: 'Remote',
+    department: 'Design',
+    type: 'Full-time',
+    salary: '$85,000 - $110,000',
+    postedDate: '2023-07-20',
+    status: 'Active',
+    distribution: [
+      { 
+        boardId: 'linkedin', 
+        status: 'Published', 
+        postedDate: '2023-07-21', 
+        expiryDate: '2023-08-21',
+        applicants: 12,
+        views: 345,
+        clicks: 58,
+        cost: 299
+      },
+      { 
+        boardId: 'indeed', 
+        status: 'Pending' 
+      }
+    ]
+  },
+  {
+    id: 3,
+    title: 'DevOps Engineer',
+    location: 'San Francisco, CA',
+    department: 'Operations',
+    type: 'Full-time',
+    salary: '$120,000 - $150,000',
+    postedDate: '2023-07-10',
+    status: 'On-Hold',
+    distribution: [
+      { 
+        boardId: 'linkedin', 
+        status: 'Draft' 
+      }
+    ]
+  },
+  {
+    id: 4,
+    title: 'Marketing Specialist',
+    location: 'Chicago, IL',
+    department: 'Marketing',
+    type: 'Full-time',
+    salary: '$70,000 - $90,000',
+    postedDate: '2023-07-05',
+    status: 'Closed',
+    distribution: [
+      { 
+        boardId: 'linkedin', 
+        status: 'Published', 
+        postedDate: '2023-07-06', 
+        expiryDate: '2023-08-06',
+        applicants: 31,
+        views: 689,
+        clicks: 112,
+        cost: 299
+      },
+      { 
+        boardId: 'indeed', 
+        status: 'Published', 
+        postedDate: '2023-07-06', 
+        expiryDate: '2023-08-06',
+        applicants: 27,
+        views: 542,
+        clicks: 94,
+        cost: 0
+      },
+      { 
+        boardId: 'monster', 
+        status: 'Published', 
+        postedDate: '2023-07-06', 
+        expiryDate: '2023-08-06',
+        applicants: 14,
+        views: 378,
+        clicks: 63,
+        cost: 249
+      }
+    ]
+  }
 ];
 
-// Mock distribution history
-const mockDistributionHistory = [
+const mockDistributionHistory: DistributionHistory[] = [
   { 
     id: 1, 
     jobId: 1, 
-    jobTitle: 'Frontend Developer', 
-    date: '2023-06-15', 
-    platforms: ['LinkedIn', 'Indeed', 'Company Website'],
-    status: 'complete',
-    views: 230,
-    clicks: 45,
-    applications: 12
+    jobTitle: 'Senior Frontend Developer',
+    boardId: 'linkedin',
+    boardName: 'LinkedIn',
+    status: 'Published',
+    postedDate: '2023-07-16',
+    expiryDate: '2023-08-16',
+    applicants: 24,
+    views: 523,
+    clicks: 89,
+    cost: 299
   },
   { 
     id: 2, 
+    jobId: 1,
+    jobTitle: 'Senior Frontend Developer',
+    boardId: 'indeed',
+    boardName: 'Indeed',
+    status: 'Published',
+    postedDate: '2023-07-16',
+    expiryDate: '2023-08-16',
+    applicants: 18,
+    views: 412,
+    clicks: 67,
+    cost: 0
+  },
+  {
+    id: 3,
     jobId: 2, 
     jobTitle: 'UX Designer', 
-    date: '2023-06-10', 
-    platforms: ['LinkedIn', 'Glassdoor'],
-    status: 'complete',
-    views: 180,
-    clicks: 32,
-    applications: 8
+    boardId: 'linkedin',
+    boardName: 'LinkedIn',
+    status: 'Published',
+    postedDate: '2023-07-21',
+    expiryDate: '2023-08-21',
+    applicants: 12,
+    views: 345,
+    clicks: 58,
+    cost: 299
   },
-  { 
-    id: 3, 
+  {
+    id: 4,
     jobId: 4, 
-    jobTitle: 'DevOps Engineer', 
-    date: '2023-06-05', 
-    platforms: ['LinkedIn', 'Indeed', 'Facebook Jobs'],
-    status: 'complete',
-    views: 120,
-    clicks: 18,
-    applications: 5
+    jobTitle: 'Marketing Specialist',
+    boardId: 'linkedin',
+    boardName: 'LinkedIn',
+    status: 'Published',
+    postedDate: '2023-07-06',
+    expiryDate: '2023-08-06',
+    applicants: 31,
+    views: 689,
+    clicks: 112,
+    cost: 299
   },
+  {
+    id: 5,
+    jobId: 4,
+    jobTitle: 'Marketing Specialist',
+    boardId: 'indeed',
+    boardName: 'Indeed',
+    status: 'Published',
+    postedDate: '2023-07-06',
+    expiryDate: '2023-08-06',
+    applicants: 27,
+    views: 542,
+    clicks: 94,
+    cost: 0
+  },
+  {
+    id: 6,
+    jobId: 4,
+    jobTitle: 'Marketing Specialist',
+    boardId: 'monster',
+    boardName: 'Monster',
+    status: 'Published',
+    postedDate: '2023-07-06',
+    expiryDate: '2023-08-06',
+    applicants: 14,
+    views: 378,
+    clicks: 63,
+    cost: 249
+  }
 ];
 
-const JobDistribution = () => {
-  const {
-    jobPostings,
-    getPlatformPostings,
-    createJobPosting,
-    publishJobPosting,
-    pauseJobPosting,
-    deleteJobPosting,
-    updateJobPosting,
-    getJobPostingMetrics,
-    getAggregatedMetrics,
-    generateTrackingUrl
-  } = useJobPosting();
+// Main component
+const JobDistribution: React.FC = () => {
+  // State
+  const [activeTab, setActiveTab] = useState<TabValue>('boards');
+  const [jobBoards, setJobBoards] = useState<JobBoard[]>(mockJobBoards);
+  const [jobs, setJobs] = useState<Job[]>(mockJobs);
+  const [distributionHistory, setDistributionHistory] = useState<DistributionHistory[]>(mockDistributionHistory);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [typeFilter, setTypeFilter] = useState<string>('All');
+  const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [isDistributeDialogOpen, setIsDistributeDialogOpen] = useState(false);
+  const [selectedBoards, setSelectedBoards] = useState<string[]>([]);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState<'success' | 'error'>('success');
+  const [editedBoard, setEditedBoard] = useState<JobBoard | null>(null);
+  const [isEditBoardDialogOpen, setIsEditBoardDialogOpen] = useState(false);
+  const [isAddBoardDialogOpen, setIsAddBoardDialogOpen] = useState(false);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [boardToDelete, setBoardToDelete] = useState<string | null>(null);
 
-  // State for the selected job and tab
-  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState(0);
-  
-  // Dialog states
-  const [newPostingDialog, setNewPostingDialog] = useState(false);
-  const [metricsDialog, setMetricsDialog] = useState(false);
-  const [confirmDeleteDialog, setConfirmDeleteDialog] = useState<string | null>(null);
-  
-  // Form states
-  const [formData, setFormData] = useState({
-    jobId: 1,
-    platform: 'LinkedIn' as JobPlatform,
-    title: '',
-    autoRepost: true,
-    repostThreshold: 30
-  });
-  
-  // Loading state
-  const [isLoading, setIsLoading] = useState<string | null>(null);
-  
-  // Selected posting for metrics
-  const [selectedPosting, setSelectedPosting] = useState<ExternalJobPosting | null>(null);
-  
-  // Get unique job IDs
-  const jobIds = Array.from(new Set(jobPostings.map(posting => posting.jobId)));
-  
-  // Get postings for selected job
-  const currentJobPostings = selectedJobId
-    ? getPlatformPostings(selectedJobId)
-    : jobPostings;
-  
-  // Filter postings based on active tab
-  const filteredPostings = activeTab === 0
-    ? currentJobPostings
-    : activeTab === 1
-      ? currentJobPostings.filter(p => p.status === 'Published')
-      : activeTab === 2
-        ? currentJobPostings.filter(p => p.status === 'Draft')
-        : currentJobPostings.filter(p => p.status === 'Expired' || p.status === 'Paused');
-  
-  // Get metrics for selected job
-  const aggregatedMetrics = selectedJobId
-    ? getAggregatedMetrics(selectedJobId)
-    : getAggregatedMetrics();
-  
-  // Get job distribution states
-  const [jobs, setJobs] = useState(mockJobs);
-  const [jobBoards, setJobBoards] = useState(mockJobBoards);
-  const [distributionHistory, setDistributionHistory] = useState(mockDistributionHistory);
-  const [selectedPlatforms, setSelectedPlatforms] = useState<number[]>([]);
-  const [distributeDialogOpen, setDistributeDialogOpen] = useState(false);
-  const [newBoardDialogOpen, setNewBoardDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
-  
-  const [newJobBoard, setNewJobBoard] = useState({
-    name: '',
-    apiKey: '',
-    apiUrl: '',
-    autoDistribute: false
-  });
-  
-  // Effect to select the first job ID by default
-  useEffect(() => {
-    if (jobIds.length > 0 && !selectedJobId) {
-      setSelectedJobId(jobIds[0]);
-    }
-  }, [jobIds, selectedJobId]);
+  // Derived state for filtered boards
+  const filteredBoards = useMemo(() => {
+    return jobBoards.filter(board => {
+      // Apply search filter
+      if (searchTerm && !board.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+        return false;
+      }
+      
+      // Apply type filter
+      if (typeFilter !== 'All' && board.type !== typeFilter) {
+        return false;
+      }
+      
+      // Apply status filter
+      if (statusFilter !== 'All' && board.status !== statusFilter) {
+        return false;
+      }
+      
+      return true;
+    });
+  }, [jobBoards, searchTerm, typeFilter, statusFilter]);
   
   // Handle tab change
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: TabValue) => {
     setActiveTab(newValue);
   };
   
-  // Handle job change
-  const handleJobChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setSelectedJobId(event.target.value as number);
+  // Handle search change
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
   };
-  
-  // Open new posting dialog
-  const handleNewPosting = () => {
-    setFormData({
-      jobId: selectedJobId || 1,
-      platform: 'LinkedIn',
-      title: '',
-      autoRepost: true,
-      repostThreshold: 30
+
+  // Handle type filter change
+  const handleTypeFilterChange = (event: SelectChangeEvent) => {
+    setTypeFilter(event.target.value);
+  };
+
+  // Handle status filter change
+  const handleStatusFilterChange = (event: SelectChangeEvent) => {
+    setStatusFilter(event.target.value);
+  };
+
+  // Format date to DD/MM/YYYY
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
     });
-    setNewPostingDialog(true);
-  };
-  
-  // Handle form input change
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
-    const { name, value, checked } = e.target as HTMLInputElement;
-    if (name === 'autoRepost') {
-      setFormData(prev => ({ ...prev, [name]: checked }));
-    } else {
-      setFormData(prev => ({ ...prev, [name as string]: value }));
-    }
-  };
-  
-  // Create a new job posting
-  const handleCreatePosting = () => {
-    createJobPosting(
-      formData.jobId,
-      formData.platform,
-      formData.title || `Job #${formData.jobId} - ${formData.platform}`
-    );
-    setNewPostingDialog(false);
-  };
-  
-  // Publish a job posting
-  const handlePublish = async (postingId: string) => {
-    setIsLoading(postingId);
-    await publishJobPosting(postingId);
-    setIsLoading(null);
-  };
-  
-  // Pause a job posting
-  const handlePause = async (postingId: string) => {
-    setIsLoading(postingId);
-    await pauseJobPosting(postingId);
-    setIsLoading(null);
-  };
-  
-  // Delete a job posting
-  const handleDelete = async (postingId: string) => {
-    setIsLoading(postingId);
-    await deleteJobPosting(postingId);
-    setConfirmDeleteDialog(null);
-    setIsLoading(null);
-  };
-  
-  // Show metrics for a posting
-  const handleShowMetrics = (posting: ExternalJobPosting) => {
-    setSelectedPosting(posting);
-    setMetricsDialog(true);
-  };
-  
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString();
-  };
-  
-  // Handle opening the distribute dialog
-  const handleOpenDistributeDialog = (jobId: number) => {
-    setSelectedJobId(jobId);
-    setSelectedPlatforms([]);
-    setDistributeDialogOpen(true);
   };
 
-  // Handle closing the distribute dialog
+  // Open distribute dialog
+  const handleOpenDistributeDialog = (job: Job) => {
+    setSelectedJob(job);
+    
+    // Pre-select boards that are connected
+    const connectedBoardIds = jobBoards
+      .filter(board => board.status === 'Connected')
+      .map(board => board.id);
+    
+    setSelectedBoards(connectedBoardIds);
+    setIsDistributeDialogOpen(true);
+  };
+
+  // Close distribute dialog
   const handleCloseDistributeDialog = () => {
-    setDistributeDialogOpen(false);
-    setSelectedJobId(null);
+    setIsDistributeDialogOpen(false);
+    setSelectedJob(null);
+    setSelectedBoards([]);
   };
 
-  // Handle toggling platforms for distribution
-  const handleTogglePlatform = (platformId: number) => {
-    setSelectedPlatforms(prev => 
-      prev.includes(platformId)
-        ? prev.filter(id => id !== platformId)
-        : [...prev, platformId]
-    );
+  // Toggle board selection
+  const handleToggleBoardSelection = (boardId: string) => {
+    setSelectedBoards(prev => {
+      if (prev.includes(boardId)) {
+        return prev.filter(id => id !== boardId);
+      } else {
+        return [...prev, boardId];
+      }
+    });
   };
 
-  // Handle job distribution
+  // Distribute job to selected boards
   const handleDistributeJob = () => {
-    if (!selectedJobId || selectedPlatforms.length === 0) return;
+    if (!selectedJob) return;
     
-    setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const job = jobs.find(j => j.id === selectedJobId);
-      const platforms = selectedPlatforms.map(id => jobBoards.find(b => b.id === id)?.name || '');
-      
-      if (job) {
-        const newDistribution = {
-          id: distributionHistory.length + 1,
-          jobId: job.id,
-          jobTitle: job.title,
-          date: new Date().toISOString().split('T')[0],
-          platforms,
-          status: 'complete',
+    // Simulate distributing job to selected boards
+    const updatedJobs = jobs.map(job => {
+      if (job.id === selectedJob.id) {
+        // Create new distribution entries for selected boards
+        const updatedDistribution = [...job.distribution];
+        
+        selectedBoards.forEach(boardId => {
+          // Check if board already exists in distribution
+          const existingIndex = updatedDistribution.findIndex(
+            dist => dist.boardId === boardId
+          );
+          
+          if (existingIndex >= 0) {
+            // Update existing distribution
+            updatedDistribution[existingIndex] = {
+              ...updatedDistribution[existingIndex],
+              status: 'Published',
+              postedDate: new Date().toISOString().split('T')[0],
+              expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                .toISOString()
+                .split('T')[0],
+              applicants: 0,
           views: 0,
           clicks: 0,
-          applications: 0
-        };
+              cost: jobBoards.find(board => board.id === boardId)?.cost || 0
+            };
+          } else {
+            // Add new distribution
+            updatedDistribution.push({
+              boardId,
+              status: 'Published',
+              postedDate: new Date().toISOString().split('T')[0],
+              expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                .toISOString()
+                .split('T')[0],
+              applicants: 0,
+              views: 0,
+              clicks: 0,
+              cost: jobBoards.find(board => board.id === boardId)?.cost || 0
+            });
+          }
+        });
         
-        setDistributionHistory(prev => [newDistribution, ...prev]);
-        setSnackbarMessage(`Job "${job.title}" has been distributed to ${platforms.length} platforms.`);
-        setSnackbarSeverity('success');
-        setSnackbarOpen(true);
+        return {
+          ...job,
+          distribution: updatedDistribution
+        };
       }
-      
-      setLoading(false);
-      handleCloseDistributeDialog();
-    }, 2000);
-  };
-
-  // Handle opening the new job board dialog
-  const handleOpenNewBoardDialog = () => {
-    setNewJobBoard({
-      name: '',
-      apiKey: '',
-      apiUrl: '',
-      autoDistribute: false
+      return job;
     });
-    setNewBoardDialogOpen(true);
-  };
-
-  // Handle closing the new job board dialog
-  const handleCloseNewBoardDialog = () => {
-    setNewBoardDialogOpen(false);
-  };
-
-  // Handle adding a new job board
-  const handleAddJobBoard = () => {
-    if (!newJobBoard.name) return;
     
-    const newBoard = {
-      id: jobBoards.length + 1,
-      name: newJobBoard.name,
-      icon: <WebsiteIcon />,
-      connected: true,
-      color: '#' + Math.floor(Math.random()*16777215).toString(16) // Random color
-    };
+    // Update job distribution history
+    const newHistoryEntries: DistributionHistory[] = [];
     
-    setJobBoards(prev => [...prev, newBoard]);
-    setSnackbarMessage(`New job board "${newJobBoard.name}" has been added.`);
-    setSnackbarSeverity('success');
-    setSnackbarOpen(true);
-    handleCloseNewBoardDialog();
+    selectedBoards.forEach(boardId => {
+      const board = jobBoards.find(b => b.id === boardId);
+      if (!board || !selectedJob) return;
+      
+      newHistoryEntries.push({
+        id: distributionHistory.length + newHistoryEntries.length + 1,
+        jobId: selectedJob.id,
+        jobTitle: selectedJob.title,
+        boardId,
+        boardName: board.name,
+        status: 'Published',
+        postedDate: new Date().toISOString().split('T')[0],
+        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split('T')[0],
+        applicants: 0,
+        views: 0,
+        clicks: 0,
+        cost: board.cost
+      });
+    });
+    
+    setJobs(updatedJobs);
+    setDistributionHistory([...distributionHistory, ...newHistoryEntries]);
+    
+    // Close dialog and show success message
+    handleCloseDistributeDialog();
+    setAlertMessage(`Job "${selectedJob.title}" successfully distributed to ${selectedBoards.length} job boards.`);
+    setAlertSeverity('success');
+    setIsAlertOpen(true);
   };
 
-  // Handle input change for new job board form
-  const handleNewBoardInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewJobBoard(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  // Close alert
+  const handleCloseAlert = () => {
+    setIsAlertOpen(false);
   };
 
-  // Handle toggle change for new job board form
-  const handleNewBoardToggleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewJobBoard(prev => ({
-      ...prev,
-      autoDistribute: e.target.checked
-    }));
+  // Connect or disconnect a job board
+  const handleToggleBoardConnection = (boardId: string) => {
+    setJobBoards(
+      jobBoards.map(board => {
+        if (board.id === boardId) {
+          const newStatus = board.status === 'Connected' ? 'Disconnected' : 'Connected';
+          
+          // Show alert
+          setAlertMessage(`${board.name} successfully ${newStatus.toLowerCase()}.`);
+          setAlertSeverity('success');
+          setIsAlertOpen(true);
+          
+          return {
+            ...board,
+            status: newStatus as 'Connected' | 'Disconnected'
+          };
+        }
+        return board;
+      })
+    );
   };
 
-  // Handle closing the snackbar
-  const handleCloseSnackbar = () => {
-    setSnackbarOpen(false);
+  // Open edit board dialog
+  const handleOpenEditDialog = (board: JobBoard) => {
+    setEditedBoard({...board});
+    setIsEditBoardDialogOpen(true);
+  };
+
+  // Close edit board dialog
+  const handleCloseEditDialog = () => {
+    setIsEditBoardDialogOpen(false);
+    setEditedBoard(null);
+  };
+
+  // Open add board dialog
+  const handleOpenAddBoardDialog = () => {
+    setIsAddBoardDialogOpen(true);
+    setEditedBoard({
+      id: `board-${Date.now()}`,
+      name: '',
+      logo: '',
+      type: 'Paid',
+      status: 'Disconnected',
+      cost: 0,
+      features: [],
+      recommendedFor: [],
+      color: '#cccccc',
+      jobsPosted: 0,
+      connectedDate: new Date().toISOString().split('T')[0],
+      costPerJob: 0,
+      apiKey: ''
+    });
+  };
+
+  // Close add board dialog
+  const handleCloseAddBoardDialog = () => {
+    setIsAddBoardDialogOpen(false);
+    setEditedBoard(null);
+  };
+
+  // Open confirm delete dialog
+  const handleOpenDeleteConfirm = (boardId: string) => {
+    setBoardToDelete(boardId);
+    setIsConfirmDeleteOpen(true);
+  };
+
+  // Close confirm delete dialog
+  const handleCloseDeleteConfirm = () => {
+    setIsConfirmDeleteOpen(false);
+    setBoardToDelete(null);
+  };
+
+  // Save board changes
+  const handleSaveBoard = () => {
+    if (!editedBoard) return;
+    
+    // Update existing board or add new one
+    if (isEditBoardDialogOpen) {
+      setJobBoards(prev => prev.map(board => 
+        board.id === editedBoard.id ? editedBoard : board
+      ));
+      setIsEditBoardDialogOpen(false);
+      setAlertMessage(`${editedBoard.name} successfully updated.`);
+    } else {
+      setJobBoards(prev => [...prev, editedBoard]);
+      setIsAddBoardDialogOpen(false);
+      setAlertMessage(`${editedBoard.name} successfully added.`);
+    }
+    
+    setAlertSeverity('success');
+    setIsAlertOpen(true);
+    setEditedBoard(null);
+  };
+
+  // Delete board
+  const handleDeleteBoard = () => {
+    if (!boardToDelete) return;
+    
+    const boardName = jobBoards.find(board => board.id === boardToDelete)?.name || '';
+    
+    setJobBoards(prev => prev.filter(board => board.id !== boardToDelete));
+    setIsConfirmDeleteOpen(false);
+    setBoardToDelete(null);
+    
+    setAlertMessage(`${boardName} successfully removed.`);
+    setAlertSeverity('success');
+    setIsAlertOpen(true);
   };
 
   return (
@@ -436,7 +787,7 @@ const JobDistribution = () => {
       
       <Grid container spacing={3}>
         {/* Overview Cards */}
-        <Grid item xs={12} md={4}>
+        <Grid component="div" item xs={12} md={4}>
           <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
             <Typography variant="h6" gutterBottom>
               Total Distributions
@@ -447,30 +798,30 @@ const JobDistribution = () => {
           </Paper>
         </Grid>
         
-        <Grid item xs={12} md={4}>
+        <Grid component="div" item xs={12} md={4}>
           <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
             <Typography variant="h6" gutterBottom>
               Connected Platforms
             </Typography>
             <Typography variant="h3" color="primary">
-              {jobBoards.filter(board => board.connected).length}
+              {jobBoards.filter(board => board.status === 'Connected').length}
             </Typography>
           </Paper>
         </Grid>
         
-        <Grid item xs={12} md={4}>
+        <Grid component="div" item xs={12} md={4}>
           <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
             <Typography variant="h6" gutterBottom>
               Total Applications
             </Typography>
             <Typography variant="h3" color="primary">
-              {distributionHistory.reduce((sum, item) => sum + item.applications, 0)}
+              {distributionHistory.reduce((sum, item) => sum + item.applicants, 0)}
             </Typography>
           </Paper>
         </Grid>
         
         {/* Job Boards Section */}
-        <Grid item xs={12}>
+        <Grid component="div" item xs={12}>
           <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Typography variant="h6">
@@ -479,20 +830,20 @@ const JobDistribution = () => {
               <Button 
                 variant="contained" 
                 startIcon={<AddIcon />}
-                onClick={handleOpenNewBoardDialog}
+                onClick={handleOpenAddBoardDialog}
               >
-                Add New
+                Add Platform
               </Button>
             </Box>
             
             <Grid container spacing={2}>
-              {jobBoards.map(board => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={board.id}>
+              {filteredBoards.map(board => (
+                <Grid component="div" item xs={12} sm={6} md={4} lg={3} key={board.id}>
                   <Card 
                     sx={{ 
                       height: '100%',
                       borderLeft: `4px solid ${board.color}`,
-                      opacity: board.connected ? 1 : 0.6
+                      opacity: board.status === 'Connected' ? 1 : 0.6
                     }}
                   >
                     <CardContent>
@@ -508,24 +859,27 @@ const JobDistribution = () => {
                           borderRadius: '50%',
                           mr: 1
                         }}>
-                          {board.icon}
+                          <PlatformIcon platform={board.id} />
                         </Box>
                         <Typography variant="h6">{board.name}</Typography>
                       </Box>
                       
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Chip 
-                          label={board.connected ? 'Connected' : 'Disconnected'} 
-                          color={board.connected ? 'success' : 'error'}
-                          size="small"
-                        />
+                        <StatusLabel status={board.status} type="board" />
                         
                         <Box>
-                          <IconButton size="small">
+                          <IconButton 
+                            size="small"
+                            onClick={() => handleOpenEditDialog(board)}
+                          >
                             <EditIcon fontSize="small" />
                           </IconButton>
-                          {board.id > 6 && (
-                            <IconButton size="small" color="error">
+                          {board.id !== 'linkedin' && (
+                            <IconButton 
+                              size="small" 
+                              color="error"
+                              onClick={() => handleOpenDeleteConfirm(board.id)}
+                            >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
                           )}
@@ -540,14 +894,14 @@ const JobDistribution = () => {
         </Grid>
         
         {/* Jobs for Distribution */}
-        <Grid item xs={12}>
+        <Grid component="div" item xs={12}>
           <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
             <Typography variant="h6" gutterBottom>
               Jobs Available for Distribution
             </Typography>
             
             <Grid container spacing={2}>
-              {jobs.filter(job => job.status === 'Published').map(job => (
+              {jobs.filter(job => job.status === 'Active').map(job => (
                 <Grid item xs={12} sm={6} md={4} key={job.id}>
                   <Card sx={{ height: '100%' }}>
                     <CardContent>
@@ -561,17 +915,124 @@ const JobDistribution = () => {
                         Status: {job.status}
                       </Typography>
                       <Typography variant="body2" color="text.secondary" gutterBottom>
-                        Applicants: {job.applicants}
+                        Applicants: {job.distribution.filter(dist => dist.status === 'Published').length}
                       </Typography>
                       
-                      <Box sx={{ mt: 2 }}>
+                      <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                        <Button 
+                          variant="outlined"
+                          onClick={() => handleOpenDistributeDialog(job)}
+                          sx={{ flexGrow: 1 }}
+                        >
+                          Distribution
+                        </Button>
                         <Button 
                           variant="contained" 
                           startIcon={<ShareIcon />}
-                          fullWidth
-                          onClick={() => handleOpenDistributeDialog(job.id)}
+                          onClick={() => {
+                            // Make sure we have a job selected and boards to distribute to
+                            const connectedBoardIds = jobBoards
+                              .filter(board => board.status === 'Connected')
+                              .map(board => board.id);
+                            
+                            if (connectedBoardIds.length === 0) {
+                              setAlertMessage('No connected job boards available. Please connect at least one job board first.');
+                              setAlertSeverity('error');
+                              setIsAlertOpen(true);
+                              return;
+                            }
+                            
+                            // Set the selected job and boards, then call the distribute function
+                            setSelectedJob(job);
+                            setSelectedBoards(connectedBoardIds);
+                            
+                            // Directly call the distribution function without opening the dialog
+                            const updatedJobs = jobs.map(j => {
+                              if (j.id === job.id) {
+                                // Create new distribution entries for all connected boards
+                                const updatedDistribution = [...j.distribution];
+                                
+                                connectedBoardIds.forEach(boardId => {
+                                  // Check if board already exists in distribution
+                                  const existingIndex = updatedDistribution.findIndex(
+                                    dist => dist.boardId === boardId
+                                  );
+                                  
+                                  if (existingIndex >= 0) {
+                                    // Update existing distribution
+                                    updatedDistribution[existingIndex] = {
+                                      ...updatedDistribution[existingIndex],
+                                      status: 'Published',
+                                      postedDate: new Date().toISOString().split('T')[0],
+                                      expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                                        .toISOString()
+                                        .split('T')[0],
+                                      applicants: 0,
+                                      views: 0,
+                                      clicks: 0,
+                                      cost: jobBoards.find(board => board.id === boardId)?.cost || 0
+                                    };
+                                  } else {
+                                    // Add new distribution
+                                    updatedDistribution.push({
+                                      boardId,
+                                      status: 'Published',
+                                      postedDate: new Date().toISOString().split('T')[0],
+                                      expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                                        .toISOString()
+                                        .split('T')[0],
+                                      applicants: 0,
+                                      views: 0,
+                                      clicks: 0,
+                                      cost: jobBoards.find(board => board.id === boardId)?.cost || 0
+                                    });
+                                  }
+                                });
+                                
+                                return {
+                                  ...j,
+                                  distribution: updatedDistribution
+                                };
+                              }
+                              return j;
+                            });
+                            
+                            // Update job distribution history
+                            const newHistoryEntries: DistributionHistory[] = [];
+                            
+                            connectedBoardIds.forEach(boardId => {
+                              const board = jobBoards.find(b => b.id === boardId);
+                              if (!board) return;
+                              
+                              newHistoryEntries.push({
+                                id: distributionHistory.length + newHistoryEntries.length + 1,
+                                jobId: job.id,
+                                jobTitle: job.title,
+                                boardId,
+                                boardName: board.name,
+                                status: 'Published',
+                                postedDate: new Date().toISOString().split('T')[0],
+                                expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                                  .toISOString()
+                                  .split('T')[0],
+                                applicants: 0,
+                                views: 0,
+                                clicks: 0,
+                                cost: board.cost
+                              });
+                            });
+                            
+                            // Update state
+                            setJobs(updatedJobs);
+                            setDistributionHistory([...distributionHistory, ...newHistoryEntries]);
+                            
+                            // Show success message
+                            setAlertMessage(`Job "${job.title}" successfully distributed to ${connectedBoardIds.length} job boards.`);
+                            setAlertSeverity('success');
+                            setIsAlertOpen(true);
+                          }}
                         >
-                          Distribute
+                          Quick Publish
                         </Button>
                       </Box>
                     </CardContent>
@@ -583,7 +1044,7 @@ const JobDistribution = () => {
         </Grid>
         
         {/* Distribution History */}
-        <Grid item xs={12}>
+        <Grid component="div" item xs={12}>
           <Paper elevation={2} sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               Distribution History
@@ -593,13 +1054,13 @@ const JobDistribution = () => {
               <Card sx={{ mb: 2 }} key={dist.id}>
                 <CardContent>
                   <Grid container spacing={2}>
-                    <Grid item xs={12} md={4}>
+                    <Grid component="div" item xs={12} md={4}>
                       <Typography variant="h6">{dist.jobTitle}</Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Distributed on: {dist.date}
+                        Distributed on: {dist.date || dist.postedDate}
                       </Typography>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
-                        {dist.platforms.map((platform, idx) => (
+                        {dist.platforms?.map((platform, idx) => (
                           <Chip 
                             key={idx} 
                             label={platform}
@@ -610,28 +1071,28 @@ const JobDistribution = () => {
                       </Box>
                     </Grid>
                     
-                    <Grid item xs={12} md={6}>
+                    <Grid component="div" item xs={12} md={6}>
                       <Grid container spacing={2}>
-                        <Grid item xs={4}>
+                        <Grid component="div" item xs={4}>
                           <Typography variant="subtitle2" align="center">Views</Typography>
                           <Typography variant="h6" align="center">{dist.views}</Typography>
                         </Grid>
-                        <Grid item xs={4}>
+                        <Grid component="div" item xs={4}>
                           <Typography variant="subtitle2" align="center">Clicks</Typography>
                           <Typography variant="h6" align="center">{dist.clicks}</Typography>
                         </Grid>
-                        <Grid item xs={4}>
+                        <Grid component="div" item xs={4}>
                           <Typography variant="subtitle2" align="center">Applications</Typography>
-                          <Typography variant="h6" align="center" color="primary">{dist.applications}</Typography>
+                          <Typography variant="h6" align="center" color="primary">{dist.applicants}</Typography>
                         </Grid>
                       </Grid>
                     </Grid>
                     
-                    <Grid item xs={12} md={2} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                    <Grid component="div" item xs={12} md={2} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                       <Chip 
-                        icon={dist.status === 'complete' ? <CheckCircleIcon /> : <ErrorIcon />}
-                        label={dist.status === 'complete' ? 'Complete' : 'Failed'}
-                        color={dist.status === 'complete' ? 'success' : 'error'}
+                        icon={dist.status === 'Published' ? <CheckCircleIcon /> : <ErrorIcon />}
+                        label={dist.status === 'Published' ? 'Complete' : 'Failed'}
+                        color={dist.status === 'Published' ? 'success' : 'error'}
                       />
                     </Grid>
                   </Grid>
@@ -643,34 +1104,34 @@ const JobDistribution = () => {
       </Grid>
       
       {/* Distribute Job Dialog */}
-      <Dialog open={distributeDialogOpen} onClose={handleCloseDistributeDialog} maxWidth="sm" fullWidth>
+      <Dialog open={isDistributeDialogOpen} onClose={handleCloseDistributeDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
           Distribute Job
         </DialogTitle>
         <DialogContent>
           <Typography variant="subtitle1" gutterBottom>
             Select platforms to distribute:
-            {selectedJobId && ` "${jobs.find(j => j.id === selectedJobId)?.title}"`}
+            {selectedJob && ` "${selectedJob.title}"`}
           </Typography>
           
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, my: 2 }}>
-            {jobBoards.filter(board => board.connected).map(board => (
+            {filteredBoards.map(board => (
               <Chip
                 key={board.id}
-                icon={board.icon}
+                icon={<PlatformIcon platform={board.id} />}
                 label={board.name}
-                onClick={() => handleTogglePlatform(board.id)}
-                color={selectedPlatforms.includes(board.id) ? 'primary' : 'default'}
-                variant={selectedPlatforms.includes(board.id) ? 'filled' : 'outlined'}
+                onClick={() => handleToggleBoardSelection(board.id)}
+                color={selectedBoards.includes(board.id) ? 'primary' : 'default'}
+                variant={selectedBoards.includes(board.id) ? 'filled' : 'outlined'}
                 sx={{ 
                   cursor: 'pointer',
-                  '& .MuiChip-icon': { color: selectedPlatforms.includes(board.id) ? 'inherit' : board.color }
+                  '& .MuiChip-icon': { color: selectedBoards.includes(board.id) ? 'inherit' : board.color }
                 }}
               />
             ))}
           </Box>
           
-          {selectedPlatforms.length === 0 && (
+          {selectedBoards.length === 0 && (
             <Alert severity="info" sx={{ mt: 2 }}>
               Please select at least one platform to distribute the job.
             </Alert>
@@ -683,84 +1144,213 @@ const JobDistribution = () => {
           <Button 
             variant="contained" 
             onClick={handleDistributeJob}
-            disabled={selectedPlatforms.length === 0 || loading}
-            startIcon={loading ? <CircularProgress size={20} /> : <ShareIcon />}
+            disabled={selectedBoards.length === 0}
+            startIcon={<ShareIcon />}
           >
-            {loading ? 'Distributing...' : 'Distribute Now'}
+            Distribute Now
           </Button>
         </DialogActions>
       </Dialog>
       
-      {/* Add New Job Board Dialog */}
-      <Dialog open={newBoardDialogOpen} onClose={handleCloseNewBoardDialog} maxWidth="sm" fullWidth>
+      {/* Edit Board Dialog */}
+      <Dialog open={isEditBoardDialogOpen} onClose={handleCloseEditDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
-          Add New Job Board
+          Edit Platform: {editedBoard?.name}
         </DialogTitle>
         <DialogContent>
-          <TextField
-            margin="dense"
-            label="Job Board Name"
-            name="name"
-            fullWidth
-            value={newJobBoard.name}
-            onChange={handleNewBoardInputChange}
-            required
-          />
-          <TextField
-            margin="dense"
-            label="API Key"
-            name="apiKey"
-            fullWidth
-            value={newJobBoard.apiKey}
-            onChange={handleNewBoardInputChange}
-          />
-          <TextField
-            margin="dense"
-            label="API URL"
-            name="apiUrl"
-            fullWidth
-            value={newJobBoard.apiUrl}
-            onChange={handleNewBoardInputChange}
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={newJobBoard.autoDistribute}
-                onChange={handleNewBoardToggleChange}
-                name="autoDistribute"
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Platform Name"
+                value={editedBoard?.name || ''}
+                onChange={(e) => setEditedBoard(prev => 
+                  prev ? { ...prev, name: e.target.value } : null
+                )}
               />
-            }
-            label="Auto-distribute new jobs"
-            sx={{ mt: 2 }}
-          />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel>Type</InputLabel>
+                <Select
+                  value={editedBoard?.type || ''}
+                  onChange={(e) => setEditedBoard(prev => 
+                    prev ? { ...prev, type: e.target.value as 'Premium' | 'Free' | 'Paid' } : null
+                  )}
+                  label="Type"
+                >
+                  <MenuItem value="Free">Free</MenuItem>
+                  <MenuItem value="Paid">Paid</MenuItem>
+                  <MenuItem value="Premium">Premium</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={editedBoard?.status || ''}
+                  onChange={(e) => setEditedBoard(prev => 
+                    prev ? { ...prev, status: e.target.value as JobBoardStatus } : null
+                  )}
+                  label="Status"
+                >
+                  <MenuItem value="Connected">Connected</MenuItem>
+                  <MenuItem value="Disconnected">Disconnected</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Cost"
+                type="number"
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                }}
+                value={editedBoard?.cost || 0}
+                onChange={(e) => setEditedBoard(prev => 
+                  prev ? { ...prev, cost: Number(e.target.value) } : null
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="API Key"
+                value={editedBoard?.apiKey || ''}
+                onChange={(e) => setEditedBoard(prev => 
+                  prev ? { ...prev, apiKey: e.target.value } : null
+                )}
+              />
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseNewBoardDialog}>
+          <Button onClick={handleCloseEditDialog}>
             Cancel
           </Button>
           <Button 
             variant="contained" 
-            onClick={handleAddJobBoard}
-            disabled={!newJobBoard.name}
+            onClick={handleSaveBoard}
+            startIcon={<CheckCircleIcon />}
           >
-            Add Job Board
+            Save Changes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add Board Dialog */}
+      <Dialog open={isAddBoardDialogOpen} onClose={handleCloseAddBoardDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          Add New Platform
+        </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Platform Name"
+                value={editedBoard?.name || ''}
+                onChange={(e) => setEditedBoard(prev => 
+                  prev ? { ...prev, name: e.target.value } : null
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel>Type</InputLabel>
+                <Select
+                  value={editedBoard?.type || ''}
+                  onChange={(e) => setEditedBoard(prev => 
+                    prev ? { ...prev, type: e.target.value as 'Premium' | 'Free' | 'Paid' } : null
+                  )}
+                  label="Type"
+                >
+                  <MenuItem value="Free">Free</MenuItem>
+                  <MenuItem value="Paid">Paid</MenuItem>
+                  <MenuItem value="Premium">Premium</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Cost"
+                type="number"
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                }}
+                value={editedBoard?.cost || 0}
+                onChange={(e) => setEditedBoard(prev => 
+                  prev ? { ...prev, cost: Number(e.target.value) } : null
+                )}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="API Key"
+                value={editedBoard?.apiKey || ''}
+                onChange={(e) => setEditedBoard(prev => 
+                  prev ? { ...prev, apiKey: e.target.value } : null
+                )}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAddBoardDialog}>
+            Cancel
+          </Button>
+          <Button 
+            variant="contained" 
+            onClick={handleSaveBoard}
+            startIcon={<CheckCircleIcon />}
+          >
+            Add Platform
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Confirm Delete Dialog */}
+      <Dialog open={isConfirmDeleteOpen} onClose={handleCloseDeleteConfirm}>
+        <DialogTitle>
+          Confirm Delete
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this platform? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteConfirm}>
+            Cancel
+          </Button>
+          <Button 
+            variant="contained" 
+            color="error" 
+            onClick={handleDeleteBoard}
+            startIcon={<DeleteIcon />}
+          >
+            Delete
           </Button>
         </DialogActions>
       </Dialog>
       
       {/* Snackbar for notifications */}
       <Snackbar
-        open={snackbarOpen}
+        open={isAlertOpen}
         autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
+        onClose={handleCloseAlert}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={snackbarSeverity}
+          onClose={handleCloseAlert} 
+          severity={alertSeverity}
           sx={{ width: '100%' }}
         >
-          {snackbarMessage}
+          {alertMessage}
         </Alert>
       </Snackbar>
     </Box>

@@ -39,6 +39,7 @@ const EmailCampaigns = lazy(() => import('./pages/EmailCampaigns'));
 const StructuredInterviewKitPage = lazy(() => import('./pages/StructuredInterviewKitPage'));
 const ResumeParser = lazy(() => import('./pages/ResumeParser'));
 const Reports = lazy(() => import('./pages/Reports'));
+const JobDistribution = lazy(() => import('./pages/JobDistribution'));
 
 const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
@@ -70,6 +71,7 @@ const AppRoutes = () => {
             <Route path="/interview-kits" element={<StructuredInterviewKitPage />} />
             <Route path="/resume-parser" element={<ResumeParser />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/job-distribution" element={<JobDistribution />} />
             
             {/* Admin routes */}
             <Route path="/settings" element={<Settings />} />
