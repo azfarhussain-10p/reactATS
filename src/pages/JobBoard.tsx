@@ -3,7 +3,7 @@ import {
   Box, 
   Typography, 
   Paper, 
-  Grid, 
+  Grid as MuiGrid, 
   Card, 
   CardContent, 
   Chip, 
@@ -37,7 +37,8 @@ import {
   ListItemIcon,
   ListItemText,
   Menu,
-  ButtonGroup
+  ButtonGroup,
+  CircularProgress
 } from '@mui/material';
 import { 
   Search as SearchIcon, 
@@ -73,6 +74,7 @@ import {
   FormatClear as FormatClearIcon,
   Block as BlockIcon
 } from '@mui/icons-material';
+import { jobsApi } from '../services/api';
 
 interface Job {
   id: number;
@@ -93,151 +95,6 @@ interface Job {
   isBookmarked?: boolean;
 }
 
-const mockJobs: Job[] = [
-  {
-    id: 1,
-    title: 'Senior React Developer',
-    location: 'New York, NY',
-    department: 'Engineering',
-    type: 'Full-time',
-    experience: '3-5 years',
-    salary: '$110,000 - $130,000',
-    postedDate: '2023-05-10',
-    description: 'We are looking for a Senior React Developer to join our growing team. The ideal candidate will have strong experience with React, TypeScript, and modern front-end development practices.',
-    responsibilities: [
-      'Develop new user-facing features using React.js',
-      'Build reusable components and front-end libraries for future use',
-      'Translate designs and wireframes into high-quality code',
-      'Optimize components for maximum performance across devices and browsers',
-      'Coordinate with the rest of the team working on different layers of the infrastructure'
-    ],
-    requirements: [
-      '3+ years of experience with React.js',
-      'Strong proficiency in JavaScript, including DOM manipulation and the JavaScript object model',
-      'Experience with TypeScript, Redux, and React hooks',
-      'Thorough understanding of React.js and its core principles',
-      'Experience with popular React.js workflows such as Flux or Redux'
-    ],
-    benefits: 'Comprehensive health insurance, 401k matching, generous vacation time',
-    status: 'Active',
-    applicants: 24,
-    isFeatured: true
-  },
-  {
-    id: 2,
-    title: 'UX Designer',
-    location: 'Remote',
-    department: 'Design',
-    type: 'Full-time',
-    experience: '2-4 years',
-    salary: '$90,000 - $110,000',
-    postedDate: '2023-05-08',
-    description: 'We are seeking a talented UX Designer who can create exceptional user experiences. You\'ll work closely with product managers and engineers to turn complex requirements into intuitive, accessible, and easy-to-use designs.',
-    responsibilities: [
-      'Create user flows, wireframes, prototypes and mockups',
-      'Design UI elements and components that are intuitive and user-friendly',
-      'Conduct usability testing and gather feedback',
-      'Work with development team to implement designs',
-      'Stay up-to-date with the latest UX trends, tools, and technologies'
-    ],
-    requirements: [
-      'Proven work experience as a UX Designer, UI Designer or similar role',
-      'Portfolio of design projects',
-      'Proficiency in design tools like Figma, Sketch, or Adobe XD',
-      'Knowledge of HTML, CSS, and JavaScript is a plus',
-      'Problem-solving attitude with an eye for detail'
-    ],
-    benefits: 'Flexible work hours, remote work options, professional development opportunities',
-    status: 'Active',
-    applicants: 18
-  },
-  {
-    id: 3,
-    title: 'DevOps Engineer',
-    location: 'San Francisco, CA',
-    department: 'Operations',
-    type: 'Full-time',
-    experience: '4-6 years',
-    salary: '$130,000 - $150,000',
-    postedDate: '2023-05-05',
-    description: 'We\'re looking for a DevOps Engineer to help us build and maintain our cloud infrastructure. You\'ll be responsible for deployment, automation, and ensuring the reliability and scalability of our systems.',
-    responsibilities: [
-      'Design, implement and manage DevOps processes',
-      'Set up and maintain CI/CD pipelines',
-      'Automate infrastructure using tools like Terraform',
-      'Monitor systems and troubleshoot issues',
-      'Implement security measures and best practices'
-    ],
-    requirements: [
-      'Experience with AWS, Azure, or GCP',
-      'Knowledge of containerization (Docker, Kubernetes)',
-      'Familiarity with infrastructure as code tools (Terraform, CloudFormation)',
-      'Experience with CI/CD tools (Jenkins, GitLab CI, GitHub Actions)',
-      'Strong scripting skills (Bash, Python)'
-    ],
-    benefits: 'Comprehensive health insurance, 401k matching, professional development opportunities',
-    status: 'Active',
-    applicants: 12
-  },
-  {
-    id: 4,
-    title: 'Product Manager',
-    location: 'Boston, MA',
-    department: 'Product',
-    type: 'Full-time',
-    experience: '5+ years',
-    salary: '$120,000 - $140,000',
-    postedDate: '2023-04-28',
-    description: 'We are looking for an experienced Product Manager to join our team. You will be responsible for defining the product vision, strategy, and roadmap for our SaaS platform.',
-    responsibilities: [
-      'Define the product vision, strategy, and roadmap',
-      'Gather and analyze feedback from customers, stakeholders, and potential users',
-      'Work closely with engineering teams to deliver features',
-      'Define success metrics for product features',
-      'Conduct market research and analyze competitors'
-    ],
-    requirements: [
-      '5+ years of experience in product management',
-      'Experience with agile development methodologies',
-      'Strong analytical and problem-solving skills',
-      'Excellent communication and presentation skills',
-      'Technical background or knowledge of B2B SaaS products'
-    ],
-    benefits: 'Comprehensive health insurance, 401k matching, professional development opportunities',
-    status: 'Active',
-    applicants: 15,
-    isFeatured: true
-  },
-  {
-    id: 5,
-    title: 'Full Stack Developer',
-    location: 'Chicago, IL',
-    department: 'Engineering',
-    type: 'Full-time',
-    experience: '3-5 years',
-    salary: '$100,000 - $120,000',
-    postedDate: '2023-04-25',
-    description: 'We\'re looking for a Full Stack Developer who can work on both the front-end and back-end of our applications. You\'ll be working with a variety of technologies and frameworks.',
-    responsibilities: [
-      'Develop user-facing features using modern JavaScript frameworks',
-      'Build and maintain server-side logic using Node.js',
-      'Design and implement database schemas',
-      'Ensure the technical feasibility of UI/UX designs',
-      'Optimize applications for performance and scalability'
-    ],
-    requirements: [
-      'Experience with JavaScript/TypeScript and frameworks like React, Angular, or Vue',
-      'Familiarity with server-side languages like Node.js, Python, or Java',
-      'Knowledge of database technologies (SQL, NoSQL)',
-      'Understanding of frontend build pipelines and tools',
-      'Good understanding of web fundamentals and best practices'
-    ],
-    benefits: 'Comprehensive health insurance, 401k matching, generous vacation time',
-    status: 'On-Hold',
-    applicants: 30
-  }
-];
-
 interface TextEditorState {
   bold: boolean;
   italic: boolean;
@@ -247,9 +104,12 @@ interface TextEditorState {
   alignment: 'left' | 'center' | 'right';
 }
 
+// Create a custom Grid component that handles the TypeScript errors
+const Grid = (props: any) => <MuiGrid {...props} />;
+
 const JobBoard: React.FC = () => {
-  const [jobs, setJobs] = useState<Job[]>(mockJobs);
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>(mockJobs);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('All');
   const [locationFilter, setLocationFilter] = useState('All');
@@ -259,6 +119,8 @@ const JobBoard: React.FC = () => {
   const [jobDetailOpen, setJobDetailOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // New state variables for functionality
   const [newJobDialogOpen, setNewJobDialogOpen] = useState(false);
@@ -361,11 +223,16 @@ const JobBoard: React.FC = () => {
   const [previewContent, setPreviewContent] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
 
-  // Get unique departments, locations, and types for filters
-  const departments = ['All', ...Array.from(new Set(jobs.map(job => job.department)))];
-  const locations = ['All', ...Array.from(new Set(jobs.map(job => job.location)))];
-  const types = ['All', ...Array.from(new Set(jobs.map(job => job.type)))];
-  const statuses = ['All', 'Active', 'On-Hold', 'Closed', 'Draft'];
+  // State for dropdown options
+  const [departments, setDepartments] = useState<string[]>(['All']);
+  const [locations, setLocations] = useState<string[]>(['All']);
+  const [types, setTypes] = useState<string[]>(['All']);
+  const [statuses, setStatuses] = useState<string[]>(['All']);
+  const [loadingDropdowns, setLoadingDropdowns] = useState({
+    departments: false,
+    locations: false,
+    types: false
+  });
 
   // Calculate days ago from posted date
   const getDaysAgo = (dateString: string) => {
@@ -375,6 +242,92 @@ const JobBoard: React.FC = () => {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
+
+  // Fetch jobs from API
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        setLoading(true);
+        const jobsData = await jobsApi.getAllJobs();
+        setJobs(jobsData);
+        setFilteredJobs(jobsData);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching jobs:', err);
+        setError('Failed to load jobs. Please try again later.');
+        setLoading(false);
+      }
+    };
+    
+    fetchJobs();
+  }, []);
+
+  // Fetch departments from API
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        setLoadingDropdowns(prev => ({ ...prev, departments: true }));
+        const data = await jobsApi.getDepartments();
+        setDepartments(['All', ...data]);
+        setLoadingDropdowns(prev => ({ ...prev, departments: false }));
+      } catch (err) {
+        console.error('Error fetching departments:', err);
+        // Fallback to client-side filtering if API fails
+        const uniqueDepartments = Array.from(new Set(jobs.map(job => job.department)));
+        setDepartments(['All', ...uniqueDepartments]);
+        setLoadingDropdowns(prev => ({ ...prev, departments: false }));
+      }
+    };
+    
+    fetchDepartments();
+  }, [jobs]);
+
+  // Fetch locations from API
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        setLoadingDropdowns(prev => ({ ...prev, locations: true }));
+        const data = await jobsApi.getLocations();
+        setLocations(['All', ...data]);
+        setLoadingDropdowns(prev => ({ ...prev, locations: false }));
+      } catch (err) {
+        console.error('Error fetching locations:', err);
+        // Fallback to client-side filtering if API fails
+        const uniqueLocations = Array.from(new Set(jobs.map(job => job.location)));
+        setLocations(['All', ...uniqueLocations]);
+        setLoadingDropdowns(prev => ({ ...prev, locations: false }));
+      }
+    };
+    
+    fetchLocations();
+  }, [jobs]);
+
+  // Fetch job types from API
+  useEffect(() => {
+    const fetchJobTypes = async () => {
+      try {
+        setLoadingDropdowns(prev => ({ ...prev, types: true }));
+        const data = await jobsApi.getJobTypes();
+        setTypes(['All', ...data]);
+        setLoadingDropdowns(prev => ({ ...prev, types: false }));
+      } catch (err) {
+        console.error('Error fetching job types:', err);
+        // Fallback to client-side filtering if API fails
+        const uniqueTypes = Array.from(new Set(jobs.map(job => job.type)));
+        setTypes(['All', ...uniqueTypes]);
+        setLoadingDropdowns(prev => ({ ...prev, types: false }));
+      }
+    };
+    
+    fetchJobTypes();
+  }, [jobs]);
+
+  // Fetch job statuses
+  useEffect(() => {
+    // Get job statuses from API service
+    const jobStatuses = jobsApi.getJobStatuses();
+    setStatuses(['All', ...jobStatuses]);
+  }, []);
 
   // Apply filters and search
   useEffect(() => {
@@ -1259,1086 +1212,1094 @@ const JobBoard: React.FC = () => {
   };
 
   return (
-    <Box>
-      <Box mb={3} display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h4">Job Board</Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          startIcon={<AddIcon />}
-          onClick={handleOpenNewJobDialog}
-        >
-          Post New Job
-        </Button>
-      </Box>
+    <Box sx={{ padding: 3 }}>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+          <CircularProgress />
+        </Box>
+      ) : error ? (
+        <Paper sx={{ p: 3, mb: 3, bgcolor: '#FFF4F4' }}>
+          <Typography color="error">{error}</Typography>
+          <Button 
+            variant="contained" 
+            sx={{ mt: 2 }} 
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </Button>
+        </Paper>
+      ) : (
+        <Box>
+          {/* Control Panel */}
+          <Box mb={3} display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h4">Job Board ({filteredJobs.length} Jobs)</Typography>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              startIcon={<AddIcon />}
+              onClick={handleOpenNewJobDialog}
+            >
+              Post New Job
+            </Button>
+          </Box>
 
-      {/* Filters and Search */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={4}>
-            <TextField
-              fullWidth
-              placeholder="Search jobs by title or description"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-              size="small"
-            />
-          </Grid>
-          
-          <Grid item xs={12} md={8}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={3}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Department</InputLabel>
-                  <Select
-                    value={departmentFilter}
-                    label="Department"
-                    onChange={(e) => setDepartmentFilter(e.target.value)}
-                  >
-                    {departments.map(dept => (
-                      <MenuItem key={dept} value={dept}>{dept}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+          {/* Filters and Search */}
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid component="div" item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  placeholder="Search jobs by title or description"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                  size="small"
+                />
               </Grid>
               
-              <Grid item xs={12} sm={3}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Location</InputLabel>
-                  <Select
-                    value={locationFilter}
-                    label="Location"
-                    onChange={(e) => setLocationFilter(e.target.value)}
-                  >
-                    {locations.map(loc => (
-                      <MenuItem key={loc} value={loc}>{loc}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              
-              <Grid item xs={12} sm={3}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Job Type</InputLabel>
-                  <Select
-                    value={typeFilter}
-                    label="Job Type"
-                    onChange={(e) => setTypeFilter(e.target.value)}
-                  >
-                    {types.map(type => (
-                      <MenuItem key={type} value={type}>{type}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              
-              <Grid item xs={12} sm={3}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    value={statusFilter}
-                    label="Status"
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                  >
-                    {statuses.map(status => (
-                      <MenuItem key={status} value={status}>{status}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+              <Grid component="div" item xs={12} md={8}>
+                <Grid container spacing={2}>
+                  <Grid component="div" item xs={12} sm={3}>
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Department</InputLabel>
+                      <Select
+                        value={departmentFilter}
+                        label="Department"
+                        onChange={(e) => setDepartmentFilter(e.target.value)}
+                        endAdornment={loadingDropdowns.departments && <CircularProgress size={20} sx={{ mr: 2 }} />}
+                      >
+                        {departments.map(dept => (
+                          <MenuItem key={dept} value={dept}>{dept}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  
+                  <Grid component="div" item xs={12} sm={3}>
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Location</InputLabel>
+                      <Select
+                        value={locationFilter}
+                        label="Location"
+                        onChange={(e) => setLocationFilter(e.target.value)}
+                        endAdornment={loadingDropdowns.locations && <CircularProgress size={20} sx={{ mr: 2 }} />}
+                      >
+                        {locations.map(loc => (
+                          <MenuItem key={loc} value={loc}>{loc}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  
+                  <Grid component="div" item xs={12} sm={3}>
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Job Type</InputLabel>
+                      <Select
+                        value={typeFilter}
+                        label="Job Type"
+                        onChange={(e) => setTypeFilter(e.target.value)}
+                        endAdornment={loadingDropdowns.types && <CircularProgress size={20} sx={{ mr: 2 }} />}
+                      >
+                        {types.map(type => (
+                          <MenuItem key={type} value={type}>{type}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  
+                  <Grid component="div" item xs={12} sm={3}>
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Status</InputLabel>
+                      <Select
+                        value={statusFilter}
+                        label="Status"
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                      >
+                        {statuses.map(status => (
+                          <MenuItem key={status} value={status}>{status}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
-        </Grid>
-      </Paper>
+          </Paper>
 
-      {/* Job Listings */}
-      <Grid container spacing={3}>
-        {filteredJobs.length > 0 ? (
-          filteredJobs.map(job => (
-            <Grid item xs={12} md={6} lg={4} key={job.id}>
-              <Card 
-                elevation={job.isFeatured ? 3 : 1}
-                sx={{ 
-                  height: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  position: 'relative',
-                  border: job.isFeatured ? '1px solid #f0c14b' : 'none',
-                  opacity: job.status === 'Draft' ? 0.7 : 1
-                }}
-              >
-                {job.isFeatured && (
-                  <Chip 
-                    label="Featured" 
-                    color="primary" 
-                    size="small" 
+          {/* Job Listings */}
+          <Grid container spacing={3}>
+            {filteredJobs.length > 0 ? (
+              filteredJobs.map(job => (
+                <Grid item xs={12} md={6} lg={4} key={job.id}>
+                  <Card 
+                    elevation={job.isFeatured ? 3 : 1}
                     sx={{ 
-                      position: 'absolute', 
-                      top: 10, 
-                      right: 10,
-                      bgcolor: '#f0c14b',
-                      color: 'black'
-                    }} 
-                  />
-                )}
-                {job.status === 'Draft' && (
-                  <Chip 
-                    label="Draft" 
-                    color="info" 
-                    size="small" 
-                    sx={{ 
-                      position: 'absolute', 
-                      top: job.isFeatured ? 40 : 10, 
-                      right: 10
-                    }} 
-                  />
-                )}
-                <CardActionArea onClick={() => handleViewJobDetails(job)}>
-                  <CardContent sx={{ flexGrow: 1, pt: 3 }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="start">
-                      <Typography variant="h6" gutterBottom>{job.title}</Typography>
-                    </Box>
-                    
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <LocationIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                      <Typography variant="body2" color="text.secondary">
-                        {job.location}
-                      </Typography>
-                    </Box>
-                    
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <BusinessIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                      <Typography variant="body2" color="text.secondary">
-                        {job.department}
-                      </Typography>
-                    </Box>
-                    
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <SalaryIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                      <Typography variant="body2" color="text.secondary">
-                        {job.salary}
-                      </Typography>
-                    </Box>
-                    
-                    <Divider sx={{ my: 1 }} />
-                    
-                    <Typography variant="body2" color="text.secondary" paragraph sx={{ 
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical',
-                      mb: 1
-                    }}>
-                      {job.description}
-                    </Typography>
-                    
-                    <Stack 
-                      direction="row" 
-                      spacing={1} 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                      }}
-                    >
+                      height: '100%', 
+                      display: 'flex', 
+                      flexDirection: 'column',
+                      position: 'relative',
+                      border: job.isFeatured ? '1px solid #f0c14b' : 'none',
+                      opacity: job.status === 'Draft' ? 0.7 : 1
+                    }}
+                  >
+                    {job.isFeatured && (
                       <Chip 
-                        label={job.type} 
+                        label="Featured" 
+                        color="primary" 
                         size="small" 
-                        variant="outlined" 
+                        sx={{ 
+                          position: 'absolute', 
+                          top: 10, 
+                          right: 10,
+                          bgcolor: '#f0c14b',
+                          color: 'black'
+                        }} 
                       />
+                    )}
+                    {job.status === 'Draft' && (
                       <Chip 
-                        label={`${job.experience}`} 
+                        label="Draft" 
+                        color="info" 
                         size="small" 
-                        variant="outlined" 
+                        sx={{ 
+                          position: 'absolute', 
+                          top: job.isFeatured ? 40 : 10, 
+                          right: 10
+                        }} 
                       />
-                      <ButtonGroup 
+                    )}
+                    <CardActionArea onClick={() => handleViewJobDetails(job)}>
+                      <CardContent sx={{ flexGrow: 1, pt: 3 }}>
+                        <Box display="flex" justifyContent="space-between" alignItems="start">
+                          <Typography variant="h6" gutterBottom>{job.title}</Typography>
+                        </Box>
+                        
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <LocationIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {job.location}
+                          </Typography>
+                        </Box>
+                        
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <BusinessIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {job.department}
+                          </Typography>
+                        </Box>
+                        
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <SalaryIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {job.salary}
+                          </Typography>
+                        </Box>
+                        
+                        <Divider sx={{ my: 1 }} />
+                        
+                        <Typography variant="body2" color="text.secondary" paragraph sx={{ 
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                          mb: 1
+                        }}>
+                          {job.description}
+                        </Typography>
+                        
+                        <Stack 
+                          direction="row" 
+                          spacing={1} 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                          }}
+                        >
+                          <Chip 
+                            label={job.type} 
+                            size="small" 
+                            variant="outlined" 
+                          />
+                          <Chip 
+                            label={`${job.experience}`} 
+                            size="small" 
+                            variant="outlined" 
+                          />
+                          <ButtonGroup 
+                            size="small" 
+                            aria-label="job status" 
+                            sx={{ mb: 1 }}
+                            disableRipple
+                          >
+                            <Button 
+                              size="small"
+                              variant={job.status === 'Active' ? 'contained' : 'outlined'}
+                              color="success"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                toggleJobStatus(job.id, 'Active', e);
+                              }}
+                              sx={{ fontSize: '0.7rem', py: 0 }}
+                              disabled={job.status === 'Draft'}
+                              disableRipple
+                            >
+                              Active
+                            </Button>
+                            <Button 
+                              size="small"
+                              variant={job.status === 'On-Hold' ? 'contained' : 'outlined'}
+                              color="warning"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                toggleJobStatus(job.id, 'On-Hold', e);
+                              }}
+                              sx={{ fontSize: '0.7rem', py: 0 }}
+                              disabled={job.status === 'Draft'}
+                              disableRipple
+                            >
+                              On-Hold
+                            </Button>
+                            <Button 
+                              size="small"
+                              variant={job.status === 'Closed' ? 'contained' : 'outlined'}
+                              color="error"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                toggleJobStatus(job.id, 'Closed', e);
+                              }}
+                              sx={{ fontSize: '0.7rem', py: 0 }}
+                              disabled={job.status === 'Draft'}
+                              disableRipple
+                            >
+                              Closed
+                            </Button>
+                          </ButtonGroup>
+                        </Stack>
+
+                        <Box display="flex" justifyContent="space-between" alignItems="center">
+                          <Box display="flex" alignItems="center">
+                            <PeopleIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
+                            <Typography variant="body2" color="text.secondary">
+                              {job.applicants} applicants
+                            </Typography>
+                          </Box>
+                          
+                          <Box display="flex" alignItems="center">
+                            <DateIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
+                            <Typography variant="body2" color="text.secondary">
+                              Posted: {new Date(job.postedDate).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric'
+                              })}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </CardActionArea>
+                    
+                    <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
+                      <Button 
                         size="small" 
-                        aria-label="job status" 
-                        sx={{ mb: 1 }}
-                        disableRipple
+                        color="primary" 
+                        startIcon={<VisibilityIcon />}
+                        onClick={() => handleViewJobDetails(job)}
                       >
-                        <Button 
-                          size="small"
-                          variant={job.status === 'Active' ? 'contained' : 'outlined'}
-                          color="success"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            toggleJobStatus(job.id, 'Active', e);
-                          }}
-                          sx={{ fontSize: '0.7rem', py: 0 }}
-                          disabled={job.status === 'Draft'}
-                          disableRipple
-                        >
-                          Active
-                        </Button>
-                        <Button 
-                          size="small"
-                          variant={job.status === 'On-Hold' ? 'contained' : 'outlined'}
-                          color="warning"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            toggleJobStatus(job.id, 'On-Hold', e);
-                          }}
-                          sx={{ fontSize: '0.7rem', py: 0 }}
-                          disabled={job.status === 'Draft'}
-                          disableRipple
-                        >
-                          On-Hold
-                        </Button>
-                        <Button 
-                          size="small"
-                          variant={job.status === 'Closed' ? 'contained' : 'outlined'}
-                          color="error"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            toggleJobStatus(job.id, 'Closed', e);
-                          }}
-                          sx={{ fontSize: '0.7rem', py: 0 }}
-                          disabled={job.status === 'Draft'}
-                          disableRipple
-                        >
-                          Closed
-                        </Button>
-                      </ButtonGroup>
-                    </Stack>
+                        View Details
+                      </Button>
+                      
+                      <Box>
+                        <Tooltip title={job.isBookmarked ? "Remove Bookmark" : "Bookmark"}>
+                          <IconButton 
+                            size="small" 
+                            onClick={(e) => handleToggleBookmark(job.id, e)}
+                            color={job.isBookmarked ? "primary" : "default"}
+                          >
+                            {job.isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+                          </IconButton>
+                        </Tooltip>
+                        
+                        <Tooltip title={job.isFeatured ? "Remove Featured" : "Mark as Featured"}>
+                          <IconButton 
+                            size="small"
+                            color={job.isFeatured ? "warning" : "default"}
+                            onClick={(e) => toggleJobFeatured(job.id, e)}
+                          >
+                            {job.isFeatured ? <StarIcon /> : <StarBorderIcon />}
+                          </IconButton>
+                        </Tooltip>
 
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                      <Box display="flex" alignItems="center">
-                        <PeopleIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
-                        <Typography variant="body2" color="text.secondary">
-                          {job.applicants} applicants
+                        {job.status === 'Draft' && (
+                          <Tooltip title="Edit Draft">
+                            <IconButton 
+                              size="small"
+                              color="primary"
+                              onClick={(e) => handleEditJob(job, e)}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        
+                        <Tooltip title="Share">
+                          <IconButton 
+                            size="small"
+                            onClick={(e) => handleOpenShareDialog(job, e)}
+                            disabled={job.status === 'Draft'}
+                          >
+                            <ShareIcon />
+                          </IconButton>
+                        </Tooltip>
+                        
+                        <Tooltip title="Delete">
+                          <IconButton 
+                            size="small"
+                            color="error"
+                            onClick={(e) => handleDeleteJob(job.id, e)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))
+            ) : (
+              <Grid item xs={12}>
+                <Paper sx={{ p: 3, textAlign: 'center' }}>
+                  <Typography variant="h6" color="text.secondary">
+                    No jobs found matching your criteria
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    Try adjusting your filters or search terms
+                  </Typography>
+                </Paper>
+              </Grid>
+            )}
+          </Grid>
+          
+          {/* Job Detail Dialog */}
+          <Dialog
+            open={jobDetailOpen}
+            onClose={() => setJobDetailOpen(false)}
+            fullWidth
+            maxWidth="md"
+            scroll="paper"
+          >
+            {selectedJob && (
+              <>
+                <DialogTitle>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography variant="h6">{selectedJob.title}</Typography>
+                    <IconButton onClick={() => setJobDetailOpen(false)} size="small">
+                      <CloseIcon />
+                    </IconButton>
+                  </Box>
+                </DialogTitle>
+                <DialogContent dividers>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={8}>
+                      <Box mb={3}>
+                        <Typography variant="h6" gutterBottom>Job Summary</Typography>
+                        <Typography variant="body1" paragraph>
+                          {selectedJob.description}
                         </Typography>
                       </Box>
                       
-                      <Box display="flex" alignItems="center">
-                        <DateIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
-                        <Typography variant="body2" color="text.secondary">
-                          Posted: {new Date(job.postedDate).toLocaleDateString('en-GB', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric'
-                          })}
-                        </Typography>
+                      <Box mb={3}>
+                        <Typography variant="h6" gutterBottom>Responsibilities</Typography>
+                        {renderFormattedContent(selectedJob.responsibilities)}
                       </Box>
-                    </Box>
-                  </CardContent>
-                </CardActionArea>
-                
-                <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
-                  <Button 
-                    size="small" 
-                    color="primary" 
-                    startIcon={<VisibilityIcon />}
-                    onClick={() => handleViewJobDetails(job)}
-                  >
-                    View Details
-                  </Button>
-                  
-                  <Box>
-                    <Tooltip title={job.isBookmarked ? "Remove Bookmark" : "Bookmark"}>
-                      <IconButton 
-                        size="small" 
-                        onClick={(e) => handleToggleBookmark(job.id, e)}
-                        color={job.isBookmarked ? "primary" : "default"}
-                      >
-                        {job.isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-                      </IconButton>
-                    </Tooltip>
-                    
-                    <Tooltip title={job.isFeatured ? "Remove Featured" : "Mark as Featured"}>
-                      <IconButton 
-                        size="small"
-                        color={job.isFeatured ? "warning" : "default"}
-                        onClick={(e) => toggleJobFeatured(job.id, e)}
-                      >
-                        {job.isFeatured ? <StarIcon /> : <StarBorderIcon />}
-                      </IconButton>
-                    </Tooltip>
-
-                    {job.status === 'Draft' && (
-                      <Tooltip title="Edit Draft">
-                        <IconButton 
-                          size="small"
-                          color="primary"
-                          onClick={(e) => handleEditJob(job, e)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                    
-                    <Tooltip title="Share">
-                      <IconButton 
-                        size="small"
-                        onClick={(e) => handleOpenShareDialog(job, e)}
-                        disabled={job.status === 'Draft'}
-                      >
-                        <ShareIcon />
-                      </IconButton>
-                    </Tooltip>
-                    
-                    <Tooltip title="Delete">
-                      <IconButton 
-                        size="small"
-                        color="error"
-                        onClick={(e) => handleDeleteJob(job.id, e)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))
-        ) : (
-          <Grid item xs={12}>
-            <Paper sx={{ p: 3, textAlign: 'center' }}>
-              <Typography variant="h6" color="text.secondary">
-                No jobs found matching your criteria
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Try adjusting your filters or search terms
-              </Typography>
-            </Paper>
-          </Grid>
-        )}
-      </Grid>
-      
-      {/* Job Detail Dialog */}
-      <Dialog
-        open={jobDetailOpen}
-        onClose={() => setJobDetailOpen(false)}
-        fullWidth
-        maxWidth="md"
-        scroll="paper"
-      >
-        {selectedJob && (
-          <>
-            <DialogTitle>
-              <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Typography variant="h6">{selectedJob.title}</Typography>
-                <IconButton onClick={() => setJobDetailOpen(false)} size="small">
-                  <CloseIcon />
-                </IconButton>
-              </Box>
-            </DialogTitle>
-            <DialogContent dividers>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={8}>
-                  <Box mb={3}>
-                    <Typography variant="h6" gutterBottom>Job Summary</Typography>
-                    <Typography variant="body1" paragraph>
-                      {selectedJob.description}
-                    </Typography>
-                  </Box>
-                  
-                  <Box mb={3}>
-                    <Typography variant="h6" gutterBottom>Responsibilities</Typography>
-                    {renderFormattedContent(selectedJob.responsibilities)}
-                  </Box>
-                  
-                  <Box mb={3}>
-                    <Typography variant="h6" gutterBottom>Candidate Requirements</Typography>
-                    {renderFormattedContent(selectedJob.requirements)}
-                  </Box>
-                  
-                  {/* Benefits section */}
-                  <Box mb={3}>
-                    <Typography variant="h6" gutterBottom>Compensation and Benefits</Typography>
-                    {selectedJob.benefits ? renderFormattedContent(selectedJob.benefits) : (
-                      <Typography variant="body2" color="text.secondary">
-                        No benefits specified
+                      
+                      <Box mb={3}>
+                        <Typography variant="h6" gutterBottom>Candidate Requirements</Typography>
+                        {renderFormattedContent(selectedJob.requirements)}
+                      </Box>
+                      
+                      {/* Benefits section */}
+                      <Box mb={3}>
+                        <Typography variant="h6" gutterBottom>Compensation and Benefits</Typography>
+                        {selectedJob.benefits ? renderFormattedContent(selectedJob.benefits) : (
+                          <Typography variant="body2" color="text.secondary">
+                            No benefits specified
                           </Typography>
-                    )}
-                  </Box>
-                </Grid>
-                
-                <Grid item xs={12} md={4}>
-                  <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-                    <Typography variant="subtitle1" gutterBottom>Job Information</Typography>
+                        )}
+                      </Box>
+                    </Grid>
                     
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <LocationIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                      <Typography variant="body2">
-                        <strong>Location:</strong> {selectedJob.location}
-                      </Typography>
-                    </Box>
-                    
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <BusinessIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                      <Typography variant="body2">
-                        <strong>Department:</strong> {selectedJob.department}
-                      </Typography>
-                    </Box>
-                    
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <SalaryIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                      <Typography variant="body2">
-                        <strong>Salary:</strong> {selectedJob.salary}
-                      </Typography>
-                    </Box>
-                    
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <Typography variant="body2">
-                        <strong>Type:</strong> {selectedJob.type}
-                      </Typography>
-                    </Box>
-                    
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <Typography variant="body2">
-                        <strong>Experience:</strong> {selectedJob.experience}
-                      </Typography>
-                    </Box>
-                    
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <Typography variant="body2">
-                        <strong>Status:</strong> {selectedJob.status}
-                      </Typography>
-                    </Box>
-                    
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <DateIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                      <Typography variant="body2">
-                        <strong>Posted:</strong> {new Date(selectedJob.postedDate).toLocaleDateString()}
-                      </Typography>
-                    </Box>
-                    
-                    <Box display="flex" alignItems="center">
-                      <PeopleIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                      <Typography variant="body2">
-                        <strong>Applicants:</strong> {selectedJob.applicants}
-                      </Typography>
-                    </Box>
-                  </Paper>
-                  
-                  <Stack spacing={1}>
-                    <Button 
-                      variant="contained" 
-                      color="primary" 
-                      fullWidth
-                      onClick={() => handleOpenApplyDialog(selectedJob)}
-                    >
-                      Apply For This Job
-                    </Button>
-                    <Button 
-                      variant="outlined"
-                      startIcon={selectedJob.isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-                      fullWidth
-                      onClick={(e) => handleToggleBookmark(selectedJob.id, e)}
-                    >
-                      {selectedJob.isBookmarked ? 'Saved' : 'Save Job'}
-                    </Button>
-                    <Button 
-                      variant="outlined"
-                      startIcon={<ShareIcon />}
-                      fullWidth
-                      onClick={(e) => handleOpenShareDialog(selectedJob)}
-                    >
-                      Share Job
-                    </Button>
-                  </Stack>
-                </Grid>
-              </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+                        <Typography variant="subtitle1" gutterBottom>Job Information</Typography>
+                        
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <LocationIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                          <Typography variant="body2">
+                            <strong>Location:</strong> {selectedJob.location}
+                          </Typography>
+                        </Box>
+                        
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <BusinessIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                          <Typography variant="body2">
+                            <strong>Department:</strong> {selectedJob.department}
+                          </Typography>
+                        </Box>
+                        
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <SalaryIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                          <Typography variant="body2">
+                            <strong>Salary:</strong> {selectedJob.salary}
+                          </Typography>
+                        </Box>
+                        
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <Typography variant="body2">
+                            <strong>Type:</strong> {selectedJob.type}
+                          </Typography>
+                        </Box>
+                        
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <Typography variant="body2">
+                            <strong>Experience:</strong> {selectedJob.experience}
+                          </Typography>
+                        </Box>
+                        
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <Typography variant="body2">
+                            <strong>Status:</strong> {selectedJob.status}
+                          </Typography>
+                        </Box>
+                      </Paper>
+                      
+                      <Stack spacing={1}>
+                        <Button 
+                          variant="contained" 
+                          color="primary" 
+                          fullWidth
+                          onClick={() => handleOpenApplyDialog(selectedJob)}
+                        >
+                          Apply For This Job
+                        </Button>
+                        <Button 
+                          variant="outlined"
+                          startIcon={selectedJob.isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+                          fullWidth
+                          onClick={(e) => handleToggleBookmark(selectedJob.id, e)}
+                        >
+                          {selectedJob.isBookmarked ? 'Saved' : 'Save Job'}
+                        </Button>
+                        <Button 
+                          variant="outlined"
+                          startIcon={<ShareIcon />}
+                          fullWidth
+                          onClick={(e) => handleOpenShareDialog(selectedJob)}
+                        >
+                          Share Job
+                        </Button>
+                      </Stack>
+                    </Grid>
+                  </Grid>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={() => setJobDetailOpen(false)}>Close</Button>
+                </DialogActions>
+              </>
+            )}
+          </Dialog>
+          
+          {/* Delete Confirmation Dialog */}
+          <Dialog
+            open={deleteDialogOpen}
+            onClose={() => setDeleteDialogOpen(false)}
+          >
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogContent>
+              <Typography>
+                Are you sure you want to delete this job posting? This action cannot be undone.
+              </Typography>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setJobDetailOpen(false)}>Close</Button>
+              <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+              <Button 
+                onClick={confirmDeleteJob} 
+                color="error" 
+                variant="contained"
+              >
+                Delete
+              </Button>
             </DialogActions>
-          </>
-        )}
-      </Dialog>
-      
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Are you sure you want to delete this job posting? This action cannot be undone.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button 
-            onClick={confirmDeleteJob} 
-            color="error" 
-            variant="contained"
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </Dialog>
 
-      {/* Post New Job Dialog - Redesigned with tabs and more space */}
-      <Dialog
-        open={newJobDialogOpen}
-        onClose={() => setNewJobDialogOpen(false)}
-        fullWidth
-        maxWidth="lg"
-        PaperProps={{
-          sx: { minHeight: '80vh' }
-        }}
-      >
-        <DialogTitle>
-          {editMode ? 'Edit Job' : 'Post New Job'}
-          <IconButton
-            aria-label="close"
-            onClick={() => setNewJobDialogOpen(false)}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
+          {/* Post New Job Dialog - Redesigned with tabs and more space */}
+          <Dialog
+            open={newJobDialogOpen}
+            onClose={() => setNewJobDialogOpen(false)}
+            fullWidth
+            maxWidth="lg"
+            PaperProps={{
+              sx: { minHeight: '80vh' }
             }}
           >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers>
-          <Box sx={{ width: '100%' }}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-              <Tabs 
-                value={activeTab} 
-                onChange={handleTabChange}
-                variant="scrollable"
-                scrollButtons="auto"
-                aria-label="job creation tabs"
+            <DialogTitle>
+              {editMode ? 'Edit Job' : 'Post New Job'}
+              <IconButton
+                aria-label="close"
+                onClick={() => setNewJobDialogOpen(false)}
+                sx={{
+                  position: 'absolute',
+                  right: 8,
+                  top: 8,
+                  color: (theme) => theme.palette.grey[500],
+                }}
               >
-                <Tab label="Job Summary" />
-                <Tab label="Job Outline" />
-                <Tab label="Qualifications & Experience" />
-                <Tab label="Salary & Benefits" />
-              </Tabs>
-            </Box>
-            
-            {/* Tab 1: Job Summary */}
-            {activeTab === 0 && (
-              <Box sx={{ p: 1 }}>
-                <Typography variant="h6" gutterBottom>Basic Job Information</Typography>
-              <TextField
-                fullWidth
-                label="Job Title"
-                  name="title"
-                margin="normal"
-                required
-                  value={newJobForm.title}
-                  onChange={handleFormChange}
-                  error={formErrors.title}
-                  helperText={formErrors.title ? "Job title is required" : ""}
-              />
-                
-                <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Department"
-                      name="department"
-                required
-                      value={newJobForm.department}
-                      onChange={handleFormChange}
-                      error={formErrors.department}
-                      helperText={formErrors.department ? "Department is required" : ""}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Location"
-                      name="location"
-                required
-                      value={newJobForm.location}
-                      onChange={handleFormChange}
-                      error={formErrors.location}
-                      helperText={formErrors.location ? "Location is required" : ""}
-              />
-            </Grid>
-                </Grid>
-                
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Job Type</InputLabel>
-                <Select
-                  label="Job Type"
-                    name="type"
-                    value={newJobForm.type}
-                    onChange={handleFormChange}
-                    required
-                >
-                  <MenuItem value="Full-time">Full-time</MenuItem>
-                  <MenuItem value="Part-time">Part-time</MenuItem>
-                  <MenuItem value="Contract">Contract</MenuItem>
-                  <MenuItem value="Temporary">Temporary</MenuItem>
-                  <MenuItem value="Internship">Internship</MenuItem>
-                </Select>
-              </FormControl>
-                
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle1" gutterBottom>Featured Status</Typography>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={newJobForm.isFeatured}
-                        onChange={handleSwitchChange}
-                        color="primary"
-                      />
-                    }
-                    label={
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        {newJobForm.isFeatured ? <StarIcon color="warning" sx={{ mr: 1 }} /> : <StarBorderIcon sx={{ mr: 1 }} />}
-                        {newJobForm.isFeatured ? "Featured Job" : "Standard Job"}
-                      </Box>
-                    }
-                  />
-                </Box>
-              </Box>
-            )}
-            
-            {/* Tab 2: Job Outline */}
-            {activeTab === 1 && (
-              <Box sx={{ p: 1 }}>
-                <Typography variant="h6" gutterBottom>Job Description and Responsibilities</Typography>
-                
-                <Box sx={{ position: 'relative', mb: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="subtitle1" component="label" htmlFor="description">
-                      Job Description
-                      <Typography component="span" color="error">*</Typography>
-                    </Typography>
-                    <Tooltip title="Provide a comprehensive overview of the job, including its purpose, main duties, and how it fits into the organization">
-                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                    </Tooltip>
-                  </Box>
-                  {renderTextEditorToolbar('description', 'Job Description')}
-              <TextField
-                    id="description"
-                fullWidth
-                    name="description"
-                    multiline
-                    rows={8}
-                    required
-                    value={newJobForm.description}
-                    onChange={handleFormChange}
-                    error={formErrors.description}
-                    helperText={formErrors.description ? "Job description is required" : "Max 2000 characters"}
-                    inputProps={{ maxLength: 2000 }}
-                  />
-                </Box>
-                
-                <Box sx={{ position: 'relative' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="subtitle1" component="label" htmlFor="responsibilities">
-                      Responsibilities
-                      <Typography component="span" color="error">*</Typography>
-                    </Typography>
-                    <Tooltip title="List the key responsibilities for this position, enter each responsibility on a new line">
-                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                    </Tooltip>
-                  </Box>
-                  {renderTextEditorToolbar('responsibilities', 'Responsibilities')}
-              <TextField
-                    id="responsibilities"
-                fullWidth
-                    name="responsibilities"
-                    multiline
-                    rows={8}
-                    value={newJobForm.responsibilities}
-                    onChange={handleFormChange}
-                    placeholder="Enter each responsibility on a new line"
-                    helperText={formErrors.responsibilities ? "Responsibilities are required" : "Max 1000 characters"}
-                    inputProps={{ maxLength: 1000 }}
-                    required
-                    error={formErrors.responsibilities}
-                  />
-                </Box>
-              </Box>
-            )}
-            
-            {/* Tab 3: Qualifications & Experience */}
-            {activeTab === 2 && (
-              <Box sx={{ p: 1 }}>
-                <Typography variant="h6" gutterBottom>Candidate Requirements</Typography>
-                
-                <Box sx={{ position: 'relative', mb: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="subtitle1" component="label" htmlFor="experience">
-                      Experience Required
-                      <Typography component="span" color="error">*</Typography>
-                    </Typography>
-                    <Tooltip title="Specify the years of experience needed for this position">
-                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                    </Tooltip>
-                  </Box>
-              <TextField
-                    id="experience"
-                fullWidth
-                    name="experience"
-                margin="normal"
-                    value={newJobForm.experience}
-                    onChange={handleFormChange}
-                    placeholder="e.g., 3-5 years in similar role"
-                    helperText={formErrors.experience ? "Experience is required" : "Max 100 characters"}
-                    inputProps={{ maxLength: 100 }}
-                    required
-                    error={formErrors.experience}
-                  />
-                </Box>
-                
-                <Box sx={{ position: 'relative', mb: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="subtitle1" component="label" htmlFor="requirements">
-                      Qualifications
-                      <Typography component="span" color="error">*</Typography>
-                    </Typography>
-                    <Tooltip title="List the qualifications required for this position, such as education, certifications, or knowledge areas">
-                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                    </Tooltip>
-                  </Box>
-                  {renderTextEditorToolbar('requirements', 'Qualifications')}
-                  <TextField
-                    id="requirements"
-                    fullWidth
-                    name="requirements"
-                    multiline
-                    rows={6}
-                    value={newJobForm.requirements}
-                    onChange={handleFormChange}
-                    placeholder="Enter each qualification on a new line"
-                    helperText={formErrors.requirements ? "Qualifications are required" : "Max 1000 characters"}
-                    inputProps={{ maxLength: 1000 }}
-                    required
-                    error={formErrors.requirements}
-                  />
-                </Box>
-                
-                <Box sx={{ position: 'relative' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="subtitle1" component="label" htmlFor="skills">
-                      Skills
-                      <Typography component="span" color="error">*</Typography>
-                    </Typography>
-                    <Tooltip title="Specify technical or soft skills needed for the role, one per line">
-                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                    </Tooltip>
-                  </Box>
-                  {renderTextEditorToolbar('skills', 'Skills')}
-                  <TextField
-                    id="skills"
-                    fullWidth
-                    name="skills"
-                multiline
-                rows={4}
-                    value={newJobForm.skills}
-                    onChange={handleFormChange}
-                    placeholder="Enter each skill on a new line"
-                    helperText={formErrors.skills ? "Skills are required" : "Max 500 characters"}
-                    inputProps={{ maxLength: 500 }}
-                required
-                    error={formErrors.skills}
-                  />
-                </Box>
-              </Box>
-            )}
-            
-            {/* Tab 4: Salary & Benefits */}
-            {activeTab === 3 && (
-              <Box sx={{ p: 1 }}>
-                <Typography variant="h6" gutterBottom>Compensation and Benefits</Typography>
-                
-                <Box sx={{ position: 'relative', mb: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="subtitle1" component="label" htmlFor="salary">
-                      Salary Range
-                      <Typography component="span" color="error">*</Typography>
-                    </Typography>
-                    <Tooltip title="Provide a salary range to attract the right candidates">
-                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                    </Tooltip>
-                  </Box>
-                  <TextField
-                    id="salary"
-                    fullWidth
-                    name="salary"
-                    margin="normal"
-                    value={newJobForm.salary}
-                    onChange={handleSalaryChange}
-                    placeholder="e.g., $80,000 - $100,000"
-                    helperText={formErrors.salary ? "Salary is required" : "Max 100 characters"}
-                    inputProps={{ maxLength: 100 }}
-                    required
-                    error={formErrors.salary}
-                  />
-                </Box>
-                
-                <Box sx={{ position: 'relative' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="subtitle1" component="label" htmlFor="benefits">
-                      Benefits
-                      <Typography component="span" color="error">*</Typography>
-                    </Typography>
-                    <Tooltip title="List benefits such as healthcare, 401k, time off, work-from-home options, etc.">
-                      <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                    </Tooltip>
-                  </Box>
-                  {renderTextEditorToolbar('benefits', 'Benefits')}
-                  <TextField
-                    id="benefits"
-                    fullWidth
-                    name="benefits"
-                    multiline
-                    rows={8}
-                    value={newJobForm.benefits}
-                    onChange={handleFormChange}
-                    placeholder="Enter each benefit on a new line"
-                    helperText={formErrors.benefits ? "Benefits are required" : "Max 1000 characters"}
-                    inputProps={{ maxLength: 1000 }}
-                    required
-                    error={formErrors.benefits}
-                  />
-                </Box>
-              </Box>
-            )}
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2, justifyContent: 'space-between' }}>
-          <Box>
-            {activeTab > 0 && (
-              <Button onClick={handlePrevTab} sx={{ mr: 1 }}>
-                Previous
-              </Button>
-            )}
-            <Button 
-              variant="outlined" 
-              color="primary"
-              onClick={() => handleCreateNewJob(true)}
-            >
-              {editMode ? 'Update as Draft' : 'Save as Draft'}
-            </Button>
-          </Box>
-          <Box>
-            <Button 
-              onClick={() => setNewJobDialogOpen(false)} 
-              sx={{ mr: 1 }}
-            >
-              Cancel
-            </Button>
-            {activeTab < 3 ? (
-          <Button 
-            variant="contained" 
-            color="primary"
-                onClick={handleNextTab}
-          >
-                Next
-          </Button>
-            ) : (
-              <Button 
-                variant="contained" 
-                color="primary"
-                onClick={() => handleCreateNewJob(false)}
-              >
-                {editMode ? 'Update Job' : 'Publish Job'}
-              </Button>
-            )}
-          </Box>
-        </DialogActions>
-      </Dialog>
-
-      {/* Share Job Dialog */}
-      <Dialog
-        open={shareDialogOpen}
-        onClose={() => setShareDialogOpen(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>Share Job</DialogTitle>
-        <DialogContent>
-          {jobToShare && (
-            <>
-              <Typography variant="subtitle1" gutterBottom>
-                Sharing: {jobToShare.title}
-              </Typography>
-              <TextField
-                fullWidth
-                label="Email Address"
-                type="email"
-                margin="normal"
-                value={emailTo}
-                onChange={(e) => setEmailTo(e.target.value)}
-                required
-              />
-              <TextField
-                fullWidth
-                label="Message (Optional)"
-                margin="normal"
-                multiline
-                rows={4}
-                value={shareMessage}
-                onChange={(e) => setShareMessage(e.target.value)}
-                placeholder="Check out this job opportunity that might interest you!"
-              />
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShareDialogOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
-            color="primary"
-            onClick={handleShareJob}
-            disabled={!emailTo}
-          >
-            Share
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Apply For Job Dialog */}
-      <Dialog
-        open={applyDialogOpen}
-        onClose={() => setApplyDialogOpen(false)}
-        fullWidth
-        maxWidth="md"
-      >
-        <DialogTitle>Apply For Job</DialogTitle>
-        <DialogContent>
-          {jobToApply && (
-            <>
-              <Typography variant="subtitle1" gutterBottom>
-                Applying for: {jobToApply.title}
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="First Name"
-                    margin="normal"
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Last Name"
-                    margin="normal"
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    type="email"
-                    margin="normal"
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Phone"
-                    margin="normal"
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
-                    Resume/CV
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    component="label"
-                    startIcon={<CloudUploadIcon />}
-                    fullWidth
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <DialogContent dividers>
+              <Box sx={{ width: '100%' }}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                  <Tabs 
+                    value={activeTab} 
+                    onChange={handleTabChange}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    aria-label="job creation tabs"
                   >
-                    Upload Resume
-                    <input type="file" hidden />
-                  </Button>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
-                    Cover Letter (Optional)
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    component="label"
-                    startIcon={<CloudUploadIcon />}
-                    fullWidth
-                  >
-                    Upload Cover Letter
-                    <input type="file" hidden />
-                  </Button>
-                </Grid>
-                <Grid item xs={12}>
+                    <Tab label="Job Summary" />
+                    <Tab label="Job Outline" />
+                    <Tab label="Qualifications & Experience" />
+                    <Tab label="Salary & Benefits" />
+                  </Tabs>
+                </Box>
+                
+                {/* Tab 1: Job Summary */}
+                {activeTab === 0 && (
+                  <Box sx={{ p: 1 }}>
+                    <Typography variant="h6" gutterBottom>Basic Job Information</Typography>
                   <TextField
                     fullWidth
-                    label="Additional Information"
+                    label="Job Title"
+                      name="title"
                     margin="normal"
-                    multiline
-                    rows={4}
-                    placeholder="Include any additional information you'd like to share with the hiring team."
+                    required
+                      value={newJobForm.title}
+                      onChange={handleFormChange}
+                      error={formErrors.title}
+                      helperText={formErrors.title ? "Job title is required" : ""}
                   />
-                </Grid>
+                    
+                    <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Department"
+                        name="department"
+                  required
+                        value={newJobForm.department}
+                        onChange={handleFormChange}
+                        error={formErrors.department}
+                        helperText={formErrors.department ? "Department is required" : ""}
+                />
               </Grid>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setApplyDialogOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
-            color="primary"
-            onClick={handleApplyForJob}
-          >
-            Submit Application
-          </Button>
-        </DialogActions>
-      </Dialog>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Location"
+                        name="location"
+                  required
+                        value={newJobForm.location}
+                        onChange={handleFormChange}
+                        error={formErrors.location}
+                        helperText={formErrors.location ? "Location is required" : ""}
+                />
+              </Grid>
+                  </Grid>
+                  
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Job Type</InputLabel>
+                  <Select
+                    label="Job Type"
+                      name="type"
+                      value={newJobForm.type}
+                      onChange={handleFormChange}
+                      required
+                  >
+                    <MenuItem value="Full-time">Full-time</MenuItem>
+                    <MenuItem value="Part-time">Part-time</MenuItem>
+                    <MenuItem value="Contract">Contract</MenuItem>
+                    <MenuItem value="Temporary">Temporary</MenuItem>
+                    <MenuItem value="Internship">Internship</MenuItem>
+                  </Select>
+                </FormControl>
+                  
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle1" gutterBottom>Featured Status</Typography>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={newJobForm.isFeatured}
+                          onChange={handleSwitchChange}
+                          color="primary"
+                        />
+                      }
+                      label={
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          {newJobForm.isFeatured ? <StarIcon color="warning" sx={{ mr: 1 }} /> : <StarBorderIcon sx={{ mr: 1 }} />}
+                          {newJobForm.isFeatured ? "Featured Job" : "Standard Job"}
+                        </Box>
+                      }
+                    />
+                  </Box>
+                </Box>
+              )}
+              
+              {/* Tab 2: Job Outline */}
+              {activeTab === 1 && (
+                <Box sx={{ p: 1 }}>
+                  <Typography variant="h6" gutterBottom>Job Description and Responsibilities</Typography>
+                  
+                  <Box sx={{ position: 'relative', mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="description">
+                        Job Description
+                        <Typography component="span" color="error">*</Typography>
+                      </Typography>
+                      <Tooltip title="Provide a comprehensive overview of the job, including its purpose, main duties, and how it fits into the organization">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                    {renderTextEditorToolbar('description', 'Job Description')}
+                <TextField
+                      id="description"
+                  fullWidth
+                      name="description"
+                      multiline
+                      rows={8}
+                      required
+                      value={newJobForm.description}
+                      onChange={handleFormChange}
+                      error={formErrors.description}
+                      helperText={formErrors.description ? "Job description is required" : "Max 2000 characters"}
+                      inputProps={{ maxLength: 2000 }}
+                    />
+                  </Box>
+                  
+                  <Box sx={{ position: 'relative' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="responsibilities">
+                        Responsibilities
+                        <Typography component="span" color="error">*</Typography>
+                      </Typography>
+                      <Tooltip title="List the key responsibilities for this position, enter each responsibility on a new line">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                    {renderTextEditorToolbar('responsibilities', 'Responsibilities')}
+                <TextField
+                      id="responsibilities"
+                  fullWidth
+                      name="responsibilities"
+                      multiline
+                      rows={8}
+                      value={newJobForm.responsibilities}
+                      onChange={handleFormChange}
+                      placeholder="Enter each responsibility on a new line"
+                      helperText={formErrors.responsibilities ? "Responsibilities are required" : "Max 1000 characters"}
+                      inputProps={{ maxLength: 1000 }}
+                      required
+                      error={formErrors.responsibilities}
+                    />
+                  </Box>
+                </Box>
+              )}
+              
+              {/* Tab 3: Qualifications & Experience */}
+              {activeTab === 2 && (
+                <Box sx={{ p: 1 }}>
+                  <Typography variant="h6" gutterBottom>Candidate Requirements</Typography>
+                  
+                  <Box sx={{ position: 'relative', mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="experience">
+                        Experience Required
+                        <Typography component="span" color="error">*</Typography>
+                      </Typography>
+                      <Tooltip title="Specify the years of experience needed for this position">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                <TextField
+                      id="experience"
+                  fullWidth
+                      name="experience"
+                  margin="normal"
+                      value={newJobForm.experience}
+                      onChange={handleFormChange}
+                      placeholder="e.g., 3-5 years in similar role"
+                      helperText={formErrors.experience ? "Experience is required" : "Max 100 characters"}
+                      inputProps={{ maxLength: 100 }}
+                      required
+                      error={formErrors.experience}
+                    />
+                  </Box>
+                  
+                  <Box sx={{ position: 'relative', mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="requirements">
+                        Qualifications
+                        <Typography component="span" color="error">*</Typography>
+                      </Typography>
+                      <Tooltip title="List the qualifications required for this position, such as education, certifications, or knowledge areas">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                    {renderTextEditorToolbar('requirements', 'Qualifications')}
+                    <TextField
+                      id="requirements"
+                      fullWidth
+                      name="requirements"
+                      multiline
+                      rows={6}
+                      value={newJobForm.requirements}
+                      onChange={handleFormChange}
+                      placeholder="Enter each qualification on a new line"
+                      helperText={formErrors.requirements ? "Qualifications are required" : "Max 1000 characters"}
+                      inputProps={{ maxLength: 1000 }}
+                      required
+                      error={formErrors.requirements}
+                    />
+                  </Box>
+                  
+                  <Box sx={{ position: 'relative' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="skills">
+                        Skills
+                        <Typography component="span" color="error">*</Typography>
+                      </Typography>
+                      <Tooltip title="Specify technical or soft skills needed for the role, one per line">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                    {renderTextEditorToolbar('skills', 'Skills')}
+                    <TextField
+                      id="skills"
+                      fullWidth
+                      name="skills"
+                  multiline
+                  rows={4}
+                      value={newJobForm.skills}
+                      onChange={handleFormChange}
+                      placeholder="Enter each skill on a new line"
+                      helperText={formErrors.skills ? "Skills are required" : "Max 500 characters"}
+                      inputProps={{ maxLength: 500 }}
+                  required
+                      error={formErrors.skills}
+                    />
+                  </Box>
+                </Box>
+              )}
+              
+              {/* Tab 4: Salary & Benefits */}
+              {activeTab === 3 && (
+                <Box sx={{ p: 1 }}>
+                  <Typography variant="h6" gutterBottom>Compensation and Benefits</Typography>
+                  
+                  <Box sx={{ position: 'relative', mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="salary">
+                        Salary Range
+                        <Typography component="span" color="error">*</Typography>
+                      </Typography>
+                      <Tooltip title="Provide a salary range to attract the right candidates">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                    <TextField
+                      id="salary"
+                      fullWidth
+                      name="salary"
+                      margin="normal"
+                      value={newJobForm.salary}
+                      onChange={handleSalaryChange}
+                      placeholder="e.g., $80,000 - $100,000"
+                      helperText={formErrors.salary ? "Salary is required" : "Max 100 characters"}
+                      inputProps={{ maxLength: 100 }}
+                      required
+                      error={formErrors.salary}
+                    />
+                  </Box>
+                  
+                  <Box sx={{ position: 'relative' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="benefits">
+                        Benefits
+                        <Typography component="span" color="error">*</Typography>
+                      </Typography>
+                      <Tooltip title="List benefits such as healthcare, 401k, time off, work-from-home options, etc.">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                    {renderTextEditorToolbar('benefits', 'Benefits')}
+                    <TextField
+                      id="benefits"
+                      fullWidth
+                      name="benefits"
+                      multiline
+                      rows={8}
+                      value={newJobForm.benefits}
+                      onChange={handleFormChange}
+                      placeholder="Enter each benefit on a new line"
+                      helperText={formErrors.benefits ? "Benefits are required" : "Max 1000 characters"}
+                      inputProps={{ maxLength: 1000 }}
+                      required
+                      error={formErrors.benefits}
+                    />
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 2, justifyContent: 'space-between' }}>
+            <Box>
+              {activeTab > 0 && (
+                <Button onClick={handlePrevTab} sx={{ mr: 1 }}>
+                  Previous
+                </Button>
+              )}
+              <Button 
+                variant="outlined" 
+                color="primary"
+                onClick={() => handleCreateNewJob(true)}
+              >
+                {editMode ? 'Update as Draft' : 'Save as Draft'}
+              </Button>
+            </Box>
+            <Box>
+              <Button 
+                onClick={() => setNewJobDialogOpen(false)} 
+                sx={{ mr: 1 }}
+              >
+                Cancel
+              </Button>
+              {activeTab < 3 ? (
+            <Button 
+              variant="contained" 
+              color="primary"
+                  onClick={handleNextTab}
+            >
+                  Next
+            </Button>
+              ) : (
+                <Button 
+                  variant="contained" 
+                  color="primary"
+                  onClick={() => handleCreateNewJob(false)}
+                >
+                  {editMode ? 'Update Job' : 'Publish Job'}
+                </Button>
+              )}
+            </Box>
+          </DialogActions>
+        </Dialog>
 
-      {/* Preview Dialog */}
-      <Dialog
-        open={previewDialogOpen}
-        onClose={() => setPreviewDialogOpen(false)}
-        fullWidth
-        maxWidth="md"
-      >
-        <DialogTitle>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">Preview: {previewTitle}</Typography>
-            <IconButton onClick={() => setPreviewDialogOpen(false)} size="small">
-              <CloseIcon />
-            </IconButton>
-          </Box>
-        </DialogTitle>
-        <DialogContent dividers>
-          <Box sx={{ p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-            <div dangerouslySetInnerHTML={{ __html: previewContent }} />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setPreviewDialogOpen(false)}>Close</Button>
-        </DialogActions>
-      </Dialog>
+        {/* Share Job Dialog */}
+        <Dialog
+          open={shareDialogOpen}
+          onClose={() => setShareDialogOpen(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle>Share Job</DialogTitle>
+          <DialogContent>
+            {jobToShare && (
+              <>
+                <Typography variant="subtitle1" gutterBottom>
+                  Sharing: {jobToShare.title}
+                </Typography>
+                <TextField
+                  fullWidth
+                  label="Email Address"
+                  type="email"
+                  margin="normal"
+                  value={emailTo}
+                  onChange={(e) => setEmailTo(e.target.value)}
+                  required
+                />
+                <TextField
+                  fullWidth
+                  label="Message (Optional)"
+                  margin="normal"
+                  multiline
+                  rows={4}
+                  value={shareMessage}
+                  onChange={(e) => setShareMessage(e.target.value)}
+                  placeholder="Check out this job opportunity that might interest you!"
+                />
+              </>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShareDialogOpen(false)}>Cancel</Button>
+            <Button 
+              variant="contained" 
+              color="primary"
+              onClick={handleShareJob}
+              disabled={!emailTo}
+            >
+              Share
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-      {/* Snackbar for notifications */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        message={snackbarMessage}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      />
+        {/* Apply For Job Dialog */}
+        <Dialog
+          open={applyDialogOpen}
+          onClose={() => setApplyDialogOpen(false)}
+          fullWidth
+          maxWidth="md"
+        >
+          <DialogTitle>Apply For Job</DialogTitle>
+          <DialogContent>
+            {jobToApply && (
+              <>
+                <Typography variant="subtitle1" gutterBottom>
+                  Applying for: {jobToApply.title}
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="First Name"
+                      margin="normal"
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Last Name"
+                      margin="normal"
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Email"
+                      type="email"
+                      margin="normal"
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Phone"
+                      margin="normal"
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                      Resume/CV
+                    </Typography>
+                    <Button
+                      variant="outlined"
+                      component="label"
+                      startIcon={<CloudUploadIcon />}
+                      fullWidth
+                    >
+                      Upload Resume
+                      <input type="file" hidden />
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                      Cover Letter (Optional)
+                    </Typography>
+                    <Button
+                      variant="outlined"
+                      component="label"
+                      startIcon={<CloudUploadIcon />}
+                      fullWidth
+                    >
+                      Upload Cover Letter
+                      <input type="file" hidden />
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Additional Information"
+                      margin="normal"
+                      multiline
+                      rows={4}
+                      placeholder="Include any additional information you'd like to share with the hiring team."
+                    />
+                  </Grid>
+                </Grid>
+              </>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setApplyDialogOpen(false)}>Cancel</Button>
+            <Button 
+              variant="contained" 
+              color="primary"
+              onClick={handleApplyForJob}
+            >
+              Submit Application
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Preview Dialog */}
+        <Dialog
+          open={previewDialogOpen}
+          onClose={() => setPreviewDialogOpen(false)}
+          fullWidth
+          maxWidth="md"
+        >
+          <DialogTitle>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6">Preview: {previewTitle}</Typography>
+              <IconButton onClick={() => setPreviewDialogOpen(false)} size="small">
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent dividers>
+            <Box sx={{ p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+              <div dangerouslySetInnerHTML={{ __html: previewContent }} />
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setPreviewDialogOpen(false)}>Close</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Snackbar for notifications */}
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={() => setSnackbarOpen(false)}
+          message={snackbarMessage}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        />
+      </Box>
+      )}
     </Box>
   );
-};
-
-export default JobBoard; 
+}
+export default JobBoard;

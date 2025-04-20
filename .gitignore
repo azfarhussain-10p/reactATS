@@ -72,3 +72,33 @@ src/.temporary.*
 .temp
 .vercel
 vite.config.js.timestamp-*
+
+# ATS Application specific
+# Temporary mock data backups
+src/data/*.bak
+src/data/*.backup
+
+# Generated documentation
+docs/generated/
+
+# Database files (if using SQLite in development)
+*.sqlite
+*.sqlite3
+*.db
+
+# Temp files for resume uploads
+uploads/
+resume_uploads/
+
+# Auth tokens for development
+.auth_tokens
+
+# Log files specific to the ATS app
+ats-error.log
+ats-access.log
+
+# Feature flag configuration that shouldn't be in version control
+feature-flags.json
+
+# Auto-generated API documentation
+api-docs/

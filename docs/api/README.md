@@ -1,52 +1,59 @@
-# API Documentation
+# ATS Application API Documentation
 
-This directory contains comprehensive documentation for all API services and endpoints in the ATS application.
+This directory contains documentation related to the API implementation in the ATS (Applicant Tracking System) application.
 
-## Core Services
+## Directory Structure
 
-- [API Service](./services/api-service.md) - Core API service for making HTTP requests
-- [Cache Service](./services/cache-service.md) - Service for managing API response caching
-- [Queue Service](./services/queue-service.md) - Service for managing background tasks and job queues
-- [Security Service](./services/security-service.md) - Service for handling authentication and authorization
-- [Performance Monitor Service](./services/performance-monitor-service.md) - Service for monitoring application performance
-- [Service Worker Manager](./services/service-worker-manager.md) - Service for managing PWA and offline capabilities
-- [Scalability Service](./services/scalability-service.md) - Service for handling application scaling
+- `services/`: Documentation for frontend API service implementations
+  - [api-service.md](services/api-service.md): Frontend API service implementation details
 
 ## API Endpoints
 
-### Authentication
-- [Login](./endpoints/auth/login.md)
-- [Register](./endpoints/auth/register.md)
-- [Refresh Token](./endpoints/auth/refresh-token.md)
+For a complete list of available API endpoints, refer to the [API-README.md](../API-README.md) in the root directory.
 
-### Candidates
-- [Create Candidate](./endpoints/candidates/create.md)
-- [Update Candidate](./endpoints/candidates/update.md)
-- [List Candidates](./endpoints/candidates/list.md)
-- [Search Candidates](./endpoints/candidates/search.md)
+## Frontend Integration
 
-### Jobs
-- [Create Job](./endpoints/jobs/create.md)
-- [Update Job](./endpoints/jobs/update.md)
-- [List Jobs](./endpoints/jobs/list.md)
-- [Search Jobs](./endpoints/jobs/search.md)
+The frontend uses the API services defined in `src/services/api.ts` to communicate with the backend. These services provide a clean and consistent interface for making API calls from React components.
 
-### Interviews
-- [Schedule Interview](./endpoints/interviews/schedule.md)
-- [Update Interview](./endpoints/interviews/update.md)
-- [List Interviews](./endpoints/interviews/list.md)
+### Key Concepts
 
-### Analytics
-- [Candidate Statistics](./endpoints/analytics/candidate-stats.md)
-- [Job Statistics](./endpoints/analytics/job-stats.md)
-- [Interview Statistics](./endpoints/analytics/interview-stats.md)
+1. **Centralized API Configuration**: All API calls use a single axios instance with consistent configuration
+2. **Structured Service Objects**: API functionality is organized into service objects by domain (jobs, applications, job boards)
+3. **Consistent Error Handling**: All API methods follow the same pattern for error handling and logging
+4. **TypeScript Integration**: API methods use TypeScript for better type safety and developer experience
 
-## Contributing
+### Common Usage Pattern
 
-When adding new API documentation, please follow these guidelines:
-1. Use the provided templates in the `_templates` directory
-2. Include request/response examples
-3. Document all parameters and response fields
-4. Include error handling information
-5. Add authentication requirements
-6. Update this index file with links to new documentation 
+```typescript
+import { jobsApi } from '../services/api';
+
+// In a React component
+const [jobs, setJobs] = useState([]);
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState(null);
+
+useEffect(() => {
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+      const jobsData = await jobsApi.getAllJobs();
+      setJobs(jobsData);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching jobs:', err);
+      setError('Failed to load jobs. Please try again later.');
+      setLoading(false);
+    }
+  };
+  
+  fetchJobs();
+}, []);
+```
+
+## Best Practices
+
+1. Always wrap API calls in try-catch blocks
+2. Handle loading states with a loading indicator
+3. Provide user-friendly error messages
+4. Log detailed errors to the console for debugging
+5. Use TypeScript interfaces for request and response data 

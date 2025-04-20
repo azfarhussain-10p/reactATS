@@ -1,0 +1,118 @@
+[
+  {
+    "id": 1,
+    "jobId": 1,
+    "jobTitle": "Senior React Developer Test",
+    "candidateId": 101,
+    "firstName": "John",
+    "lastName": "Smith",
+    "email": "john.smith@example.com",
+    "phone": "212-555-1234",
+    "resume": "https://example.com/resumes/john-smith.pdf",
+    "coverLetter": "I am excited to apply for the Senior React Developer position. With over 5 years of experience in React development, I believe I am a strong fit for this role.",
+    "linkedInUrl": "https://www.linkedin.com/in/johnsmith",
+    "portfolioUrl": "https://johnsmith.dev",
+    "referredBy": "Jane Doe",
+    "source": "Employee Referral",
+    "answers": [
+      {
+        "question": "Why do you want to work with us?",
+        "answer": "I've been following your company for years and am impressed with your innovative approach to technology."
+      }
+    ],
+    "status": "Screening",
+    "stage": "First Interview",
+    "appliedDate": "2023-05-15T10:30:00Z",
+    "stageHistory": [
+      {
+        "stage": "Applied",
+        "enteredAt": "2023-05-15T10:30:00Z",
+        "exitedAt": "2023-05-17T14:20:00Z",
+        "notes": "Initial application submitted"
+      },
+      {
+        "stage": "First Interview",
+        "enteredAt": "2023-05-17T14:20:00Z",
+        "exitedAt": null,
+        "notes": "Scheduled for phone interview with HR"
+      }
+    ],
+    "notes": "Strong technical background with relevant experience.",
+    "flagged": false,
+    "lastUpdated": "2023-05-17T14:20:00Z"
+  },
+  {
+    "id": 2,
+    "jobId": 2,
+    "jobTitle": "UX Designer",
+    "candidateId": 102,
+    "firstName": "Sarah",
+    "lastName": "Johnson",
+    "email": "sarah.j@example.com",
+    "phone": "415-555-6789",
+    "resume": "https://example.com/resumes/sarah-johnson.pdf",
+    "coverLetter": "As a UX designer with a passion for creating intuitive digital experiences, I'm excited about the opportunity to join your design team.",
+    "linkedInUrl": "https://www.linkedin.com/in/sarahjohnson",
+    "portfolioUrl": "https://sarahjohnson.design",
+    "referredBy": "",
+    "source": "LinkedIn",
+    "answers": [],
+    "status": "Interview",
+    "stage": "Technical Assessment",
+    "appliedDate": "2023-05-10T09:15:00Z",
+    "stageHistory": [
+      {
+        "stage": "Applied",
+        "enteredAt": "2023-05-10T09:15:00Z",
+        "exitedAt": "2023-05-12T11:30:00Z",
+        "notes": "Initial application submitted"
+      },
+      {
+        "stage": "Screening",
+        "enteredAt": "2023-05-12T11:30:00Z",
+        "exitedAt": "2023-05-16T13:45:00Z",
+        "notes": "Phone screening completed"
+      },
+      {
+        "stage": "Technical Assessment",
+        "enteredAt": "2023-05-16T13:45:00Z",
+        "exitedAt": null,
+        "notes": "Assigned design challenge"
+      }
+    ],
+    "notes": "Impressive portfolio with strong visual design skills.",
+    "flagged": false,
+    "lastUpdated": "2023-05-16T13:45:00Z"
+  },
+  {
+    "id": 3,
+    "jobId": 3,
+    "jobTitle": "DevOps Engineer",
+    "candidateId": 103,
+    "firstName": "Michael",
+    "lastName": "Brown",
+    "email": "michael.brown@example.com",
+    "phone": "650-555-4321",
+    "resume": "https://example.com/resumes/michael-brown.pdf",
+    "coverLetter": "With extensive experience in AWS and containerization technologies, I believe I would be a valuable asset to your DevOps team.",
+    "linkedInUrl": "https://www.linkedin.com/in/michaelbrown",
+    "portfolioUrl": "https://github.com/michaelbrown",
+    "referredBy": "",
+    "source": "Indeed",
+    "answers": [],
+    "status": "New",
+    "stage": "Applied",
+    "appliedDate": "2023-05-18T16:20:00Z",
+    "stageHistory": [
+      {
+        "stage": "Applied",
+        "enteredAt": "2023-05-18T16:20:00Z",
+        "exitedAt": null,
+        "notes": "Initial application submitted"
+      }
+    ],
+    "notes": "",
+    "flagged": false,
+    "lastUpdated": "2023-05-18T16:20:00Z"
+  }
+]

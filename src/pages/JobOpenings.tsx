@@ -17,7 +17,9 @@ import {
   Select,
   MenuItem,
   IconButton,
-  Tooltip
+  Tooltip,
+  CircularProgress,
+  Alert
 } from '@mui/material';
 import { 
   Search as SearchIcon,
@@ -30,6 +32,7 @@ import {
   BookmarkBorder as BookmarkBorderIcon
 } from '@mui/icons-material';
 import { SelectChangeEvent } from '@mui/material/Select';
+import { jobsApi } from '../services/api';
 
 // Define Job interface
 interface Job {
@@ -51,97 +54,26 @@ interface Job {
   isBookmarked?: boolean;
 }
 
-// Mock data for job listings
-const initialJobs: Job[] = [
-  {
-    id: 1,
-    title: 'Senior Frontend Developer',
-    location: 'New York, NY',
-    department: 'Engineering',
-    type: 'Full-time',
-    experience: '3-5 years',
-    salary: '$100,000 - $130,000',
-    postedDate: '2023-07-15',
-    description: 'We are looking for a skilled Frontend Developer with experience in React and TypeScript.',
-    responsibilities: [
-      'Develop responsive web applications',
-      'Implement UI/UX designs',
-      'Optimize application performance'
-    ],
-    requirements: [
-      'Bachelor\'s degree in Computer Science or related field',
-      'Strong knowledge of React, TypeScript, and modern JavaScript',
-      'Experience with CSS frameworks like Material-UI'
-    ],
-    benefits: 'Health insurance, 401k matching, flexible work hours, remote work options',
-    status: 'Active',
-    applicants: 25,
-    isFeatured: true
-  },
-  {
-    id: 2,
-    title: 'UX Designer',
-    location: 'Remote',
-    department: 'Design',
-    type: 'Full-time',
-    experience: '2-4 years',
-    salary: '$85,000 - $110,000',
-    postedDate: '2023-07-20',
-    description: 'Join our design team to create beautiful and intuitive user experiences.',
-    responsibilities: [
-      'Create wireframes and prototypes',
-      'Conduct user research',
-      'Collaborate with developers'
-    ],
-    requirements: [
-      'Portfolio demonstrating UX design skills',
-      'Experience with Figma, Sketch, or similar tools',
-      'Understanding of user-centered design principles'
-    ],
-    benefits: 'Health insurance, flexible work hours, professional development budget',
-    status: 'Active',
-    applicants: 18
-  },
-  {
-    id: 3,
-    title: 'DevOps Engineer',
-    location: 'San Francisco, CA',
-    department: 'Operations',
-    type: 'Full-time',
-    experience: '4-6 years',
-    salary: '$120,000 - $150,000',
-    postedDate: '2023-07-10',
-    description: 'Help us build and maintain our cloud infrastructure and CI/CD pipelines.',
-    responsibilities: [
-      'Manage AWS infrastructure',
-      'Implement CI/CD pipelines',
-      'Monitor system performance'
-    ],
-    requirements: [
-      'Experience with AWS, Docker, and Kubernetes',
-      'Knowledge of CI/CD tools like Jenkins or CircleCI',
-      'Programming skills in Python or Go'
-    ],
-    benefits: 'Competitive salary, equity options, health benefits, flexible work arrangements',
-    status: 'Active',
-    applicants: 12,
-    isFeatured: true
-  }
-];
-
 const JobOpenings: React.FC = () => {
   // State
-  const [jobs, setJobs] = useState<Job[]>(initialJobs);
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>(initialJobs);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('All');
   const [locationFilter, setLocationFilter] = useState('All');
   const [typeFilter, setTypeFilter] = useState('All');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loadingDropdowns, setLoadingDropdowns] = useState({
+    departments: false,
+    locations: false,
+    types: false
+  });
 
-  // Get unique departments, locations, and types for filters
-  const departments = ['All', ...Array.from(new Set(jobs.map(job => job.department)))];
-  const locations = ['All', ...Array.from(new Set(jobs.map(job => job.location)))];
-  const types = ['All', ...Array.from(new Set(jobs.map(job => job.type)))];
+  // State for dropdown options
+  const [departments, setDepartments] = useState<string[]>(['All']);
+  const [locations, setLocations] = useState<string[]>(['All']);
+  const [types, setTypes] = useState<string[]>(['All']);
 
   // Format date to DD/MM/YYYY
   const formatDate = (dateString: string) => {
@@ -162,6 +94,90 @@ const JobOpenings: React.FC = () => {
     ));
   };
 
+  // Fetch jobs from API
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const jobsData = await jobsApi.getAllJobs();
+        // Add isBookmarked property to each job
+        const jobsWithBookmarks = jobsData.map((job: Job) => ({
+          ...job,
+          isBookmarked: false
+        }));
+        setJobs(jobsWithBookmarks);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching jobs:', err);
+        setError('Failed to load jobs. Please try again later.');
+        setLoading(false);
+      }
+    };
+    
+    fetchJobs();
+  }, []);
+
+  // Fetch departments from API
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        setLoadingDropdowns(prev => ({ ...prev, departments: true }));
+        const data = await jobsApi.getDepartments();
+        setDepartments(['All', ...data]);
+        setLoadingDropdowns(prev => ({ ...prev, departments: false }));
+      } catch (err) {
+        console.error('Error fetching departments:', err);
+        // Fallback to client-side filtering if API fails
+        const uniqueDepartments = Array.from(new Set(jobs.map(job => job.department)));
+        setDepartments(['All', ...uniqueDepartments]);
+        setLoadingDropdowns(prev => ({ ...prev, departments: false }));
+      }
+    };
+    
+    fetchDepartments();
+  }, [jobs]);
+
+  // Fetch locations from API
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        setLoadingDropdowns(prev => ({ ...prev, locations: true }));
+        const data = await jobsApi.getLocations();
+        setLocations(['All', ...data]);
+        setLoadingDropdowns(prev => ({ ...prev, locations: false }));
+      } catch (err) {
+        console.error('Error fetching locations:', err);
+        // Fallback to client-side filtering if API fails
+        const uniqueLocations = Array.from(new Set(jobs.map(job => job.location)));
+        setLocations(['All', ...uniqueLocations]);
+        setLoadingDropdowns(prev => ({ ...prev, locations: false }));
+      }
+    };
+    
+    fetchLocations();
+  }, [jobs]);
+
+  // Fetch job types from API
+  useEffect(() => {
+    const fetchJobTypes = async () => {
+      try {
+        setLoadingDropdowns(prev => ({ ...prev, types: true }));
+        const data = await jobsApi.getJobTypes();
+        setTypes(['All', ...data]);
+        setLoadingDropdowns(prev => ({ ...prev, types: false }));
+      } catch (err) {
+        console.error('Error fetching job types:', err);
+        // Fallback to client-side filtering if API fails
+        const uniqueTypes = Array.from(new Set(jobs.map(job => job.type)));
+        setTypes(['All', ...uniqueTypes]);
+        setLoadingDropdowns(prev => ({ ...prev, types: false }));
+      }
+    };
+    
+    fetchJobTypes();
+  }, [jobs]);
+  
   // Apply filters and search
   useEffect(() => {
     let result = [...jobs];
@@ -213,6 +229,13 @@ const JobOpenings: React.FC = () => {
       <Box mb={3} display="flex" justifyContent="space-between" alignItems="center">
         <Typography variant="h4">Job Openings</Typography>
       </Box>
+
+      {/* Error display */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
 
       {/* Filters and Search */}
       <Paper sx={{ p: 3, mb: 3 }}>
@@ -285,130 +308,139 @@ const JobOpenings: React.FC = () => {
         </Grid>
       </Paper>
 
+      {/* Loading indicator */}
+      {loading && (
+        <Box display="flex" justifyContent="center" my={4}>
+          <CircularProgress />
+        </Box>
+      )}
+
       {/* Job Listings */}
-      <Grid container spacing={3}>
-        {filteredJobs.length > 0 ? (
-          filteredJobs.map(job => (
-            <Grid item xs={12} md={6} lg={4} key={job.id}>
-              <Card 
-                elevation={job.isFeatured ? 3 : 1}
-                sx={{ 
-                  height: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  position: 'relative',
-                  border: job.isFeatured ? '1px solid #f0c14b' : 'none'
-                }}
-              >
-                {job.isFeatured && (
-                  <Chip 
-                    label="Featured" 
-                    color="primary" 
-                    size="small" 
-                    sx={{ 
-                      position: 'absolute', 
-                      top: 10, 
-                      right: 10,
-                      bgcolor: '#f0c14b',
-                      color: 'black'
-                    }} 
-                  />
-                )}
-                
-                <CardActionArea sx={{ flexGrow: 1 }}>
-                  <CardContent sx={{ flexGrow: 1, pt: 3 }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="start">
-                      <Typography variant="h6" gutterBottom>{job.title}</Typography>
-                    </Box>
-                    
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <LocationIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                      <Typography variant="body2" color="text.secondary">
-                        {job.location}
-                      </Typography>
-                    </Box>
-                    
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <BusinessIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                      <Typography variant="body2" color="text.secondary">
-                        {job.department}
-                      </Typography>
-                    </Box>
-                    
-                    <Box display="flex" alignItems="center" mb={1}>
-                      <SalaryIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                      <Typography variant="body2" color="text.secondary">
-                        {job.salary}
-                      </Typography>
-                    </Box>
-                    
-                    <Divider sx={{ my: 1 }} />
-                    
-                    <Typography variant="body2" color="text.secondary" paragraph sx={{ 
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical',
-                      mb: 1
-                    }}>
-                      {job.description}
-                    </Typography>
-                    
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                      <Box display="flex" alignItems="center">
-                        <PeopleIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
+      {!loading && (
+        <Grid container spacing={3}>
+          {filteredJobs.length > 0 ? (
+            filteredJobs.map(job => (
+              <Grid item xs={12} md={6} lg={4} key={job.id}>
+                <Card 
+                  elevation={job.isFeatured ? 3 : 1}
+                  sx={{ 
+                    height: '100%', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    position: 'relative',
+                    border: job.isFeatured ? '1px solid #f0c14b' : 'none'
+                  }}
+                >
+                  {job.isFeatured && (
+                    <Chip 
+                      label="Featured" 
+                      color="primary" 
+                      size="small" 
+                      sx={{ 
+                        position: 'absolute', 
+                        top: 10, 
+                        right: 10,
+                        bgcolor: '#f0c14b',
+                        color: 'black'
+                      }} 
+                    />
+                  )}
+                  
+                  <CardActionArea sx={{ flexGrow: 1 }}>
+                    <CardContent sx={{ flexGrow: 1, pt: 3 }}>
+                      <Box display="flex" justifyContent="space-between" alignItems="start">
+                        <Typography variant="h6" gutterBottom>{job.title}</Typography>
+                      </Box>
+                      
+                      <Box display="flex" alignItems="center" mb={1}>
+                        <LocationIcon fontSize="small" color="action" sx={{ mr: 1 }} />
                         <Typography variant="body2" color="text.secondary">
-                          {job.applicants} applicants
+                          {job.location}
                         </Typography>
                       </Box>
                       
-                      <Box display="flex" alignItems="center">
-                        <DateIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
+                      <Box display="flex" alignItems="center" mb={1}>
+                        <BusinessIcon fontSize="small" color="action" sx={{ mr: 1 }} />
                         <Typography variant="body2" color="text.secondary">
-                          Posted: {formatDate(job.postedDate)}
+                          {job.department}
                         </Typography>
                       </Box>
-                    </Box>
-                  </CardContent>
-                </CardActionArea>
-                
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 1, pt: 0 }}>
-                  <Button 
-                    size="small" 
-                    color="primary" 
-                    variant="contained"
-                    sx={{ flexGrow: 1, mr: 1 }}
-                  >
-                    Apply Now
-                  </Button>
+                      
+                      <Box display="flex" alignItems="center" mb={1}>
+                        <SalaryIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                        <Typography variant="body2" color="text.secondary">
+                          {job.salary}
+                        </Typography>
+                      </Box>
+                      
+                      <Divider sx={{ my: 1 }} />
+                      
+                      <Typography variant="body2" color="text.secondary" paragraph sx={{ 
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                        mb: 1
+                      }}>
+                        {job.description}
+                      </Typography>
+                      
+                      <Box display="flex" justifyContent="space-between" alignItems="center">
+                        <Box display="flex" alignItems="center">
+                          <PeopleIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {job.applicants} applicants
+                          </Typography>
+                        </Box>
+                        
+                        <Box display="flex" alignItems="center">
+                          <DateIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
+                          <Typography variant="body2" color="text.secondary">
+                            Posted: {formatDate(job.postedDate)}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </CardActionArea>
                   
-                  <Tooltip title={job.isBookmarked ? "Remove Bookmark" : "Bookmark"}>
-                    <IconButton 
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 1, pt: 0 }}>
+                    <Button 
                       size="small" 
-                      onClick={(e) => handleToggleBookmark(job.id, e)}
-                      color={job.isBookmarked ? "primary" : "default"}
+                      color="primary" 
+                      variant="contained"
+                      sx={{ flexGrow: 1, mr: 1 }}
                     >
-                      {job.isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </Card>
+                      Apply Now
+                    </Button>
+                    
+                    <Tooltip title={job.isBookmarked ? "Remove Bookmark" : "Bookmark"}>
+                      <IconButton 
+                        size="small" 
+                        onClick={(e) => handleToggleBookmark(job.id, e)}
+                        color={job.isBookmarked ? "primary" : "default"}
+                      >
+                        {job.isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Card>
+              </Grid>
+            ))
+          ) : (
+            <Grid item xs={12}>
+              <Paper sx={{ p: 3, textAlign: 'center' }}>
+                <Typography variant="h6" color="text.secondary">
+                  No jobs found matching your criteria
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Try adjusting your filters or search terms
+                </Typography>
+              </Paper>
             </Grid>
-          ))
-        ) : (
-          <Grid item xs={12}>
-            <Paper sx={{ p: 3, textAlign: 'center' }}>
-              <Typography variant="h6" color="text.secondary">
-                No jobs found matching your criteria
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Try adjusting your filters or search terms
-              </Typography>
-            </Paper>
-          </Grid>
-        )}
-      </Grid>
+          )}
+        </Grid>
+      )}
     </Box>
   );
 };

@@ -7,165 +7,85 @@
 
 # ATS Application Documentation
 
-Welcome to the documentation for our Applicant Tracking System (ATS). This comprehensive documentation covers everything from user guides to technical implementation details.
-
-> 📍 **New to the documentation?** Start with our [Documentation Navigation Map](/docs/NAVIGATION.md) for a complete overview of all documentation resources.
+Welcome to the ATS (Applicant Tracking System) application documentation. This directory contains comprehensive documentation for all aspects of the application.
 
 ## Documentation Structure
 
-- **[API Documentation](./api/)**: Details on all API endpoints and data models
-- **[Component Library](./components/)**: Reusable components and usage examples
-- **[Feature Guides](./features/)**: Comprehensive guides to major features
-  - [Candidate Management](./features/candidate-pipeline.md)
-  - [Job Distribution](./features/job-distribution.md)
-  - [Job Board Integration](./features/job-board-integration.md)
-  - [Job Performance Analytics](./features/job-performance.md)
-  - [Interview Management](./features/structured-interviews.md)
-  - [Analytics & Reporting](./features/analytics-dashboard.md)
-- **[User Guides](./guides/)**: End-user documentation and how-to guides
-- **[Development Guides](./dev/)**: Technical documentation for developers
+This documentation is structured as follows:
 
-## Table of Contents
-- [Documentation Sections](#documentation-sections)
-  - [User Guides](#user-guides)
-  - [Features](#features)
-  - [Components](#components)
-  - [API Documentation](#api-documentation)
-  - [Database Documentation](#database-documentation)
-- [Quick Links](#quick-links)
-- [Best Practices](#best-practices)
-- [Support & Troubleshooting](#support--troubleshooting)
-- [Contributing](#contributing)
-- [Version History](#version-history)
-- [License](#license)
+- **API Documentation**: Details on all API endpoints and frontend API service implementation
+  - API endpoints reference in [API-README.md](../API-README.md)
+  - API service implementation details in [api/services/api-service.md](api/services/api-service.md)
 
-## 📚 Documentation Sections
+## Implementation Details
 
-### [📖 User Guides](/docs/guides/README.md)
+### Backend
 
-Get started with our user-friendly guides:
-- [Complete User Guide](/docs/guides/USER_GUIDE.md) - Comprehensive guide for all users
-- [Quick Start Guide](/docs/guides/quick-start.md) - Get up and running quickly
-- [Installation Guide](/docs/guides/installation.md) - Setup instructions
-- [Configuration Guide](/docs/guides/configuration.md) - Configuration details
+The backend of the application is implemented using:
+- Express.js for the REST API
+- Mock data services that simulate database operations
+- JSON files for data storage during development
 
-Role-specific guides:
-- [Administrator Guide](/docs/guides/admin/admin-guide.md)
-- [Recruiter Guide](/docs/guides/recruiter/recruiter-guide.md)
-- [Hiring Manager Guide](/docs/guides/hiring-manager/hiring-manager-guide.md)
-- [Interviewer Guide](/docs/guides/interviewer/interviewer-guide.md)
+### Frontend
 
-### [🔧 Features](/docs/features/README.md)
+The frontend of the application is implemented using:
+- React with TypeScript
+- Material-UI for components and styling
+- Axios for API communication
 
-Explore our feature documentation:
+## Mock Data Services
 
-Core Features:
-- [Offline Support](/docs/features/OFFLINE_CAPABILITIES.md)
-- [Authentication & Security](/docs/features/auth-flow.md)
-- [Candidate Management](/docs/features/candidate-pipeline.md)
-- [Interview Management](/docs/features/structured-interviews.md)
+The application uses mock data services to simulate database operations. These services:
 
-Advanced Features:
-- [Analytics & Reporting](/docs/features/analytics-dashboard.md)
-- [Team Collaboration](/docs/features/team-messaging.md)
-- [Document Management](/docs/features/document-sharing.md)
-- [Form Builder](/docs/features/dynamic-forms.md)
+1. Load data from JSON files
+2. Provide methods for CRUD operations
+3. Handle filtering and sorting
+4. Persist changes back to JSON files
 
-### [🧩 Components](/docs/components/README.md)
+The mock data is stored in:
+- `src/data/mockJobs.json`: Job listings data
+- `src/data/mockApplications.json`: Application data
+- `src/data/mockJobBoards.json`: Job board configuration data
 
-Detailed component documentation:
+## API Integration
 
-Core Components:
-- [Layout Components](/docs/components/layout/Layout.md)
-- [Authentication Components](/docs/components/auth/AuthCheck.md)
-- [UI Components](/docs/components/ui/LoadingScreen.md)
-- [Accessibility Components](/docs/components/accessibility/AccessibilityMenu.md)
+For information on how to interact with the API from React components, see the [API Services documentation](api/README.md).
 
-Feature Components:
-- [Interview Components](/docs/components/interview/StructuredInterviewKit.md)
-- [Analytics Components](/docs/components/analytics/ReportBuilder.md)
-- [Integration Components](/docs/components/integrations/AdvancedAnalyticsIntegration.md)
-- [Form Builder Components](/docs/components/form-builder/README.md)
+## Frontend Components
 
-### [🔌 API Documentation](/docs/api/README.md)
+The frontend is built with React and uses Material-UI for components. Key pages include:
 
-Complete API reference:
+- `JobOpenings.tsx`: Public job listings page
+- `JobBoard.tsx`: Admin job management page
 
-Services:
-- [API Service](/docs/api/services/api-service.md)
-- [Cache Service](/docs/api/services/cache-service.md)
-- [Security Service](/docs/api/services/security-service.md)
-- [Performance Monitor](/docs/api/services/performance-monitor-service.md)
+## Development Setup
 
-Endpoints:
-- [Authentication APIs](/docs/api/endpoints/auth/login.md)
-- [Candidate APIs](/docs/api/endpoints/candidates/create.md)
-- [Job APIs](/docs/api/endpoints/jobs/create.md)
-- [Interview APIs](/docs/api/endpoints/interviews/schedule.md)
+To set up the development environment:
 
-### [💾 Database Documentation](/docs/technical/database-structure.md)
+```bash
+# Install dependencies
+npm install
 
-Complete database documentation:
+# Start the development server
+npm run dev
+```
 
-Core Structure:
-- [Database Structure](/docs/technical/database-structure.md) - Tables and relationships
-- [Database Operations](/docs/technical/database-operations.md) - Detailed operations guide
-- [Entity Relationships](/docs/technical/database-operations.md#data-relationships) - Complete ERD
-- [Security Implementation](/docs/technical/database-structure.md#security-and-access-control) - Access control
+## Best Practices
 
-Operations & Performance:
-- [Common Queries](/docs/technical/database-operations.md#common-operations) - Frequently used operations
-- [Performance Optimization](/docs/technical/database-operations.md#performance-optimization) - Optimization guide
-- [Monitoring & Maintenance](/docs/technical/database-operations.md#monitoring--maintenance) - Database maintenance
-- [Database Indexes](/docs/technical/database-operations.md#database-indexes) - Index management
+1. **Error Handling**: Always wrap API calls in try-catch blocks and provide user-friendly error messages
+2. **Loading States**: Handle loading states with appropriate visual indicators
+3. **TypeScript**: Use TypeScript interfaces for better type safety and developer experience
+4. **Component Structure**: Follow established component patterns and reuse existing components
+5. **API Integration**: Use the centralized API services for all API communication
 
-Workflows:
-- [Candidate Pipeline](/docs/technical/database-structure.md#workflows) - Application process
-- [Interview Management](/docs/technical/database-structure.md#interview-management) - Interview workflow
-- [Offer Management](/docs/technical/database-structure.md#offer-management-workflow) - Offer process
+## Contributing
 
-## 🔍 Quick Links
+Contributions to this documentation are welcome. When updating documentation:
 
-### For New Users
-1. Start with the [Quick Start Guide](/docs/guides/quick-start.md)
-2. Read the [User Guide](/docs/guides/USER_GUIDE.md)
-3. Check [Common Issues](/docs/guides/troubleshooting/common-issues.md)
-4. Review [Best Practices](/docs/guides/best-practices/security.md)
-
-### For Developers
-1. Review [API Documentation](/docs/api/README.md)
-2. Explore [Component Documentation](/docs/components/README.md)
-3. Understand [Feature Implementation](/docs/features/README.md)
-4. Check [Contributing Guidelines](/docs/guides/contributing/guidelines.md)
-
-## 🎯 Best Practices
-
-- [Security Guidelines](/docs/guides/best-practices/security.md)
-- [Performance Optimization](/docs/guides/best-practices/performance.md)
-- [Accessibility Standards](/docs/guides/best-practices/accessibility.md)
-- [Data Management](/docs/guides/best-practices/data-management.md)
-
-## 🆘 Support & Troubleshooting
-
-- [Common Issues](/docs/guides/troubleshooting/common-issues.md)
-- [Error Messages](/docs/guides/troubleshooting/error-messages.md)
-- [FAQ](/docs/guides/troubleshooting/faq.md)
-- [Support Guide](/docs/guides/troubleshooting/support-guide.md)
-
-## 🤝 Contributing
-
-We welcome contributions! Please review:
-- [Documentation Style Guide](/docs/guides/contributing/style-guide.md)
-- [Contributing Guidelines](/docs/guides/contributing/guidelines.md)
-- [Documentation Templates](/docs/guides/contributing/templates.md)
-
-## 📅 Version History
-
-This documentation is maintained alongside the ATS application. For the latest updates, check our [changelog](/docs/CHANGELOG.md).
-
-## 📝 License
-
-This documentation is covered under the same license as the ATS application. See [LICENSE](/LICENSE) for more details.
+1. Ensure accuracy of API endpoint descriptions
+2. Add examples where possible
+3. Keep code examples up to date with the actual implementation
+4. Follow Markdown best practices for formatting
 
 ---
 
