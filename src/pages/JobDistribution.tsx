@@ -492,6 +492,7 @@ const JobDistribution: React.FC = () => {
   const [isAddBoardDialogOpen, setIsAddBoardDialogOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [boardToDelete, setBoardToDelete] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
 
   // Derived state for filtered boards
   const filteredBoards = useMemo(() => {
@@ -722,12 +723,15 @@ const JobDistribution: React.FC = () => {
       costPerJob: 0,
       apiKey: ''
     });
+    // Reset validation errors when opening the dialog
+    setValidationErrors({});
   };
 
   // Close add board dialog
   const handleCloseAddBoardDialog = () => {
     setIsAddBoardDialogOpen(false);
     setEditedBoard(null);
+    setValidationErrors({});
   };
 
   // Open confirm delete dialog
@@ -746,7 +750,21 @@ const JobDistribution: React.FC = () => {
   const handleSaveBoard = () => {
     if (!editedBoard) return;
     
-    // Update existing board or add new one
+    // Initialize errors object
+    const errors: {[key: string]: string} = {};
+    
+    // Validate required fields
+    if (!editedBoard.name || editedBoard.name.trim() === '') {
+      errors.name = 'Platform name is required';
+    }
+    
+    // Check if we have any validation errors
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+    
+    // If validation passes, continue with saving
     if (isEditBoardDialogOpen) {
       setJobBoards(prev => prev.map(board => 
         board.id === editedBoard.id ? editedBoard : board
@@ -762,6 +780,7 @@ const JobDistribution: React.FC = () => {
     setAlertSeverity('success');
     setIsAlertOpen(true);
     setEditedBoard(null);
+    setValidationErrors({});
   };
 
   // Delete board
@@ -1252,9 +1271,18 @@ const JobDistribution: React.FC = () => {
                 fullWidth
                 label="Platform Name"
                 value={editedBoard?.name || ''}
-                onChange={(e) => setEditedBoard(prev => 
-                  prev ? { ...prev, name: e.target.value } : null
-                )}
+                onChange={(e) => {
+                  setEditedBoard(prev => 
+                    prev ? { ...prev, name: e.target.value } : null
+                  );
+                  // Clear validation error when user types
+                  if (e.target.value.trim() !== '') {
+                    setValidationErrors(prev => ({...prev, name: ''}));
+                  }
+                }}
+                required
+                error={!!validationErrors.name}
+                helperText={validationErrors.name}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
