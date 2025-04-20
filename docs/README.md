@@ -11,6 +11,20 @@ Welcome to the documentation for our Applicant Tracking System (ATS). This compr
 
 > 📍 **New to the documentation?** Start with our [Documentation Navigation Map](/docs/NAVIGATION.md) for a complete overview of all documentation resources.
 
+## Documentation Structure
+
+- **[API Documentation](./api/)**: Details on all API endpoints and data models
+- **[Component Library](./components/)**: Reusable components and usage examples
+- **[Feature Guides](./features/)**: Comprehensive guides to major features
+  - [Candidate Management](./features/candidate-pipeline.md)
+  - [Job Distribution](./features/job-distribution.md)
+  - [Job Board Integration](./features/job-board-integration.md)
+  - [Job Performance Analytics](./features/job-performance.md)
+  - [Interview Management](./features/structured-interviews.md)
+  - [Analytics & Reporting](./features/analytics-dashboard.md)
+- **[User Guides](./guides/)**: End-user documentation and how-to guides
+- **[Development Guides](./dev/)**: Technical documentation for developers
+
 ## Table of Contents
 - [Documentation Sections](#documentation-sections)
   - [User Guides](#user-guides)

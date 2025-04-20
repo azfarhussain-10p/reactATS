@@ -268,3 +268,12 @@ This documentation is covered under the same license as the ATS application. See
 ---
 
 **Note**: This documentation is continuously updated. If you find any discrepancies or have suggestions for improvement, please follow our [contribution guidelines](./docs/guides/contributing/guidelines.md).
+
+## Features
+
+- **Modern React Architecture**: Built with React 18, TypeScript, and Material UI v5
+- **Comprehensive ATS Functionality**: Complete candidate management and hiring workflow
+- **Job Distribution System**: Distribute job postings to multiple platforms with a single click
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+- **Dark/Light Theme**: Full theme support with easy customization
+- **Authentication & Authorization**: Complete user management with role-based access

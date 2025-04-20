@@ -120,6 +120,22 @@ The analytics system has been enhanced with more sophisticated features:
 - **Visualization Tools**: Include charts and graphs in reports
 - **Collaborative Editing**: Share and co-edit report definitions
 
+## Enhanced Features
+
+### Advanced Job Distribution
+
+The enhanced Job Distribution system allows recruiters to efficiently manage their job posting strategy across multiple platforms:
+
+- **Multi-Platform Distribution:** Post to multiple job boards with a single click
+- **Platform Management:** Add, edit, and configure job board connections
+- **Distribution Options:**
+  - **Selective Distribution:** Choose specific platforms for each job
+  - **Quick Publish:** Instantly distribute to all connected platforms
+- **Performance Analytics:** Track views, clicks, and applicants per platform
+- **Cost Tracking:** Monitor spending across different job boards
+
+For detailed documentation, see [Job Distribution Documentation](./docs/features/job-distribution.md)
+
 ## Implementation Structure
 
 The enhanced features follow a modular architecture:

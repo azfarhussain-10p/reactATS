@@ -19,6 +19,11 @@ This directory contains documentation for all major features in the ATS applicat
 - [Resume Parsing](./resume-parsing.md) - Automated resume processing
 - [Candidate Scoring](./candidate-scoring.md) - Evaluation and ranking system
 
+### Job Management
+- [Job Distribution](./job-distribution.md) - Multi-platform job posting management
+- [Job Board Integration](./job-board-integration.md) - Third-party job board connections
+- [Job Performance Analytics](./job-performance.md) - Track job posting effectiveness
+
 ### Interview Management
 - [Structured Interviews](./structured-interviews.md) - Interview kit system
 - [Interview Scheduling](./interview-scheduling.md) - Calendar and scheduling
