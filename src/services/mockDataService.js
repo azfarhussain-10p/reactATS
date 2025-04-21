@@ -14,9 +14,28 @@ class MockDataService {
    * Load all data from JSON files
    */
   loadAllData() {
-    this.jobs = this.loadData('mockJobs.json');
-    this.applications = this.loadData('mockApplications.json');
-    this.jobBoards = this.loadData('mockJobBoards.json');
+    try {
+      // Load jobs data
+      const jobsData = this.loadData('mockJobs.json');
+      // Handle both array format and {jobs: [...]} format
+      this.jobs = Array.isArray(jobsData) ? jobsData : (jobsData.jobs || []);
+      
+      // Load applications data
+      const applicationsData = this.loadData('mockApplications.json');
+      this.applications = Array.isArray(applicationsData) ? applicationsData : (applicationsData.applications || []);
+      
+      // Load job boards data
+      const jobBoardsData = this.loadData('mockJobBoards.json');
+      this.jobBoards = Array.isArray(jobBoardsData) ? jobBoardsData : (jobBoardsData.jobBoards || []);
+      
+      console.log(`Loaded data: ${this.jobs.length} jobs, ${this.applications.length} applications, ${this.jobBoards.length} job boards`);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      // Initialize with empty arrays if load fails
+      this.jobs = [];
+      this.applications = [];
+      this.jobBoards = [];
+    }
   }
 
   /**
@@ -26,11 +45,18 @@ class MockDataService {
    */
   loadData(filename) {
     try {
-      const filePath = path.join(__dirname, '../data', filename);
+      const filePath = path.resolve(__dirname, '../data', filename);
+      console.log(`Loading data from ${filePath}`);
+      
+      if (!fs.existsSync(filePath)) {
+        console.error(`File not found: ${filePath}`);
+        return [];
+      }
+      
       const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
     } catch (error) {
-      console.error(`Error loading ${filename}:`, error);
+      console.error(`Error loading data from ${filename}:`, error);
       return [];
     }
   }

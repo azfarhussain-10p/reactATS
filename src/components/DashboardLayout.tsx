@@ -233,6 +233,14 @@ export default function DashboardLayout({
           </Typography>
           
           <Box sx={{ display: 'flex', mr: 2 }}>
+            <Button
+              component={Link}
+              to="/careers"
+              color="inherit"
+              sx={{ mr: 2 }}
+            >
+              Careers
+            </Button>
             <OnlineStatusIndicator />
             <AccessibilityMenu 
               onChange={handleAccessibilityChange} 

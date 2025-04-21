@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "start": "node src/server.js",
     "server": "node src/server.js",
-    "dev:server": "nodemon src/server.js"
+    "dev:server": "nodemon src/server.js",
+    "start:all": "node start-ats.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

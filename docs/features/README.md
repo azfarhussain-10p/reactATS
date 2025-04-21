@@ -23,6 +23,7 @@ This directory contains documentation for all major features in the ATS applicat
 - [Job Distribution](./job-distribution.md) - Multi-platform job posting management
 - [Job Board Integration](./job-board-integration.md) - Third-party job board connections
 - [Job Performance Analytics](./job-performance.md) - Track job posting effectiveness
+- [Careers Page](./careers-page.md) - Public-facing careers page for job seekers
 
 ### Interview Management
 - [Structured Interviews](./structured-interviews.md) - Interview kit system

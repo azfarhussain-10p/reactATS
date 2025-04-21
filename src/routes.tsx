@@ -41,12 +41,20 @@ const ResumeParser = lazy(() => import('./pages/ResumeParser'));
 const Reports = lazy(() => import('./pages/Reports'));
 const JobDistribution = lazy(() => import('./pages/JobDistribution'));
 
+// Career Pages (public facing)
+const CareerPage = lazy(() => import('./components/career/CareerPage'));
+const JobDetailPage = lazy(() => import('./components/career/JobDetailPage'));
+
 const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
 
   return (
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
+        {/* Public career pages */}
+        <Route path="/careers" element={<CareerPage />} />
+        <Route path="/careers/job/:id" element={<JobDetailPage />} />
+        
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         

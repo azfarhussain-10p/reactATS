@@ -1,38 +1,44 @@
-import axios from 'axios';
+import axios from "axios";
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: "http://localhost:80/api",
   headers: {
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0'
-  }
+    "Content-Type": "application/json",
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    Pragma: "no-cache",
+    Expires: "0",
+  },
 });
 
 // Add request interceptor to add cache-busting parameter
-api.interceptors.request.use(config => {
+api.interceptors.request.use((config) => {
   // Add a timestamp query parameter to bust the cache
   if (config.params) {
     config.params = { ...config.params, _t: new Date().getTime() };
   } else {
     config.params = { _t: new Date().getTime() };
   }
-  console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`, config.params);
+  console.log(
+    `API Request: ${config.method?.toUpperCase()} ${config.url}`,
+    config.params,
+  );
   return config;
 });
 
 // Add response interceptor to log responses
 api.interceptors.response.use(
-  response => {
+  (response) => {
     console.log(`API Response: ${response.status} ${response.config.url}`);
     return response;
   },
-  error => {
-    console.error(`API Error: ${error.response?.status} ${error.config?.url}`, error);
+  (error) => {
+    console.error(
+      `API Error: ${error.response?.status} ${error.config?.url}`,
+      error,
+    );
     return Promise.reject(error);
-  }
+  },
 );
 
 // Jobs API service
@@ -40,10 +46,10 @@ export const jobsApi = {
   // Get all jobs with optional filtering
   getAllJobs: async (filters = {}) => {
     try {
-      const response = await api.get('/jobs', { params: filters });
+      const response = await api.get("/jobs", { params: filters });
       return response.data;
     } catch (error) {
-      console.error('Error fetching jobs:', error);
+      console.error("Error fetching jobs:", error);
       throw error;
     }
   },
@@ -62,10 +68,10 @@ export const jobsApi = {
   // Create new job
   createJob: async (jobData: any) => {
     try {
-      const response = await api.post('/jobs', jobData);
+      const response = await api.post("/jobs", jobData);
       return response.data;
     } catch (error) {
-      console.error('Error creating job:', error);
+      console.error("Error creating job:", error);
       throw error;
     }
   },
@@ -117,10 +123,10 @@ export const jobsApi = {
   // Get all unique departments
   getDepartments: async () => {
     try {
-      const response = await api.get('/jobs/departments');
+      const response = await api.get("/jobs/departments");
       return response.data;
     } catch (error) {
-      console.error('Error fetching departments:', error);
+      console.error("Error fetching departments:", error);
       throw error;
     }
   },
@@ -128,10 +134,10 @@ export const jobsApi = {
   // Get all unique locations
   getLocations: async () => {
     try {
-      const response = await api.get('/jobs/locations');
+      const response = await api.get("/jobs/locations");
       return response.data;
     } catch (error) {
-      console.error('Error fetching locations:', error);
+      console.error("Error fetching locations:", error);
       throw error;
     }
   },
@@ -139,10 +145,10 @@ export const jobsApi = {
   // Get all unique job types
   getJobTypes: async () => {
     try {
-      const response = await api.get('/jobs/types');
+      const response = await api.get("/jobs/types");
       return response.data;
     } catch (error) {
-      console.error('Error fetching job types:', error);
+      console.error("Error fetching job types:", error);
       throw error;
     }
   },
@@ -150,8 +156,8 @@ export const jobsApi = {
   // Get all available job statuses
   // Note: This is a local method as there's no API endpoint
   getJobStatuses: () => {
-    return ['Active', 'On-Hold', 'Closed', 'Draft'];
-  }
+    return ["Active", "On-Hold", "Closed", "Draft"];
+  },
 };
 
 // Applications API service
@@ -159,10 +165,10 @@ export const applicationsApi = {
   // Get all applications with optional filtering
   getAllApplications: async (filters = {}) => {
     try {
-      const response = await api.get('/applications', { params: filters });
+      const response = await api.get("/applications", { params: filters });
       return response.data;
     } catch (error) {
-      console.error('Error fetching applications:', error);
+      console.error("Error fetching applications:", error);
       throw error;
     }
   },
@@ -181,10 +187,10 @@ export const applicationsApi = {
   // Create application
   createApplication: async (applicationData: any) => {
     try {
-      const response = await api.post('/applications', applicationData);
+      const response = await api.post("/applications", applicationData);
       return response.data;
     } catch (error) {
-      console.error('Error creating application:', error);
+      console.error("Error creating application:", error);
       throw error;
     }
   },
@@ -203,7 +209,9 @@ export const applicationsApi = {
   // Update application status
   updateApplicationStatus: async (id: number, status: string) => {
     try {
-      const response = await api.patch(`/applications/${id}/status`, { status });
+      const response = await api.patch(`/applications/${id}/status`, {
+        status,
+      });
       return response.data;
     } catch (error) {
       console.error(`Error updating application ${id} status:`, error);
@@ -214,7 +222,10 @@ export const applicationsApi = {
   // Update application stage
   updateApplicationStage: async (id: number, stage: string, notes?: string) => {
     try {
-      const response = await api.patch(`/applications/${id}/stage`, { stage, notes });
+      const response = await api.patch(`/applications/${id}/stage`, {
+        stage,
+        notes,
+      });
       return response.data;
     } catch (error) {
       console.error(`Error updating application ${id} stage:`, error);
@@ -231,7 +242,7 @@ export const applicationsApi = {
       console.error(`Error deleting application ${id}:`, error);
       throw error;
     }
-  }
+  },
 };
 
 // Job Boards API service
@@ -239,10 +250,10 @@ export const jobBoardsApi = {
   // Get all job boards
   getAllJobBoards: async () => {
     try {
-      const response = await api.get('/job-boards');
+      const response = await api.get("/job-boards");
       return response.data;
     } catch (error) {
-      console.error('Error fetching job boards:', error);
+      console.error("Error fetching job boards:", error);
       throw error;
     }
   },
@@ -272,10 +283,10 @@ export const jobBoardsApi = {
   // Create job board
   createJobBoard: async (jobBoardData: any) => {
     try {
-      const response = await api.post('/job-boards', jobBoardData);
+      const response = await api.post("/job-boards", jobBoardData);
       return response.data;
     } catch (error) {
-      console.error('Error creating job board:', error);
+      console.error("Error creating job board:", error);
       throw error;
     }
   },
@@ -294,7 +305,9 @@ export const jobBoardsApi = {
   // Update job board status
   updateJobBoardStatus: async (id: number, isActive: boolean) => {
     try {
-      const response = await api.patch(`/job-boards/${id}/status`, { isActive });
+      const response = await api.patch(`/job-boards/${id}/status`, {
+        isActive,
+      });
       return response.data;
     } catch (error) {
       console.error(`Error updating job board ${id} status:`, error);
@@ -311,11 +324,11 @@ export const jobBoardsApi = {
       console.error(`Error deleting job board ${id}:`, error);
       throw error;
     }
-  }
+  },
 };
 
 export default {
   jobs: jobsApi,
   applications: applicationsApi,
-  jobBoards: jobBoardsApi
-}; 
+  jobBoards: jobBoardsApi,
+};

@@ -30,6 +30,9 @@ import DashboardLayout from '../components/DashboardLayout';
 import SecureRoute from '../components/SecureRoute';
 import { useAuth } from '../contexts/AuthContext';
 import TaskDemo from '../pages/TaskDemo';
+// Import Career page components
+import CareerPage from '../components/career/CareerPage';
+import JobDetailPage from '../components/career/JobDetailPage';
 
 // Define roles and permissions for routes
 const ROLES = {
@@ -71,6 +74,11 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
+      
+      {/* Public Career Pages */}
+      <Route path="/careers" element={<CareerPage />} />
+      <Route path="/careers/job/:id" element={<JobDetailPage />} />
+      <Route path="/career" element={<Navigate to="/careers" replace />} />
       
       {/* Protected routes */}
       <Route 

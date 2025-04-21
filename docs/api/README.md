@@ -6,10 +6,16 @@ This directory contains documentation related to the API implementation in the A
 
 - `services/`: Documentation for frontend API service implementations
   - [api-service.md](services/api-service.md): Frontend API service implementation details
+- `endpoints/`: Documentation for backend API endpoints
+  - [README.md](endpoints/README.md): Overview of all available API endpoints
+  - `auth/`: Authentication endpoints
+  - `jobs/`: Job management endpoints
+  - `applications/`: Application management endpoints
+  - `job-boards/`: Job board management endpoints
 
 ## API Endpoints
 
-For a complete list of available API endpoints, refer to the [API-README.md](../API-README.md) in the root directory.
+For a complete list of available API endpoints, refer to the [Endpoints Documentation](endpoints/README.md).
 
 ## Frontend Integration
 
