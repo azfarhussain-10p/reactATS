@@ -327,8 +327,159 @@ export const jobBoardsApi = {
   },
 };
 
+// Career portal API service
+export const careerApi = {
+  // Get all published jobs for career portal with filters
+  getPublishedJobs: async (filters = {}) => {
+    try {
+      // Add status: published filter for public career site
+      const response = await api.get("/jobs/published", { 
+        params: { 
+          ...filters,
+          status: 'published'
+        } 
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching published jobs:", error);
+      throw error;
+    }
+  },
+
+  // Get job details by ID for career portal (public view)
+  getPublicJobById: async (id: number) => {
+    try {
+      const response = await api.get(`/jobs/public/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching public job ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // Get featured jobs for career portal
+  getFeaturedJobs: async (limit = 3) => {
+    try {
+      const response = await api.get("/jobs/featured", { 
+        params: { 
+          limit,
+          status: 'published'
+        } 
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching featured jobs:", error);
+      throw error;
+    }
+  },
+
+  // Submit job application
+  submitApplication: async (applicationData: any) => {
+    try {
+      const response = await api.post("/applications/public/submit", applicationData);
+      return response.data;
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      throw error;
+    }
+  },
+
+  // Get application status (for candidates checking their application)
+  getApplicationStatus: async (applicationId: string, email: string) => {
+    try {
+      const response = await api.get("/applications/public/status", {
+        params: { applicationId, email }
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error checking application status:", error);
+      throw error;
+    }
+  },
+
+  // Get all public departments for career filter
+  getPublicDepartments: async () => {
+    try {
+      const response = await api.get("/jobs/public/departments");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching public departments:", error);
+      throw error;
+    }
+  },
+
+  // Get all public locations for career filter
+  getPublicLocations: async () => {
+    try {
+      const response = await api.get("/jobs/public/locations");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching public locations:", error);
+      throw error;
+    }
+  },
+
+  // Get all public job types for career filter
+  getPublicJobTypes: async () => {
+    try {
+      const response = await api.get("/jobs/public/types");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching public job types:", error);
+      throw error;
+    }
+  },
+
+  // Send contact form from careers page
+  sendContactForm: async (formData: any) => {
+    try {
+      const response = await api.post("/careers/contact", formData);
+      return response.data;
+    } catch (error) {
+      console.error("Error sending contact form:", error);
+      throw error;
+    }
+  },
+
+  // Get company information for careers page
+  getCompanyInfo: async () => {
+    try {
+      const response = await api.get("/company/public");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching company info:", error);
+      throw error;
+    }
+  },
+
+  // Subscribe to job alerts
+  subscribeToJobAlerts: async (email: string, preferences: any) => {
+    try {
+      const response = await api.post("/careers/subscribe", { email, preferences });
+      return response.data;
+    } catch (error) {
+      console.error("Error subscribing to job alerts:", error);
+      throw error;
+    }
+  },
+
+  // Search jobs by keywords
+  searchJobs: async (query: string) => {
+    try {
+      const response = await api.get("/jobs/search", { 
+        params: { query, status: 'published' } 
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error searching jobs:", error);
+      throw error;
+    }
+  }
+};
+
 export default {
   jobs: jobsApi,
   applications: applicationsApi,
   jobBoards: jobBoardsApi,
+  career: careerApi,
 };

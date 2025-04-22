@@ -21,12 +21,14 @@
 .logo-container a {
   text-decoration: none;
   color: white;
+  display: flex;
+  align-items: center;
 }
 
 .company-logo {
-  margin: 0;
-  font-size: 1.8rem;
-  font-weight: 700;
+  height: 40px;
+  max-width: 100%;
+  object-fit: contain;
 }
 
 .career-navigation {

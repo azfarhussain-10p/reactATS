@@ -1,0 +1,12 @@
+[
+  { "id": "1", "name": "Engineering" },
+  { "id": "2", "name": "Design" },
+  { "id": "3", "name": "Product" },
+  { "id": "4", "name": "Marketing" },
+  { "id": "5", "name": "Data" },
+  { "id": "6", "name": "Customer Support" },
+  { "id": "7", "name": "Human Resources" },
+  { "id": "8", "name": "Finance" },
+  { "id": "9", "name": "Operations" },
+  { "id": "10", "name": "Sales" }
+]

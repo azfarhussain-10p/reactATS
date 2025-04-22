@@ -11,6 +11,7 @@ const JobDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [relatedJobs, setRelatedJobs] = useState([]);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -30,8 +31,30 @@ const JobDetailPage = () => {
     const fetchJobDetails = async () => {
       try {
         setLoading(true);
+        
+        // Use jobsApi instead of careerApi until backend endpoints are ready
         const jobData = await jobsApi.getJobById(parseInt(id));
         setJob(jobData);
+        
+        // Fetch related jobs from the same department
+        if (jobData && jobData.department) {
+          try {
+            const allJobs = await jobsApi.getAllJobs({ 
+              department: jobData.department 
+            });
+            
+            // Filter out the current job and limit to 3 related jobs
+            const related = allJobs.filter(relatedJob => 
+              relatedJob.id !== parseInt(id) && relatedJob.status === 'Active'
+            ).slice(0, 3);
+            
+            setRelatedJobs(related);
+          } catch (err) {
+            console.error('Error fetching related jobs:', err);
+            // Non-critical error, don't show to user
+          }
+        }
+        
         setLoading(false);
       } catch (err) {
         console.error('Error fetching job details:', err);
@@ -98,6 +121,7 @@ const JobDetailPage = () => {
         ...formData
       };
       
+      // Use applicationsApi instead of careerApi
       await applicationsApi.createApplication(applicationData);
       
       setSubmitStatus('success');
@@ -158,6 +182,12 @@ const JobDetailPage = () => {
     );
   }
 
+  const handleRelatedJobClick = (jobId) => {
+    navigate(`/careers/job/${jobId}`);
+    // Scroll to top when navigating to a related job
+    window.scrollTo(0, 0);
+  };
+
   return (
     <>
       <CareerHeader />
@@ -186,7 +216,7 @@ const JobDetailPage = () => {
             <div className="job-meta-item">
               <span className="meta-label">Posted:</span>
               <span className="meta-value">
-                {new Date(job.publishedAt || job.createdAt).toLocaleDateString()}
+                {new Date(job.publishedAt || job.createdAt || job.postedDate).toLocaleDateString()}
               </span>
             </div>
           </div>
@@ -249,42 +279,33 @@ const JobDetailPage = () => {
           
           {job.salary && (
             <div className="job-section">
-              <h2>Salary</h2>
+              <h2>Compensation</h2>
               <div className="job-salary">
-                {typeof job.salary === 'object' ? (
-                  <p>{job.salary.currency} {job.salary.min} - {job.salary.max}</p>
-                ) : (
-                  <p>{job.salary}</p>
-                )}
+                <p>{job.salary}</p>
               </div>
             </div>
           )}
         </div>
         
-        <div className="application-section">
-          {!showApplicationForm ? (
-            <button className="apply-btn" onClick={toggleApplicationForm}>
-              Apply for this Position
-            </button>
-          ) : (
+        <div className="apply-section">
+          <button 
+            className="apply-button" 
+            onClick={toggleApplicationForm}
+          >
+            {showApplicationForm ? 'Hide Application Form' : 'Apply for this Position'}
+          </button>
+          
+          {showApplicationForm && (
             <div className="application-form-container">
-              <h2>Apply for {job.title}</h2>
-              
-              {submitStatus === 'success' && (
+              {submitStatus === 'success' ? (
                 <div className="success-message">
-                  <span className="check-icon">✓</span>
-                  <p>Your application has been submitted successfully! We'll be in touch soon.</p>
+                  <h3>Application Submitted!</h3>
+                  <p>Thank you for your interest. We will review your application and contact you soon.</p>
                 </div>
-              )}
-              
-              {submitStatus === 'error' && (
-                <div className="error-message">
-                  <p>There was an error submitting your application. Please try again.</p>
-                </div>
-              )}
-              
-              {submitStatus !== 'success' && (
-                <form className="application-form" onSubmit={handleSubmit}>
+              ) : (
+                <form onSubmit={handleSubmit} className="application-form">
+                  <h3>Submit Your Application</h3>
+                  
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="firstName">First Name *</label>
@@ -296,9 +317,8 @@ const JobDetailPage = () => {
                         onChange={handleInputChange}
                         className={formErrors.firstName ? 'error' : ''}
                       />
-                      {formErrors.firstName && <span className="error-text">{formErrors.firstName}</span>}
+                      {formErrors.firstName && <div className="error-message">{formErrors.firstName}</div>}
                     </div>
-                    
                     <div className="form-group">
                       <label htmlFor="lastName">Last Name *</label>
                       <input
@@ -309,7 +329,7 @@ const JobDetailPage = () => {
                         onChange={handleInputChange}
                         className={formErrors.lastName ? 'error' : ''}
                       />
-                      {formErrors.lastName && <span className="error-text">{formErrors.lastName}</span>}
+                      {formErrors.lastName && <div className="error-message">{formErrors.lastName}</div>}
                     </div>
                   </div>
                   
@@ -324,9 +344,8 @@ const JobDetailPage = () => {
                         onChange={handleInputChange}
                         className={formErrors.email ? 'error' : ''}
                       />
-                      {formErrors.email && <span className="error-text">{formErrors.email}</span>}
+                      {formErrors.email && <div className="error-message">{formErrors.email}</div>}
                     </div>
-                    
                     <div className="form-group">
                       <label htmlFor="phone">Phone *</label>
                       <input
@@ -337,22 +356,22 @@ const JobDetailPage = () => {
                         onChange={handleInputChange}
                         className={formErrors.phone ? 'error' : ''}
                       />
-                      {formErrors.phone && <span className="error-text">{formErrors.phone}</span>}
+                      {formErrors.phone && <div className="error-message">{formErrors.phone}</div>}
                     </div>
                   </div>
                   
                   <div className="form-group">
-                    <label htmlFor="resume">Resume URL *</label>
+                    <label htmlFor="resume">Resume Link *</label>
                     <input
-                      type="text"
+                      type="url"
                       id="resume"
                       name="resume"
+                      placeholder="Link to your resume (Google Drive, Dropbox, etc.)"
                       value={formData.resume}
                       onChange={handleInputChange}
-                      placeholder="Link to your resume (Google Drive, Dropbox, etc.)"
                       className={formErrors.resume ? 'error' : ''}
                     />
-                    {formErrors.resume && <span className="error-text">{formErrors.resume}</span>}
+                    {formErrors.resume && <div className="error-message">{formErrors.resume}</div>}
                   </div>
                   
                   <div className="form-group">
@@ -362,59 +381,116 @@ const JobDetailPage = () => {
                       name="coverLetter"
                       value={formData.coverLetter}
                       onChange={handleInputChange}
-                      rows="5"
-                      placeholder="Tell us why you're interested in this position and why you'd be a good fit."
+                      rows="4"
                     ></textarea>
                   </div>
                   
-                  <div className="form-group">
-                    <label htmlFor="linkedInUrl">LinkedIn Profile</label>
-                    <input
-                      type="text"
-                      id="linkedInUrl"
-                      name="linkedInUrl"
-                      value={formData.linkedInUrl}
-                      onChange={handleInputChange}
-                      placeholder="https://www.linkedin.com/in/yourprofile"
-                    />
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label htmlFor="linkedInUrl">LinkedIn URL</label>
+                      <input
+                        type="url"
+                        id="linkedInUrl"
+                        name="linkedInUrl"
+                        value={formData.linkedInUrl}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="portfolioUrl">Portfolio URL</label>
+                      <input
+                        type="url"
+                        id="portfolioUrl"
+                        name="portfolioUrl"
+                        value={formData.portfolioUrl}
+                        onChange={handleInputChange}
+                      />
+                    </div>
                   </div>
                   
                   <div className="form-group">
-                    <label htmlFor="portfolioUrl">Portfolio/Website</label>
-                    <input
-                      type="text"
-                      id="portfolioUrl"
-                      name="portfolioUrl"
-                      value={formData.portfolioUrl}
-                      onChange={handleInputChange}
-                      placeholder="https://your-portfolio.com"
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="referredBy">Referred By</label>
+                    <label htmlFor="referredBy">How did you hear about us?</label>
                     <input
                       type="text"
                       id="referredBy"
                       name="referredBy"
                       value={formData.referredBy}
                       onChange={handleInputChange}
-                      placeholder="Name of person who referred you (if applicable)"
                     />
                   </div>
                   
                   <div className="form-actions">
-                    <button type="button" className="cancel-btn" onClick={toggleApplicationForm}>
-                      Cancel
-                    </button>
-                    <button type="submit" className="submit-btn" disabled={submitStatus === 'submitting'}>
+                    <button 
+                      type="submit" 
+                      className="submit-button"
+                      disabled={submitStatus === 'submitting'}
+                    >
                       {submitStatus === 'submitting' ? 'Submitting...' : 'Submit Application'}
                     </button>
+                    <button 
+                      type="button" 
+                      className="cancel-button"
+                      onClick={toggleApplicationForm}
+                    >
+                      Cancel
+                    </button>
                   </div>
+                  
+                  {submitStatus === 'error' && (
+                    <div className="error-message">
+                      There was an error submitting your application. Please try again later.
+                    </div>
+                  )}
                 </form>
               )}
             </div>
           )}
+        </div>
+        
+        {relatedJobs.length > 0 && (
+          <div className="related-jobs-section">
+            <h2>Similar Positions</h2>
+            <div className="related-jobs">
+              {relatedJobs.map(relatedJob => (
+                <div 
+                  key={relatedJob.id} 
+                  className="related-job-card"
+                  onClick={() => handleRelatedJobClick(relatedJob.id)}
+                >
+                  <h3>{relatedJob.title}</h3>
+                  <div className="related-job-details">
+                    <span>{relatedJob.location}</span>
+                    <span>{relatedJob.type}</span>
+                  </div>
+                  <button className="view-job-btn">View Details</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        <div className="job-share-section">
+          <h3>Share this Job</h3>
+          <div className="share-buttons">
+            <button
+              className="share-button linkedin"
+              onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(`Job Opening: ${job.title}`)}`, '_blank')}
+            >
+              LinkedIn
+            </button>
+            <button
+              className="share-button twitter"
+              onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out this job opening: ${job.title}`)}&url=${encodeURIComponent(window.location.href)}`, '_blank')}
+            >
+              Twitter
+            </button>
+            <button
+              className="share-button email"
+              onClick={() => window.location.href = `mailto:?subject=${encodeURIComponent(`Job Opening: ${job.title}`)}&body=${encodeURIComponent(`Check out this job opening: ${window.location.href}`)}`}
+            >
+              Email
+            </button>
+          </div>
         </div>
       </div>
     </>

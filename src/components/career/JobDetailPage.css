@@ -342,4 +342,171 @@
   .application-form-container {
     padding: 20px 15px;
   }
+}
+
+/* Related Jobs Section */
+.related-jobs-section {
+  margin-top: 40px;
+  padding: 30px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+}
+
+.related-jobs-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.related-jobs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.related-job-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.related-job-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.related-job-card h3 {
+  font-size: 1.1rem;
+  margin: 0 0 10px;
+  color: #1976d2;
+}
+
+.related-job-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.related-job-card .view-job-btn {
+  width: 100%;
+  padding: 8px 0;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.related-job-card .view-job-btn:hover {
+  background-color: #0d47a1;
+}
+
+/* Share Job Section */
+.job-share-section {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.job-share-section h3 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.share-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.share-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.share-button.linkedin {
+  background-color: #0077b5;
+  color: white;
+}
+
+.share-button.twitter {
+  background-color: #1da1f2;
+  color: white;
+}
+
+.share-button.email {
+  background-color: #ea4335;
+  color: white;
+}
+
+.share-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Subscription Form */
+.job-alerts-subscription {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px;
+  text-align: center;
+}
+
+.subscription-form {
+  display: flex;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.subscription-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  font-size: 1rem;
+}
+
+.subscribe-btn {
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  padding: 0 20px;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.subscribe-btn:hover {
+  background-color: #0d47a1;
+}
+
+/* Responsive styles for related jobs and share buttons */
+@media (max-width: 768px) {
+  .related-jobs {
+    grid-template-columns: 1fr;
+  }
+  
+  .share-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .share-button {
+    width: 100%;
+    max-width: 200px;
+  }
 } 

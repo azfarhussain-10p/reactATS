@@ -8,7 +8,7 @@ const CareerHeader = () => {
       <div className="header-container">
         <div className="logo-container">
           <Link to="/">
-            <h1 className="company-logo">ATS</h1>
+            <img src="/assets/10Pearls.png" alt="10Pearls Logo" className="company-logo" />
           </Link>
         </div>
         
