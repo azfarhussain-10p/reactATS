@@ -78,7 +78,7 @@ class SecurityService {
   private refreshTokens: Map<string, string> = new Map(); // userId -> refreshToken
 
   // API URL from env or default
-  private apiUrl: string = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  private apiUrl: string = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
   private constructor() {
     // Default security configuration

@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api';
+// Check if we're in a Vite environment, otherwise fallback to a default URL
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || window.env?.REACT_APP_API_BASE_URL || 'http://localhost:3001/api';
 
 // Lazy load mock data to avoid issues with fetch
 const getMockJobs = async () => {
@@ -232,6 +233,11 @@ export const jobsApi = {
         return [];
       }
     }
+  },
+  
+  // Get all available job statuses
+  getJobStatuses: () => {
+    return ["Active", "On-Hold", "Closed", "Draft"];
   },
 };
 

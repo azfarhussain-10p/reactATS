@@ -48,6 +48,10 @@ const CareerPage = () => {
         
         try {
           departmentsData = await jobsApi.getDepartments();
+          // Ensure departmentsData is an array of strings
+          if (departmentsData.length > 0 && typeof departmentsData[0] === 'object') {
+            departmentsData = departmentsData.map(dept => dept.name || String(dept));
+          }
         } catch (err) {
           console.error('Error fetching departments:', err);
           // Extract unique departments from jobs if API fails
@@ -58,6 +62,10 @@ const CareerPage = () => {
         
         try {
           locationsData = await jobsApi.getLocations();
+          // Ensure locationsData is an array of strings
+          if (locationsData.length > 0 && typeof locationsData[0] === 'object') {
+            locationsData = locationsData.map(loc => loc.name || String(loc));
+          }
         } catch (err) {
           console.error('Error fetching locations:', err);
           // Extract unique locations from jobs if API fails
@@ -68,6 +76,10 @@ const CareerPage = () => {
         
         try {
           jobTypesData = await jobsApi.getJobTypes();
+          // Ensure jobTypesData is an array of strings
+          if (jobTypesData.length > 0 && typeof jobTypesData[0] === 'object') {
+            jobTypesData = jobTypesData.map(type => type.name || String(type));
+          }
         } catch (err) {
           console.error('Error fetching job types:', err);
           // Use default job types
@@ -311,8 +323,10 @@ const CareerPage = () => {
                   value={filters.department} 
                   onChange={handleFilterChange}
                 >
-                  {departments.map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
+                  {departments.map((dept, index) => (
+                    <option key={`dept-${index}`} value={typeof dept === 'object' ? dept.name : dept}>
+                      {typeof dept === 'object' ? dept.name : dept}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -324,8 +338,10 @@ const CareerPage = () => {
                   value={filters.location} 
                   onChange={handleFilterChange}
                 >
-                  {locations.map(loc => (
-                    <option key={loc} value={loc}>{loc}</option>
+                  {locations.map((loc, index) => (
+                    <option key={`loc-${index}`} value={typeof loc === 'object' ? loc.name : loc}>
+                      {typeof loc === 'object' ? loc.name : loc}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -342,13 +358,13 @@ const CareerPage = () => {
             <div className="job-types-filter">
               <span className="filter-label">Job Type:</span>
               <div className="job-type-tags">
-                {jobTypes.map(type => (
+                {jobTypes.map((type, index) => (
                   <button
-                    key={type}
-                    className={`job-type-tag ${filters.jobTypes.includes(type) ? 'active' : ''}`}
-                    onClick={() => handleJobTypeToggle(type)}
+                    key={`type-${index}`}
+                    className={`job-type-tag ${filters.jobTypes.includes(typeof type === 'object' ? type.name : type) ? 'active' : ''}`}
+                    onClick={() => handleJobTypeToggle(typeof type === 'object' ? type.name : type)}
                   >
-                    {type}
+                    {typeof type === 'object' ? type.name : type}
                   </button>
                 ))}
               </div>

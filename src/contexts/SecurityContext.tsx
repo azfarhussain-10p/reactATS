@@ -33,7 +33,7 @@ const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
 };
 
 // API URL from env or default
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 // Create context
 const SecurityContext = createContext<SecurityContextType | undefined>(undefined);

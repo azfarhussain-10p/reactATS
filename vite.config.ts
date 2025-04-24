@@ -7,11 +7,11 @@ export default defineConfig({
   server: {
     host: true,
     port: 3000,
-    strictPort: false,
+    strictPort: true,
     open: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:80',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path
