@@ -9,7 +9,7 @@ const CareerPage = () => {
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [jobTypes, setJobTypes] = useState(['Full-time', 'Part-time', 'Contract', 'Remote', 'Internship']);
+  const [jobTypes, setJobTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewType, setViewType] = useState('grid'); // 'grid' or 'list'
@@ -48,10 +48,6 @@ const CareerPage = () => {
         
         try {
           departmentsData = await jobsApi.getDepartments();
-          // Ensure departmentsData is an array of strings
-          if (departmentsData.length > 0 && typeof departmentsData[0] === 'object') {
-            departmentsData = departmentsData.map(dept => dept.name || String(dept));
-          }
         } catch (err) {
           console.error('Error fetching departments:', err);
           // Extract unique departments from jobs if API fails
@@ -62,10 +58,6 @@ const CareerPage = () => {
         
         try {
           locationsData = await jobsApi.getLocations();
-          // Ensure locationsData is an array of strings
-          if (locationsData.length > 0 && typeof locationsData[0] === 'object') {
-            locationsData = locationsData.map(loc => loc.name || String(loc));
-          }
         } catch (err) {
           console.error('Error fetching locations:', err);
           // Extract unique locations from jobs if API fails
@@ -76,24 +68,23 @@ const CareerPage = () => {
         
         try {
           jobTypesData = await jobsApi.getJobTypes();
-          // Ensure jobTypesData is an array of strings
-          if (jobTypesData.length > 0 && typeof jobTypesData[0] === 'object') {
-            jobTypesData = jobTypesData.map(type => type.name || String(type));
-          }
         } catch (err) {
           console.error('Error fetching job types:', err);
-          // Use default job types
+          // Use default job types if API fails
+          jobTypesData = [
+            { id: "1", name: "Full-time" },
+            { id: "2", name: "Part-time" },
+            { id: "3", name: "Contract" },
+            { id: "4", name: "Internship" },
+            { id: "5", name: "Remote" }
+          ];
         }
         
         setJobs(jobsData);
         setFilteredJobs(jobsData);
         setDepartments(['All', ...departmentsData]);
         setLocations(['All', ...locationsData]);
-        
-        // Use API job types if available, otherwise fall back to the default
-        if (jobTypesData && jobTypesData.length > 0) {
-          setJobTypes(jobTypesData);
-        }
+        setJobTypes(jobTypesData);
         
         setLoading(false);
       } catch (err) {
@@ -323,11 +314,16 @@ const CareerPage = () => {
                   value={filters.department} 
                   onChange={handleFilterChange}
                 >
-                  {departments.map((dept, index) => (
-                    <option key={`dept-${index}`} value={typeof dept === 'object' ? dept.name : dept}>
-                      {typeof dept === 'object' ? dept.name : dept}
-                    </option>
-                  ))}
+                  {departments.map((dept, index) => {
+                    // Handle both string and object formats consistently
+                    const deptValue = dept === 'All' ? 'All' : 
+                               (typeof dept === 'object' ? dept.name : dept);
+                    return (
+                      <option key={`dept-${index}`} value={deptValue}>
+                        {deptValue}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
               
@@ -338,11 +334,16 @@ const CareerPage = () => {
                   value={filters.location} 
                   onChange={handleFilterChange}
                 >
-                  {locations.map((loc, index) => (
-                    <option key={`loc-${index}`} value={typeof loc === 'object' ? loc.name : loc}>
-                      {typeof loc === 'object' ? loc.name : loc}
-                    </option>
-                  ))}
+                  {locations.map((loc, index) => {
+                    // Handle both string and object formats consistently
+                    const locValue = loc === 'All' ? 'All' : 
+                             (typeof loc === 'object' ? loc.name : loc);
+                    return (
+                      <option key={`loc-${index}`} value={locValue}>
+                        {locValue}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
               
@@ -358,15 +359,19 @@ const CareerPage = () => {
             <div className="job-types-filter">
               <span className="filter-label">Job Type:</span>
               <div className="job-type-tags">
-                {jobTypes.map((type, index) => (
-                  <button
-                    key={`type-${index}`}
-                    className={`job-type-tag ${filters.jobTypes.includes(typeof type === 'object' ? type.name : type) ? 'active' : ''}`}
-                    onClick={() => handleJobTypeToggle(typeof type === 'object' ? type.name : type)}
-                  >
-                    {typeof type === 'object' ? type.name : type}
-                  </button>
-                ))}
+                {jobTypes.map((type, index) => {
+                  // Handle both string and object formats consistently
+                  const typeValue = typeof type === 'object' ? type.name : type;
+                  return (
+                    <button
+                      key={`type-${index}`}
+                      className={`job-type-tag ${filters.jobTypes.includes(typeValue) ? 'active' : ''}`}
+                      onClick={() => handleJobTypeToggle(typeValue)}
+                    >
+                      {typeValue}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
