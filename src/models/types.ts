@@ -1,31 +1,31 @@
 // Candidate Profile Management Types
 
 // Candidate source options
-export type CandidateSource = 
-  | 'Job Board' 
-  | 'Referral' 
-  | 'LinkedIn' 
-  | 'Company Website' 
-  | 'Recruitment Agency' 
-  | 'Career Fair' 
+export type CandidateSource =
+  | 'Job Board'
+  | 'Referral'
+  | 'LinkedIn'
+  | 'Company Website'
+  | 'Recruitment Agency'
+  | 'Career Fair'
   | 'Other Social Media'
   | 'Direct Application'
   | 'Other';
 
 // Candidate status options
-export type CandidateStatus = 
-  | 'New' 
-  | 'Screening' 
-  | 'Interview' 
-  | 'Assessment' 
-  | 'Offer' 
-  | 'Hired' 
+export type CandidateStatus =
+  | 'New'
+  | 'Screening'
+  | 'Interview'
+  | 'Assessment'
+  | 'Offer'
+  | 'Hired'
   | 'Rejected'
   | 'Withdrawn'
   | 'On Hold';
 
 // Pipeline stage type for kanban board
-export type PipelineStage = 
+export type PipelineStage =
   | 'Applied'
   | 'Screening'
   | 'First Interview'
@@ -84,7 +84,14 @@ export type TeamMember = {
 
 // Notification preferences
 export interface NotificationPreference {
-  type: 'mention' | 'message' | 'task' | 'note' | 'candidate_update' | 'interview_feedback' | 'decision';
+  type:
+    | 'mention'
+    | 'message'
+    | 'task'
+    | 'note'
+    | 'candidate_update'
+    | 'interview_feedback'
+    | 'decision';
   channel: 'email' | 'in_app' | 'both' | 'none';
 }
 
@@ -296,12 +303,12 @@ export interface EvaluationResponse {
 }
 
 // Education level options
-export type EducationLevel = 
-  | 'High School' 
-  | 'Associate Degree' 
-  | 'Bachelor\'s Degree' 
-  | 'Master\'s Degree' 
-  | 'Doctorate' 
+export type EducationLevel =
+  | 'High School'
+  | 'Associate Degree'
+  | "Bachelor's Degree"
+  | "Master's Degree"
+  | 'Doctorate'
   | 'Professional Certification'
   | 'Other';
 
@@ -440,11 +447,11 @@ export interface Candidate {
 }
 
 // Job Posting Integration Types
-export type JobPlatform = 
-  | 'Indeed' 
-  | 'LinkedIn' 
-  | 'Glassdoor' 
-  | 'ZipRecruiter' 
+export type JobPlatform =
+  | 'Indeed'
+  | 'LinkedIn'
+  | 'Glassdoor'
+  | 'ZipRecruiter'
   | 'Monster'
   | 'CareerBuilder'
   | 'Facebook'
@@ -592,7 +599,7 @@ export interface QuestionnaireResponse {
 }
 
 // Email Campaign Automation Types
-export type EmailTrigger = 
+export type EmailTrigger =
   | 'ApplicationReceived'
   | 'StageChange'
   | 'SpecificStage'
@@ -656,7 +663,8 @@ export interface EmailCampaignStep {
   templateId: string;
   active: boolean;
   personalized: boolean; // Whether this email is personalized for each candidate
-  condition?: { // Optional condition to filter which candidates receive this email
+  condition?: {
+    // Optional condition to filter which candidates receive this email
     status?: CandidateStatus[];
     stage?: PipelineStage[];
     tags?: string[];
@@ -683,7 +691,7 @@ export interface EmailLog {
 }
 
 // Customizable Application Forms
-export type FormFieldType = 
+export type FormFieldType =
   | 'ShortText'
   | 'LongText'
   | 'Email'
@@ -828,9 +836,9 @@ export interface EmailTemplate {
   isDefault: boolean;
 }
 
-export type EmailTemplateCategory = 
-  | 'Application Confirmation' 
-  | 'Interview Invitation' 
+export type EmailTemplateCategory =
+  | 'Application Confirmation'
+  | 'Interview Invitation'
   | 'Interview Confirmation'
   | 'Interview Reminder'
   | 'Interview Follow-up'
@@ -915,25 +923,25 @@ export interface CustomFormField {
   settings: CustomFormFieldSettings;
 }
 
-export type CustomFormFieldType = 
-  | 'ShortText' 
-  | 'LongText' 
-  | 'SingleSelect' 
+export type CustomFormFieldType =
+  | 'ShortText'
+  | 'LongText'
+  | 'SingleSelect'
   | 'MultiSelect'
-  | 'Checkbox' 
-  | 'RadioGroup' 
-  | 'Date' 
-  | 'Time' 
+  | 'Checkbox'
+  | 'RadioGroup'
+  | 'Date'
+  | 'Time'
   | 'DateTime'
-  | 'FileUpload' 
-  | 'Address' 
-  | 'Phone' 
+  | 'FileUpload'
+  | 'Address'
+  | 'Phone'
   | 'Email'
-  | 'Number' 
-  | 'URL' 
-  | 'Rating' 
+  | 'Number'
+  | 'URL'
+  | 'Rating'
   | 'Heading'
-  | 'Paragraph' 
+  | 'Paragraph'
   | 'Divider';
 
 export interface CustomFormFieldOption {
@@ -955,7 +963,15 @@ export interface ConditionalRule {
 
 export interface Condition {
   fieldId: string;
-  operator: 'Equals' | 'NotEquals' | 'Contains' | 'NotContains' | 'GreaterThan' | 'LessThan' | 'IsEmpty' | 'IsNotEmpty';
+  operator:
+    | 'Equals'
+    | 'NotEquals'
+    | 'Contains'
+    | 'NotContains'
+    | 'GreaterThan'
+    | 'LessThan'
+    | 'IsEmpty'
+    | 'IsNotEmpty';
   value?: string | number | boolean;
 }
 
@@ -1002,12 +1018,12 @@ export interface FormSubmission {
     pageTimings?: Record<string, number>;
     source?: string;
     utm?: Record<string, string>;
-  }
+  };
 }
 
 // CRM Functionality
 
-export type TalentPoolCategory = 
+export type TalentPoolCategory =
   | 'Active Candidate'
   | 'Passive Candidate'
   | 'Former Employee'
@@ -1017,12 +1033,7 @@ export type TalentPoolCategory =
   | 'Silver Medalist'
   | 'Custom';
 
-export type EngagementLevel =
-  | 'Cold'
-  | 'Warm'
-  | 'Hot'
-  | 'Very Hot'
-  | 'Not Interested';
+export type EngagementLevel = 'Cold' | 'Warm' | 'Hot' | 'Very Hot' | 'Not Interested';
 
 export interface TalentPool {
   id: string;
@@ -1083,7 +1094,13 @@ export interface ContactHistoryItem {
 
 export interface TouchPoint {
   id: string;
-  type: 'Birthday' | 'Work Anniversary' | 'Industry Event' | 'Company News' | 'Personal Achievement' | 'Custom';
+  type:
+    | 'Birthday'
+    | 'Work Anniversary'
+    | 'Industry Event'
+    | 'Company News'
+    | 'Personal Achievement'
+    | 'Custom';
   date: string;
   title: string;
   description: string;
@@ -1128,7 +1145,14 @@ export interface NurtureStep {
 export interface RecruitmentEvent {
   id: string;
   name: string;
-  type: 'Career Fair' | 'Networking' | 'Conference' | 'Workshop' | 'Webinar' | 'Open House' | 'Custom';
+  type:
+    | 'Career Fair'
+    | 'Networking'
+    | 'Conference'
+    | 'Workshop'
+    | 'Webinar'
+    | 'Open House'
+    | 'Custom';
   startDate: string;
   endDate: string;
   location: string;
@@ -1214,7 +1238,14 @@ export interface Referral {
   resumeUrl?: string;
   jobId?: string;
   jobTitle?: string;
-  status: 'Submitted' | 'Reviewing' | 'Contacting' | 'Interviewing' | 'Hired' | 'Rejected' | 'Withdrawn';
+  status:
+    | 'Submitted'
+    | 'Reviewing'
+    | 'Contacting'
+    | 'Interviewing'
+    | 'Hired'
+    | 'Rejected'
+    | 'Withdrawn';
   notes: string;
   submissionDate: string;
   hireDate?: string;
@@ -1285,7 +1316,12 @@ export interface ExternalCRMIntegration {
 
 export type MetricPeriod = 'Daily' | 'Weekly' | 'Monthly' | 'Quarterly' | 'Yearly' | 'Custom';
 
-export type TimeMetric = 'TimeToFill' | 'TimeToHire' | 'TimeInStage' | 'TimeToOffer' | 'TimeToAccept';
+export type TimeMetric =
+  | 'TimeToFill'
+  | 'TimeToHire'
+  | 'TimeInStage'
+  | 'TimeToOffer'
+  | 'TimeToAccept';
 
 export interface Dashboard {
   id: string;
@@ -1521,4 +1557,4 @@ export interface CustomReport {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
-} 
+}

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { 
+import {
   Dashboard,
   DashboardWidget,
   AnalyticsFilter,
@@ -12,7 +12,7 @@ import {
   PipelineVelocity,
   CustomReport,
   MetricPeriod,
-  TimeMetric
+  TimeMetric,
 } from '../models/types';
 import { announce } from '../components/ScreenReaderAnnouncer';
 
@@ -43,9 +43,9 @@ const defaultDashboards: Dashboard[] = [
             x: 0,
             y: 0,
             width: 1,
-            height: 1
-          }
-        }
+            height: 1,
+          },
+        },
       },
       {
         id: '2',
@@ -67,9 +67,9 @@ const defaultDashboards: Dashboard[] = [
             x: 1,
             y: 0,
             width: 2,
-            height: 2
-          }
-        }
+            height: 2,
+          },
+        },
       },
       {
         id: '3',
@@ -93,15 +93,15 @@ const defaultDashboards: Dashboard[] = [
             x: 0,
             y: 2,
             width: 3,
-            height: 2
-          }
-        }
-      }
+            height: 2,
+          },
+        },
+      },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     createdBy: 'system',
-    sharedWith: []
+    sharedWith: [],
   },
   {
     id: '2',
@@ -131,9 +131,9 @@ const defaultDashboards: Dashboard[] = [
             x: 0,
             y: 0,
             width: 2,
-            height: 1
-          }
-        }
+            height: 1,
+          },
+        },
       },
       {
         id: '5',
@@ -156,9 +156,9 @@ const defaultDashboards: Dashboard[] = [
             x: 2,
             y: 0,
             width: 2,
-            height: 1
-          }
-        }
+            height: 1,
+          },
+        },
       },
       {
         id: '6',
@@ -179,16 +179,16 @@ const defaultDashboards: Dashboard[] = [
             x: 0,
             y: 1,
             width: 4,
-            height: 2
-          }
-        }
-      }
+            height: 2,
+          },
+        },
+      },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     createdBy: 'system',
-    sharedWith: []
-  }
+    sharedWith: [],
+  },
 ];
 
 // Sample time metrics
@@ -207,9 +207,9 @@ const defaultTimeMetrics: TimeMetricData[] = [
       { stage: 'First Interview', days: 10 },
       { stage: 'Technical Assessment', days: 14 },
       { stage: 'Team Interview', days: 8 },
-      { stage: 'Offer', days: 7 }
+      { stage: 'Offer', days: 7 },
     ],
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   },
   {
     id: '2',
@@ -225,10 +225,10 @@ const defaultTimeMetrics: TimeMetricData[] = [
       { stage: 'First Interview', days: 12 },
       { stage: 'Technical Assessment', days: 15 },
       { stage: 'Team Interview', days: 10 },
-      { stage: 'Offer', days: 8 }
+      { stage: 'Offer', days: 8 },
     ],
-    createdAt: new Date().toISOString()
-  }
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 // Sample source effectiveness
@@ -247,9 +247,9 @@ const defaultSourceEffectiveness: SourceEffectiveness[] = [
       costPerApplicant: 25,
       costPerHire: 375,
       timeToHire: 42,
-      qualityOfHire: 4.2
+      qualityOfHire: 4.2,
     },
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   },
   {
     id: '2',
@@ -265,10 +265,10 @@ const defaultSourceEffectiveness: SourceEffectiveness[] = [
       costPerApplicant: 50,
       costPerHire: 187.5,
       timeToHire: 35,
-      qualityOfHire: 4.8
+      qualityOfHire: 4.8,
     },
-    createdAt: new Date().toISOString()
-  }
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 // Analytics Context type
@@ -280,34 +280,46 @@ interface AnalyticsContextType {
   createDashboard: (dashboard: Omit<Dashboard, 'id' | 'createdAt' | 'updatedAt'>) => Dashboard;
   updateDashboard: (id: string, updates: Partial<Dashboard>) => Dashboard | null;
   deleteDashboard: (id: string) => boolean;
-  
+
   // Widgets
-  createWidget: (dashboardId: string, widget: Omit<DashboardWidget, 'id' | 'dashboardId'>) => DashboardWidget | null;
-  updateWidget: (dashboardId: string, widgetId: string, updates: Partial<DashboardWidget>) => DashboardWidget | null;
+  createWidget: (
+    dashboardId: string,
+    widget: Omit<DashboardWidget, 'id' | 'dashboardId'>
+  ) => DashboardWidget | null;
+  updateWidget: (
+    dashboardId: string,
+    widgetId: string,
+    updates: Partial<DashboardWidget>
+  ) => DashboardWidget | null;
   deleteWidget: (dashboardId: string, widgetId: string) => boolean;
-  
+
   // Time Metrics
   timeMetrics: TimeMetricData[];
   getTimeMetrics: (metric: TimeMetric, filters?: AnalyticsFilter[]) => TimeMetricData[];
   addTimeMetric: (metric: Omit<TimeMetricData, 'id' | 'createdAt'>) => TimeMetricData;
-  
+
   // Source Effectiveness
   sourceEffectiveness: SourceEffectiveness[];
   getSourceEffectiveness: (period: string, filters?: AnalyticsFilter[]) => SourceEffectiveness[];
-  addSourceEffectiveness: (data: Omit<SourceEffectiveness, 'id' | 'createdAt'>) => SourceEffectiveness;
-  
+  addSourceEffectiveness: (
+    data: Omit<SourceEffectiveness, 'id' | 'createdAt'>
+  ) => SourceEffectiveness;
+
   // Cost Data
   getCostData: (period: string, filters?: AnalyticsFilter[]) => CostData[];
-  
+
   // Diversity Metrics
   getDiversityMetrics: (period: string, filters?: AnalyticsFilter[]) => DiversityMetric[];
-  
+
   // Recruiter Performance
-  getRecruiterPerformance: (recruiterId: string, period: string) => RecruiterPerformance | undefined;
-  
+  getRecruiterPerformance: (
+    recruiterId: string,
+    period: string
+  ) => RecruiterPerformance | undefined;
+
   // Pipeline Velocity
   getPipelineVelocity: (period: string, filters?: AnalyticsFilter[]) => PipelineVelocity[];
-  
+
   // Custom Reports
   customReports: CustomReport[];
   getReport: (id: string) => CustomReport | undefined;
@@ -316,11 +328,20 @@ interface AnalyticsContextType {
   deleteReport: (id: string) => boolean;
   runReport: (id: string) => Promise<any[]>;
   scheduleReport: (id: string, schedule: CustomReport['schedule']) => boolean;
-  
+
   // Data Analysis
   getMetricValue: (metric: string, period: MetricPeriod, filters?: AnalyticsFilter[]) => number;
-  getMetricTimeSeries: (metric: string, period: MetricPeriod, dateRange: { start: string, end?: string }, filters?: AnalyticsFilter[]) => { date: string, value: number }[];
-  compareMetrics: (metrics: string[], period: MetricPeriod, filters?: AnalyticsFilter[]) => Record<string, number>;
+  getMetricTimeSeries: (
+    metric: string,
+    period: MetricPeriod,
+    dateRange: { start: string; end?: string },
+    filters?: AnalyticsFilter[]
+  ) => { date: string; value: number }[];
+  compareMetrics: (
+    metrics: string[],
+    period: MetricPeriod,
+    filters?: AnalyticsFilter[]
+  ) => Record<string, number>;
 }
 
 // Create context
@@ -331,342 +352,353 @@ export const AnalyticsProvider: React.FC<{ children: ReactNode }> = ({ children 
   // State
   const [dashboards, setDashboards] = useState<Dashboard[]>(defaultDashboards);
   const [timeMetrics, setTimeMetrics] = useState<TimeMetricData[]>(defaultTimeMetrics);
-  const [sourceEffectiveness, setSourceEffectiveness] = useState<SourceEffectiveness[]>(defaultSourceEffectiveness);
+  const [sourceEffectiveness, setSourceEffectiveness] = useState<SourceEffectiveness[]>(
+    defaultSourceEffectiveness
+  );
   const [costData, setCostData] = useState<CostData[]>([]);
   const [diversityMetrics, setDiversityMetrics] = useState<DiversityMetric[]>([]);
   const [recruiterPerformance, setRecruiterPerformance] = useState<RecruiterPerformance[]>([]);
   const [pipelineVelocity, setPipelineVelocity] = useState<PipelineVelocity[]>([]);
   const [customReports, setCustomReports] = useState<CustomReport[]>([]);
-  
+
   // Dashboard functions
   const getDashboard = (id: string) => {
-    return dashboards.find(dashboard => dashboard.id === id);
+    return dashboards.find((dashboard) => dashboard.id === id);
   };
-  
+
   const getDashboardsByRole = (role: string) => {
-    return dashboards.filter(dashboard => dashboard.role === role);
+    return dashboards.filter((dashboard) => dashboard.role === role);
   };
-  
+
   const createDashboard = (dashboard: Omit<Dashboard, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newDashboard: Dashboard = {
       ...dashboard,
       id: uuidv4(),
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
-    
-    setDashboards(prev => [...prev, newDashboard]);
+
+    setDashboards((prev) => [...prev, newDashboard]);
     announce(`Created dashboard: ${newDashboard.name}`);
     return newDashboard;
   };
-  
+
   const updateDashboard = (id: string, updates: Partial<Dashboard>) => {
     let updatedDashboard: Dashboard | null = null;
-    
-    setDashboards(prev => {
-      const updatedDashboards = prev.map(dashboard => {
+
+    setDashboards((prev) => {
+      const updatedDashboards = prev.map((dashboard) => {
         if (dashboard.id === id) {
           updatedDashboard = {
             ...dashboard,
             ...updates,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
           };
           return updatedDashboard;
         }
         return dashboard;
       });
-      
+
       return updatedDashboards;
     });
-    
+
     if (updatedDashboard) {
       announce(`Updated dashboard: ${updatedDashboard.name}`);
     }
-    
+
     return updatedDashboard;
   };
-  
+
   const deleteDashboard = (id: string) => {
-    const dashboardToDelete = dashboards.find(d => d.id === id);
-    
+    const dashboardToDelete = dashboards.find((d) => d.id === id);
+
     if (!dashboardToDelete) {
       return false;
     }
-    
-    setDashboards(prev => prev.filter(d => d.id !== id));
+
+    setDashboards((prev) => prev.filter((d) => d.id !== id));
     announce(`Deleted dashboard: ${dashboardToDelete.name}`);
     return true;
   };
-  
+
   // Widget functions
-  const createWidget = (dashboardId: string, widget: Omit<DashboardWidget, 'id' | 'dashboardId'>) => {
-    const dashboard = dashboards.find(d => d.id === dashboardId);
-    
+  const createWidget = (
+    dashboardId: string,
+    widget: Omit<DashboardWidget, 'id' | 'dashboardId'>
+  ) => {
+    const dashboard = dashboards.find((d) => d.id === dashboardId);
+
     if (!dashboard) {
       return null;
     }
-    
+
     const newWidget: DashboardWidget = {
       ...widget,
       id: uuidv4(),
-      dashboardId
+      dashboardId,
     };
-    
+
     const updatedDashboard = updateDashboard(dashboardId, {
-      widgets: [...dashboard.widgets, newWidget]
+      widgets: [...dashboard.widgets, newWidget],
     });
-    
+
     announce(`Added widget to dashboard: ${dashboard.name}`);
     return updatedDashboard ? newWidget : null;
   };
-  
-  const updateWidget = (dashboardId: string, widgetId: string, updates: Partial<DashboardWidget>) => {
-    const dashboard = dashboards.find(d => d.id === dashboardId);
-    
+
+  const updateWidget = (
+    dashboardId: string,
+    widgetId: string,
+    updates: Partial<DashboardWidget>
+  ) => {
+    const dashboard = dashboards.find((d) => d.id === dashboardId);
+
     if (!dashboard) {
       return null;
     }
-    
+
     let updatedWidget: DashboardWidget | null = null;
-    
-    const updatedWidgets = dashboard.widgets.map(widget => {
+
+    const updatedWidgets = dashboard.widgets.map((widget) => {
       if (widget.id === widgetId) {
         updatedWidget = { ...widget, ...updates };
         return updatedWidget;
       }
       return widget;
     });
-    
+
     updateDashboard(dashboardId, { widgets: updatedWidgets });
-    
+
     if (updatedWidget) {
       announce(`Updated widget: ${updatedWidget.title}`);
     }
-    
+
     return updatedWidget;
   };
-  
+
   const deleteWidget = (dashboardId: string, widgetId: string) => {
-    const dashboard = dashboards.find(d => d.id === dashboardId);
-    
+    const dashboard = dashboards.find((d) => d.id === dashboardId);
+
     if (!dashboard) {
       return false;
     }
-    
-    const widgetToDelete = dashboard.widgets.find(w => w.id === widgetId);
-    
+
+    const widgetToDelete = dashboard.widgets.find((w) => w.id === widgetId);
+
     if (!widgetToDelete) {
       return false;
     }
-    
-    const updatedWidgets = dashboard.widgets.filter(widget => widget.id !== widgetId);
-    
+
+    const updatedWidgets = dashboard.widgets.filter((widget) => widget.id !== widgetId);
+
     updateDashboard(dashboardId, { widgets: updatedWidgets });
     announce(`Deleted widget: ${widgetToDelete.title}`);
     return true;
   };
-  
+
   // Time Metrics functions
   const getTimeMetrics = (metric: TimeMetric, filters?: AnalyticsFilter[]) => {
-    let filteredMetrics = timeMetrics.filter(m => m.metric === metric);
-    
+    let filteredMetrics = timeMetrics.filter((m) => m.metric === metric);
+
     if (filters && filters.length > 0) {
       filteredMetrics = applyFilters(filteredMetrics, filters);
     }
-    
+
     return filteredMetrics;
   };
-  
+
   const addTimeMetric = (metric: Omit<TimeMetricData, 'id' | 'createdAt'>) => {
     const newMetric: TimeMetricData = {
       ...metric,
       id: uuidv4(),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
-    
-    setTimeMetrics(prev => [...prev, newMetric]);
+
+    setTimeMetrics((prev) => [...prev, newMetric]);
     announce(`Added new time metric data for ${metric.metric}`);
     return newMetric;
   };
-  
+
   // Source Effectiveness functions
   const getSourceEffectiveness = (period: string, filters?: AnalyticsFilter[]) => {
-    let filteredData = sourceEffectiveness.filter(se => se.period === period);
-    
+    let filteredData = sourceEffectiveness.filter((se) => se.period === period);
+
     if (filters && filters.length > 0) {
       filteredData = applyFilters(filteredData, filters);
     }
-    
+
     return filteredData;
   };
-  
+
   const addSourceEffectiveness = (data: Omit<SourceEffectiveness, 'id' | 'createdAt'>) => {
     const newData: SourceEffectiveness = {
       ...data,
       id: uuidv4(),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
-    
-    setSourceEffectiveness(prev => [...prev, newData]);
+
+    setSourceEffectiveness((prev) => [...prev, newData]);
     announce(`Added new source effectiveness data for ${data.source}`);
     return newData;
   };
-  
+
   // Cost Data functions
   const getCostData = (period: string, filters?: AnalyticsFilter[]) => {
-    let filteredData = costData.filter(cd => cd.period === period);
-    
+    let filteredData = costData.filter((cd) => cd.period === period);
+
     if (filters && filters.length > 0) {
       filteredData = applyFilters(filteredData, filters);
     }
-    
+
     return filteredData;
   };
-  
+
   // Diversity Metrics functions
   const getDiversityMetrics = (period: string, filters?: AnalyticsFilter[]) => {
-    let filteredData = diversityMetrics.filter(dm => dm.period === period);
-    
+    let filteredData = diversityMetrics.filter((dm) => dm.period === period);
+
     if (filters && filters.length > 0) {
       filteredData = applyFilters(filteredData, filters);
     }
-    
+
     return filteredData;
   };
-  
+
   // Recruiter Performance functions
   const getRecruiterPerformance = (recruiterId: string, period: string) => {
-    return recruiterPerformance.find(rp => rp.recruiterId === recruiterId && rp.period === period);
+    return recruiterPerformance.find(
+      (rp) => rp.recruiterId === recruiterId && rp.period === period
+    );
   };
-  
+
   // Pipeline Velocity functions
   const getPipelineVelocity = (period: string, filters?: AnalyticsFilter[]) => {
-    let filteredData = pipelineVelocity.filter(pv => pv.period === period);
-    
+    let filteredData = pipelineVelocity.filter((pv) => pv.period === period);
+
     if (filters && filters.length > 0) {
       filteredData = applyFilters(filteredData, filters);
     }
-    
+
     return filteredData;
   };
-  
+
   // Custom Reports functions
   const getReport = (id: string) => {
-    return customReports.find(report => report.id === id);
+    return customReports.find((report) => report.id === id);
   };
-  
+
   const createReport = (report: Omit<CustomReport, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newReport: CustomReport = {
       ...report,
       id: uuidv4(),
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
-    
-    setCustomReports(prev => [...prev, newReport]);
+
+    setCustomReports((prev) => [...prev, newReport]);
     announce(`Created custom report: ${newReport.name}`);
     return newReport;
   };
-  
+
   const updateReport = (id: string, updates: Partial<CustomReport>) => {
     let updatedReport: CustomReport | null = null;
-    
-    setCustomReports(prev => {
-      const updatedReports = prev.map(report => {
+
+    setCustomReports((prev) => {
+      const updatedReports = prev.map((report) => {
         if (report.id === id) {
           updatedReport = {
             ...report,
             ...updates,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
           };
           return updatedReport;
         }
         return report;
       });
-      
+
       return updatedReports;
     });
-    
+
     if (updatedReport) {
       announce(`Updated custom report: ${updatedReport.name}`);
     }
-    
+
     return updatedReport;
   };
-  
+
   const deleteReport = (id: string) => {
-    const reportToDelete = customReports.find(r => r.id === id);
-    
+    const reportToDelete = customReports.find((r) => r.id === id);
+
     if (!reportToDelete) {
       return false;
     }
-    
-    setCustomReports(prev => prev.filter(r => r.id !== id));
+
+    setCustomReports((prev) => prev.filter((r) => r.id !== id));
     announce(`Deleted custom report: ${reportToDelete.name}`);
     return true;
   };
-  
+
   const runReport = async (id: string) => {
-    const report = customReports.find(r => r.id === id);
-    
+    const report = customReports.find((r) => r.id === id);
+
     if (!report) {
       return [];
     }
-    
+
     // In a real app, this would make an API call to run the report
     // For now, we'll just simulate a response
     announce(`Running custom report: ${report.name}`);
-    
-    return new Promise(resolve => {
+
+    return new Promise((resolve) => {
       setTimeout(() => {
         resolve([
           { id: 1, name: 'Sample Result 1', value: 42 },
           { id: 2, name: 'Sample Result 2', value: 85 },
-          { id: 3, name: 'Sample Result 3', value: 63 }
+          { id: 3, name: 'Sample Result 3', value: 63 },
         ]);
       }, 500);
     });
   };
-  
+
   const scheduleReport = (id: string, schedule: CustomReport['schedule']) => {
-    const report = customReports.find(r => r.id === id);
-    
+    const report = customReports.find((r) => r.id === id);
+
     if (!report) {
       return false;
     }
-    
+
     updateReport(id, { schedule });
     announce(`Scheduled custom report: ${report.name}`);
     return true;
   };
-  
+
   // Data Analysis functions
   const getMetricValue = (metric: string, period: MetricPeriod, filters?: AnalyticsFilter[]) => {
     // In a real app, this would calculate the actual metric value
     // For now, return a random number for demonstration
     return Math.floor(Math.random() * 100);
   };
-  
+
   const getMetricTimeSeries = (
-    metric: string, 
-    period: MetricPeriod, 
-    dateRange: { start: string, end?: string }, 
+    metric: string,
+    period: MetricPeriod,
+    dateRange: { start: string; end?: string },
     filters?: AnalyticsFilter[]
   ) => {
     // In a real app, this would calculate the time series data
     // For now, generate some random data
     const startDate = new Date(dateRange.start);
     const endDate = dateRange.end ? new Date(dateRange.end) : new Date();
-    
-    const data: { date: string, value: number }[] = [];
+
+    const data: { date: string; value: number }[] = [];
     const currentDate = new Date(startDate);
-    
+
     while (currentDate <= endDate) {
       data.push({
         date: currentDate.toISOString(),
-        value: Math.floor(Math.random() * 100)
+        value: Math.floor(Math.random() * 100),
       });
-      
+
       // Increment date based on period
       switch (period) {
         case 'Daily':
@@ -688,28 +720,28 @@ export const AnalyticsProvider: React.FC<{ children: ReactNode }> = ({ children 
           currentDate.setDate(currentDate.getDate() + 1);
       }
     }
-    
+
     return data;
   };
-  
+
   const compareMetrics = (metrics: string[], period: MetricPeriod, filters?: AnalyticsFilter[]) => {
     // In a real app, this would compare multiple metrics
     // For now, generate random values
     const result: Record<string, number> = {};
-    
-    metrics.forEach(metric => {
+
+    metrics.forEach((metric) => {
       result[metric] = Math.floor(Math.random() * 100);
     });
-    
+
     return result;
   };
-  
+
   // Helper function to apply filters
   const applyFilters = <T extends object>(data: T[], filters: AnalyticsFilter[]): T[] => {
-    return data.filter(item => {
-      return filters.every(filter => {
+    return data.filter((item) => {
+      return filters.every((filter) => {
         const itemValue = (item as any)[filter.field];
-        
+
         switch (filter.operator) {
           case 'equals':
             return itemValue === filter.value;
@@ -724,18 +756,20 @@ export const AnalyticsProvider: React.FC<{ children: ReactNode }> = ({ children 
           case 'in':
             return filter.values && filter.values.includes(itemValue);
           case 'between':
-            return filter.values && 
-                   filter.values.length === 2 && 
-                   typeof itemValue === 'number' && 
-                   itemValue >= filter.values[0] && 
-                   itemValue <= filter.values[1];
+            return (
+              filter.values &&
+              filter.values.length === 2 &&
+              typeof itemValue === 'number' &&
+              itemValue >= filter.values[0] &&
+              itemValue <= filter.values[1]
+            );
           default:
             return true;
         }
       });
     });
   };
-  
+
   // Context value
   const value = {
     // Dashboards
@@ -745,34 +779,34 @@ export const AnalyticsProvider: React.FC<{ children: ReactNode }> = ({ children 
     createDashboard,
     updateDashboard,
     deleteDashboard,
-    
+
     // Widgets
     createWidget,
     updateWidget,
     deleteWidget,
-    
+
     // Time Metrics
     timeMetrics,
     getTimeMetrics,
     addTimeMetric,
-    
+
     // Source Effectiveness
     sourceEffectiveness,
     getSourceEffectiveness,
     addSourceEffectiveness,
-    
+
     // Cost Data
     getCostData,
-    
+
     // Diversity Metrics
     getDiversityMetrics,
-    
+
     // Recruiter Performance
     getRecruiterPerformance,
-    
+
     // Pipeline Velocity
     getPipelineVelocity,
-    
+
     // Custom Reports
     customReports,
     getReport,
@@ -781,18 +815,14 @@ export const AnalyticsProvider: React.FC<{ children: ReactNode }> = ({ children 
     deleteReport,
     runReport,
     scheduleReport,
-    
+
     // Data Analysis
     getMetricValue,
     getMetricTimeSeries,
-    compareMetrics
+    compareMetrics,
   };
-  
-  return (
-    <AnalyticsContext.Provider value={value}>
-      {children}
-    </AnalyticsContext.Provider>
-  );
+
+  return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>;
 };
 
 // Custom hook to use the context

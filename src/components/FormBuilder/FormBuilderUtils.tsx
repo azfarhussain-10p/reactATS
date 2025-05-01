@@ -1,5 +1,5 @@
 import React from 'react';
-import { 
+import {
   TextFields as TextIcon,
   Subject as LongTextIcon,
   Email as EmailIcon,
@@ -15,7 +15,7 @@ import {
   Star as RatingIcon,
   Title as HeadingIcon,
   HorizontalRule as DividerIcon,
-  FormatListBulleted as MultiSelectIcon
+  FormatListBulleted as MultiSelectIcon,
 } from '@mui/icons-material';
 import { FormFieldType, FormField, FormPage } from '../../models/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -37,7 +37,7 @@ export const fieldTypeIcons: Record<FormFieldType, React.ReactElement> = {
   Name: <NameIcon />,
   Rating: <RatingIcon />,
   Heading: <HeadingIcon />,
-  Divider: <DividerIcon />
+  Divider: <DividerIcon />,
 };
 
 // Field type descriptions
@@ -57,7 +57,7 @@ export const fieldTypeDescriptions: Record<FormFieldType, string> = {
   Name: 'Name fields with first/last options',
   Rating: 'Star rating selection field',
   Heading: 'Section heading (non-input)',
-  Divider: 'Visual divider (non-input)'
+  Divider: 'Visual divider (non-input)',
 };
 
 // Create default field from type
@@ -66,34 +66,34 @@ export const createDefaultField = (type: FormFieldType, pageId: string): FormFie
     ShortText: {
       label: 'Text Field',
       placeholder: 'Enter text here',
-      required: false
+      required: false,
     },
     LongText: {
       label: 'Paragraph Field',
       placeholder: 'Enter longer text here',
-      required: false
+      required: false,
     },
     Email: {
       label: 'Email Address',
       placeholder: 'your@email.com',
-      required: true
+      required: true,
     },
     Phone: {
       label: 'Phone Number',
       placeholder: '(123) 456-7890',
-      required: false
+      required: false,
     },
     Number: {
       label: 'Number Field',
       placeholder: 'Enter a number',
       required: false,
       validation: {
-        min: 0
-      }
+        min: 0,
+      },
     },
     Date: {
       label: 'Date Field',
-      required: false
+      required: false,
     },
     SingleSelect: {
       label: 'Dropdown Field',
@@ -101,8 +101,8 @@ export const createDefaultField = (type: FormFieldType, pageId: string): FormFie
       options: [
         { value: 'option1', label: 'Option 1' },
         { value: 'option2', label: 'Option 2' },
-        { value: 'option3', label: 'Option 3' }
-      ]
+        { value: 'option3', label: 'Option 3' },
+      ],
     },
     MultiSelect: {
       label: 'Multi-Select Field',
@@ -110,12 +110,12 @@ export const createDefaultField = (type: FormFieldType, pageId: string): FormFie
       options: [
         { value: 'option1', label: 'Option 1' },
         { value: 'option2', label: 'Option 2' },
-        { value: 'option3', label: 'Option 3' }
-      ]
+        { value: 'option3', label: 'Option 3' },
+      ],
     },
     Checkbox: {
       label: 'Checkbox Field',
-      required: false
+      required: false,
     },
     RadioGroup: {
       label: 'Radio Group Field',
@@ -123,8 +123,8 @@ export const createDefaultField = (type: FormFieldType, pageId: string): FormFie
       options: [
         { value: 'option1', label: 'Option 1' },
         { value: 'option2', label: 'Option 2' },
-        { value: 'option3', label: 'Option 3' }
-      ]
+        { value: 'option3', label: 'Option 3' },
+      ],
     },
     FileUpload: {
       label: 'File Upload',
@@ -132,31 +132,31 @@ export const createDefaultField = (type: FormFieldType, pageId: string): FormFie
       required: false,
       validation: {
         acceptedFileTypes: ['.pdf', '.doc', '.docx'],
-        maxFileSize: 5
-      }
+        maxFileSize: 5,
+      },
     },
     Address: {
       label: 'Address',
-      required: false
+      required: false,
     },
     Name: {
       label: 'Full Name',
-      required: false
+      required: false,
     },
     Rating: {
       label: 'Rating',
       description: 'Rate from 1 to 5 stars',
-      required: false
+      required: false,
     },
     Heading: {
       label: 'Section Heading',
       description: 'This is a section heading',
-      required: false
+      required: false,
     },
     Divider: {
       label: '',
-      required: false
-    }
+      required: false,
+    },
   };
 
   const defaults = fieldDefaults[type] || {};
@@ -170,7 +170,7 @@ export const createDefaultField = (type: FormFieldType, pageId: string): FormFie
     order: 0,
     width: 'full',
     options: defaults.options,
-    validation: defaults.validation
+    validation: defaults.validation,
   };
 };
 
@@ -183,7 +183,7 @@ export const calculateFieldLayout = (fields: FormField[]): FormField[][] => {
   // Sort fields by order
   const sortedFields = [...fields].sort((a, b) => a.order - b.order);
 
-  sortedFields.forEach(field => {
+  sortedFields.forEach((field) => {
     // Calculate field width as a fraction
     let fieldWidth: number;
     if (field.width === 'half') {
@@ -222,6 +222,6 @@ export const formatFieldType = (fieldType: string): string => {
     .replace(/_/g, ' ')
     .trim()
     .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
-}; 
+};

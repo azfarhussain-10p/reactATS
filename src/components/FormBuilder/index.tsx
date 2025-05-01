@@ -4,12 +4,12 @@ import FormFieldComponent from './FormFieldComponent';
 import FormPageComponent from './FormPageComponent';
 import * as FormBuilderUtils from './FormBuilderUtils';
 
-export { 
+export {
   FormBuilderMain,
   FormBuilderSidebar,
   FormFieldComponent,
   FormPageComponent,
-  FormBuilderUtils
+  FormBuilderUtils,
 };
 
-export default FormBuilderMain; 
+export default FormBuilderMain;

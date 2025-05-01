@@ -61,11 +61,7 @@ import {
 import { useCRM } from '../contexts/CRMContext';
 
 // Tab panel component
-function TabPanel(props: {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}) {
+function TabPanel(props: { children?: React.ReactNode; index: number; value: number }) {
   const { children, value, index, ...other } = props;
 
   return (
@@ -76,11 +72,7 @@ function TabPanel(props: {
       aria-labelledby={`crm-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
@@ -114,15 +106,15 @@ const CandidateRelationship: React.FC = () => {
   const [newPoolForm, setNewPoolForm] = useState({
     name: '',
     description: '',
-    criteria: {}
+    criteria: {},
   });
-  
+
   const [newCampaignForm, setNewCampaignForm] = useState({
     name: '',
     description: '',
-    status: 'draft' as const
+    status: 'draft' as const,
   });
-  
+
   const [newEventForm, setNewEventForm] = useState({
     name: '',
     description: '',
@@ -131,7 +123,7 @@ const CandidateRelationship: React.FC = () => {
     virtual: false,
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0],
-    status: 'planned' as const
+    status: 'planned' as const,
   });
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -148,7 +140,7 @@ const CandidateRelationship: React.FC = () => {
     createCampaign({
       ...newCampaignForm,
       targetAudience: { criteria: {} },
-      steps: []
+      steps: [],
     });
     setIsNewCampaignDialogOpen(false);
     setNewCampaignForm({ name: '', description: '', status: 'draft' });
@@ -158,7 +150,7 @@ const CandidateRelationship: React.FC = () => {
     createEvent({
       ...newEventForm,
       startDate: new Date(newEventForm.startDate),
-      endDate: new Date(newEventForm.endDate)
+      endDate: new Date(newEventForm.endDate),
     });
     setIsNewEventDialogOpen(false);
     setNewEventForm({
@@ -169,25 +161,45 @@ const CandidateRelationship: React.FC = () => {
       virtual: false,
       startDate: new Date().toISOString().split('T')[0],
       endDate: new Date().toISOString().split('T')[0],
-      status: 'planned'
+      status: 'planned',
     });
   };
 
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs 
-          value={tabValue} 
-          onChange={handleTabChange} 
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
           aria-label="CRM Tabs"
           variant="scrollable"
           scrollButtons="auto"
         >
           <Tab label="Talent Pools" icon={<GroupIcon />} iconPosition="start" {...a11yProps(0)} />
-          <Tab label="Nurture Campaigns" icon={<MailIcon />} iconPosition="start" {...a11yProps(1)} />
-          <Tab label="Recruitment Events" icon={<EventIcon />} iconPosition="start" {...a11yProps(2)} />
-          <Tab label="Referral Program" icon={<ReferralIcon />} iconPosition="start" {...a11yProps(3)} />
-          <Tab label="Alumni Network" icon={<SchoolIcon />} iconPosition="start" {...a11yProps(4)} />
+          <Tab
+            label="Nurture Campaigns"
+            icon={<MailIcon />}
+            iconPosition="start"
+            {...a11yProps(1)}
+          />
+          <Tab
+            label="Recruitment Events"
+            icon={<EventIcon />}
+            iconPosition="start"
+            {...a11yProps(2)}
+          />
+          <Tab
+            label="Referral Program"
+            icon={<ReferralIcon />}
+            iconPosition="start"
+            {...a11yProps(3)}
+          />
+          <Tab
+            label="Alumni Network"
+            icon={<SchoolIcon />}
+            iconPosition="start"
+            {...a11yProps(4)}
+          />
           <Tab label="Integrations" icon={<SyncIcon />} iconPosition="start" {...a11yProps(5)} />
         </Tabs>
       </Box>
@@ -211,14 +223,20 @@ const CandidateRelationship: React.FC = () => {
               <Grid item xs={12} md={6} lg={4} key={pool.id}>
                 <Card>
                   <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                      }}
+                    >
                       <Typography variant="h6" gutterBottom>
                         {pool.name}
                       </Typography>
-                      <Chip 
-                        label={`${pool.candidateCount} candidates`} 
-                        color="primary" 
-                        size="small" 
+                      <Chip
+                        label={`${pool.candidateCount} candidates`}
+                        color="primary"
+                        size="small"
                       />
                     </Box>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -267,18 +285,28 @@ const CandidateRelationship: React.FC = () => {
               <Grid item xs={12} md={6} key={campaign.id}>
                 <Card>
                   <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                      }}
+                    >
                       <Typography variant="h6" gutterBottom>
                         {campaign.name}
                       </Typography>
-                      <Chip 
-                        label={campaign.status} 
+                      <Chip
+                        label={campaign.status}
                         color={
-                          campaign.status === 'active' ? 'success' : 
-                          campaign.status === 'paused' ? 'warning' : 
-                          campaign.status === 'completed' ? 'info' : 'default'
-                        } 
-                        size="small" 
+                          campaign.status === 'active'
+                            ? 'success'
+                            : campaign.status === 'paused'
+                              ? 'warning'
+                              : campaign.status === 'completed'
+                                ? 'info'
+                                : 'default'
+                        }
+                        size="small"
                       />
                     </Box>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -291,15 +319,15 @@ const CandidateRelationship: React.FC = () => {
                       <Typography variant="caption" display="block" gutterBottom>
                         Engagement: {(campaign.metrics.engagementRate * 100).toFixed(1)}%
                       </Typography>
-                      <LinearProgress 
-                        variant="determinate" 
-                        value={campaign.metrics.engagementRate * 100} 
+                      <LinearProgress
+                        variant="determinate"
+                        value={campaign.metrics.engagementRate * 100}
                         sx={{ height: 5, borderRadius: 5 }}
                       />
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                      <Button 
-                        size="small" 
+                      <Button
+                        size="small"
                         color={campaign.status === 'active' ? 'warning' : 'success'}
                       >
                         {campaign.status === 'active' ? 'Pause' : 'Activate'}
@@ -316,7 +344,8 @@ const CandidateRelationship: React.FC = () => {
             <Grid item xs={12}>
               <Paper sx={{ p: 3, textAlign: 'center' }}>
                 <Typography color="text.secondary">
-                  No nurture campaigns created yet. Create your first campaign to automate candidate engagement.
+                  No nurture campaigns created yet. Create your first campaign to automate candidate
+                  engagement.
                 </Typography>
               </Paper>
             </Grid>
@@ -343,18 +372,28 @@ const CandidateRelationship: React.FC = () => {
               <Grid item xs={12} md={6} key={event.id}>
                 <Card>
                   <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                      }}
+                    >
                       <Typography variant="h6" gutterBottom>
                         {event.name}
                       </Typography>
-                      <Chip 
-                        label={event.status} 
+                      <Chip
+                        label={event.status}
                         color={
-                          event.status === 'active' ? 'success' : 
-                          event.status === 'completed' ? 'info' : 
-                          event.status === 'cancelled' ? 'error' : 'default'
-                        } 
-                        size="small" 
+                          event.status === 'active'
+                            ? 'success'
+                            : event.status === 'completed'
+                              ? 'info'
+                              : event.status === 'cancelled'
+                                ? 'error'
+                                : 'default'
+                        }
+                        size="small"
                       />
                     </Box>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -362,7 +401,7 @@ const CandidateRelationship: React.FC = () => {
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 2 }}>
                       {new Date(event.startDate).toLocaleDateString()} - {event.location}
-                      {event.virtual && " (Virtual)"}
+                      {event.virtual && ' (Virtual)'}
                     </Typography>
                     <Box sx={{ mb: 2 }}>
                       <Stack direction="row" spacing={2}>
@@ -393,7 +432,8 @@ const CandidateRelationship: React.FC = () => {
             <Grid item xs={12}>
               <Paper sx={{ p: 3, textAlign: 'center' }}>
                 <Typography color="text.secondary">
-                  No recruitment events created yet. Create your first event to engage with candidates.
+                  No recruitment events created yet. Create your first event to engage with
+                  candidates.
                 </Typography>
               </Paper>
             </Grid>
@@ -405,10 +445,7 @@ const CandidateRelationship: React.FC = () => {
       <TabPanel value={tabValue} index={3}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
           <Typography variant="h5">Referral Program</Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-          >
+          <Button variant="contained" startIcon={<AddIcon />}>
             Add Referral
           </Button>
         </Box>
@@ -434,20 +471,22 @@ const CandidateRelationship: React.FC = () => {
                     <TableCell>{referral.candidateName}</TableCell>
                     <TableCell>{referral.jobTitle || 'N/A'}</TableCell>
                     <TableCell>
-                      <Chip 
-                        label={referral.status} 
+                      <Chip
+                        label={referral.status}
                         color={
-                          referral.status === 'hired' ? 'success' : 
-                          referral.status === 'rejected' ? 'error' : 
-                          referral.status === 'interviewing' ? 'info' : 'default'
-                        } 
-                        size="small" 
+                          referral.status === 'hired'
+                            ? 'success'
+                            : referral.status === 'rejected'
+                              ? 'error'
+                              : referral.status === 'interviewing'
+                                ? 'info'
+                                : 'default'
+                        }
+                        size="small"
                       />
                     </TableCell>
                     <TableCell>{new Date(referral.dateReferred).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      {referral.reward?.status || 'N/A'}
-                    </TableCell>
+                    <TableCell>{referral.reward?.status || 'N/A'}</TableCell>
                     <TableCell>
                       <IconButton size="small" aria-label="edit">
                         <EditIcon fontSize="small" />
@@ -471,10 +510,7 @@ const CandidateRelationship: React.FC = () => {
       <TabPanel value={tabValue} index={4}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
           <Typography variant="h5">Alumni Network</Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-          >
+          <Button variant="contained" startIcon={<AddIcon />}>
             Add Alumni
           </Button>
         </Box>
@@ -497,25 +533,28 @@ const CandidateRelationship: React.FC = () => {
                       </Box>
                     </Box>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>Current:</strong> {alumnus.currentRole || 'Unknown'} at {alumnus.currentCompany || 'Unknown'}
+                      <strong>Current:</strong> {alumnus.currentRole || 'Unknown'} at{' '}
+                      {alumnus.currentCompany || 'Unknown'}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                       <Typography variant="body2" sx={{ mr: 1 }}>
                         Engagement:
                       </Typography>
-                      <LinearProgress 
-                        variant="determinate" 
-                        value={alumnus.engagementScore * 10} 
-                        sx={{ 
-                          height: 6, 
-                          borderRadius: 3, 
+                      <LinearProgress
+                        variant="determinate"
+                        value={alumnus.engagementScore * 10}
+                        sx={{
+                          height: 6,
+                          borderRadius: 3,
                           flexGrow: 1,
-                          backgroundColor: 'grey.300'
+                          backgroundColor: 'grey.300',
                         }}
                       />
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Button size="small" startIcon={<MailIcon />}>Contact</Button>
+                      <Button size="small" startIcon={<MailIcon />}>
+                        Contact
+                      </Button>
                       <IconButton size="small" aria-label="LinkedIn">
                         <LinkedInIcon fontSize="small" />
                       </IconButton>
@@ -528,7 +567,8 @@ const CandidateRelationship: React.FC = () => {
             <Grid item xs={12}>
               <Paper sx={{ p: 3, textAlign: 'center' }}>
                 <Typography color="text.secondary">
-                  No alumni in the network yet. Start adding former employees to build your alumni network.
+                  No alumni in the network yet. Start adding former employees to build your alumni
+                  network.
                 </Typography>
               </Paper>
             </Grid>
@@ -540,10 +580,7 @@ const CandidateRelationship: React.FC = () => {
       <TabPanel value={tabValue} index={5}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
           <Typography variant="h5">External CRM Integrations</Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-          >
+          <Button variant="contained" startIcon={<AddIcon />}>
             Add Integration
           </Button>
         </Box>
@@ -554,17 +591,26 @@ const CandidateRelationship: React.FC = () => {
               <Grid item xs={12} md={6} key={integration.id}>
                 <Card>
                   <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                      }}
+                    >
                       <Typography variant="h6" gutterBottom>
                         {integration.name}
                       </Typography>
-                      <Chip 
-                        label={integration.status} 
+                      <Chip
+                        label={integration.status}
                         color={
-                          integration.status === 'active' ? 'success' : 
-                          integration.status === 'error' ? 'error' : 'default'
-                        } 
-                        size="small" 
+                          integration.status === 'active'
+                            ? 'success'
+                            : integration.status === 'error'
+                              ? 'error'
+                              : 'default'
+                        }
+                        size="small"
                       />
                     </Box>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -625,7 +671,9 @@ const CandidateRelationship: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsNewPoolDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleCreateTalentPool} variant="contained">Create</Button>
+          <Button onClick={handleCreateTalentPool} variant="contained">
+            Create
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -651,12 +699,16 @@ const CandidateRelationship: React.FC = () => {
             rows={3}
             variant="outlined"
             value={newCampaignForm.description}
-            onChange={(e) => setNewCampaignForm({ ...newCampaignForm, description: e.target.value })}
+            onChange={(e) =>
+              setNewCampaignForm({ ...newCampaignForm, description: e.target.value })
+            }
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsNewCampaignDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleCreateCampaign} variant="contained">Create</Button>
+          <Button onClick={handleCreateCampaign} variant="contained">
+            Create
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -709,14 +761,14 @@ const CandidateRelationship: React.FC = () => {
             sx={{ mb: 2 }}
           />
           <FormGroup>
-            <FormControlLabel 
+            <FormControlLabel
               control={
-                <Checkbox 
+                <Checkbox
                   checked={newEventForm.virtual}
                   onChange={(e) => setNewEventForm({ ...newEventForm, virtual: e.target.checked })}
                 />
-              } 
-              label="Virtual Event" 
+              }
+              label="Virtual Event"
             />
           </FormGroup>
           <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
@@ -740,11 +792,13 @@ const CandidateRelationship: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsNewEventDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleCreateEvent} variant="contained">Create</Button>
+          <Button onClick={handleCreateEvent} variant="contained">
+            Create
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
   );
 };
 
-export default CandidateRelationship; 
+export default CandidateRelationship;

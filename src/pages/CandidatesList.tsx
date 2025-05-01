@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Paper, 
-  Button, 
-  TextField, 
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  TextField,
   InputAdornment,
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
   TableRow,
   TablePagination,
   Chip,
@@ -35,10 +35,10 @@ import {
   Snackbar,
   Stack,
   Grid,
-  Popover
+  Popover,
 } from '@mui/material';
-import { 
-  Search as SearchIcon, 
+import {
+  Search as SearchIcon,
   Add as AddIcon,
   Visibility as VisibilityIcon,
   Edit as EditIcon,
@@ -52,7 +52,7 @@ import {
   FolderZip as ZipIcon,
   Description as CsvIcon,
   TableView as ExcelIcon,
-  ArrowDropDown as ArrowDropDownIcon
+  ArrowDropDown as ArrowDropDownIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import CandidateStats from '../components/CandidateStats';
@@ -81,7 +81,7 @@ const mockCandidates: Candidate[] = [
     stage: 'Technical Interview',
     appliedDate: '2023-04-10',
     source: 'LinkedIn',
-    skills: ['React', 'TypeScript', 'Node.js']
+    skills: ['React', 'TypeScript', 'Node.js'],
   },
   {
     id: 2,
@@ -92,7 +92,7 @@ const mockCandidates: Candidate[] = [
     stage: 'Screening',
     appliedDate: '2023-04-12',
     source: 'Indeed',
-    skills: ['UI/UX', 'Figma', 'User Research']
+    skills: ['UI/UX', 'Figma', 'User Research'],
   },
   {
     id: 3,
@@ -103,7 +103,7 @@ const mockCandidates: Candidate[] = [
     stage: 'Phone Screening',
     appliedDate: '2023-04-08',
     source: 'Referral',
-    skills: ['JavaScript', 'HTML/CSS', 'React']
+    skills: ['JavaScript', 'HTML/CSS', 'React'],
   },
   {
     id: 4,
@@ -114,7 +114,7 @@ const mockCandidates: Candidate[] = [
     stage: 'Technical Interview',
     appliedDate: '2023-04-05',
     source: 'Company Website',
-    skills: ['Product Strategy', 'Agile', 'User Stories']
+    skills: ['Product Strategy', 'Agile', 'User Stories'],
   },
   {
     id: 5,
@@ -125,18 +125,18 @@ const mockCandidates: Candidate[] = [
     stage: 'Offer Sent',
     appliedDate: '2023-03-29',
     source: 'LinkedIn',
-    skills: ['Manual Testing', 'Automation', 'JIRA']
-  }
+    skills: ['Manual Testing', 'Automation', 'JIRA'],
+  },
 ];
 
 // Status color mapping
 const statusColors: Record<string, string> = {
-  'New': 'info',
+  New: 'info',
   'In Process': 'primary',
   'On Hold': 'warning',
-  'Rejected': 'error',
-  'Offer': 'success',
-  'Hired': 'success'
+  Rejected: 'error',
+  Offer: 'success',
+  Hired: 'success',
 };
 
 const CandidatesList: React.FC = () => {
@@ -149,100 +149,101 @@ const CandidatesList: React.FC = () => {
   const [sourceFilter, setSourceFilter] = useState<string>('All');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  
+
   // Menu and dialog state
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  
+
   // Add new state variables for the email and interview dialogs
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [emailRecipient, setEmailRecipient] = useState<Candidate | null>(null);
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
-  
+
   const [interviewDialogOpen, setInterviewDialogOpen] = useState(false);
   const [interviewCandidate, setInterviewCandidate] = useState<number | null>(null);
-  
+
   // Add these state variables for interview scheduling form
   const [interviewDate, setInterviewDate] = useState<string>('');
   const [interviewTime, setInterviewTime] = useState<string>('');
   const [interviewType, setInterviewType] = useState<string>('Technical');
   const [interviewerName, setInterviewerName] = useState<string>('');
   const [interviewNotes, setInterviewNotes] = useState<string>('');
-  
+
   // Get unique positions and sources for filters
-  const positions = ['All', ...Array.from(new Set(candidates.map(c => c.position)))];
-  const sources = ['All', ...Array.from(new Set(candidates.map(c => c.source)))];
-  
+  const positions = ['All', ...Array.from(new Set(candidates.map((c) => c.position)))];
+  const sources = ['All', ...Array.from(new Set(candidates.map((c) => c.source)))];
+
   // Add new state for export menu
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
-  
+
   // Apply filters and search
   useEffect(() => {
     let result = [...candidates];
-    
+
     // Apply search
     if (searchTerm) {
       const lowerCaseSearch = searchTerm.toLowerCase();
-      result = result.filter(candidate => 
-        candidate.name.toLowerCase().includes(lowerCaseSearch) || 
-        candidate.email.toLowerCase().includes(lowerCaseSearch) ||
-        candidate.position.toLowerCase().includes(lowerCaseSearch) ||
-        candidate.skills.some(skill => skill.toLowerCase().includes(lowerCaseSearch))
+      result = result.filter(
+        (candidate) =>
+          candidate.name.toLowerCase().includes(lowerCaseSearch) ||
+          candidate.email.toLowerCase().includes(lowerCaseSearch) ||
+          candidate.position.toLowerCase().includes(lowerCaseSearch) ||
+          candidate.skills.some((skill) => skill.toLowerCase().includes(lowerCaseSearch))
       );
     }
-    
+
     // Apply status filter
     if (statusFilter !== 'All') {
-      result = result.filter(candidate => candidate.status === statusFilter);
+      result = result.filter((candidate) => candidate.status === statusFilter);
     }
-    
+
     // Apply position filter
     if (positionFilter !== 'All') {
-      result = result.filter(candidate => candidate.position === positionFilter);
+      result = result.filter((candidate) => candidate.position === positionFilter);
     }
-    
+
     // Apply source filter
     if (sourceFilter !== 'All') {
-      result = result.filter(candidate => candidate.source === sourceFilter);
+      result = result.filter((candidate) => candidate.source === sourceFilter);
     }
-    
+
     setFilteredCandidates(result);
     setPage(0); // Reset to first page on filter change
   }, [candidates, searchTerm, statusFilter, positionFilter, sourceFilter]);
-  
+
   // Pagination handlers
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
-  
+
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-  
+
   // Menu handlers
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, candidateId: number) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
     setSelectedCandidateId(candidateId);
   };
-  
+
   const handleMenuClose = () => {
     setAnchorEl(null);
     setSelectedCandidateId(null);
   };
-  
+
   const handleViewProfile = () => {
     if (selectedCandidateId) {
       navigate(`/candidates/${selectedCandidateId}`);
     }
     handleMenuClose();
   };
-  
+
   const handleEdit = () => {
     if (selectedCandidateId) {
       // Update to use the correct path for editing - create this route in routes/index.tsx
@@ -253,16 +254,16 @@ const CandidatesList: React.FC = () => {
     }
     handleMenuClose();
   };
-  
+
   const handleOpenDeleteDialog = () => {
     setOpenDeleteDialog(true);
     // Don't close the menu until the user makes a decision
   };
-  
+
   const handleDeleteCandidate = () => {
     if (selectedCandidateId) {
       // Actually filter out the candidate with the selected ID
-      const updatedCandidates = candidates.filter(c => c.id !== selectedCandidateId);
+      const updatedCandidates = candidates.filter((c) => c.id !== selectedCandidateId);
       setCandidates(updatedCandidates);
       setSnackbarMessage('Candidate deleted successfully');
       setSnackbarOpen(true);
@@ -270,11 +271,11 @@ const CandidatesList: React.FC = () => {
     }
     setOpenDeleteDialog(false);
   };
-  
+
   const handleSendEmail = () => {
     // Instead of just showing a snackbar, implement a dialog for sending emails
     if (selectedCandidateId) {
-      const candidate = candidates.find(c => c.id === selectedCandidateId);
+      const candidate = candidates.find((c) => c.id === selectedCandidateId);
       if (candidate) {
         setEmailDialogOpen(true);
         setEmailRecipient(candidate);
@@ -282,13 +283,13 @@ const CandidatesList: React.FC = () => {
     }
     handleMenuClose();
   };
-  
+
   const handleScheduleInterview = () => {
     if (selectedCandidateId) {
       // Open the interview scheduling dialog directly instead of navigating away
       setInterviewDialogOpen(true);
       setInterviewCandidate(selectedCandidateId);
-      
+
       // Reset form fields
       setInterviewDate('');
       setInterviewTime('');
@@ -298,7 +299,7 @@ const CandidatesList: React.FC = () => {
     }
     handleMenuClose();
   };
-  
+
   // Handle scheduling an interview
   const handleScheduleInterviewSubmit = () => {
     // Validate form fields
@@ -307,13 +308,15 @@ const CandidatesList: React.FC = () => {
       setSnackbarOpen(true);
       return;
     }
-    
+
     // Here you would typically save the interview to your backend
     // For now we'll just show a success message
-    const candidateName = candidates.find(c => c.id === interviewCandidate)?.name;
-    setSnackbarMessage(`Interview scheduled with ${candidateName} on ${interviewDate} at ${interviewTime}`);
+    const candidateName = candidates.find((c) => c.id === interviewCandidate)?.name;
+    setSnackbarMessage(
+      `Interview scheduled with ${candidateName} on ${interviewDate} at ${interviewTime}`
+    );
     setSnackbarOpen(true);
-    
+
     // Close the dialog and reset form
     setInterviewDialogOpen(false);
     setInterviewCandidate(null);
@@ -323,7 +326,7 @@ const CandidatesList: React.FC = () => {
     setInterviewerName('');
     setInterviewNotes('');
   };
-  
+
   // Handle sending an email
   const handleSendEmailSubmit = () => {
     setSnackbarMessage(`Email sent to ${emailRecipient?.name}`);
@@ -333,23 +336,32 @@ const CandidatesList: React.FC = () => {
     setEmailBody('');
     setEmailRecipient(null);
   };
-  
+
   const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setExportAnchorEl(event.currentTarget);
   };
-  
+
   const handleExportMenuClose = () => {
     setExportAnchorEl(null);
   };
-  
+
   const handleExportToCSV = () => {
     try {
       // Create CSV content from the filteredCandidates data
-      const headers = ['Name', 'Email', 'Position', 'Status', 'Stage', 'Applied Date', 'Source', 'Skills'];
-      
+      const headers = [
+        'Name',
+        'Email',
+        'Position',
+        'Status',
+        'Stage',
+        'Applied Date',
+        'Source',
+        'Skills',
+      ];
+
       let csvContent = headers.join(',') + '\n';
-      
-      filteredCandidates.forEach(candidate => {
+
+      filteredCandidates.forEach((candidate) => {
         // Properly escape values with quotes to handle commas in fields
         const rowData = [
           `"${candidate.name}"`,
@@ -359,26 +371,29 @@ const CandidatesList: React.FC = () => {
           `"${candidate.stage}"`,
           `"${new Date(candidate.appliedDate).toLocaleDateString()}"`,
           `"${candidate.source}"`,
-          `"${candidate.skills.join('; ')}"`
+          `"${candidate.skills.join('; ')}"`,
         ];
-        
+
         csvContent += rowData.join(',') + '\n';
       });
-      
+
       // Create a Blob with the CSV content
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
-      
+
       // Create a link element and trigger the download
       const link = document.createElement('a');
       link.setAttribute('href', url);
-      link.setAttribute('download', `candidates_export_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute(
+        'download',
+        `candidates_export_${new Date().toISOString().split('T')[0]}.csv`
+      );
       link.style.visibility = 'hidden';
-      
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       setSnackbarMessage('Candidates data exported to CSV successfully');
       setSnackbarOpen(true);
     } catch (error) {
@@ -386,28 +401,30 @@ const CandidatesList: React.FC = () => {
       setSnackbarMessage('Failed to export candidates data to CSV');
       setSnackbarOpen(true);
     }
-    
+
     handleExportMenuClose();
   };
-  
+
   const handleExportToExcel = () => {
     try {
       // Create table data in HTML format
       const table = document.createElement('table');
-      
+
       // Create header row
       const headerRow = document.createElement('tr');
-      ['Name', 'Email', 'Position', 'Status', 'Stage', 'Applied Date', 'Source', 'Skills'].forEach(headerText => {
-        const header = document.createElement('th');
-        header.textContent = headerText;
-        headerRow.appendChild(header);
-      });
+      ['Name', 'Email', 'Position', 'Status', 'Stage', 'Applied Date', 'Source', 'Skills'].forEach(
+        (headerText) => {
+          const header = document.createElement('th');
+          header.textContent = headerText;
+          headerRow.appendChild(header);
+        }
+      );
       table.appendChild(headerRow);
-      
+
       // Create data rows
-      filteredCandidates.forEach(candidate => {
+      filteredCandidates.forEach((candidate) => {
         const row = document.createElement('tr');
-        
+
         // Add data cells
         [
           candidate.name,
@@ -417,22 +434,23 @@ const CandidatesList: React.FC = () => {
           candidate.stage,
           new Date(candidate.appliedDate).toLocaleDateString(),
           candidate.source,
-          candidate.skills.join('; ')
-        ].forEach(cellData => {
+          candidate.skills.join('; '),
+        ].forEach((cellData) => {
           const cell = document.createElement('td');
           cell.textContent = cellData;
           row.appendChild(cell);
         });
-        
+
         table.appendChild(row);
       });
-      
+
       // Create a workbook and add the table
       const htmlString = table.outerHTML;
-      
+
       // For browsers with TableExport support
-      const blob = new Blob([
-        `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      const blob = new Blob(
+        [
+          `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
         <head>
           <meta charset="UTF-8">
           <title>Candidates Export</title>
@@ -454,9 +472,11 @@ const CandidatesList: React.FC = () => {
         <body>
           ${htmlString}
         </body>
-        </html>`
-      ], { type: 'application/vnd.ms-excel' });
-      
+        </html>`,
+        ],
+        { type: 'application/vnd.ms-excel' }
+      );
+
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -464,7 +484,7 @@ const CandidatesList: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       setSnackbarMessage('Candidates data exported to Excel successfully');
       setSnackbarOpen(true);
     } catch (error) {
@@ -472,29 +492,29 @@ const CandidatesList: React.FC = () => {
       setSnackbarMessage('Failed to export candidates data to Excel format');
       setSnackbarOpen(true);
     }
-    
+
     handleExportMenuClose();
   };
-  
+
   const handleExportCandidates = () => {
     // This function is now just an opener for the export menu
     // The actual export happens in handleExportToCSV and handleExportToExcel
   };
-  
+
   return (
     <Box>
       <Box mb={3} display="flex" justifyContent="space-between" alignItems="center">
         <Typography variant="h4">Candidates List</Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
+        <Button
+          variant="contained"
+          color="primary"
           startIcon={<AddIcon />}
           onClick={() => navigate('/candidates/add')}
         >
           Add Candidate
         </Button>
       </Box>
-      
+
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Grid container spacing={2}>
@@ -514,7 +534,7 @@ const CandidatesList: React.FC = () => {
                 size="small"
               />
             </Grid>
-            
+
             <Grid item xs={12} sm={6} md={2}>
               <FormControl fullWidth size="small">
                 <InputLabel id="status-filter-label">Status</InputLabel>
@@ -535,7 +555,7 @@ const CandidatesList: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} sm={6} md={2}>
               <FormControl fullWidth size="small">
                 <InputLabel id="position-filter-label">Position</InputLabel>
@@ -546,7 +566,7 @@ const CandidatesList: React.FC = () => {
                   label="Position"
                   onChange={(e) => setPositionFilter(e.target.value)}
                 >
-                  {positions.map(position => (
+                  {positions.map((position) => (
                     <MenuItem key={position} value={position}>
                       {position}
                     </MenuItem>
@@ -554,7 +574,7 @@ const CandidatesList: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} sm={6} md={2}>
               <FormControl fullWidth size="small">
                 <InputLabel id="source-filter-label">Source</InputLabel>
@@ -565,7 +585,7 @@ const CandidatesList: React.FC = () => {
                   label="Source"
                   onChange={(e) => setSourceFilter(e.target.value)}
                 >
-                  {sources.map(source => (
+                  {sources.map((source) => (
                     <MenuItem key={source} value={source}>
                       {source}
                     </MenuItem>
@@ -573,7 +593,7 @@ const CandidatesList: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} sm={6} md={2}>
               <Box display="flex" justifyContent="flex-end">
                 <Button
@@ -594,11 +614,11 @@ const CandidatesList: React.FC = () => {
                   onClose={handleExportMenuClose}
                   TransitionProps={{
                     style: { transformOrigin: 'top right' },
-                    timeout: { enter: 300, exit: 200 }
+                    timeout: { enter: 300, exit: 200 },
                   }}
                   PaperProps={{
                     elevation: 3,
-                    sx: { 
+                    sx: {
                       minWidth: 200,
                       backgroundColor: '#ffffff !important',
                       boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
@@ -618,17 +638,17 @@ const CandidatesList: React.FC = () => {
                       },
                       '& .MuiListItemIcon-root': {
                         color: '#1976d2 !important',
-                        minWidth: 36
+                        minWidth: 36,
                       },
                       '& .MuiListItemText-primary': {
                         color: '#212121 !important',
                         fontWeight: 500,
-                        ml: 1
+                        ml: 1,
                       },
                       '& .MuiListItemText-secondary': {
                         color: '#757575 !important',
-                      }
-                    }
+                      },
+                    },
                   }}
                 >
                   <MenuItem onClick={handleExportToCSV}>
@@ -649,16 +669,19 @@ const CandidatesList: React.FC = () => {
           </Grid>
         </CardContent>
       </Card>
-      
+
       {/* Candidate Stats Overview */}
       <Box sx={{ mb: 3 }}>
-        <CandidateStats 
+        <CandidateStats
           variant="compact"
-          selectedStatus={statusFilter === 'all' ? 'all' : statusFilter as CandidateStatus}
+          selectedStatus={statusFilter === 'all' ? 'all' : (statusFilter as CandidateStatus)}
         />
       </Box>
-      
-      <Paper elevation={1} sx={{ p: 0, borderRadius: 2, overflow: 'hidden', height: 'calc(100vh - 340px)' }}>
+
+      <Paper
+        elevation={1}
+        sx={{ p: 0, borderRadius: 2, overflow: 'hidden', height: 'calc(100vh - 340px)' }}
+      >
         <TableContainer component={Paper}>
           <Table aria-label="candidates table">
             <TableHead>
@@ -677,24 +700,29 @@ const CandidatesList: React.FC = () => {
               {filteredCandidates
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((candidate) => (
-                  <TableRow 
-                    hover 
+                  <TableRow
+                    hover
                     key={candidate.id}
                     onClick={() => navigate(`/candidates/${candidate.id}`)}
-                    sx={{ 
+                    sx={{
                       cursor: 'pointer',
                       '&:hover': {
                         backgroundColor: '#f5f5f5',
-                      }
+                      },
                     }}
                   >
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
-                          {candidate.imageUrl ? 
-                            <img src={candidate.imageUrl} alt={candidate.name} style={{ width: '100%', height: '100%' }} /> : 
+                          {candidate.imageUrl ? (
+                            <img
+                              src={candidate.imageUrl}
+                              alt={candidate.name}
+                              style={{ width: '100%', height: '100%' }}
+                            />
+                          ) : (
                             candidate.name.charAt(0)
-                          }
+                          )}
                         </Avatar>
                         <Box>
                           <Typography variant="body1" fontWeight="500">
@@ -708,9 +736,9 @@ const CandidatesList: React.FC = () => {
                     </TableCell>
                     <TableCell>{candidate.position}</TableCell>
                     <TableCell>
-                      <Chip 
-                        label={candidate.status} 
-                        size="small" 
+                      <Chip
+                        label={candidate.status}
+                        size="small"
                         color={(statusColors[candidate.status] as any) || 'default'}
                         variant={candidate.status === 'New' ? 'outlined' : 'filled'}
                       />
@@ -721,17 +749,12 @@ const CandidatesList: React.FC = () => {
                     <TableCell>
                       <Stack direction="row" spacing={0.5} flexWrap="wrap">
                         {candidate.skills.slice(0, 2).map((skill, index) => (
-                          <Chip 
-                            key={index} 
-                            label={skill} 
-                            size="small" 
-                            variant="outlined"
-                          />
+                          <Chip key={index} label={skill} size="small" variant="outlined" />
                         ))}
                         {candidate.skills.length > 2 && (
-                          <Chip 
-                            label={`+${candidate.skills.length - 2}`} 
-                            size="small" 
+                          <Chip
+                            label={`+${candidate.skills.length - 2}`}
+                            size="small"
                             variant="outlined"
                           />
                         )}
@@ -740,7 +763,7 @@ const CandidatesList: React.FC = () => {
                     <TableCell align="right">
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                         <Tooltip title="View Profile">
-                          <IconButton 
+                          <IconButton
                             size="small"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -751,7 +774,7 @@ const CandidatesList: React.FC = () => {
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Schedule Interview">
-                          <IconButton 
+                          <IconButton
                             size="small"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -761,7 +784,7 @@ const CandidatesList: React.FC = () => {
                             <AssignmentIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
-                        <IconButton 
+                        <IconButton
                           size="small"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -774,7 +797,7 @@ const CandidatesList: React.FC = () => {
                     </TableCell>
                   </TableRow>
                 ))}
-              
+
               {filteredCandidates.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={8} align="center">
@@ -784,7 +807,7 @@ const CandidatesList: React.FC = () => {
               )}
             </TableBody>
           </Table>
-          
+
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
@@ -796,23 +819,24 @@ const CandidatesList: React.FC = () => {
           />
         </TableContainer>
       </Paper>
-      
+
       {/* Action Menu - With added animations */}
       <div
         style={{
           position: 'fixed',
           zIndex: 1300,
           top: anchorEl ? anchorEl.getBoundingClientRect().bottom + 'px' : '0px',
-          left: anchorEl ? (anchorEl.getBoundingClientRect().right - 180) + 'px' : '0px',
-          display: Boolean(anchorEl) ? 'block' : 'none',
+          left: anchorEl ? anchorEl.getBoundingClientRect().right - 180 + 'px' : '0px',
+          display: anchorEl ? 'block' : 'none',
           backgroundColor: '#ffffff',
           boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
           borderRadius: '4px',
           width: '180px',
           overflow: 'hidden',
-          opacity: Boolean(anchorEl) ? 1 : 0,
-          transform: Boolean(anchorEl) ? 'translateY(0)' : 'translateY(-10px)',
-          transition: 'opacity 150ms cubic-bezier(0.4, 0, 0.2, 1), transform 150ms cubic-bezier(0.4, 0, 0.2, 1)'
+          opacity: anchorEl ? 1 : 0,
+          transform: anchorEl ? 'translateY(0)' : 'translateY(-10px)',
+          transition:
+            'opacity 150ms cubic-bezier(0.4, 0, 0.2, 1), transform 150ms cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
         <div
@@ -824,89 +848,93 @@ const CandidatesList: React.FC = () => {
         >
           {/* Menu items with animation */}
           {[
-            { 
-              icon: <VisibilityIcon style={{ fontSize: '18px' }} />, 
-              text: 'View Profile', 
-              color: '#1976d2', 
+            {
+              icon: <VisibilityIcon style={{ fontSize: '18px' }} />,
+              text: 'View Profile',
+              color: '#1976d2',
               textColor: '#000000',
-              onClick: handleViewProfile 
-            },
-            { 
-              icon: <EditIcon style={{ fontSize: '18px' }} />, 
-              text: 'Edit', 
-              color: '#1976d2', 
-              textColor: '#000000',
-              onClick: handleEdit 
-            },
-            { 
-              icon: <EmailIcon style={{ fontSize: '18px' }} />, 
-              text: 'Send Email', 
-              color: '#1976d2', 
-              textColor: '#000000',
-              onClick: handleSendEmail 
-            },
-            { 
-              icon: <AssignmentIcon style={{ fontSize: '18px' }} />, 
-              text: 'Schedule Interview', 
-              color: '#1976d2', 
-              textColor: '#000000',
-              onClick: handleScheduleInterview 
+              onClick: handleViewProfile,
             },
             {
-              isDivider: true
+              icon: <EditIcon style={{ fontSize: '18px' }} />,
+              text: 'Edit',
+              color: '#1976d2',
+              textColor: '#000000',
+              onClick: handleEdit,
             },
-            { 
-              icon: <DeleteIcon style={{ fontSize: '18px' }} />, 
-              text: 'Delete', 
-              color: '#d32f2f', 
+            {
+              icon: <EmailIcon style={{ fontSize: '18px' }} />,
+              text: 'Send Email',
+              color: '#1976d2',
+              textColor: '#000000',
+              onClick: handleSendEmail,
+            },
+            {
+              icon: <AssignmentIcon style={{ fontSize: '18px' }} />,
+              text: 'Schedule Interview',
+              color: '#1976d2',
+              textColor: '#000000',
+              onClick: handleScheduleInterview,
+            },
+            {
+              isDivider: true,
+            },
+            {
+              icon: <DeleteIcon style={{ fontSize: '18px' }} />,
+              text: 'Delete',
+              color: '#d32f2f',
               textColor: '#d32f2f',
               onClick: handleOpenDeleteDialog,
-              hoverColor: '#fff0f0'
-            }
-          ].map((item, index) => (
-            item.isDivider ? 
-            <div 
-              key={`divider-${index}`} 
-              style={{ 
-                height: '1px', 
-                margin: '4px 0', 
-                backgroundColor: '#e0e0e0' 
-              }} 
-            /> : 
-            <div 
-              key={`item-${index}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                item.onClick();
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '8px 12px',
-                cursor: 'pointer',
-                backgroundColor: '#ffffff',
-                opacity: 0,
-                transform: 'translateX(-8px)',
-                animation: Boolean(anchorEl) ? 
-                  `menuItemFadeIn 200ms cubic-bezier(0.4, 0, 0.2, 1) forwards ${80 + index * 40}ms` : 
-                  'none'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = item.hoverColor || '#f0f7ff'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ffffff'}
-            >
-              <div style={{ marginRight: '12px', color: item.color }}>
-                {item.icon}
+              hoverColor: '#fff0f0',
+            },
+          ].map((item, index) =>
+            item.isDivider ? (
+              <div
+                key={`divider-${index}`}
+                style={{
+                  height: '1px',
+                  margin: '4px 0',
+                  backgroundColor: '#e0e0e0',
+                }}
+              />
+            ) : (
+              <div
+                key={`item-${index}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  item.onClick();
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                  backgroundColor: '#ffffff',
+                  opacity: 0,
+                  transform: 'translateX(-8px)',
+                  animation: anchorEl
+                    ? `menuItemFadeIn 200ms cubic-bezier(0.4, 0, 0.2, 1) forwards ${80 + index * 40}ms`
+                    : 'none',
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.backgroundColor = item.hoverColor || '#f0f7ff')
+                }
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#ffffff')}
+              >
+                <div style={{ marginRight: '12px', color: item.color }}>{item.icon}</div>
+                <div style={{ color: item.textColor, fontWeight: 400, fontSize: '14px' }}>
+                  {item.text}
+                </div>
               </div>
-              <div style={{ color: item.textColor, fontWeight: 400, fontSize: '14px' }}>
-                {item.text}
-              </div>
-            </div>
-          ))}
+            )
+          )}
         </div>
       </div>
-      
+
       {/* Animation keyframes - Add to the top level of the component */}
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @keyframes menuItemFadeIn {
           from {
             opacity: 0;
@@ -937,8 +965,10 @@ const CandidatesList: React.FC = () => {
             opacity: 1;
           }
         }
-      `}} />
-      
+      `,
+        }}
+      />
+
       {/* Click capture to close menu when clicking outside */}
       {Boolean(anchorEl) && (
         <div
@@ -953,12 +983,9 @@ const CandidatesList: React.FC = () => {
           }}
         />
       )}
-      
+
       {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={openDeleteDialog}
-        onClose={() => setOpenDeleteDialog(false)}
-      >
+      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
           <Typography>
@@ -966,25 +993,22 @@ const CandidatesList: React.FC = () => {
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button 
-            onClick={() => setOpenDeleteDialog(false)} 
-            startIcon={<CloseIcon />}
-          >
+          <Button onClick={() => setOpenDeleteDialog(false)} startIcon={<CloseIcon />}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleDeleteCandidate} 
-            color="error" 
-            variant="contained" 
+          <Button
+            onClick={handleDeleteCandidate}
+            color="error"
+            variant="contained"
             startIcon={<DeleteIcon />}
           >
             Delete
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Email Dialog */}
-      <Dialog 
+      <Dialog
         open={emailDialogOpen}
         onClose={() => setEmailDialogOpen(false)}
         fullWidth
@@ -1020,8 +1044,8 @@ const CandidatesList: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEmailDialogOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             color="primary"
             onClick={handleSendEmailSubmit}
             disabled={!emailSubject || !emailBody}
@@ -1030,7 +1054,7 @@ const CandidatesList: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Interview Dialog - Updated with full scheduling form */}
       <Dialog
         open={interviewDialogOpen}
@@ -1042,9 +1066,10 @@ const CandidatesList: React.FC = () => {
         <DialogContent>
           <Box sx={{ mt: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
-              Candidate: {interviewCandidate && candidates.find(c => c.id === interviewCandidate)?.name}
+              Candidate:{' '}
+              {interviewCandidate && candidates.find((c) => c.id === interviewCandidate)?.name}
             </Typography>
-            
+
             <Grid container spacing={2} sx={{ mt: 1 }}>
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -1113,16 +1138,12 @@ const CandidatesList: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setInterviewDialogOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
-            color="primary"
-            onClick={handleScheduleInterviewSubmit}
-          >
+          <Button variant="contained" color="primary" onClick={handleScheduleInterviewSubmit}>
             Schedule Interview
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Snackbar for notifications */}
       <Snackbar
         open={snackbarOpen}
@@ -1130,11 +1151,7 @@ const CandidatesList: React.FC = () => {
         onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
-        <Alert 
-          onClose={() => setSnackbarOpen(false)} 
-          severity="success" 
-          sx={{ width: '100%' }}
-        >
+        <Alert onClose={() => setSnackbarOpen(false)} severity="success" sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
@@ -1142,4 +1159,4 @@ const CandidatesList: React.FC = () => {
   );
 };
 
-export default CandidatesList; 
+export default CandidatesList;

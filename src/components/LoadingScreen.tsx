@@ -19,4 +19,4 @@ const LoadingScreen: React.FC = () => {
   );
 };
 
-export default LoadingScreen; 
+export default LoadingScreen;

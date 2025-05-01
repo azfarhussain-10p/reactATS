@@ -60,7 +60,7 @@ import { AnalyticsProvider } from '../contexts/AnalyticsContext';
 
 // Create an accessible theme with enhanced contrast
 const getAccessibleTheme = (baseTheme: any) => {
-  let theme = createTheme({
+  const theme = createTheme({
     ...baseTheme,
     palette: {
       ...baseTheme.palette,
@@ -119,17 +119,19 @@ const getAccessibleTheme = (baseTheme: any) => {
 
 // Mockup for chart components (in a real app, you'd use a library like recharts)
 const CustomLineChart = ({ data }: { data: any }) => (
-  <Box sx={{ 
-    height: 250, 
-    width: '100%', 
-    display: 'flex', 
-    alignItems: 'center', 
-    justifyContent: 'center',
-    border: '1px dashed #ccc',
-    borderRadius: 1,
-    p: 2,
-    bgcolor: 'background.paper'
-  }}>
+  <Box
+    sx={{
+      height: 250,
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      border: '1px dashed #ccc',
+      borderRadius: 1,
+      p: 2,
+      bgcolor: 'background.paper',
+    }}
+  >
     <Typography variant="body2" color="text.secondary">
       Line Chart Visualization (would render actual chart in production)
     </Typography>
@@ -137,17 +139,19 @@ const CustomLineChart = ({ data }: { data: any }) => (
 );
 
 const CustomBarChart = ({ data }: { data: any }) => (
-  <Box sx={{ 
-    height: 250, 
-    width: '100%', 
-    display: 'flex', 
-    alignItems: 'center', 
-    justifyContent: 'center',
-    border: '1px dashed #ccc',
-    borderRadius: 1,
-    p: 2,
-    bgcolor: 'background.paper'
-  }}>
+  <Box
+    sx={{
+      height: 250,
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      border: '1px dashed #ccc',
+      borderRadius: 1,
+      p: 2,
+      bgcolor: 'background.paper',
+    }}
+  >
     <Typography variant="body2" color="text.secondary">
       Bar Chart Visualization (would render actual chart in production)
     </Typography>
@@ -155,17 +159,19 @@ const CustomBarChart = ({ data }: { data: any }) => (
 );
 
 const CustomPieChart = ({ data }: { data: any }) => (
-  <Box sx={{ 
-    height: 250, 
-    width: '100%', 
-    display: 'flex', 
-    alignItems: 'center', 
-    justifyContent: 'center',
-    border: '1px dashed #ccc',
-    borderRadius: 1,
-    p: 2,
-    bgcolor: 'background.paper'
-  }}>
+  <Box
+    sx={{
+      height: 250,
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      border: '1px dashed #ccc',
+      borderRadius: 1,
+      p: 2,
+      bgcolor: 'background.paper',
+    }}
+  >
     <Typography variant="body2" color="text.secondary">
       Pie Chart Visualization (would render actual chart in production)
     </Typography>
@@ -173,17 +179,19 @@ const CustomPieChart = ({ data }: { data: any }) => (
 );
 
 const CustomAreaChart = ({ data }: { data: any }) => (
-  <Box sx={{ 
-    height: 300, 
-    width: '100%', 
-    display: 'flex', 
-    alignItems: 'center', 
-    justifyContent: 'center',
-    border: '1px dashed #ccc',
-    borderRadius: 1,
-    p: 2,
-    bgcolor: 'background.paper'
-  }}>
+  <Box
+    sx={{
+      height: 300,
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      border: '1px dashed #ccc',
+      borderRadius: 1,
+      p: 2,
+      bgcolor: 'background.paper',
+    }}
+  >
     <Typography variant="body2" color="text.secondary">
       Area Chart Visualization (would render actual chart in production)
     </Typography>
@@ -191,17 +199,19 @@ const CustomAreaChart = ({ data }: { data: any }) => (
 );
 
 const SankeyChart = ({ data }: { data: any }) => (
-  <Box sx={{ 
-    height: 300, 
-    width: '100%', 
-    display: 'flex', 
-    alignItems: 'center', 
-    justifyContent: 'center',
-    border: '1px dashed #ccc',
-    borderRadius: 1,
-    p: 2,
-    bgcolor: 'background.paper'
-  }}>
+  <Box
+    sx={{
+      height: 300,
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      border: '1px dashed #ccc',
+      borderRadius: 1,
+      p: 2,
+      bgcolor: 'background.paper',
+    }}
+  >
     <Typography variant="body2" color="text.secondary">
       Sankey/Funnel Chart Visualization (would render actual chart in production)
     </Typography>
@@ -209,30 +219,35 @@ const SankeyChart = ({ data }: { data: any }) => (
 );
 
 // Metric Card Component with improved accessibility
-const MetricCard = ({ 
-  title, 
-  value, 
-  trend, 
-  trendValue, 
+const MetricCard = ({
+  title,
+  value,
+  trend,
+  trendValue,
   icon,
   subtitle,
   ariaLabel,
-}: { 
-  title: string; 
-  value: string | number; 
-  trend: 'up' | 'down' | 'neutral'; 
+}: {
+  title: string;
+  value: string | number;
+  trend: 'up' | 'down' | 'neutral';
   trendValue: string;
   icon?: React.ReactNode;
   subtitle?: string;
   ariaLabel?: string;
 }) => {
-  const trendColor = trend === 'up' ? 'success.main' : trend === 'down' ? 'error.main' : 'text.secondary';
-  const trendIcon = trend === 'up' ? <TrendingUpIcon color="success" fontSize="small" sx={{ mr: 0.5 }} /> 
-                  : trend === 'down' ? <TrendingDownIcon color="error" fontSize="small" sx={{ mr: 0.5 }} /> 
-                  : null;
-  
-  const fullAriaLabel = ariaLabel || `${title}: ${value}${subtitle ? `, ${subtitle}` : ''}, Trend: ${trendValue}`;
-  
+  const trendColor =
+    trend === 'up' ? 'success.main' : trend === 'down' ? 'error.main' : 'text.secondary';
+  const trendIcon =
+    trend === 'up' ? (
+      <TrendingUpIcon color="success" fontSize="small" sx={{ mr: 0.5 }} />
+    ) : trend === 'down' ? (
+      <TrendingDownIcon color="error" fontSize="small" sx={{ mr: 0.5 }} />
+    ) : null;
+
+  const fullAriaLabel =
+    ariaLabel || `${title}: ${value}${subtitle ? `, ${subtitle}` : ''}, Trend: ${trendValue}`;
+
   return (
     <Card sx={{ height: '100%' }} aria-label={fullAriaLabel} tabIndex={0}>
       <CardContent>
@@ -252,10 +267,7 @@ const MetricCard = ({
         )}
         <Box sx={{ display: 'flex', alignItems: 'center' }} aria-live="polite">
           {trendIcon}
-          <Typography 
-            variant="body2" 
-            color={trendColor}
-          >
+          <Typography variant="body2" color={trendColor}>
             {trendValue}
           </Typography>
         </Box>
@@ -265,22 +277,22 @@ const MetricCard = ({
 };
 
 // Funnel Stage Component with improved accessibility
-const FunnelStage = ({ 
-  stage, 
-  count, 
-  total, 
-  conversionRate, 
-  timeInStage 
-}: { 
-  stage: string; 
-  count: number; 
-  total: number; 
+const FunnelStage = ({
+  stage,
+  count,
+  total,
+  conversionRate,
+  timeInStage,
+}: {
+  stage: string;
+  count: number;
+  total: number;
   conversionRate: number;
   timeInStage: number;
 }) => {
   const progressPercentage = (count / total) * 100;
   const ariaLabel = `${stage} stage: ${count} candidates, ${conversionRate.toFixed(1)}% conversion rate, average time in stage: ${timeInStage} days`;
-  
+
   return (
     <Box sx={{ mb: 2 }} role="region" aria-label={`${stage} stage statistics`}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
@@ -289,25 +301,29 @@ const FunnelStage = ({
           <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
             {count} candidates
           </Typography>
-          <Chip 
-            label={`${conversionRate.toFixed(1)}%`} 
-            size="small" 
-            color={conversionRate > 70 ? 'success' : conversionRate > 40 ? 'primary' : 'default'} 
+          <Chip
+            label={`${conversionRate.toFixed(1)}%`}
+            size="small"
+            color={conversionRate > 70 ? 'success' : conversionRate > 40 ? 'primary' : 'default'}
             variant="outlined"
             aria-label={`${conversionRate.toFixed(1)}% conversion rate`}
           />
         </Box>
       </Box>
-      <LinearProgress 
-        variant="determinate" 
-        value={progressPercentage} 
+      <LinearProgress
+        variant="determinate"
+        value={progressPercentage}
         sx={{ height: 10, borderRadius: 5 }}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={progressPercentage}
         aria-label={`${count} out of ${total} candidates (${progressPercentage.toFixed(1)}%)`}
       />
-      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, textAlign: 'right' }}>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ display: 'block', mt: 0.5, textAlign: 'right' }}
+      >
         Avg. time in stage: {timeInStage} days
       </Typography>
     </Box>
@@ -315,21 +331,21 @@ const FunnelStage = ({
 };
 
 // SkipLink component for keyboard navigation
-const SkipLink = ({ targetId, label }: { targetId: string, label: string }) => {
+const SkipLink = ({ targetId, label }: { targetId: string; label: string }) => {
   return (
-    <Button 
-      sx={{ 
-        position: 'absolute', 
-        left: '-9999px', 
-        zIndex: 9999, 
-        mt: 1, 
+    <Button
+      sx={{
+        position: 'absolute',
+        left: '-9999px',
+        zIndex: 9999,
+        mt: 1,
         ml: 1,
         '&:focus': {
           left: 'auto',
-          position: 'relative'
-        }
-      }} 
-      variant="contained" 
+          position: 'relative',
+        },
+      }}
+      variant="contained"
       size="small"
       href={`#${targetId}`}
     >
@@ -357,11 +373,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`analytics-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
@@ -381,7 +393,7 @@ const mockOverviewMetrics = {
   timeToHire: { value: 23, change: -5 },
   costPerHire: { value: 4500, change: 3 },
   offerAcceptRate: { value: 85, change: 2 },
-  diversityScore: { value: 72, change: 8 }
+  diversityScore: { value: 72, change: 8 },
 };
 
 // Fallback function for getOverviewMetrics
@@ -428,8 +440,11 @@ const candidateVolumeData = [
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 // Error Boundary Component
-class ErrorBoundary extends Component<{children: React.ReactNode}, {hasError: boolean, errorMessage: string}> {
-  constructor(props: {children: React.ReactNode}) {
+class ErrorBoundary extends Component<
+  { children: React.ReactNode },
+  { hasError: boolean; errorMessage: string }
+> {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { hasError: false, errorMessage: '' };
   }
@@ -439,7 +454,7 @@ class ErrorBoundary extends Component<{children: React.ReactNode}, {hasError: bo
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Error caught by ErrorBoundary:", error, errorInfo);
+    console.error('Error caught by ErrorBoundary:', error, errorInfo);
   }
 
   render() {
@@ -451,11 +466,11 @@ class ErrorBoundary extends Component<{children: React.ReactNode}, {hasError: bo
               Something went wrong loading the Analytics
             </Typography>
             <Typography variant="body1">
-              {this.state.errorMessage || "Please try refreshing the page or contact support."}
+              {this.state.errorMessage || 'Please try refreshing the page or contact support.'}
             </Typography>
-            <Button 
-              variant="contained" 
-              color="primary" 
+            <Button
+              variant="contained"
+              color="primary"
               sx={{ mt: 2 }}
               onClick={() => window.location.reload()}
             >
@@ -475,17 +490,17 @@ function AdvancedAnalytics() {
   const [highContrastMode, setHighContrastMode] = useState(false);
   const analyticsMainRef = useRef<HTMLDivElement>(null);
   const [contextError, setContextError] = useState<string | null>(null);
-  
+
   // Safely get contexts with fallbacks
   let analytics;
   let integrationState = {};
   let dashboards = [];
-  
+
   try {
     analytics = useAnalytics();
   } catch (error) {
-    console.warn("Analytics context not available:", error);
-    setContextError(prev => prev || "Analytics context not available");
+    console.warn('Analytics context not available:', error);
+    setContextError((prev) => prev || 'Analytics context not available');
     analytics = {
       timeRangeOptions: [],
       getOverviewMetrics: fallbackGetOverviewMetrics,
@@ -498,18 +513,18 @@ function AdvancedAnalytics() {
         timeToHire: -2,
         costPerHire: 2,
         offerAcceptRate: 1,
-        diversityScore: 3
+        diversityScore: 3,
       }),
-      getTopPerformingJobs: () => ([
+      getTopPerformingJobs: () => [
         { title: 'Software Engineer', filled: 12, time: 25 },
         { title: 'Product Manager', filled: 8, time: 32 },
-        { title: 'UX Designer', filled: 5, time: 28 }
-      ]),
+        { title: 'UX Designer', filled: 5, time: 28 },
+      ],
       getCandidateQualityMetrics: () => ({
         averageScore: 7.8,
         onboardingSuccess: 92,
-        firstYearRetention: 85
-      })
+        firstYearRetention: 85,
+      }),
     };
   }
 
@@ -517,18 +532,18 @@ function AdvancedAnalytics() {
     const atsIntegration = useATSIntegration();
     integrationState = atsIntegration?.integrationState || {};
   } catch (error) {
-    console.warn("ATS Integration context not available:", error);
-    setContextError(prev => prev || "ATS Integration context not available");
+    console.warn('ATS Integration context not available:', error);
+    setContextError((prev) => prev || 'ATS Integration context not available');
   }
 
   try {
     const advancedDashboard = useAdvancedDashboard();
     dashboards = advancedDashboard?.dashboards || [];
   } catch (error) {
-    console.warn("Advanced Dashboard context not available:", error);
-    setContextError(prev => prev || "Advanced Dashboard context not available");
+    console.warn('Advanced Dashboard context not available:', error);
+    setContextError((prev) => prev || 'Advanced Dashboard context not available');
   }
-  
+
   const {
     timeRangeOptions,
     getOverviewMetrics,
@@ -538,14 +553,14 @@ function AdvancedAnalytics() {
     getTrendData,
     getComparisonWithPrevious,
     getTopPerformingJobs,
-    getCandidateQualityMetrics
+    getCandidateQualityMetrics,
   } = analytics;
-  
+
   const [timeRange, setTimeRange] = useState('30days');
   const [trendGrouping, setTrendGrouping] = useState<'day' | 'week' | 'month'>('week');
   const [refreshing, setRefreshing] = useState(false);
   const [tabValue, setTabValue] = useState(0);
-  
+
   // Focus trap for modal dialogs (to be used if we add modals)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -554,13 +569,13 @@ function AdvancedAnalytics() {
         setHighContrastMode(!highContrastMode);
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [highContrastMode]);
-  
+
   // Get metrics based on selected time range - wrap in try-catch to prevent crashes
   let overviewMetrics = mockOverviewMetrics;
   let hiringFunnel = hiringFunnelData;
@@ -570,14 +585,14 @@ function AdvancedAnalytics() {
   let topJobs = [
     { title: 'Software Engineer', filled: 12, time: 25 },
     { title: 'Product Manager', filled: 8, time: 32 },
-    { title: 'UX Designer', filled: 5, time: 28 }
+    { title: 'UX Designer', filled: 5, time: 28 },
   ];
   let qualityMetrics = {
     averageScore: 7.8,
     onboardingSuccess: 92,
-    firstYearRetention: 85
+    firstYearRetention: 85,
   };
-  
+
   try {
     if (typeof getOverviewMetrics === 'function') {
       overviewMetrics = getOverviewMetrics(timeRange);
@@ -601,42 +616,44 @@ function AdvancedAnalytics() {
       qualityMetrics = getCandidateQualityMetrics(timeRange);
     }
   } catch (error) {
-    console.error("Error fetching analytics data:", error);
-    setContextError(prev => prev || "Error fetching analytics data");
+    console.error('Error fetching analytics data:', error);
+    setContextError((prev) => prev || 'Error fetching analytics data');
   }
-  
+
   // Handle time range change
-  const handleTimeRangeChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleTimeRangeChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setTimeRange(event.target.value as string);
   };
-  
+
   // Handle trend grouping change
   const handleTrendGroupingChange = (
     event: React.MouseEvent<HTMLElement>,
-    newGrouping: 'day' | 'week' | 'month',
+    newGrouping: 'day' | 'week' | 'month'
   ) => {
     if (newGrouping !== null) {
       setTrendGrouping(newGrouping);
     }
   };
-  
+
   // Simulate data refresh
   const handleRefresh = () => {
     setRefreshing(true);
     setTimeout(() => {
       setRefreshing(false);
     }, 1500);
-    
+
     // Announce to screen readers
     const announcement = document.getElementById('refresh-announcement');
     if (announcement) {
-      announcement.textContent = "Data refreshing...";
+      announcement.textContent = 'Data refreshing...';
       setTimeout(() => {
-        announcement.textContent = "Data refresh complete";
+        announcement.textContent = 'Data refresh complete';
       }, 1500);
     }
   };
-  
+
   const toggleHighContrast = () => {
     setHighContrastMode(!highContrastMode);
   };
@@ -648,32 +665,32 @@ function AdvancedAnalytics() {
   return (
     <ThemeProvider theme={highContrastMode ? accessibleTheme : theme}>
       {/* Screen reader only announcements */}
-      <div 
-        aria-live="polite" 
-        id="refresh-announcement" 
-        style={{ 
-          position: 'absolute', 
-          height: '1px', 
-          width: '1px', 
-          padding: 0, 
-          overflow: 'hidden', 
-          clip: 'rect(0, 0, 0, 0)', 
-          whiteSpace: 'nowrap', 
-          border: 0 
+      <div
+        aria-live="polite"
+        id="refresh-announcement"
+        style={{
+          position: 'absolute',
+          height: '1px',
+          width: '1px',
+          padding: 0,
+          overflow: 'hidden',
+          clip: 'rect(0, 0, 0, 0)',
+          whiteSpace: 'nowrap',
+          border: 0,
         }}
-      >
-      </div>
-    
+      ></div>
+
       {/* Skip Navigation */}
       <SkipLink targetId="analytics-main" label="Skip to main content" />
-      
+
       <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
         {contextError && (
           <Alert severity="warning" sx={{ mb: 2 }}>
-            {contextError} - Some features may be limited. Please refresh the page or contact support if this persists.
+            {contextError} - Some features may be limited. Please refresh the page or contact
+            support if this persists.
           </Alert>
         )}
-        
+
         {refreshing && <LinearProgress sx={{ mb: 2 }} />}
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -703,7 +720,10 @@ function AdvancedAnalytics() {
               </IconButton>
             </Tooltip>
             <Tooltip title="Export Data">
-              <IconButton onClick={() => alert('Analytics data exported successfully!')} color="primary">
+              <IconButton
+                onClick={() => alert('Analytics data exported successfully!')}
+                color="primary"
+              >
                 <DownloadIcon />
               </IconButton>
             </Tooltip>
@@ -719,7 +739,7 @@ function AdvancedAnalytics() {
               <Tab label="Diversity & Inclusion" />
             </Tabs>
           </Box>
-          
+
           {/* Recruitment Funnel Tab */}
           <TabPanel value={tabValue} index={0}>
             <Grid container spacing={4}>
@@ -773,7 +793,7 @@ function AdvancedAnalytics() {
               </Grid>
             </Grid>
           </TabPanel>
-          
+
           {/* Candidate Sources Tab */}
           <TabPanel value={tabValue} index={1}>
             <Grid container spacing={4}>
@@ -805,19 +825,21 @@ function AdvancedAnalytics() {
                   </Box>
                   <Divider sx={{ mb: 2 }} />
                   <Box sx={{ height: 300, width: '100%' }}>
-                    <CustomBarChart data={[
-                      { name: 'Referrals', quality: 68 },
-                      { name: 'LinkedIn', quality: 42 },
-                      { name: 'Company Site', quality: 38 },
-                      { name: 'Indeed', quality: 35 },
-                      { name: 'Other', quality: 25 },
-                    ]} />
+                    <CustomBarChart
+                      data={[
+                        { name: 'Referrals', quality: 68 },
+                        { name: 'LinkedIn', quality: 42 },
+                        { name: 'Company Site', quality: 38 },
+                        { name: 'Indeed', quality: 35 },
+                        { name: 'Other', quality: 25 },
+                      ]}
+                    />
                   </Box>
                 </Paper>
               </Grid>
             </Grid>
           </TabPanel>
-          
+
           {/* Skill Gap Analysis Tab */}
           <TabPanel value={tabValue} index={2}>
             <Paper sx={{ p: 3 }}>
@@ -835,7 +857,7 @@ function AdvancedAnalytics() {
               </Box>
             </Paper>
           </TabPanel>
-          
+
           {/* Diversity & Inclusion Tab */}
           <TabPanel value={tabValue} index={3}>
             <Grid container spacing={4}>
@@ -851,11 +873,13 @@ function AdvancedAnalytics() {
                   </Box>
                   <Divider sx={{ mb: 2 }} />
                   <Box sx={{ height: 300, width: '100%' }}>
-                    <CustomPieChart data={[
-                      { name: 'Male', value: 58 },
-                      { name: 'Female', value: 38 },
-                      { name: 'Non-binary', value: 4 }
-                    ]} />
+                    <CustomPieChart
+                      data={[
+                        { name: 'Male', value: 58 },
+                        { name: 'Female', value: 38 },
+                        { name: 'Non-binary', value: 4 },
+                      ]}
+                    />
                   </Box>
                 </Paper>
               </Grid>
@@ -871,13 +895,15 @@ function AdvancedAnalytics() {
                   </Box>
                   <Divider sx={{ mb: 2 }} />
                   <Box sx={{ height: 300, width: '100%' }}>
-                    <CustomPieChart data={[
-                      { name: 'White', value: 62 },
-                      { name: 'Asian', value: 18 },
-                      { name: 'Black', value: 10 },
-                      { name: 'Hispanic', value: 8 },
-                      { name: 'Other', value: 2 }
-                    ]} />
+                    <CustomPieChart
+                      data={[
+                        { name: 'White', value: 62 },
+                        { name: 'Asian', value: 18 },
+                        { name: 'Black', value: 10 },
+                        { name: 'Hispanic', value: 8 },
+                        { name: 'Other', value: 2 },
+                      ]}
+                    />
                   </Box>
                 </Paper>
               </Grid>
@@ -904,4 +930,4 @@ function AdvancedAnalyticsWithProviders() {
   );
 }
 
-export default AdvancedAnalyticsWithProviders; 
+export default AdvancedAnalyticsWithProviders;

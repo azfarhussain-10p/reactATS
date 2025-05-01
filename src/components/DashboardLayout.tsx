@@ -57,9 +57,9 @@ interface DashboardLayoutProps {
   onAccessibilityChange?: (settings: AccessibilitySettings) => void;
 }
 
-export default function DashboardLayout({ 
-  accessibilitySettings, 
-  onAccessibilityChange = () => {} 
+export default function DashboardLayout({
+  accessibilitySettings,
+  onAccessibilityChange = () => {},
 }: DashboardLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState<null | HTMLElement>(null);
@@ -73,12 +73,12 @@ export default function DashboardLayout({
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
-    announce(mobileOpen ? "Navigation menu closed" : "Navigation menu opened");
+    announce(mobileOpen ? 'Navigation menu closed' : 'Navigation menu opened');
   };
 
   const handleToggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
-    announce(sidebarCollapsed ? "Sidebar expanded" : "Sidebar collapsed");
+    announce(sidebarCollapsed ? 'Sidebar expanded' : 'Sidebar collapsed');
   };
 
   const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -91,57 +91,92 @@ export default function DashboardLayout({
 
   const handleLogout = () => {
     handleUserMenuClose();
-    
+
     // Temporarily disable other announcements during logout
     disableAnnouncementsTemporarily(3000);
-    
+
     // Clear auth data
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userRole');
-    
+
     // Trigger auth change event and navigate
     window.dispatchEvent(new Event('auth-change'));
     navigate('/login');
-    
+
     // Announce logout after a short delay to ensure it's the only announcement
     setTimeout(() => {
-      announce("You have been logged out");
+      announce('You have been logged out');
     }, 100);
   };
 
   const handleSettingsClick = () => {
     handleUserMenuClose();
     navigate('/settings');
-    announce("Settings page opened");
+    announce('Settings page opened');
   };
 
   const navigationItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', ariaLabel: 'Navigate to dashboard' },
-    { text: 'Candidates', icon: <PersonIcon />, path: '/candidates', ariaLabel: 'Navigate to candidates list' },
-    { text: 'Job Board', icon: <WorkIcon />, path: '/job-openings', ariaLabel: 'Navigate to job board' },
-    { text: 'Job Distribution', icon: <ShareIcon />, path: '/job-distribution', ariaLabel: 'Navigate to job distribution' },
-    { text: 'Interviews', icon: <EventIcon />, path: '/interviews', ariaLabel: 'Navigate to interview scheduler' },
-    { text: 'Analytics', icon: <BarChartIcon />, path: '/analytics', ariaLabel: 'Navigate to analytics dashboard' },
+    {
+      text: 'Dashboard',
+      icon: <DashboardIcon />,
+      path: '/dashboard',
+      ariaLabel: 'Navigate to dashboard',
+    },
+    {
+      text: 'Candidates',
+      icon: <PersonIcon />,
+      path: '/candidates',
+      ariaLabel: 'Navigate to candidates list',
+    },
+    {
+      text: 'Job Board',
+      icon: <WorkIcon />,
+      path: '/job-openings',
+      ariaLabel: 'Navigate to job board',
+    },
+    {
+      text: 'Job Distribution',
+      icon: <ShareIcon />,
+      path: '/job-distribution',
+      ariaLabel: 'Navigate to job distribution',
+    },
+    {
+      text: 'Interviews',
+      icon: <EventIcon />,
+      path: '/interviews',
+      ariaLabel: 'Navigate to interview scheduler',
+    },
+    {
+      text: 'Analytics',
+      icon: <BarChartIcon />,
+      path: '/analytics',
+      ariaLabel: 'Navigate to analytics dashboard',
+    },
     { text: 'Reports', icon: <PieChartIcon />, path: '/reports', ariaLabel: 'Navigate to reports' },
-    { text: 'Documents', icon: <DescriptionIcon />, path: '/document-sharing', ariaLabel: 'Navigate to document sharing' },
+    {
+      text: 'Documents',
+      icon: <DescriptionIcon />,
+      path: '/document-sharing',
+      ariaLabel: 'Navigate to document sharing',
+    },
   ];
 
   const handleAccessibilityChange = (newSettings: AccessibilitySettings) => {
     onAccessibilityChange(newSettings);
-    announce("Accessibility settings updated");
+    announce('Accessibility settings updated');
   };
 
   const handleNavigation = (path: string) => {
     // This function ensures navigation works consistently across the app
     navigate(path);
-    
+
     // Close mobile drawer if open
     if (mobileOpen) {
       setMobileOpen(false);
     }
-    
+
     // Announce the navigation for screen readers
-    const pageName = navigationItems.find(item => item.path === path)?.text || 'Page';
+    const pageName = navigationItems.find((item) => item.path === path)?.text || 'Page';
     announce(`Navigated to ${pageName}`);
   };
 
@@ -153,11 +188,11 @@ export default function DashboardLayout({
             ATS Dashboard
           </Typography>
         )}
-        <IconButton 
-          onClick={handleToggleSidebar} 
+        <IconButton
+          onClick={handleToggleSidebar}
           size="small"
           sx={{ ml: sidebarCollapsed ? 0 : 'auto' }}
-          aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {sidebarCollapsed ? <MenuIcon /> : <ChevronLeftIcon />}
         </IconButton>
@@ -166,10 +201,10 @@ export default function DashboardLayout({
       <List>
         {navigationItems.map((item) => {
           const isActive = location.pathname.startsWith(item.path);
-          
+
           return (
             <ListItem key={item.text} disablePadding>
-              <ListItemButton 
+              <ListItemButton
                 onClick={() => handleNavigation(item.path)}
                 selected={isActive}
                 aria-label={item.ariaLabel}
@@ -189,9 +224,7 @@ export default function DashboardLayout({
                 >
                   {item.icon}
                 </ListItemIcon>
-                {!sidebarCollapsed && (
-                  <ListItemText primary={item.text} />
-                )}
+                {!sidebarCollapsed && <ListItemText primary={item.text} />}
               </ListItemButton>
             </ListItem>
           );
@@ -206,22 +239,23 @@ export default function DashboardLayout({
       <AppBar
         position="fixed"
         sx={{
-          width: { 
-            sm: `calc(100% - ${sidebarCollapsed ? collapsedDrawerWidth : drawerWidth}px)` 
+          width: {
+            sm: `calc(100% - ${sidebarCollapsed ? collapsedDrawerWidth : drawerWidth}px)`,
           },
-          ml: { 
-            sm: `${sidebarCollapsed ? collapsedDrawerWidth : drawerWidth}px` 
+          ml: {
+            sm: `${sidebarCollapsed ? collapsedDrawerWidth : drawerWidth}px`,
           },
-          transition: theme => theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
+          transition: (theme) =>
+            theme.transitions.create(['width', 'margin'], {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
         }}
       >
         <Toolbar>
           <IconButton
             color="inherit"
-            aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
             edge="start"
             onClick={handleDrawerToggle}
             sx={{ mr: 2, display: { md: 'none' } }}
@@ -231,24 +265,19 @@ export default function DashboardLayout({
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Applicant Tracking System
           </Typography>
-          
+
           <Box sx={{ display: 'flex', mr: 2 }}>
-            <Button
-              component={Link}
-              to="/careers"
-              color="inherit"
-              sx={{ mr: 2 }}
-            >
+            <Button component={Link} to="/careers" color="inherit" sx={{ mr: 2 }}>
               Careers
             </Button>
             <OnlineStatusIndicator />
-            <AccessibilityMenu 
-              onChange={handleAccessibilityChange} 
-              initialSettings={accessibilitySettings} 
+            <AccessibilityMenu
+              onChange={handleAccessibilityChange}
+              initialSettings={accessibilitySettings}
             />
             <KeyboardShortcutsHelp />
           </Box>
-          
+
           <Tooltip title="Account settings">
             <IconButton
               onClick={handleUserMenuOpen}
@@ -268,7 +297,7 @@ export default function DashboardLayout({
                 ...(isMenuOpen && {
                   transform: 'scale(1.1)',
                   boxShadow: '0 0 10px rgba(255,255,255,0.5)',
-                })
+                }),
               }}
             >
               <Avatar sx={{ width: 32, height: 32 }}>HR</Avatar>
@@ -283,11 +312,11 @@ export default function DashboardLayout({
               'aria-labelledby': 'user-menu-button',
             }}
             TransitionComponent={Grow}
-            TransitionProps={{ 
+            TransitionProps={{
               timeout: {
                 enter: 200,
-                exit: 150
-              } 
+                exit: 150,
+              },
             }}
             anchorOrigin={{
               vertical: 'bottom',
@@ -322,64 +351,70 @@ export default function DashboardLayout({
                 '& .MuiTypography-root': {
                   color: 'text.primary',
                   fontWeight: 'medium',
-                  display: 'block'
+                  display: 'block',
                 },
                 '& .MuiMenuItem-root': {
                   py: 1.5,
                   '&:hover': {
                     bgcolor: 'action.hover',
-                    transition: 'background-color 0.2s ease'
-                  }
-                }
-              }
+                    transition: 'background-color 0.2s ease',
+                  },
+                },
+              },
             }}
           >
-            <MenuItem 
-              onClick={handleSettingsClick} 
-              sx={{ 
+            <MenuItem
+              onClick={handleSettingsClick}
+              sx={{
                 color: 'text.primary',
                 animation: 'fadeIn 0.3s ease-in-out forwards',
                 '@keyframes fadeIn': {
                   '0%': {
                     opacity: 0,
-                    transform: 'translateY(-8px)'
+                    transform: 'translateY(-8px)',
                   },
                   '100%': {
                     opacity: 1,
-                    transform: 'translateY(0)'
-                  }
-                }
+                    transform: 'translateY(0)',
+                  },
+                },
               }}
             >
               <ListItemIcon>
                 <SettingsIcon fontSize="small" color="primary" />
               </ListItemIcon>
-              <Typography variant="body1" sx={{ display: 'inline-block', color: 'text.primary', ml: 1 }}>
+              <Typography
+                variant="body1"
+                sx={{ display: 'inline-block', color: 'text.primary', ml: 1 }}
+              >
                 Settings
               </Typography>
             </MenuItem>
-            <MenuItem 
-              onClick={handleLogout} 
-              sx={{ 
+            <MenuItem
+              onClick={handleLogout}
+              sx={{
                 color: 'text.primary',
                 animation: 'fadeIn 0.3s ease-in-out forwards',
                 animationDelay: '0.1s',
                 '@keyframes fadeIn': {
                   '0%': {
                     opacity: 0,
-                    transform: 'translateY(-8px)'
+                    transform: 'translateY(-8px)',
                   },
                   '100%': {
                     opacity: 1,
-                    transform: 'translateY(0)'
-                  }
-                }
+                    transform: 'translateY(0)',
+                  },
+                },
               }}
             >
               <ListItemIcon>
                 <LogoutIcon fontSize="small" color="error" />
               </ListItemIcon>
-              <Typography variant="body1" sx={{ display: 'inline-block', color: 'text.primary', ml: 1 }}>
+              <Typography
+                variant="body1"
+                sx={{ display: 'inline-block', color: 'text.primary', ml: 1 }}
+              >
                 Logout
               </Typography>
             </MenuItem>
@@ -388,15 +423,16 @@ export default function DashboardLayout({
       </AppBar>
       <Box
         component="nav"
-        sx={{ 
-          width: { 
-            sm: sidebarCollapsed ? collapsedDrawerWidth : drawerWidth 
-          }, 
-          flexShrink: { sm: 0 }, 
-          transition: theme => theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
+        sx={{
+          width: {
+            sm: sidebarCollapsed ? collapsedDrawerWidth : drawerWidth,
+          },
+          flexShrink: { sm: 0 },
+          transition: (theme) =>
+            theme.transitions.create('width', {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
         }}
         aria-label="navigation menu"
       >
@@ -409,13 +445,14 @@ export default function DashboardLayout({
           }}
           sx={{
             display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: drawerWidth,
-              transition: theme => theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
+              transition: (theme) =>
+                theme.transitions.create('width', {
+                  easing: theme.transitions.easing.sharp,
+                  duration: theme.transitions.duration.enteringScreen,
+                }),
             },
           }}
         >
@@ -425,14 +462,15 @@ export default function DashboardLayout({
           variant="permanent"
           sx={{
             display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: sidebarCollapsed ? collapsedDrawerWidth : drawerWidth,
               overflowX: 'hidden',
-              transition: theme => theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
+              transition: (theme) =>
+                theme.transitions.create('width', {
+                  easing: theme.transitions.easing.sharp,
+                  duration: theme.transitions.duration.enteringScreen,
+                }),
             },
           }}
           open
@@ -445,16 +483,17 @@ export default function DashboardLayout({
         sx={{
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
-          width: { 
-            xs: '100%', 
-            md: `calc(100% - ${sidebarCollapsed ? collapsedDrawerWidth : drawerWidth}px)` 
+          width: {
+            xs: '100%',
+            md: `calc(100% - ${sidebarCollapsed ? collapsedDrawerWidth : drawerWidth}px)`,
           },
           mt: { xs: '56px', sm: '64px' },
           overflow: 'auto',
-          transition: theme => theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
+          transition: (theme) =>
+            theme.transitions.create('width', {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
         }}
         id="main-content"
         tabIndex={-1}
@@ -463,4 +502,4 @@ export default function DashboardLayout({
       </Box>
     </Box>
   );
-} 
+}

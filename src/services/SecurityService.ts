@@ -72,8 +72,8 @@ class SecurityService {
   private static instance: SecurityService;
   private config: SecurityConfig;
   private csrfToken: string | null = null;
-  private securityEvents: Array<{type: SecurityEventType, timestamp: Date, details?: any}> = [];
-  private rateLimitCounters: Map<string, {count: number, resetTime: number}> = new Map();
+  private securityEvents: Array<{ type: SecurityEventType; timestamp: Date; details?: any }> = [];
+  private rateLimitCounters: Map<string, { count: number; resetTime: number }> = new Map();
   private activeTokens: Set<string> = new Set();
   private refreshTokens: Map<string, string> = new Map(); // userId -> refreshToken
 
@@ -101,10 +101,10 @@ class SecurityService {
 
     // Set up interceptors for security headers
     this.setupInterceptors();
-    
+
     // Generate initial CSRF token
     this.refreshCsrfToken();
-    
+
     // Load security configuration (async operation)
     this.loadSecurityConfig();
   }
@@ -125,7 +125,7 @@ class SecurityService {
   private setupInterceptors(): void {
     // Request interceptor for adding security headers and CSRF token
     axios.interceptors.request.use(
-      config => {
+      (config) => {
         if (this.config.secureHttpHeadersEnabled) {
           // Add security headers (similar to helmet.js)
           config.headers['X-Content-Type-Options'] = 'nosniff';
@@ -147,12 +147,12 @@ class SecurityService {
 
         return config;
       },
-      error => Promise.reject(error)
+      (error) => Promise.reject(error)
     );
 
     // Response interceptor for handling security-related responses
     axios.interceptors.response.use(
-      response => {
+      (response) => {
         // Update CSRF token if present in headers
         const newCsrfToken = response.headers[this.config.csrfHeaderName.toLowerCase()];
         if (newCsrfToken) {
@@ -161,7 +161,7 @@ class SecurityService {
 
         return response;
       },
-      async error => {
+      async (error) => {
         if (axios.isAxiosError(error)) {
           // Handle 401 Unauthorized (expired token)
           if (error.response?.status === 401) {
@@ -267,7 +267,10 @@ class SecurityService {
     }
 
     // Check for special character if required
-    if (this.config.passwordRequireSpecialChar && !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    if (
+      this.config.passwordRequireSpecialChar &&
+      !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+    ) {
       errors.push('Password must contain at least one special character');
     }
 
@@ -294,7 +297,10 @@ class SecurityService {
   /**
    * Authenticate a user with JWT
    */
-  public async authenticate(email: string, password: string): Promise<{ token: string; user: any } | null> {
+  public async authenticate(
+    email: string,
+    password: string
+  ): Promise<{ token: string; user: any } | null> {
     try {
       // In a real app, this would call the backend API
       // For this example, we'll simulate a response
@@ -407,11 +413,11 @@ class SecurityService {
     }
 
     const userRole = verification.payload.role;
-    
+
     if (Array.isArray(role)) {
       return role.includes(userRole);
     }
-    
+
     return userRole === role;
   }
 
@@ -424,24 +430,24 @@ class SecurityService {
     const windowMs = this.config.rateLimitTimeWindowMs;
 
     let counter = this.rateLimitCounters.get(endpoint);
-    
+
     if (!counter || now > counter.resetTime) {
       // Create new counter or reset expired counter
       counter = {
         count: 1,
-        resetTime: now + windowMs
+        resetTime: now + windowMs,
       };
     } else {
       // Increment existing counter
       counter.count++;
-      
+
       // Check if limit exceeded
       if (counter.count > limit) {
         this.logSecurityEvent(SecurityEventType.RATE_LIMIT_EXCEEDED, { endpoint });
         throw new Error(`Rate limit exceeded for endpoint: ${endpoint}`);
       }
     }
-    
+
     this.rateLimitCounters.set(endpoint, counter);
   }
 
@@ -454,9 +460,9 @@ class SecurityService {
       timestamp: new Date(),
       details,
     };
-    
+
     this.securityEvents.push(event);
-    
+
     // In a real app, you would also send this to the backend for logging
     console.log(`Security event: ${type}`, details);
   }
@@ -464,7 +470,7 @@ class SecurityService {
   /**
    * Get security events (for admin purposes)
    */
-  public getSecurityEvents(): Array<{type: SecurityEventType, timestamp: Date, details?: any}> {
+  public getSecurityEvents(): Array<{ type: SecurityEventType; timestamp: Date; details?: any }> {
     return [...this.securityEvents];
   }
 
@@ -475,7 +481,7 @@ class SecurityService {
     if (!this.config.encryptionEnabled) {
       return data;
     }
-    
+
     // In a real app, use a proper encryption library
     // This is a simple Base64 encoding for demonstration
     return btoa(data);
@@ -488,7 +494,7 @@ class SecurityService {
     if (!this.config.encryptionEnabled) {
       return encryptedData;
     }
-    
+
     // In a real app, use a proper encryption library
     // This is a simple Base64 decoding for demonstration
     return atob(encryptedData);
@@ -500,8 +506,8 @@ class SecurityService {
    */
   private async mockAuthApiCall(email: string, password: string): Promise<any> {
     // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     // Mock user database
     const users = [
       {
@@ -511,7 +517,21 @@ class SecurityService {
         firstName: 'Admin',
         lastName: 'User',
         role: 'admin',
-        permissions: ['view:candidates', 'edit:candidates', 'delete:candidates', 'view:jobs', 'edit:jobs', 'view:reports', 'admin:panel', 'manage:users', 'manage:settings', 'view:analytics', 'schedule:interviews', 'conduct:interviews', 'manage:evaluations']
+        permissions: [
+          'view:candidates',
+          'edit:candidates',
+          'delete:candidates',
+          'view:jobs',
+          'edit:jobs',
+          'view:reports',
+          'admin:panel',
+          'manage:users',
+          'manage:settings',
+          'view:analytics',
+          'schedule:interviews',
+          'conduct:interviews',
+          'manage:evaluations',
+        ],
       },
       {
         id: '2',
@@ -520,8 +540,16 @@ class SecurityService {
         firstName: 'Recruiter',
         lastName: 'User',
         role: 'recruiter',
-        permissions: ['view:candidates', 'edit:candidates', 'view:jobs', 'edit:jobs', 'view:reports', 'schedule:interviews', 'view:analytics']
-      }
+        permissions: [
+          'view:candidates',
+          'edit:candidates',
+          'view:jobs',
+          'edit:jobs',
+          'view:reports',
+          'schedule:interviews',
+          'view:analytics',
+        ],
+      },
     ];
 
     // Special case for demo credentials in development mode
@@ -530,7 +558,7 @@ class SecurityService {
         const user = users[0];
         const now = Math.floor(Date.now() / 1000);
         const expiresIn = 60 * this.config.jwtExpirationMinutes;
-        
+
         // User data without sensitive information
         const userData = {
           id: user.id,
@@ -538,9 +566,9 @@ class SecurityService {
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role,
-          permissions: user.permissions
+          permissions: user.permissions,
         };
-        
+
         // Create a mock JWT token
         const tokenPayload = {
           sub: user.id,
@@ -550,26 +578,26 @@ class SecurityService {
           firstName: user.firstName,
           lastName: user.lastName,
           iat: now,
-          exp: now + expiresIn
+          exp: now + expiresIn,
         };
-        
+
         // Encode the token payload as base64
         const tokenString = btoa(JSON.stringify(tokenPayload));
         const mockToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${tokenString}.mock-signature`;
-        
+
         return {
           success: true,
           token: mockToken,
           refreshToken: 'mock-refresh-token',
-          user: userData
+          user: userData,
         };
       }
-      
+
       if (email === 'demo@example.com' && password === 'password') {
         const user = users[1];
         const now = Math.floor(Date.now() / 1000);
         const expiresIn = 60 * this.config.jwtExpirationMinutes;
-        
+
         // User data without sensitive information
         const userData = {
           id: user.id,
@@ -577,9 +605,9 @@ class SecurityService {
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role,
-          permissions: user.permissions
+          permissions: user.permissions,
         };
-        
+
         // Create a mock JWT token
         const tokenPayload = {
           sub: user.id,
@@ -589,42 +617,42 @@ class SecurityService {
           firstName: user.firstName,
           lastName: user.lastName,
           iat: now,
-          exp: now + expiresIn
+          exp: now + expiresIn,
         };
-        
+
         // Encode the token payload as base64
         const tokenString = btoa(JSON.stringify(tokenPayload));
         const mockToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${tokenString}.mock-signature`;
-        
+
         return {
           success: true,
           token: mockToken,
           refreshToken: 'mock-refresh-token',
-          user: userData
+          user: userData,
         };
       }
     }
-    
+
     // Find user by email
-    const user = users.find(u => u.email === email);
+    const user = users.find((u) => u.email === email);
     if (!user) {
       return { success: false, message: 'User not found' };
     }
-    
+
     // Verify password
     const passwordValid = await BcryptMock.compare(password, user.passwordHash);
     if (!passwordValid) {
       return { success: false, message: 'Invalid password' };
     }
-    
+
     // Create JWT token
     const now = Math.floor(Date.now() / 1000);
     const expiresIn = 60 * this.config.jwtExpirationMinutes;
-    
+
     // Generate refresh token and store it
     const refreshToken = uuidv4();
     this.refreshTokens.set(user.id, refreshToken);
-    
+
     // User data without sensitive information
     const userData = {
       id: user.id,
@@ -632,9 +660,9 @@ class SecurityService {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
-      permissions: user.permissions
+      permissions: user.permissions,
     };
-    
+
     // Create a mock JWT token
     // In a real app, this would be created by the backend
     const tokenPayload = {
@@ -645,18 +673,18 @@ class SecurityService {
       firstName: user.firstName,
       lastName: user.lastName,
       iat: now,
-      exp: now + expiresIn
+      exp: now + expiresIn,
     };
-    
+
     // Encode the token payload as base64
     const tokenString = btoa(JSON.stringify(tokenPayload));
     const mockToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${tokenString}.mock-signature`;
-    
+
     return {
       success: true,
       token: mockToken,
       refreshToken,
-      user: userData
+      user: userData,
     };
   }
 
@@ -666,15 +694,15 @@ class SecurityService {
    */
   private async mockRefreshTokenApiCall(): Promise<any> {
     // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
     // In a real app, this would validate the refresh token and issue a new JWT
     // For this example, we'll just return a new token
-    
+
     // Create JWT token
     const now = Math.floor(Date.now() / 1000);
     const expiresIn = 60 * this.config.jwtExpirationMinutes;
-    
+
     // Mock user for the new token
     const userData = {
       id: '1',
@@ -682,9 +710,20 @@ class SecurityService {
       firstName: 'Admin',
       lastName: 'User',
       role: 'admin',
-      permissions: ['view:candidates', 'edit:candidates', 'delete:candidates', 'view:jobs', 'edit:jobs', 'view:reports', 'admin:panel', 'manage:users', 'manage:settings', 'view:analytics']
+      permissions: [
+        'view:candidates',
+        'edit:candidates',
+        'delete:candidates',
+        'view:jobs',
+        'edit:jobs',
+        'view:reports',
+        'admin:panel',
+        'manage:users',
+        'manage:settings',
+        'view:analytics',
+      ],
     };
-    
+
     // Create a mock JWT token
     const tokenPayload = {
       sub: userData.id,
@@ -694,16 +733,16 @@ class SecurityService {
       firstName: userData.firstName,
       lastName: userData.lastName,
       iat: now,
-      exp: now + expiresIn
+      exp: now + expiresIn,
     };
-    
+
     // Encode the token payload as base64
     const tokenString = btoa(JSON.stringify(tokenPayload));
     const mockToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${tokenString}.mock-signature`;
-    
+
     return {
       success: true,
-      token: mockToken
+      token: mockToken,
     };
   }
 
@@ -721,17 +760,17 @@ class SecurityService {
     if (!passwordValidation.valid) {
       return {
         success: false,
-        message: passwordValidation.errors.join(', ')
+        message: passwordValidation.errors.join(', '),
       };
     }
-    
+
     try {
       // In a real app, this would call the backend API
       // For this example, we'll simulate a response
-      
+
       // Hash the password
       const passwordHash = await this.hashPassword(userData.password);
-      
+
       // Create a new user
       const newUser = {
         id: uuidv4(),
@@ -740,13 +779,13 @@ class SecurityService {
         firstName: userData.firstName,
         lastName: userData.lastName,
         role: 'recruiter', // Default role for new users
-        permissions: ['view:candidates', 'view:jobs'] // Default permissions
+        permissions: ['view:candidates', 'view:jobs'], // Default permissions
       };
-      
+
       // Create JWT token
       const now = Math.floor(Date.now() / 1000);
       const expiresIn = 60 * this.config.jwtExpirationMinutes;
-      
+
       // User data without sensitive information
       const userResponse = {
         id: newUser.id,
@@ -754,9 +793,9 @@ class SecurityService {
         firstName: newUser.firstName,
         lastName: newUser.lastName,
         role: newUser.role,
-        permissions: newUser.permissions
+        permissions: newUser.permissions,
       };
-      
+
       // Create a mock JWT token
       const tokenPayload = {
         sub: newUser.id,
@@ -766,25 +805,25 @@ class SecurityService {
         firstName: newUser.firstName,
         lastName: newUser.lastName,
         iat: now,
-        exp: now + expiresIn
+        exp: now + expiresIn,
       };
-      
+
       // Encode the token payload as base64
       const tokenString = btoa(JSON.stringify(tokenPayload));
       const mockToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${tokenString}.mock-signature`;
-      
+
       // Add token to active tokens
       this.activeTokens.add(mockToken);
-      
+
       return {
         success: true,
         token: mockToken,
-        user: userResponse
+        user: userResponse,
       };
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Registration failed'
+        message: error.message || 'Registration failed',
       };
     }
   }
@@ -796,18 +835,18 @@ class SecurityService {
     try {
       // In a real app, this would call the backend API to send a reset email
       // For this example, we'll just simulate a response
-      
+
       // Log the password reset request event
       this.logSecurityEvent(SecurityEventType.PASSWORD_RESET_REQUEST, { email });
-      
+
       return {
         success: true,
-        message: 'Password reset link has been sent to your email'
+        message: 'Password reset link has been sent to your email',
       };
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Failed to request password reset'
+        message: error.message || 'Failed to request password reset',
       };
     }
   }
@@ -815,31 +854,35 @@ class SecurityService {
   /**
    * Change a user's password
    */
-  public async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+  public async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; message: string }> {
     // Validate new password
     const passwordValidation = this.validatePassword(newPassword);
     if (!passwordValidation.valid) {
       return {
         success: false,
-        message: passwordValidation.errors.join(', ')
+        message: passwordValidation.errors.join(', '),
       };
     }
-    
+
     try {
       // In a real app, this would call the backend API
       // For this example, we'll just simulate a response
-      
+
       // Log the password change event
       this.logSecurityEvent(SecurityEventType.PASSWORD_CHANGE, { userId });
-      
+
       return {
         success: true,
-        message: 'Password changed successfully'
+        message: 'Password changed successfully',
       };
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Failed to change password'
+        message: error.message || 'Failed to change password',
       };
     }
   }
@@ -850,25 +893,25 @@ class SecurityService {
   public checkForSuspiciousActivity(userId: string, action: string, context: any): boolean {
     // In a real app, this would implement a more sophisticated detection algorithm
     // For this example, we'll just do a simple check
-    
+
     // For demonstration, we'll flag any action from a different IP than usual
     const isKnownIP = context.ip === '127.0.0.1';
-    
+
     if (!isKnownIP) {
       // Log suspicious activity
       this.logSecurityEvent(SecurityEventType.SUSPICIOUS_ACTIVITY, {
         userId,
         action,
-        context
+        context,
       });
-      
+
       return true;
     }
-    
+
     return false;
   }
 }
 
 // Export singleton instance
 export default SecurityService;
-export const securityService = SecurityService.getInstance(); 
+export const securityService = SecurityService.getInstance();

@@ -15,7 +15,7 @@ const safeAnnounce = (message: string, politeness: 'polite' | 'assertive' = 'pol
 function ResetPassword() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
-  
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -30,54 +30,62 @@ function ResetPassword() {
     if (!token || token.length < 20) {
       setTokenValid(false);
       setError('Invalid or expired password reset link. Please request a new one.');
-      safeAnnounce('Invalid or expired password reset link. Please request a new one.', 'assertive');
+      safeAnnounce(
+        'Invalid or expired password reset link. Please request a new one.',
+        'assertive'
+      );
     }
   }, [token]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!tokenValid) {
       return;
     }
-    
+
     // Reset status messages
     setError('');
     setSuccess('');
-    
+
     // Simple validation
     if (!password.trim() || !confirmPassword.trim()) {
       setError('All fields are required');
       safeAnnounce('Password reset failed. All fields are required.', 'assertive');
       return;
     }
-    
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       safeAnnounce('Password reset failed. Passwords do not match.', 'assertive');
       return;
     }
-    
+
     if (password.length < 6) {
       setError('Password must be at least 6 characters long');
-      safeAnnounce('Password reset failed. Password must be at least 6 characters long.', 'assertive');
+      safeAnnounce(
+        'Password reset failed. Password must be at least 6 characters long.',
+        'assertive'
+      );
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // In a real app, this would call an API to reset the password
       // For demo purposes, just show success message after a delay
       setTimeout(() => {
-        setSuccess('Your password has been reset successfully. You will be redirected to login page.');
+        setSuccess(
+          'Your password has been reset successfully. You will be redirected to login page.'
+        );
         safeAnnounce('Your password has been reset successfully.', 'polite');
-        
+
         // Clear form
         setPassword('');
         setConfirmPassword('');
         setIsSubmitting(false);
-        
+
         // Redirect to login after a delay
         setTimeout(() => {
           navigate('/login');
@@ -98,7 +106,9 @@ function ResetPassword() {
           {!tokenValid ? (
             <div className="token-error">
               <h1>Error</h1>
-              <p className="error-message" role="alert">{error}</p>
+              <p className="error-message" role="alert">
+                {error}
+              </p>
               <Link to="/forgot-password" className="button-link">
                 Request New Reset Link
               </Link>
@@ -106,38 +116,41 @@ function ResetPassword() {
           ) : (
             <form onSubmit={handleSubmit}>
               <h1>Reset Your Password</h1>
-              <p className="form-description">
-                Please enter your new password below.
-              </p>
-              
-              {error && <div className="error-message" role="alert">{error}</div>}
-              {success && <div className="success-message" role="alert">{success}</div>}
-              
-              <input 
-                type="password" 
-                placeholder="New Password" 
+              <p className="form-description">Please enter your new password below.</p>
+
+              {error && (
+                <div className="error-message" role="alert">
+                  {error}
+                </div>
+              )}
+              {success && (
+                <div className="success-message" role="alert">
+                  {success}
+                </div>
+              )}
+
+              <input
+                type="password"
+                placeholder="New Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 aria-label="New Password"
               />
-              
-              <input 
-                type="password" 
-                placeholder="Confirm Password" 
+
+              <input
+                type="password"
+                placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 aria-label="Confirm Password"
               />
-              
-              <button 
-                type="submit" 
-                disabled={isSubmitting}
-              >
+
+              <button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Resetting...' : 'Reset Password'}
               </button>
-              
+
               <div className="form-links">
                 <Link to="/login">Back to Login</Link>
               </div>
@@ -149,4 +162,4 @@ function ResetPassword() {
   );
 }
 
-export default ResetPassword; 
+export default ResetPassword;

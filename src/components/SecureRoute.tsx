@@ -52,8 +52,9 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
   }
 
   // Check permissions if specified
-  const hasPermissions = requiredPermissions.length === 0 || 
-    requiredPermissions.every(permission => checkPermission(permission));
+  const hasPermissions =
+    requiredPermissions.length === 0 ||
+    requiredPermissions.every((permission) => checkPermission(permission));
 
   // Check roles if specified
   const userHasRequiredRole = requiredRoles.length === 0 || hasRole(requiredRoles);
@@ -104,10 +105,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
           </Typography>
 
           <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button
-              variant="outlined"
-              onClick={() => window.history.back()}
-            >
+            <Button variant="outlined" onClick={() => window.history.back()}>
               Go Back
             </Button>
             <Button
@@ -127,4 +125,4 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
   return <>{children}</>;
 };
 
-export default SecureRoute; 
+export default SecureRoute;

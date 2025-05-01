@@ -1,0 +1,26 @@
+# Build directories
+dist
+build
+
+# Dependencies
+node_modules
+
+# Package files
+package-lock.json
+yarn.lock
+
+# Log files
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+coverage 

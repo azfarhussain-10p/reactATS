@@ -18,27 +18,21 @@ function NotFound() {
         }}
       >
         <ErrorOutlineIcon sx={{ fontSize: 100, color: 'text.secondary', mb: 2 }} />
-        
+
         <Typography variant="h1" component="h1" gutterBottom>
           404
         </Typography>
-        
+
         <Typography variant="h4" component="h2" gutterBottom>
           Page Not Found
         </Typography>
-        
+
         <Typography variant="body1" color="text.secondary" paragraph sx={{ maxWidth: 500, mb: 4 }}>
-          The page you're looking for doesn't exist or has been moved.
-          Please check the URL or navigate back to the dashboard.
+          The page you're looking for doesn't exist or has been moved. Please check the URL or
+          navigate back to the dashboard.
         </Typography>
-        
-        <Button
-          component={Link}
-          to="/"
-          variant="contained"
-          color="primary"
-          size="large"
-        >
+
+        <Button component={Link} to="/" variant="contained" color="primary" size="large">
           Back to Dashboard
         </Button>
       </Box>
@@ -46,4 +40,4 @@ function NotFound() {
   );
 }
 
-export default NotFound; 
+export default NotFound;

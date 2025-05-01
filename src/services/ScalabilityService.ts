@@ -79,10 +79,10 @@ class ScalabilityService {
   private taskQueue: QueuedTask[] = [];
   private processingTasks: boolean = false;
   private cacheService: CacheService;
-  
+
   // API URL from env or default
-  private apiUrl: string = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-  
+  private apiUrl: string = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
   private constructor() {
     // Default scalability configuration
     this.config = {
@@ -92,22 +92,22 @@ class ScalabilityService {
         servers: [
           'http://localhost:5000/api',
           'http://localhost:5001/api',
-          'http://localhost:5002/api'
+          'http://localhost:5002/api',
         ],
         healthCheckIntervalMs: 30000, // 30 seconds
-        failoverEnabled: true
+        failoverEnabled: true,
       },
       cache: {
         enabled: true,
         defaultTTL: 300, // 5 minutes
         maxSize: 100, // MB
-        compressionEnabled: true
+        compressionEnabled: true,
       },
       queryOptimization: {
         maxPageSize: 100,
         defaultPageSize: 20,
         usePreparedStatements: true,
-        indexStatsRefreshIntervalHours: 24
+        indexStatsRefreshIntervalHours: 24,
       },
       resourceUsage: {
         maxConcurrentRequests: 50,
@@ -115,32 +115,32 @@ class ScalabilityService {
         maxCPUUsagePercent: 80,
         autoScalingEnabled: true,
         minInstances: 1,
-        maxInstances: 5
+        maxInstances: 5,
       },
       asyncProcessingEnabled: true,
       useSharding: false,
       microservicesEnabled: true,
       cdnEnabled: true,
-      cdnUrl: 'https://cdn.example.com'
+      cdnUrl: 'https://cdn.example.com',
     };
-    
+
     // Initialize cache service
     this.cacheService = CacheService.getInstance();
-    
+
     // Start health checks for load balancing
     if (this.config.loadBalancing.enabled) {
       this.initializeLoadBalancing();
     }
-    
+
     // Start task processing if async processing is enabled
     if (this.config.asyncProcessingEnabled) {
       this.startTaskProcessing();
     }
-    
+
     // Load configuration (async operation)
     this.loadConfig();
   }
-  
+
   /**
    * Get the singleton instance
    */
@@ -150,7 +150,7 @@ class ScalabilityService {
     }
     return ScalabilityService.instance;
   }
-  
+
   /**
    * Load configuration from API
    */
@@ -160,9 +160,9 @@ class ScalabilityService {
       if (response.data) {
         this.config = {
           ...this.config,
-          ...response.data
+          ...response.data,
         };
-        
+
         // Reinitialize services based on new config
         if (this.config.loadBalancing.enabled) {
           this.initializeLoadBalancing();
@@ -172,7 +172,7 @@ class ScalabilityService {
       console.warn('Could not fetch scalability config, using defaults:', error);
     }
   }
-  
+
   /**
    * Initialize load balancing
    */
@@ -183,19 +183,19 @@ class ScalabilityService {
         url: server,
         healthy: true, // Assume healthy initially
         responseTime: 0,
-        lastChecked: new Date()
+        lastChecked: new Date(),
       });
     }
-    
+
     // Start health check interval
     setInterval(() => {
       this.checkServerHealth();
     }, this.config.loadBalancing.healthCheckIntervalMs);
-    
+
     // Perform initial health check
     this.checkServerHealth();
   }
-  
+
   /**
    * Check health of all servers
    */
@@ -205,24 +205,24 @@ class ScalabilityService {
         const startTime = Date.now();
         const response = await axios.get(`${server}/health`, { timeout: 5000 });
         const responseTime = Date.now() - startTime;
-        
+
         this.serverHealthStatus.set(server, {
           url: server,
           healthy: response.status === 200,
           responseTime,
-          lastChecked: new Date()
+          lastChecked: new Date(),
         });
       } catch (error) {
         this.serverHealthStatus.set(server, {
           url: server,
           healthy: false,
           responseTime: 0,
-          lastChecked: new Date()
+          lastChecked: new Date(),
         });
       }
     }
   }
-  
+
   /**
    * Get the next server URL based on the load balancing strategy
    */
@@ -230,25 +230,26 @@ class ScalabilityService {
     if (!this.config.loadBalancing.enabled) {
       return this.apiUrl;
     }
-    
+
     const healthyServers = this.config.loadBalancing.servers.filter(
-      server => this.serverHealthStatus.get(server)?.healthy || !this.config.loadBalancing.failoverEnabled
+      (server) =>
+        this.serverHealthStatus.get(server)?.healthy || !this.config.loadBalancing.failoverEnabled
     );
-    
+
     if (healthyServers.length === 0) {
       // If no healthy servers, use the default API URL
       return this.apiUrl;
     }
-    
+
     let selectedServer: string;
-    
+
     switch (this.config.loadBalancing.strategy) {
       case 'round-robin':
         // Get the next server in a circular fashion
         this.currentServerIndex = (this.currentServerIndex + 1) % healthyServers.length;
         selectedServer = healthyServers[this.currentServerIndex];
         break;
-        
+
       case 'least-connections':
         // In a real implementation, this would track connection counts
         // Here we'll use response time as a proxy for load
@@ -258,25 +259,25 @@ class ScalabilityService {
           return health && minHealth && health.responseTime < minHealth.responseTime ? server : min;
         }, healthyServers[0]);
         break;
-        
+
       case 'ip-hash':
         // In a real implementation, this would hash the client IP
         // Here we'll just use a random but stable selection
         const hash = Math.abs(Date.now()) % healthyServers.length;
         selectedServer = healthyServers[hash];
         break;
-        
+
       case 'random':
         selectedServer = healthyServers[Math.floor(Math.random() * healthyServers.length)];
         break;
-        
+
       default:
         selectedServer = healthyServers[0];
     }
-    
+
     return selectedServer;
   }
-  
+
   /**
    * Make an optimized API request using load balancing and caching
    * @param config Request configuration
@@ -284,9 +285,10 @@ class ScalabilityService {
    */
   public async request<T>(config: any): Promise<T> {
     // Generate cache key if caching is enabled
-    const cacheKey = this.config.cache.enabled ? 
-      `request:${config.method || 'GET'}:${config.url}:${JSON.stringify(config.params || {})}` : '';
-    
+    const cacheKey = this.config.cache.enabled
+      ? `request:${config.method || 'GET'}:${config.url}:${JSON.stringify(config.params || {})}`
+      : '';
+
     // Check cache first if it's a GET request
     if (this.config.cache.enabled && (config.method || 'GET').toUpperCase() === 'GET') {
       const cachedData = this.cacheService.get<T>(cacheKey);
@@ -294,22 +296,22 @@ class ScalabilityService {
         return Promise.resolve(cachedData);
       }
     }
-    
+
     // Get the next server URL from load balancer
     const baseURL = this.getNextServer();
-    
+
     // Make the actual request
     try {
       const response = await axios({
         ...config,
-        baseURL
+        baseURL,
       });
-      
+
       // Cache the response if it's a GET request
       if (this.config.cache.enabled && (config.method || 'GET').toUpperCase() === 'GET') {
         this.cacheService.set(cacheKey, response.data, this.config.cache.defaultTTL);
       }
-      
+
       return response.data;
     } catch (error) {
       // If server fails, mark it as unhealthy
@@ -319,48 +321,51 @@ class ScalabilityService {
           this.serverHealthStatus.set(baseURL, {
             ...healthStatus,
             healthy: false,
-            lastChecked: new Date()
+            lastChecked: new Date(),
           });
         }
-        
+
         // If failover is enabled and there are other healthy servers, retry the request
         if (this.config.loadBalancing.failoverEnabled) {
           const healthyServers = this.config.loadBalancing.servers.filter(
-            server => server !== baseURL && this.serverHealthStatus.get(server)?.healthy
+            (server) => server !== baseURL && this.serverHealthStatus.get(server)?.healthy
           );
-          
+
           if (healthyServers.length > 0) {
             return this.request<T>(config);
           }
         }
       }
-      
+
       throw error;
     }
   }
-  
+
   /**
    * Get optimized pagination parameters
    * @param page Requested page number (1-based)
    * @param pageSize Requested page size
    * @returns Optimized pagination parameters
    */
-  public getPaginationParams(page: number = 1, pageSize?: number): { page: number; pageSize: number; skip: number } {
+  public getPaginationParams(
+    page: number = 1,
+    pageSize?: number
+  ): { page: number; pageSize: number; skip: number } {
     const safePageSize = Math.min(
       pageSize || this.config.queryOptimization.defaultPageSize,
       this.config.queryOptimization.maxPageSize
     );
-    
+
     const safePage = Math.max(1, page);
     const skip = (safePage - 1) * safePageSize;
-    
+
     return {
       page: safePage,
       pageSize: safePageSize,
-      skip
+      skip,
     };
   }
-  
+
   /**
    * Add a task to the async processing queue
    * @param task Task to add
@@ -370,7 +375,7 @@ class ScalabilityService {
     if (!this.config.asyncProcessingEnabled) {
       throw new Error('Async processing is not enabled');
     }
-    
+
     const taskId = uuidv4();
     const task: QueuedTask = {
       id: taskId,
@@ -378,22 +383,22 @@ class ScalabilityService {
       data,
       status: 'pending',
       createdAt: new Date(),
-      priority
+      priority,
     };
-    
+
     this.taskQueue.push(task);
-    
+
     // Sort the queue by priority (lower number = higher priority)
     this.taskQueue.sort((a, b) => a.priority - b.priority);
-    
+
     // Start processing if not already processing
     if (!this.processingTasks) {
       this.startTaskProcessing();
     }
-    
+
     return taskId;
   }
-  
+
   /**
    * Start processing tasks in the queue
    */
@@ -401,11 +406,11 @@ class ScalabilityService {
     if (!this.config.asyncProcessingEnabled || this.processingTasks) {
       return;
     }
-    
+
     this.processingTasks = true;
     this.processNextTask();
   }
-  
+
   /**
    * Process the next task in the queue
    */
@@ -414,33 +419,33 @@ class ScalabilityService {
       this.processingTasks = false;
       return;
     }
-    
+
     const task = this.taskQueue.shift();
     if (!task) {
       this.processingTasks = false;
       return;
     }
-    
+
     // Update task status
     task.status = 'processing';
-    
+
     try {
       // In a real implementation, this would dispatch to task-specific handlers
       console.log(`Processing task ${task.id} of type ${task.type}`);
-      
+
       // Simulate task processing
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       task.status = 'completed';
     } catch (error) {
       console.error(`Error processing task ${task.id}:`, error);
       task.status = 'failed';
     }
-    
+
     // Process next task
     this.processNextTask();
   }
-  
+
   /**
    * Get a resource from CDN if enabled, or from the API if not
    * @param path Resource path
@@ -452,10 +457,10 @@ class ScalabilityService {
       const cleanPath = path.startsWith('/') ? path.substring(1) : path;
       return `${this.config.cdnUrl}/${cleanPath}`;
     }
-    
+
     return `${this.apiUrl}/${path.startsWith('/') ? path.substring(1) : path}`;
   }
-  
+
   /**
    * Invalidate cache for specific keys or patterns
    * @param pattern Pattern to match for cache invalidation
@@ -464,10 +469,10 @@ class ScalabilityService {
     if (!this.config.cache.enabled) {
       return 0;
     }
-    
+
     return this.cacheService.deletePattern(pattern);
   }
-  
+
   /**
    * Get sharding key for a resource (for database sharding)
    * @param resourceType Type of resource
@@ -478,15 +483,15 @@ class ScalabilityService {
     if (!this.config.useSharding) {
       return 'default';
     }
-    
+
     // In a real implementation, this would use a consistent hashing algorithm
     // Here we'll use a simple modulo approach
     const idNum = typeof id === 'string' ? parseInt(id, 10) || 0 : id;
     const shardNumber = idNum % 4; // Assume 4 shards
-    
+
     return `${resourceType}_shard_${shardNumber}`;
   }
-  
+
   /**
    * Check if a resource is optimized for the current load
    * @param resourceType Type of resource to check
@@ -495,22 +500,22 @@ class ScalabilityService {
   public needsOptimization(resourceType: string): boolean {
     // In a real implementation, this would check actual resource usage
     // Here we'll simulate some simple logic
-    
+
     switch (resourceType) {
       case 'memory':
         return Math.random() * 100 > this.config.resourceUsage.maxMemoryUsageMB / 10;
-        
+
       case 'cpu':
         return Math.random() * 100 > this.config.resourceUsage.maxCPUUsagePercent;
-        
+
       case 'connections':
         return Math.random() * 100 > this.config.resourceUsage.maxConcurrentRequests / 2;
-        
+
       default:
         return false;
     }
   }
-  
+
   /**
    * Get metrics for system scalability
    */
@@ -519,27 +524,29 @@ class ScalabilityService {
       currentLoad: {
         cpu: Math.round(Math.random() * 100),
         memory: Math.round(Math.random() * this.config.resourceUsage.maxMemoryUsageMB),
-        connections: Math.round(Math.random() * this.config.resourceUsage.maxConcurrentRequests)
+        connections: Math.round(Math.random() * this.config.resourceUsage.maxConcurrentRequests),
       },
       serverHealth: Array.from(this.serverHealthStatus.values()),
       cacheStats: {
         hitRate: Math.round(Math.random() * 100),
         size: Math.round(Math.random() * this.config.cache.maxSize),
-        items: Math.round(Math.random() * 1000)
+        items: Math.round(Math.random() * 1000),
       },
       queueStats: {
         pendingTasks: this.taskQueue.length,
-        processingActive: this.processingTasks
+        processingActive: this.processingTasks,
       },
       autoscaling: {
-        currentInstances: Math.floor(Math.random() * 
-          (this.config.resourceUsage.maxInstances - this.config.resourceUsage.minInstances + 1)) + 
-          this.config.resourceUsage.minInstances
-      }
+        currentInstances:
+          Math.floor(
+            Math.random() *
+              (this.config.resourceUsage.maxInstances - this.config.resourceUsage.minInstances + 1)
+          ) + this.config.resourceUsage.minInstances,
+      },
     };
   }
 }
 
 // Export singleton instance
 export default ScalabilityService;
-export const scalabilityService = ScalabilityService.getInstance(); 
+export const scalabilityService = ScalabilityService.getInstance();

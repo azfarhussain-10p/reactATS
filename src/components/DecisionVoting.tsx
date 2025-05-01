@@ -27,7 +27,7 @@ import {
   Alert,
   Snackbar,
   LinearProgress,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import {
   ThumbUp as ThumbUpIcon,
@@ -39,12 +39,19 @@ import {
   Info as InfoIcon,
   VisibilityOff as VisibilityOffIcon,
   Visibility as VisibilityIcon,
-  Person as PersonIcon
+  Person as PersonIcon,
 } from '@mui/icons-material';
 import { useCollaboration } from '../contexts/CollaborationContext';
 import { TeamMember, DecisionVote } from '../models/types';
 import { format } from 'date-fns';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip as RechartsTooltip,
+  Legend,
+} from 'recharts';
 
 interface DecisionVotingProps {
   candidateId: string;
@@ -54,18 +61,22 @@ interface DecisionVotingProps {
 
 type Decision = 'hire' | 'reject' | 'consider' | 'need-more-info';
 
-const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateName, position }) => {
-  const { 
-    getVotesByCandidate, 
-    castVote, 
-    calculateVoteResult, 
-    teamMembers, 
+const DecisionVoting: React.FC<DecisionVotingProps> = ({
+  candidateId,
+  candidateName,
+  position,
+}) => {
+  const {
+    getVotesByCandidate,
+    castVote,
+    calculateVoteResult,
+    teamMembers,
     currentUser,
-    getTeamMemberById
+    getTeamMemberById,
   } = useCollaboration();
-  
+
   const theme = useTheme();
-  
+
   const [votes, setVotes] = useState<DecisionVote[]>([]);
   const [votingDialogOpen, setVotingDialogOpen] = useState(false);
   const [selectedDecision, setSelectedDecision] = useState<Decision>('hire');
@@ -86,20 +97,20 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
     reject: 0,
     consider: 0,
     needMoreInfo: 0,
-    decision: 'undecided'
+    decision: 'undecided',
   });
-  
+
   // Load votes when candidateId changes
   useEffect(() => {
     if (candidateId) {
       const candidateVotes = getVotesByCandidate(candidateId);
       setVotes(candidateVotes);
-      
+
       // Check if current user has voted
       if (currentUser) {
-        const userVote = candidateVotes.find(v => v.voterId === currentUser.id);
+        const userVote = candidateVotes.find((v) => v.voterId === currentUser.id);
         setCurrentUserVote(userVote || null);
-        
+
         // Set initial selected decision to user's existing vote
         if (userVote) {
           setSelectedDecision(userVote.decision);
@@ -107,7 +118,7 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
           setIsAnonymous(userVote.isAnonymous);
         }
       }
-      
+
       // Calculate vote result
       setVoteResult(calculateVoteResult(candidateId));
     }
@@ -139,21 +150,21 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
       setSnackbarOpen(true);
       return;
     }
-    
+
     if (!reasoning.trim()) {
       setSnackbarMessage('Please provide your reasoning for this decision');
       setSnackbarOpen(true);
       return;
     }
-    
+
     castVote({
       candidateId,
       voterId: currentUser.id,
       decision: selectedDecision,
       reasoning,
-      isAnonymous
+      isAnonymous,
     });
-    
+
     // Update local state
     setVotes(getVotesByCandidate(candidateId));
     setCurrentUserVote({
@@ -163,9 +174,9 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
       decision: selectedDecision,
       reasoning,
       timestamp: new Date().toISOString(),
-      isAnonymous
+      isAnonymous,
     });
-    
+
     setVoteResult(calculateVoteResult(candidateId));
     setSnackbarMessage('Your vote has been recorded');
     setSnackbarOpen(true);
@@ -210,7 +221,7 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
     let label: string;
     let color: 'success' | 'error' | 'warning' | 'info' | 'default';
     let icon: React.ReactElement;
-    
+
     switch (decision) {
       case 'hire':
         label = 'Hire';
@@ -237,21 +248,13 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
         color = 'default';
         icon = <HelpIcon />;
     }
-    
-    return (
-      <Chip 
-        label={label} 
-        color={color} 
-        icon={icon} 
-        size="small" 
-        variant="filled"
-      />
-    );
+
+    return <Chip label={label} color={color} icon={icon} size="small" variant="filled" />;
   };
 
   const renderVoteSummary = () => {
     const totalVotes = votes.length;
-    
+
     if (totalVotes === 0) {
       return (
         <Alert severity="info" sx={{ mt: 2 }}>
@@ -259,20 +262,20 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
         </Alert>
       );
     }
-    
+
     const chartData = [
       { name: 'Hire', value: voteResult.hire, color: theme.palette.success.main },
       { name: 'Reject', value: voteResult.reject, color: theme.palette.error.main },
       { name: 'Consider', value: voteResult.consider, color: theme.palette.warning.main },
-      { name: 'Need More Info', value: voteResult.needMoreInfo, color: theme.palette.info.main }
-    ].filter(item => item.value > 0);
-    
+      { name: 'Need More Info', value: voteResult.needMoreInfo, color: theme.palette.info.main },
+    ].filter((item) => item.value > 0);
+
     return (
       <Box sx={{ mt: 3 }}>
         <Typography variant="h6" gutterBottom>
           Voting Summary
         </Typography>
-        
+
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <Card variant="outlined">
@@ -280,7 +283,7 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
                 <Typography variant="subtitle1" gutterBottom>
                   Vote Distribution
                 </Typography>
-                
+
                 <Box height={250}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -306,49 +309,48 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
               </CardContent>
             </Card>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <Card variant="outlined">
               <CardContent>
                 <Typography variant="subtitle1" gutterBottom>
                   Decision Status
                 </Typography>
-                
+
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="body2" color="text.secondary">
-                    {totalVotes} vote{totalVotes !== 1 ? 's' : ''} cast by {teamMembers.length} team members
+                    {totalVotes} vote{totalVotes !== 1 ? 's' : ''} cast by {teamMembers.length} team
+                    members
                   </Typography>
-                  <LinearProgress 
-                    variant="determinate" 
+                  <LinearProgress
+                    variant="determinate"
                     value={(totalVotes / teamMembers.length) * 100}
                     sx={{ mt: 1 }}
                   />
                 </Box>
-                
-                <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+
+                <Box
+                  sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 2 }}
+                >
                   <Typography variant="body2" sx={{ mr: 1 }}>
                     <strong>Current Decision:</strong>
                   </Typography>
-                  
+
                   {voteResult.decision === 'undecided' ? (
-                    <Chip 
-                      label="Undecided" 
-                      variant="outlined" 
-                      size="small"
-                    />
+                    <Chip label="Undecided" variant="outlined" size="small" />
                   ) : (
                     getDecisionChip(voteResult.decision as Decision)
                   )}
                 </Box>
-                
-                <Alert 
+
+                <Alert
                   severity={
-                    voteResult.decision === 'hire' 
-                      ? 'success' 
-                      : voteResult.decision === 'reject' 
-                        ? 'error' 
-                        : voteResult.decision === 'consider' 
-                          ? 'warning' 
+                    voteResult.decision === 'hire'
+                      ? 'success'
+                      : voteResult.decision === 'reject'
+                        ? 'error'
+                        : voteResult.decision === 'consider'
+                          ? 'warning'
                           : 'info'
                   }
                   variant="outlined"
@@ -362,8 +364,7 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
                         ? `The team does not recommend hiring ${candidateName} for this role.`
                         : voteResult.decision === 'consider'
                           ? `The team suggests considering ${candidateName} for a different role or another round of interviews.`
-                          : `The team needs more information before making a decision on ${candidateName}.`
-                  }
+                          : `The team needs more information before making a decision on ${candidateName}.`}
                 </Alert>
               </CardContent>
             </Card>
@@ -377,21 +378,19 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
     if (!showAllVotes) {
       return null;
     }
-    
+
     return (
       <Box sx={{ mt: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6">
-            Individual Votes
-          </Typography>
-          
-          <Tooltip title={showAllVotes ? "Hide votes" : "Show votes"}>
+          <Typography variant="h6">Individual Votes</Typography>
+
+          <Tooltip title={showAllVotes ? 'Hide votes' : 'Show votes'}>
             <IconButton onClick={() => setShowAllVotes(!showAllVotes)}>
               {showAllVotes ? <VisibilityOffIcon /> : <VisibilityIcon />}
             </IconButton>
           </Tooltip>
         </Box>
-        
+
         {votes.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
             No votes have been cast yet.
@@ -400,27 +399,30 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
           <Grid container spacing={2}>
             {votes.map((vote) => {
               const voter = getTeamMemberById(vote.voterId);
-              
+
               return (
                 <Grid item xs={12} sm={6} key={vote.id}>
                   <Card variant="outlined">
                     <CardContent>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          mb: 1,
+                        }}
+                      >
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                           {vote.isAnonymous ? (
                             <Avatar sx={{ bgcolor: theme.palette.grey[500], mr: 1 }}>
                               <PersonIcon />
                             </Avatar>
                           ) : (
-                            <Avatar 
-                              src={voter?.avatar} 
-                              alt={voter?.name || 'User'}
-                              sx={{ mr: 1 }}
-                            >
+                            <Avatar src={voter?.avatar} alt={voter?.name || 'User'} sx={{ mr: 1 }}>
                               {!voter?.avatar && (voter?.name?.charAt(0) || 'U')}
                             </Avatar>
                           )}
-                          
+
                           <Box>
                             <Typography variant="subtitle2">
                               {vote.isAnonymous ? 'Anonymous Vote' : voter?.name || 'Unknown User'}
@@ -430,11 +432,14 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
                             </Typography>
                           </Box>
                         </Box>
-                        
+
                         {getDecisionChip(vote.decision)}
                       </Box>
-                      
-                      <Typography variant="body2" sx={{ mt: 1.5, p: 1, bgcolor: 'background.default', borderRadius: 1 }}>
+
+                      <Typography
+                        variant="body2"
+                        sx={{ mt: 1.5, p: 1, bgcolor: 'background.default', borderRadius: 1 }}
+                      >
                         <strong>Reasoning:</strong> {vote.reasoning}
                       </Typography>
                     </CardContent>
@@ -451,10 +456,8 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
   return (
     <Paper sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6">
-          Hiring Decision for {candidateName}
-        </Typography>
-        
+        <Typography variant="h6">Hiring Decision for {candidateName}</Typography>
+
         <Button
           variant="contained"
           color={currentUserVote ? 'info' : 'primary'}
@@ -464,36 +467,29 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
           {currentUserVote ? 'Update Vote' : 'Cast Vote'}
         </Button>
       </Box>
-      
+
       <Typography variant="body2" gutterBottom>
         Position: <strong>{position}</strong>
       </Typography>
-      
+
       <Divider sx={{ my: 2 }} />
-      
+
       {renderVoteSummary()}
-      
+
       {renderVoteList()}
-      
+
       {/* Voting Dialog */}
-      <Dialog
-        open={votingDialogOpen}
-        onClose={handleCloseVotingDialog}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>
-          {currentUserVote ? 'Update Your Vote' : 'Cast Your Vote'}
-        </DialogTitle>
+      <Dialog open={votingDialogOpen} onClose={handleCloseVotingDialog} fullWidth maxWidth="sm">
+        <DialogTitle>{currentUserVote ? 'Update Your Vote' : 'Cast Your Vote'}</DialogTitle>
         <DialogContent>
           <Typography variant="body1" gutterBottom>
             Candidate: <strong>{candidateName}</strong> for <strong>{position}</strong>
           </Typography>
-          
+
           <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
             Your Decision
           </Typography>
-          
+
           <FormControl component="fieldset">
             <RadioGroup
               aria-label="decision"
@@ -501,9 +497,9 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
               value={selectedDecision}
               onChange={handleDecisionChange}
             >
-              <FormControlLabel 
-                value="hire" 
-                control={<Radio />} 
+              <FormControlLabel
+                value="hire"
+                control={<Radio />}
                 label={
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <CheckIcon color="success" sx={{ mr: 1 }} />
@@ -511,9 +507,9 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
                   </Box>
                 }
               />
-              <FormControlLabel 
-                value="reject" 
-                control={<Radio />} 
+              <FormControlLabel
+                value="reject"
+                control={<Radio />}
                 label={
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <BlockIcon color="error" sx={{ mr: 1 }} />
@@ -521,33 +517,37 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
                   </Box>
                 }
               />
-              <FormControlLabel 
-                value="consider" 
-                control={<Radio />} 
+              <FormControlLabel
+                value="consider"
+                control={<Radio />}
                 label={
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <HourglassEmptyIcon color="warning" sx={{ mr: 1 }} />
-                    <Typography>Consider - This candidate should be considered for a different role</Typography>
+                    <Typography>
+                      Consider - This candidate should be considered for a different role
+                    </Typography>
                   </Box>
                 }
               />
-              <FormControlLabel 
-                value="need-more-info" 
-                control={<Radio />} 
+              <FormControlLabel
+                value="need-more-info"
+                control={<Radio />}
                 label={
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <InfoIcon color="info" sx={{ mr: 1 }} />
-                    <Typography>Need More Info - I need more information before deciding</Typography>
+                    <Typography>
+                      Need More Info - I need more information before deciding
+                    </Typography>
                   </Box>
                 }
               />
             </RadioGroup>
           </FormControl>
-          
+
           <Typography variant="subtitle1" sx={{ mt: 3, mb: 1 }}>
             Your Reasoning
           </Typography>
-          
+
           <TextField
             fullWidth
             multiline
@@ -557,28 +557,25 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
             placeholder="Provide a detailed explanation for your decision..."
             variant="outlined"
           />
-          
+
           <FormControlLabel
             control={
-              <Switch
-                checked={isAnonymous}
-                onChange={handleAnonymousChange}
-                color="primary"
-              />
+              <Switch checked={isAnonymous} onChange={handleAnonymousChange} color="primary" />
             }
             label="Cast anonymous vote"
             sx={{ mt: 2 }}
           />
-          
+
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-            Anonymous votes will hide your identity from other team members, but will still be counted.
+            Anonymous votes will hide your identity from other team members, but will still be
+            counted.
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseVotingDialog}>Cancel</Button>
-          <Button 
-            onClick={handleSubmitVote} 
-            variant="contained" 
+          <Button
+            onClick={handleSubmitVote}
+            variant="contained"
             color="primary"
             disabled={!reasoning.trim()}
           >
@@ -586,7 +583,7 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={5000}
@@ -597,4 +594,4 @@ const DecisionVoting: React.FC<DecisionVotingProps> = ({ candidateId, candidateN
   );
 };
 
-export default DecisionVoting; 
+export default DecisionVoting;

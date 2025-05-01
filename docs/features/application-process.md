@@ -5,10 +5,28 @@ The Application Process feature manages the end-to-end workflow for job applicat
 ## Overview
 
 The application process in the ATS system provides:
+
 - A structured workflow for tracking candidates through the hiring pipeline
 - Tools for recruiters to manage and evaluate applications
 - Status tracking and communication with candidates
 - Integration with the interview process
+
+## Application Restrictions
+
+The system enforces the following application rules by job status:
+
+| Job Status | Can Apply? | Notes                                     |
+| ---------- | ---------- | ----------------------------------------- |
+| Active     | Yes        | Only active jobs can receive applications |
+| Draft      | No         | Draft jobs are not visible to candidates  |
+| On-Hold    | No         | Applications are temporarily disabled     |
+| Closed     | No         | No longer accepting applications          |
+
+These restrictions are enforced at both UI and API levels:
+
+- The "Apply" button is only displayed for jobs with "Active" status
+- API validation prevents applications to non-active jobs
+- Users receive an appropriate notification if they attempt to apply for a non-active job
 
 ## Pipeline Stages
 
@@ -85,7 +103,7 @@ The Application Process uses the following API endpoints:
 ### Candidate Perspective
 
 1. Candidate views job listings on the Careers Page
-2. Candidate selects a job and clicks "Apply"
+2. Candidate selects a job and clicks "Apply" (only available for Active jobs)
 3. Application form is displayed with required fields
 4. Candidate completes and submits the form
 5. Confirmation is displayed to the candidate
@@ -146,22 +164,31 @@ The Application Process uses the following API endpoints:
 - [Careers Page](./careers-page.md): Public page for job listings and applications
 - [Interview Management](./structured-interviews.md): Process for conducting interviews
 - [Candidate Pipeline](./candidate-pipeline.md): Overall candidate tracking system
+- [Job Draft & Publishing](./job-draft-publishing.md): Job status management
 
 ## Troubleshooting
 
 ### Common Issues
 
 1. **Application submission errors**
+
    - Check for required fields validation
    - Verify file upload size limits for resumes
    - Check connectivity to the API server
 
 2. **Missing application data**
+
    - Verify that all required fields are populated
    - Check for data migration issues
    - Ensure API responses are complete
 
 3. **Stage transition problems**
+
    - Check user permissions for stage changes
    - Verify workflow configuration
-   - Check for required fields at each stage 
+   - Check for required fields at each stage
+
+4. **Unable to apply for a job**
+   - Verify the job status is "Active"
+   - Check if the job posting has expired
+   - Ensure the careers page is displaying the correct job information

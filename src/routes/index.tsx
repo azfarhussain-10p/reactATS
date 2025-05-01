@@ -40,7 +40,7 @@ const ROLES = {
   RECRUITER: 'recruiter',
   INTERVIEWER: 'interviewer',
   HIRING_MANAGER: 'hiring_manager',
-  CANDIDATE: 'candidate'
+  CANDIDATE: 'candidate',
 };
 
 const PERMISSIONS = {
@@ -56,12 +56,12 @@ const PERMISSIONS = {
   SCHEDULE_INTERVIEWS: 'schedule:interviews',
   CONDUCT_INTERVIEWS: 'conduct:interviews',
   MANAGE_EVALUATIONS: 'manage:evaluations',
-  VIEW_ANALYTICS: 'view:analytics'
+  VIEW_ANALYTICS: 'view:analytics',
 };
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
-  
+
   // If auth is loading, show a simple loading indicator
   if (loading) {
     return <div>Loading authentication...</div>;
@@ -74,15 +74,15 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
-      
+
       {/* Public Career Pages */}
       <Route path="/careers" element={<CareerPage />} />
       <Route path="/careers/job/:id" element={<JobDetailPage />} />
       <Route path="/career" element={<Navigate to="/careers" replace />} />
-      
+
       {/* Protected routes */}
-      <Route 
-        path="/" 
+      <Route
+        path="/"
         element={
           <SecureRoute>
             <DashboardLayout />
@@ -90,332 +90,325 @@ const AppRoutes = () => {
         }
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
-        
+
         {/* Dashboard - accessible to all authenticated users */}
-        <Route 
-          path="/dashboard" 
+        <Route
+          path="/dashboard"
           element={
             <SecureRoute>
               <Dashboard />
             </SecureRoute>
-          } 
+          }
         />
-        
+
         {/* Job management routes - restricted by role/permission */}
-        <Route 
-          path="/job-openings" 
+        <Route
+          path="/job-openings"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.VIEW_JOBS]}
               requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
             >
               <JobBoard />
             </SecureRoute>
-          } 
+          }
         />
-        
+
         {/* Candidate management routes */}
-        <Route 
-          path="/candidates" 
+        <Route
+          path="/candidates"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.VIEW_CANDIDATES]}
               requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
             >
               <CandidatesList />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/candidates/:id" 
+
+        <Route
+          path="/candidates/:id"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.VIEW_CANDIDATES]}
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER, ROLES.INTERVIEWER]}
+              requiredRoles={[
+                ROLES.ADMIN,
+                ROLES.RECRUITER,
+                ROLES.HIRING_MANAGER,
+                ROLES.INTERVIEWER,
+              ]}
             >
               <CandidateProfile />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/candidates/add" 
+
+        <Route
+          path="/candidates/add"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.EDIT_CANDIDATES]}
               requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}
             >
               <AddCandidate />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/candidates/rankings" 
+
+        <Route
+          path="/candidates/rankings"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.VIEW_CANDIDATES]}
               requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
             >
               <CandidateRanking />
             </SecureRoute>
-          } 
+          }
         />
-        
+
         {/* Interview management routes */}
-        <Route 
-          path="/interviews" 
+        <Route
+          path="/interviews"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.SCHEDULE_INTERVIEWS]}
               requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
             >
               <InterviewScheduler />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/interviews/schedule/:id" 
+
+        <Route
+          path="/interviews/schedule/:id"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.SCHEDULE_INTERVIEWS]}
               requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
             >
               <InterviewScheduler />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/interviews/feedback/:id" 
+
+        <Route
+          path="/interviews/feedback/:id"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.CONDUCT_INTERVIEWS]}
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER, ROLES.INTERVIEWER]}
+              requiredRoles={[
+                ROLES.ADMIN,
+                ROLES.RECRUITER,
+                ROLES.HIRING_MANAGER,
+                ROLES.INTERVIEWER,
+              ]}
             >
               <InterviewerFeedbackForm />
             </SecureRoute>
-          } 
+          }
         />
-        
+
         {/* Evaluation routes */}
-        <Route 
-          path="/evaluation/:id" 
+        <Route
+          path="/evaluation/:id"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.MANAGE_EVALUATIONS]}
               requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
             >
               <CandidateEvaluation />
             </SecureRoute>
-          } 
+          }
         />
-        
+
         {/* Pipeline management */}
-        <Route 
-          path="/recruitment-pipeline" 
+        <Route
+          path="/recruitment-pipeline"
           element={
-            <SecureRoute 
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
-            >
+            <SecureRoute requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}>
               <RecruitmentPipeline />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/pipeline" 
+
+        <Route
+          path="/pipeline"
           element={
-            <SecureRoute 
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
-            >
+            <SecureRoute requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}>
               <RecruitmentPipeline />
             </SecureRoute>
-          } 
+          }
         />
-        
+
         {/* Analytics and reports */}
-        <Route 
-          path="/analytics" 
+        <Route
+          path="/analytics"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.VIEW_ANALYTICS]}
               requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
             >
               <AdvancedAnalytics />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/advanced-analytics" 
+
+        <Route
+          path="/advanced-analytics"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.VIEW_ANALYTICS]}
               requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
             >
               <AdvancedAnalytics />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/reports" 
+
+        <Route
+          path="/reports"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.VIEW_REPORTS]}
               requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
             >
               <Reports />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/reports/view/:id" 
+
+        <Route
+          path="/reports/view/:id"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.VIEW_REPORTS]}
               requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
             >
               <ReportViewer />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/reports/view" 
+
+        <Route
+          path="/reports/view"
           element={
-            <SecureRoute 
+            <SecureRoute
               requiredPermissions={[PERMISSIONS.VIEW_REPORTS]}
               requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
             >
               <ReportViewer />
             </SecureRoute>
-          } 
+          }
         />
-        
+
         {/* Advanced tools - admin, recruiter only */}
-        <Route 
-          path="/resume-parser" 
+        <Route
+          path="/resume-parser"
           element={
-            <SecureRoute 
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}
-            >
+            <SecureRoute requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}>
               <ResumeParser />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/skills-gap" 
+
+        <Route
+          path="/skills-gap"
           element={
-            <SecureRoute 
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
-            >
+            <SecureRoute requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}>
               <SkillsGapAnalysis />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/job-distribution" 
+
+        <Route
+          path="/job-distribution"
           element={
-            <SecureRoute 
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}
-            >
+            <SecureRoute requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}>
               <JobDistribution />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/email-campaigns" 
+
+        <Route
+          path="/email-campaigns"
           element={
-            <SecureRoute 
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}
-            >
+            <SecureRoute requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}>
               <EmailCampaigns />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/application-forms" 
+
+        <Route
+          path="/application-forms"
           element={
-            <SecureRoute 
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}
-            >
+            <SecureRoute requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}>
               <ApplicationFormBuilder />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/application-forms/edit/:id" 
+
+        <Route
+          path="/application-forms/edit/:id"
           element={
-            <SecureRoute 
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}
-            >
+            <SecureRoute requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}>
               <ApplicationFormBuilder />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/interview-kits" 
+
+        <Route
+          path="/interview-kits"
           element={
-            <SecureRoute 
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
-            >
+            <SecureRoute requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}>
               <StructuredInterviewKitPage />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/document-sharing" 
+
+        <Route
+          path="/document-sharing"
           element={
-            <SecureRoute 
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER, ROLES.INTERVIEWER]}
+            <SecureRoute
+              requiredRoles={[
+                ROLES.ADMIN,
+                ROLES.RECRUITER,
+                ROLES.HIRING_MANAGER,
+                ROLES.INTERVIEWER,
+              ]}
             >
               <DocumentSharingPage />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/task-demo" 
+
+        <Route
+          path="/task-demo"
           element={
-            <SecureRoute 
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
-            >
+            <SecureRoute requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}>
               <TaskDemo />
             </SecureRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/settings" 
+
+        <Route
+          path="/settings"
           element={
-            <SecureRoute 
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
-            >
+            <SecureRoute requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}>
               <Settings />
             </SecureRoute>
-          } 
+          }
         />
-        
+
         {/* Default redirect for unknown routes inside dashboard */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
-      
+
       {/* Global 404 page for unknown routes */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
 
-export default AppRoutes; 
+export default AppRoutes;

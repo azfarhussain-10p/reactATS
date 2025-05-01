@@ -136,6 +136,23 @@ The enhanced Job Distribution system allows recruiters to efficiently manage the
 
 For detailed documentation, see [Job Distribution Documentation](./docs/features/job-distribution.md)
 
+### Status-Based Application Controls
+
+The system intelligently manages job applications based on job status:
+
+- **Status-Driven Visibility:** Apply button only appears for jobs with "Active" status
+- **Multi-layer Protection:**
+  - UI layer prevents applications to non-Active jobs
+  - API validation provides secondary protection
+  - User notifications explain why certain jobs can't be applied to
+- **Status Transition Handling:** When jobs change status, appropriate actions are taken
+- **Integration with Job Lifecycle:** Seamlessly works with the job draft and publishing workflow
+
+For detailed documentation, see:
+
+- [Application Process Documentation](./docs/features/application-process.md#application-restrictions)
+- [Job Status Management](./docs/features/job-draft-publishing.md#status-impact-on-applications)
+
 ## Implementation Structure
 
 The enhanced features follow a modular architecture:
@@ -145,6 +162,20 @@ The enhanced features follow a modular architecture:
 3. **Integration Components**: Bridges between feature modules
 4. **Type Definitions**: Comprehensive TypeScript interfaces for all data models
 5. **Mock Data Services**: Sample data for demonstration purposes
+
+## Code Quality and Standards
+
+### Code Formatting with Prettier
+
+The ATS application uses Prettier for consistent code formatting:
+
+- **Automatic Code Formatting**: Standardized code style across the entire codebase
+- **Pre-commit Hooks**: Format code automatically before committing changes
+- **Configuration**: Custom settings in `.prettierrc.json` for project-specific formatting
+- **Editor Integration**: Support for code formatting directly in development environments
+- **ESLint Integration**: Compatible with ESLint rules to avoid conflicts
+
+For more information, see the [Prettier Integration Guide](./docs/prettier-guide.md).
 
 ## Key Components
 
@@ -165,12 +196,8 @@ The enhanced features follow a modular architecture:
 import { useTalentPoolSegmentation } from '../contexts/TalentPoolSegmentationContext';
 
 const MyComponent = () => {
-  const { 
-    createSegment, 
-    segments, 
-    getSegmentCandidates 
-  } = useTalentPoolSegmentation();
-  
+  const { createSegment, segments, getSegmentCandidates } = useTalentPoolSegmentation();
+
   // Create a new talent segment
   const handleCreateSegment = () => {
     createSegment({
@@ -182,27 +209,27 @@ const MyComponent = () => {
           field: 'skills',
           operator: 'in',
           value: ['JavaScript', 'React', 'Node.js'],
-          valueType: 'array'
+          valueType: 'array',
         },
         {
           id: '2',
           field: 'experience',
           operator: 'greater_than',
           value: 5,
-          valueType: 'number'
-        }
+          valueType: 'number',
+        },
       ],
       color: '#1976d2',
-      isActive: true
+      isActive: true,
     });
   };
-  
+
   // Get candidates in a segment
   const getCandidates = (segmentId) => {
     const candidates = getSegmentCandidates(segmentId);
     // Do something with candidates...
   };
-  
+
   // Rest of component...
 };
 ```
@@ -214,24 +241,22 @@ import { useAnalytics } from '../contexts/AnalyticsContext';
 
 const CostAnalysisComponent = () => {
   const { getCostData } = useAnalytics();
-  
+
   // Get cost data for a specific period
   const analyzeCosts = async () => {
     const period = '2023-Q4';
-    const filters = [
-      { field: 'department', operator: 'equals', value: 'Engineering' }
-    ];
-    
+    const filters = [{ field: 'department', operator: 'equals', value: 'Engineering' }];
+
     const costData = await getCostData(period, filters);
-    
+
     // Calculate cost per hire
     const totalCost = costData.reduce((sum, item) => sum + item.amount, 0);
     const totalHires = 8; // Would come from another API call
     const costPerHire = totalCost / totalHires;
-    
+
     // Do something with the cost per hire value...
   };
-  
+
   // Rest of component...
 };
 ```
@@ -244,4 +269,4 @@ Potential areas for future development:
 2. **Predictive Analytics**: Forecast hiring trends and outcomes
 3. **Natural Language Processing**: Extract insights from candidate communications
 4. **Mobile Application**: Access key features on mobile devices
-5. **Advanced Integration Ecosystem**: Connect with more third-party platforms 
+5. **Advanced Integration Ecosystem**: Connect with more third-party platforms

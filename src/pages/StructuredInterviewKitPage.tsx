@@ -6,12 +6,12 @@ import PageHeader from '../components/PageHeader'; // Assuming you have a PageHe
 const StructuredInterviewKitPage: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
-      <PageHeader 
+      <PageHeader
         title="Structured Interview Kit"
         subtitle="Create and manage standardized interview kits for consistent candidate evaluation"
         docsLink="/help/structured-interview-kits"
       />
-      
+
       <Paper elevation={0} sx={{ p: 0, mt: 3 }}>
         <StructuredInterviewKit />
       </Paper>
@@ -19,4 +19,4 @@ const StructuredInterviewKitPage: React.FC = () => {
   );
 };
 
-export default StructuredInterviewKitPage; 
+export default StructuredInterviewKitPage;

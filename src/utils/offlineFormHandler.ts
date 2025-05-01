@@ -16,13 +16,13 @@ export const saveFormForLater = async (
     const db = await openDatabase();
     await storeForm(db, { url, method, headers, data });
     db.close();
-    
+
     // Register for background sync if supported
     if ('serviceWorker' in navigator && 'SyncManager' in window) {
       const registration = await navigator.serviceWorker.ready;
       await registration.sync.register('sync-forms');
     }
-    
+
     return true;
   } catch (error) {
     console.error('Failed to save form for later:', error);
@@ -49,7 +49,7 @@ export const offlineAwareApiCall = async <T>(
   } = {}
 ): Promise<T> => {
   const { headers = {}, params = {}, retryOffline = true } = options;
-  
+
   try {
     // Try to make the regular API call first
     if (method.toUpperCase() === 'GET') {
@@ -60,23 +60,23 @@ export const offlineAwareApiCall = async <T>(
         url,
         data,
         params,
-        headers
+        headers,
       });
     }
   } catch (error) {
     // If we're offline and this is a modifying request (not GET), save it for later
     if (!navigator.onLine && retryOffline && method.toUpperCase() !== 'GET') {
       const saved = await saveFormForLater(url, method, headers, data);
-      
+
       if (saved) {
         return {
           success: true,
           offlineQueued: true,
-          message: 'Request saved for when you\'re back online'
+          message: "Request saved for when you're back online",
         } as unknown as T;
       }
     }
-    
+
     // Re-throw the error if we couldn't handle it
     throw error;
   }
@@ -90,7 +90,7 @@ export const hasPendingForms = async (): Promise<boolean> => {
     const db = await openDatabase();
     const forms = await getAllStoredForms(db);
     db.close();
-    
+
     return forms.length > 0;
   } catch (error) {
     console.error('Failed to check for pending forms:', error);
@@ -106,7 +106,7 @@ export const getPendingFormsCount = async (): Promise<number> => {
     const db = await openDatabase();
     const forms = await getAllStoredForms(db);
     db.close();
-    
+
     return forms.length;
   } catch (error) {
     console.error('Failed to get pending forms count:', error);
@@ -131,12 +131,12 @@ export const processPendingForms = async (): Promise<{
   try {
     const db = await openDatabase();
     const forms = await getAllStoredForms(db);
-    
+
     if (forms.length === 0) {
       db.close();
       return { success: true, processed: 0, failed: 0, results: [] };
     }
-    
+
     const results = await Promise.all(
       forms.map(async (form) => {
         try {
@@ -144,32 +144,32 @@ export const processPendingForms = async (): Promise<{
             url: form.url,
             method: form.method,
             headers: form.headers,
-            data: form.data
+            data: form.data,
           });
-          
+
           await deleteForm(db, form.id);
           return { id: form.id, success: true };
         } catch (error) {
           console.error(`Failed to process offline form ${form.id}:`, error);
-          return { 
-            id: form.id, 
-            success: false, 
-            error: error instanceof Error ? error.message : String(error) 
+          return {
+            id: form.id,
+            success: false,
+            error: error instanceof Error ? error.message : String(error),
           };
         }
       })
     );
-    
+
     db.close();
-    
-    const successful = results.filter(r => r.success).length;
+
+    const successful = results.filter((r) => r.success).length;
     const failed = results.length - successful;
-    
-    return { 
-      success: failed === 0, 
-      processed: successful, 
-      failed, 
-      results 
+
+    return {
+      success: failed === 0,
+      processed: successful,
+      failed,
+      results,
     };
   } catch (error) {
     console.error('Failed to process pending forms:', error);
@@ -184,22 +184,24 @@ export const setupOfflineFormSync = (): void => {
   const handleOnline = async () => {
     console.log('Connection restored, checking for pending forms...');
     const result = await processPendingForms();
-    
+
     if (result.processed > 0) {
       console.log(`Successfully processed ${result.processed} pending forms.`);
       // Notify any listeners that forms have been processed
-      window.dispatchEvent(new CustomEvent('offline-forms-processed', { 
-        detail: result 
-      }));
+      window.dispatchEvent(
+        new CustomEvent('offline-forms-processed', {
+          detail: result,
+        })
+      );
     }
-    
+
     if (result.failed > 0) {
       console.warn(`Failed to process ${result.failed} forms.`);
     }
   };
-  
+
   window.addEventListener('online', handleOnline);
-  
+
   // If we're already online and have pending forms, process them immediately
   if (navigator.onLine) {
     setTimeout(async () => {
@@ -219,20 +221,20 @@ export const setupOfflineFormSync = (): void => {
 const openDatabase = (): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('offline-forms', 1);
-    
+
     request.onupgradeneeded = (event) => {
       const db = event.target?.result as IDBDatabase;
-      
+
       // Create an object store for offline forms
       if (!db.objectStoreNames.contains('forms')) {
         db.createObjectStore('forms', { keyPath: 'id', autoIncrement: true });
       }
     };
-    
+
     request.onsuccess = (event) => {
       resolve((event.target as IDBOpenDBRequest).result);
     };
-    
+
     request.onerror = (event) => {
       reject((event.target as IDBOpenDBRequest).error);
     };
@@ -248,13 +250,13 @@ const storeForm = (db: IDBDatabase, formData: any): Promise<void> => {
     const store = transaction.objectStore('forms');
     const request = store.add({
       ...formData,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
+
     request.onsuccess = () => {
       resolve();
     };
-    
+
     request.onerror = (event) => {
       reject((event.target as IDBRequest).error);
     };
@@ -269,11 +271,11 @@ const getAllStoredForms = (db: IDBDatabase): Promise<any[]> => {
     const transaction = db.transaction('forms', 'readonly');
     const store = transaction.objectStore('forms');
     const request = store.getAll();
-    
+
     request.onsuccess = (event) => {
       resolve((event.target as IDBRequest).result);
     };
-    
+
     request.onerror = (event) => {
       reject((event.target as IDBRequest).error);
     };
@@ -288,13 +290,13 @@ const deleteForm = (db: IDBDatabase, id: number): Promise<void> => {
     const transaction = db.transaction('forms', 'readwrite');
     const store = transaction.objectStore('forms');
     const request = store.delete(id);
-    
+
     request.onsuccess = () => {
       resolve();
     };
-    
+
     request.onerror = (event) => {
       reject((event.target as IDBRequest).error);
     };
   });
-}; 
+};

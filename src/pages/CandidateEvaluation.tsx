@@ -28,7 +28,7 @@ import {
   DialogContent,
   DialogTitle,
   Avatar,
-  LinearProgress
+  LinearProgress,
 } from '@mui/material';
 import {
   Save as SaveIcon,
@@ -42,7 +42,7 @@ import {
   Psychology as PsychologyIcon,
   Business as BusinessIcon,
   Engineering as EngineeringIcon,
-  Score as ScoreIcon
+  Score as ScoreIcon,
 } from '@mui/icons-material';
 
 // Mock candidate data - in a real app, this would come from an API
@@ -56,7 +56,7 @@ const mockCandidates = [
     status: 'Interview',
     interviewStage: 'Technical Interview',
     profileImage: '',
-    resumeUrl: '#'
+    resumeUrl: '#',
   },
   {
     id: 2,
@@ -67,8 +67,8 @@ const mockCandidates = [
     status: 'Interview',
     interviewStage: 'Portfolio Review',
     profileImage: '',
-    resumeUrl: '#'
-  }
+    resumeUrl: '#',
+  },
 ];
 
 // Mock interviewers
@@ -76,7 +76,7 @@ const interviewers = [
   { id: 1, name: 'Emily Davis', role: 'Hiring Manager' },
   { id: 2, name: 'Robert Wilson', role: 'Tech Lead' },
   { id: 3, name: 'Amanda Miller', role: 'HR Manager' },
-  { id: 4, name: 'David Lee', role: 'Senior Developer' }
+  { id: 4, name: 'David Lee', role: 'Senior Developer' },
 ];
 
 // Evaluation form sections
@@ -85,37 +85,31 @@ const evaluationSections = {
     { id: 'techKnowledge', label: 'Technical Knowledge', required: true },
     { id: 'problemSolving', label: 'Problem Solving', required: true },
     { id: 'codingSkills', label: 'Coding Skills', required: false },
-    { id: 'systemDesign', label: 'System Design', required: false }
+    { id: 'systemDesign', label: 'System Design', required: false },
   ],
   softSkills: [
     { id: 'communication', label: 'Communication', required: true },
     { id: 'teamwork', label: 'Teamwork', required: true },
-    { id: 'adaptability', label: 'Adaptability', required: true }
+    { id: 'adaptability', label: 'Adaptability', required: true },
   ],
   culturalFit: [
     { id: 'values', label: 'Company Values Alignment', required: true },
-    { id: 'motivation', label: 'Motivation', required: true }
-  ]
+    { id: 'motivation', label: 'Motivation', required: true },
+  ],
 };
 
 // Interview types
 const interviewTypes = [
   'Technical Interview',
   'Behavioral Interview',
-  'Portfolio Review', 
+  'Portfolio Review',
   'System Design Interview',
   'Case Study',
-  'Final Round'
+  'Final Round',
 ];
 
 // Recommendation options
-const recommendationOptions = [
-  'Strong Hire',
-  'Hire',
-  'Neutral',
-  'Reject',
-  'Strong Reject'
-];
+const recommendationOptions = ['Strong Hire', 'Hire', 'Neutral', 'Reject', 'Strong Reject'];
 
 // Mock previous evaluations
 const previousEvaluations = [
@@ -138,9 +132,9 @@ const previousEvaluations = [
       teamwork: 4,
       adaptability: 4,
       values: 4,
-      motivation: 5
-    }
-  }
+      motivation: 5,
+    },
+  },
 ];
 
 function CandidateEvaluation() {
@@ -161,7 +155,7 @@ function CandidateEvaluation() {
   const [weights, setWeights] = useState({
     technicalSkills: 40,
     softSkills: 30,
-    culturalFit: 30
+    culturalFit: 30,
   });
 
   // Evaluation form state
@@ -182,8 +176,8 @@ function CandidateEvaluation() {
       teamwork: 0,
       adaptability: 0,
       values: 0,
-      motivation: 0
-    }
+      motivation: 0,
+    },
   });
 
   // Validation state
@@ -195,45 +189,47 @@ function CandidateEvaluation() {
       evaluation.skills.techKnowledge,
       evaluation.skills.problemSolving,
       evaluation.skills.codingSkills,
-      evaluation.skills.systemDesign
-    ].filter(score => score > 0);
+      evaluation.skills.systemDesign,
+    ].filter((score) => score > 0);
 
     const softSkills = [
       evaluation.skills.communication,
       evaluation.skills.teamwork,
-      evaluation.skills.adaptability
-    ].filter(score => score > 0);
+      evaluation.skills.adaptability,
+    ].filter((score) => score > 0);
 
-    const culturalFit = [
-      evaluation.skills.values,
-      evaluation.skills.motivation
-    ].filter(score => score > 0);
+    const culturalFit = [evaluation.skills.values, evaluation.skills.motivation].filter(
+      (score) => score > 0
+    );
 
     // Calculate average scores for each category
-    const technicalScore = technicalSkills.length > 0 
-      ? technicalSkills.reduce((sum, score) => sum + score, 0) / technicalSkills.length 
-      : 0;
-    
-    const softScore = softSkills.length > 0 
-      ? softSkills.reduce((sum, score) => sum + score, 0) / softSkills.length 
-      : 0;
-    
-    const culturalScore = culturalFit.length > 0 
-      ? culturalFit.reduce((sum, score) => sum + score, 0) / culturalFit.length 
-      : 0;
+    const technicalScore =
+      technicalSkills.length > 0
+        ? technicalSkills.reduce((sum, score) => sum + score, 0) / technicalSkills.length
+        : 0;
+
+    const softScore =
+      softSkills.length > 0
+        ? softSkills.reduce((sum, score) => sum + score, 0) / softSkills.length
+        : 0;
+
+    const culturalScore =
+      culturalFit.length > 0
+        ? culturalFit.reduce((sum, score) => sum + score, 0) / culturalFit.length
+        : 0;
 
     // Calculate weighted score
-    const weightedScore = 
-      (technicalScore * weights.technicalSkills / 100) +
-      (softScore * weights.softSkills / 100) +
-      (culturalFit * weights.culturalFit / 100);
+    const weightedScore =
+      (technicalScore * weights.technicalSkills) / 100 +
+      (softScore * weights.softSkills) / 100 +
+      (culturalFit * weights.culturalFit) / 100;
 
     return {
       technical: technicalScore,
       soft: softScore,
       cultural: culturalScore,
       weighted: weightedScore,
-      overall: evaluation.overallRating
+      overall: evaluation.overallRating,
     };
   };
 
@@ -246,12 +242,12 @@ function CandidateEvaluation() {
     if (candidateId) {
       // Simulate API call
       setTimeout(() => {
-        const foundCandidate = mockCandidates.find(c => c.id === candidateId);
+        const foundCandidate = mockCandidates.find((c) => c.id === candidateId);
         if (foundCandidate) {
           setCandidate(foundCandidate);
           // Get previous evaluations for this candidate
           const candidateEvaluations = previousEvaluations.filter(
-            e => e.candidateId === candidateId
+            (e) => e.candidateId === candidateId
           );
           setPrevEvaluations(candidateEvaluations);
         } else {
@@ -268,14 +264,14 @@ function CandidateEvaluation() {
   // Handle form field changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setEvaluation(prev => ({
+    setEvaluation((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
 
     // Clear error for this field if it exists
     if (formErrors[name]) {
-      setFormErrors(prev => {
+      setFormErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
@@ -286,14 +282,14 @@ function CandidateEvaluation() {
   // Handle select field changes
   const handleSelectChange = (e: any) => {
     const { name, value } = e.target;
-    setEvaluation(prev => ({
+    setEvaluation((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
 
     // Clear error for this field if it exists
     if (formErrors[name]) {
-      setFormErrors(prev => {
+      setFormErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
@@ -303,14 +299,14 @@ function CandidateEvaluation() {
 
   // Handle rating changes
   const handleRatingChange = (name: string, value: number | null) => {
-    setEvaluation(prev => ({
+    setEvaluation((prev) => ({
       ...prev,
-      [name]: value || 0
+      [name]: value || 0,
     }));
 
     // Clear error for this field if it exists
     if (formErrors[name]) {
-      setFormErrors(prev => {
+      setFormErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
@@ -320,17 +316,17 @@ function CandidateEvaluation() {
 
   // Handle skill rating changes
   const handleSkillRatingChange = (skillId: string, value: number | null) => {
-    setEvaluation(prev => ({
+    setEvaluation((prev) => ({
       ...prev,
       skills: {
         ...prev.skills,
-        [skillId]: value || 0
-      }
+        [skillId]: value || 0,
+      },
     }));
 
     // Clear error for this field if it exists
     if (formErrors[`skills.${skillId}`]) {
-      setFormErrors(prev => {
+      setFormErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[`skills.${skillId}`];
         return newErrors;
@@ -340,9 +336,9 @@ function CandidateEvaluation() {
 
   // Handle weights change
   const handleWeightChange = (type: string, value: number) => {
-    setWeights(prev => ({
+    setWeights((prev) => ({
       ...prev,
-      [type]: value
+      [type]: value,
     }));
   };
 
@@ -356,22 +352,23 @@ function CandidateEvaluation() {
     if (evaluation.overallRating === 0) errors.overallRating = 'Please provide an overall rating';
     if (!evaluation.recommendation) errors.recommendation = 'Please provide a recommendation';
     if (!evaluation.strengths.trim()) errors.strengths = 'Please provide candidate strengths';
-    if (!evaluation.areas_for_improvement.trim()) errors.areas_for_improvement = 'Please provide areas for improvement';
+    if (!evaluation.areas_for_improvement.trim())
+      errors.areas_for_improvement = 'Please provide areas for improvement';
 
     // Check required skills ratings
-    evaluationSections.technicalSkills.forEach(skill => {
+    evaluationSections.technicalSkills.forEach((skill) => {
       if (skill.required && evaluation.skills[skill.id as keyof typeof evaluation.skills] === 0) {
         errors[`skills.${skill.id}`] = `Please rate ${skill.label}`;
       }
     });
 
-    evaluationSections.softSkills.forEach(skill => {
+    evaluationSections.softSkills.forEach((skill) => {
       if (skill.required && evaluation.skills[skill.id as keyof typeof evaluation.skills] === 0) {
         errors[`skills.${skill.id}`] = `Please rate ${skill.label}`;
       }
     });
 
-    evaluationSections.culturalFit.forEach(skill => {
+    evaluationSections.culturalFit.forEach((skill) => {
       if (skill.required && evaluation.skills[skill.id as keyof typeof evaluation.skills] === 0) {
         errors[`skills.${skill.id}`] = `Please rate ${skill.label}`;
       }
@@ -383,7 +380,7 @@ function CandidateEvaluation() {
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate the form
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
@@ -403,7 +400,7 @@ function CandidateEvaluation() {
     // In a real app, this would send data to an API
     console.log('Submitting evaluation:', evaluation);
     console.log('Calculated scores:', calculatedScores);
-    
+
     // Simulate API call
     setTimeout(() => {
       // Add the evaluation to previous evaluations
@@ -419,14 +416,14 @@ function CandidateEvaluation() {
         recommendation: evaluation.recommendation,
         notes: evaluation.notes,
         skills: { ...evaluation.skills },
-        scores: calculatedScores
+        scores: calculatedScores,
       };
-      
+
       setPrevEvaluations([...prevEvaluations, newEvaluation]);
-      
+
       // Show success message
       setSuccess(true);
-      
+
       // Reset form after a delay
       setTimeout(() => {
         // Reset form
@@ -447,8 +444,8 @@ function CandidateEvaluation() {
             teamwork: 0,
             adaptability: 0,
             values: 0,
-            motivation: 0
-          }
+            motivation: 0,
+          },
         });
         setSuccess(false);
       }, 3000);
@@ -460,7 +457,9 @@ function CandidateEvaluation() {
     return (
       <Box sx={{ maxWidth: 1200, mx: 'auto', py: 3 }}>
         <LinearProgress />
-        <Typography variant="h6" sx={{ mt: 2 }}>Loading candidate data...</Typography>
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Loading candidate data...
+        </Typography>
       </Box>
     );
   }
@@ -470,11 +469,7 @@ function CandidateEvaluation() {
     return (
       <Box sx={{ maxWidth: 1200, mx: 'auto', py: 3 }}>
         <Alert severity="error">{error}</Alert>
-        <Button 
-          variant="contained" 
-          sx={{ mt: 2 }}
-          onClick={() => navigate('/candidates')}
-        >
+        <Button variant="contained" sx={{ mt: 2 }} onClick={() => navigate('/candidates')}>
           Back to Candidates
         </Button>
       </Box>
@@ -488,16 +483,18 @@ function CandidateEvaluation() {
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} sm={8}>
             <Typography variant="h5">{candidate.name}</Typography>
-            <Typography variant="subtitle1" color="text.secondary">{candidate.role}</Typography>
+            <Typography variant="subtitle1" color="text.secondary">
+              {candidate.role}
+            </Typography>
             <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
               <Typography variant="body2">{candidate.email}</Typography>
               <Typography variant="body2">{candidate.phone}</Typography>
             </Box>
           </Grid>
           <Grid item xs={12} sm={4} sx={{ textAlign: 'right' }}>
-            <Chip 
-              label={candidate.status} 
-              color={candidate.status === 'Interview' ? 'primary' : 'default'} 
+            <Chip
+              label={candidate.status}
+              color={candidate.status === 'Interview' ? 'primary' : 'default'}
             />
             <Typography variant="body2" sx={{ mt: 1 }}>
               Current Stage: {candidate.interviewStage}
@@ -516,8 +513,8 @@ function CandidateEvaluation() {
       {/* Previous Evaluations Button */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h6">Candidate Evaluation Form</Typography>
-        <Button 
-          variant="outlined" 
+        <Button
+          variant="outlined"
           onClick={() => setShowPrevEvaluations(true)}
           disabled={prevEvaluations.length === 0}
         >
@@ -539,7 +536,7 @@ function CandidateEvaluation() {
                 onChange={handleSelectChange}
                 label="Interviewer"
               >
-                {interviewers.map(interviewer => (
+                {interviewers.map((interviewer) => (
                   <MenuItem key={interviewer.id} value={interviewer.id}>
                     {interviewer.name} - {interviewer.role}
                   </MenuItem>
@@ -563,7 +560,7 @@ function CandidateEvaluation() {
                 onChange={handleSelectChange}
                 label="Interview Type"
               >
-                {interviewTypes.map(type => (
+                {interviewTypes.map((type) => (
                   <MenuItem key={type} value={type}>
                     {type}
                   </MenuItem>
@@ -806,7 +803,9 @@ function CandidateEvaluation() {
           </Grid>
           <Grid item xs={12}>
             <FormControl fullWidth error={!!formErrors.recommendation}>
-              <FormLabel id="recommendation-label">Recommendation <span style={{ color: 'red' }}>*</span></FormLabel>
+              <FormLabel id="recommendation-label">
+                Recommendation <span style={{ color: 'red' }}>*</span>
+              </FormLabel>
               <RadioGroup
                 aria-labelledby="recommendation-label"
                 name="recommendation"
@@ -814,8 +813,13 @@ function CandidateEvaluation() {
                 onChange={handleChange}
                 row
               >
-                {recommendationOptions.map(option => (
-                  <FormControlLabel key={option} value={option} control={<Radio />} label={option} />
+                {recommendationOptions.map((option) => (
+                  <FormControlLabel
+                    key={option}
+                    value={option}
+                    control={<Radio />}
+                    label={option}
+                  />
                 ))}
               </RadioGroup>
               {formErrors.recommendation && (
@@ -829,18 +833,14 @@ function CandidateEvaluation() {
 
         {/* Form Actions */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mb: 3 }}>
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             startIcon={<CancelIcon />}
             onClick={() => navigate(`/candidates/${candidateId}`)}
           >
             Cancel
           </Button>
-          <Button 
-            type="submit" 
-            variant="contained" 
-            startIcon={<SendIcon />}
-          >
+          <Button type="submit" variant="contained" startIcon={<SendIcon />}>
             Submit Evaluation
           </Button>
         </Box>
@@ -857,53 +857,69 @@ function CandidateEvaluation() {
         <DialogContent dividers>
           {prevEvaluations.length > 0 ? (
             <Stack spacing={2}>
-              {prevEvaluations.map(evaluation => {
-                const interviewer = interviewers.find(i => i.id === evaluation.interviewerId);
+              {prevEvaluations.map((evaluation) => {
+                const interviewer = interviewers.find((i) => i.id === evaluation.interviewerId);
                 return (
                   <Card key={evaluation.id} variant="outlined">
                     <CardContent>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                        }}
+                      >
                         <Box>
                           <Typography variant="subtitle1">
                             {evaluation.interviewType} ({evaluation.date})
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            Interviewer: {interviewer ? interviewer.name : 'Unknown'} ({interviewer ? interviewer.role : ''})
+                            Interviewer: {interviewer ? interviewer.name : 'Unknown'} (
+                            {interviewer ? interviewer.role : ''})
                           </Typography>
                         </Box>
                         <Box sx={{ textAlign: 'right' }}>
                           <Rating value={evaluation.overallRating} readOnly size="small" />
-                          <Chip 
-                            label={evaluation.recommendation} 
+                          <Chip
+                            label={evaluation.recommendation}
                             size="small"
                             color={
-                              evaluation.recommendation.includes('Strong Hire') ? 'success' :
-                              evaluation.recommendation.includes('Hire') ? 'primary' :
-                              evaluation.recommendation.includes('Neutral') ? 'default' :
-                              'error'
+                              evaluation.recommendation.includes('Strong Hire')
+                                ? 'success'
+                                : evaluation.recommendation.includes('Hire')
+                                  ? 'primary'
+                                  : evaluation.recommendation.includes('Neutral')
+                                    ? 'default'
+                                    : 'error'
                             }
                             sx={{ ml: 1 }}
                           />
                         </Box>
                       </Box>
-                      
+
                       <Divider sx={{ my: 2 }} />
-                      
+
                       <Typography variant="subtitle2">Strengths</Typography>
-                      <Typography variant="body2" paragraph>{evaluation.strengths}</Typography>
-                      
+                      <Typography variant="body2" paragraph>
+                        {evaluation.strengths}
+                      </Typography>
+
                       <Typography variant="subtitle2">Areas for Improvement</Typography>
-                      <Typography variant="body2" paragraph>{evaluation.areas_for_improvement}</Typography>
-                      
+                      <Typography variant="body2" paragraph>
+                        {evaluation.areas_for_improvement}
+                      </Typography>
+
                       {evaluation.notes && (
                         <>
                           <Typography variant="subtitle2">Additional Notes</Typography>
-                          <Typography variant="body2" paragraph>{evaluation.notes}</Typography>
+                          <Typography variant="body2" paragraph>
+                            {evaluation.notes}
+                          </Typography>
                         </>
                       )}
-                      
+
                       <Divider sx={{ my: 2 }} />
-                      
+
                       <Typography variant="subtitle2">Skills Assessment</Typography>
                       <Grid container spacing={1} sx={{ mt: 1 }}>
                         {Object.entries(evaluation.skills)
@@ -912,7 +928,7 @@ function CandidateEvaluation() {
                             let label = key;
                             // Find the label for this skill
                             for (const section of Object.values(evaluationSections)) {
-                              const found = section.find(s => s.id === key);
+                              const found = section.find((s) => s.id === key);
                               if (found) {
                                 label = found.label;
                                 break;
@@ -920,7 +936,13 @@ function CandidateEvaluation() {
                             }
                             return (
                               <Grid item xs={6} sm={4} key={key}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                  }}
+                                >
                                   <Typography variant="body2">{label}:</Typography>
                                   <Rating value={value as number} readOnly size="small" />
                                 </Box>
@@ -945,4 +967,4 @@ function CandidateEvaluation() {
   );
 }
 
-export default CandidateEvaluation; 
+export default CandidateEvaluation;

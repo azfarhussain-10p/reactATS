@@ -38,7 +38,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 // Create context
 const SecurityContext = createContext<SecurityContextType | undefined>(undefined);
 
-export const SecurityProvider: React.FC<{children: ReactNode}> = ({ children }) => {
+export const SecurityProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [securityState, setSecurityState] = useState<SecurityState>({
     config: DEFAULT_SECURITY_CONFIG,
     csrfToken: null,
@@ -52,9 +52,9 @@ export const SecurityProvider: React.FC<{children: ReactNode}> = ({ children }) 
       try {
         // Fetch security configuration from API
         const configResponse = await axios.get(`${API_URL}/security/config`);
-        
+
         if (configResponse.data) {
-          setSecurityState(prev => ({
+          setSecurityState((prev) => ({
             ...prev,
             config: {
               ...prev.config,
@@ -73,7 +73,7 @@ export const SecurityProvider: React.FC<{children: ReactNode}> = ({ children }) 
         console.error('Error fetching CSRF token:', error);
       }
 
-      setSecurityState(prev => ({
+      setSecurityState((prev) => ({
         ...prev,
         securityInitialized: true,
       }));
@@ -86,7 +86,7 @@ export const SecurityProvider: React.FC<{children: ReactNode}> = ({ children }) 
   useEffect(() => {
     // Request interceptor for adding security headers and CSRF token
     const requestInterceptor = axios.interceptors.request.use(
-      async config => {
+      async (config) => {
         // Add CSRF token if enabled
         if (securityState.config.csrfEnabled && securityState.csrfToken) {
           config.headers[securityState.config.csrfHeaderName] = securityState.csrfToken;
@@ -96,21 +96,21 @@ export const SecurityProvider: React.FC<{children: ReactNode}> = ({ children }) 
         config.headers['X-Content-Type-Options'] = 'nosniff';
         config.headers['X-Frame-Options'] = 'DENY';
         config.headers['X-XSS-Protection'] = '1; mode=block';
-        
+
         return config;
       },
-      error => {
+      (error) => {
         return Promise.reject(error);
       }
     );
 
     // Response interceptor for handling security-related responses
     const responseInterceptor = axios.interceptors.response.use(
-      response => {
+      (response) => {
         // Update rate limit info if present in headers
         const rateLimitRemaining = response.headers['x-ratelimit-remaining'];
         if (rateLimitRemaining) {
-          setSecurityState(prev => ({
+          setSecurityState((prev) => ({
             ...prev,
             rateLimitRemaining: parseInt(rateLimitRemaining, 10),
           }));
@@ -119,7 +119,7 @@ export const SecurityProvider: React.FC<{children: ReactNode}> = ({ children }) 
         // Update CSRF token if present in headers
         const newCsrfToken = response.headers[securityState.config.csrfHeaderName.toLowerCase()];
         if (newCsrfToken) {
-          setSecurityState(prev => ({
+          setSecurityState((prev) => ({
             ...prev,
             csrfToken: newCsrfToken,
           }));
@@ -127,7 +127,7 @@ export const SecurityProvider: React.FC<{children: ReactNode}> = ({ children }) 
 
         return response;
       },
-      async error => {
+      async (error) => {
         // Handle 403 errors (CSRF or permission issues)
         if (axios.isAxiosError(error) && error.response?.status === 403) {
           // If it's a CSRF issue, try to refresh the token
@@ -171,19 +171,19 @@ export const SecurityProvider: React.FC<{children: ReactNode}> = ({ children }) 
     if (!securityState.config.csrfEnabled) {
       return null;
     }
-    
+
     try {
       const response = await axios.get(`${API_URL}/security/csrf-token`);
       const newToken = response.data.token;
-      
+
       if (newToken) {
-        setSecurityState(prev => ({
+        setSecurityState((prev) => ({
           ...prev,
           csrfToken: newToken,
         }));
         return newToken;
       }
-      
+
       return null;
     } catch (error) {
       console.error('Error refreshing CSRF token:', error);
@@ -196,7 +196,7 @@ export const SecurityProvider: React.FC<{children: ReactNode}> = ({ children }) 
     if (!securityState.config.encryptionEnabled) {
       return data;
     }
-    
+
     try {
       // In a real implementation, this would use a library like crypto-js
       // For now, we'll just simulate encryption with Base64 encoding
@@ -214,7 +214,7 @@ export const SecurityProvider: React.FC<{children: ReactNode}> = ({ children }) 
     if (!securityState.config.encryptionEnabled) {
       return encryptedData;
     }
-    
+
     try {
       // In a real implementation, this would use a library like crypto-js
       // For now, we'll just simulate decryption with Base64 decoding
@@ -235,22 +235,18 @@ export const SecurityProvider: React.FC<{children: ReactNode}> = ({ children }) 
     decrypt,
   };
 
-  return (
-    <SecurityContext.Provider value={value}>
-      {children}
-    </SecurityContext.Provider>
-  );
+  return <SecurityContext.Provider value={value}>{children}</SecurityContext.Provider>;
 };
 
 // Hook for using the security context
 export const useSecurity = (): SecurityContextType => {
   const context = useContext(SecurityContext);
-  
+
   if (context === undefined) {
     throw new Error('useSecurity must be used within a SecurityProvider');
   }
-  
+
   return context;
 };
 
-export default SecurityContext; 
+export default SecurityContext;

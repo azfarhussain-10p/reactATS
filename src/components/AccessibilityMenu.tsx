@@ -1,15 +1,15 @@
 /**
  * AccessibilityMenu Component
- * 
+ *
  * A customizable, feature-rich accessibility menu that provides users with options
  * to adjust visual display, text size, and motion settings according to their needs.
- * 
+ *
  * Copyright (c) 2024-2025 Syed Azfar Hussain - Principal Test Consultant at 10Pearls Pakistan
  * All rights reserved.
- * 
+ *
  * Licensed under the terms of 10Pearls proprietary license.
  * Unauthorized copying, redistribution, or use of this file is strictly prohibited.
- * 
+ *
  * This component implements WCAG 2.1 guidelines for:
  * - Contrast adjustment (1.4.3 Contrast)
  * - Text resizing (1.4.4 Resize Text)
@@ -71,11 +71,11 @@ const defaultSettings: AccessibilitySettings = {
 
 /**
  * A reusable menu that provides accessibility options for the application
- * 
+ *
  * @component
  * @author Syed Azfar Hussain - Principal Test Consultant at 10Pearls Pakistan
  * @copyright 2024-2025 10Pearls Pakistan
- * 
+ *
  * Features:
  * - High contrast mode for better visibility
  * - Large text mode for improved readability
@@ -84,57 +84,57 @@ const defaultSettings: AccessibilitySettings = {
  * - Keyboard focus indicators for better keyboard navigation
  * - Automatic settings persistence via localStorage
  */
-const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({ 
-  onChange, 
-  initialSettings = {} 
+const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
+  onChange,
+  initialSettings = {},
 }) => {
   // Merge initial settings with defaults
   const [settings, setSettings] = useState<AccessibilitySettings>({
     ...defaultSettings,
     ...initialSettings,
   });
-  
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  
+
   // Apply changes when settings change
   useEffect(() => {
     onChange(settings);
-    
+
     // Save settings to localStorage for persistence
     localStorage.setItem('accessibilitySettings', JSON.stringify(settings));
-    
+
     // Update CSS variables for global settings
     document.documentElement.style.setProperty(
-      '--font-size-multiplier', 
+      '--font-size-multiplier',
       settings.fontSizeMultiplier.toString()
     );
-    
+
     document.documentElement.style.setProperty(
-      '--transition-duration', 
+      '--transition-duration',
       settings.reducedMotion ? '0s' : '0.3s'
     );
-    
+
     // Add/remove classes for global settings
     if (settings.highContrast) {
       document.body.classList.add('high-contrast');
     } else {
       document.body.classList.remove('high-contrast');
     }
-    
+
     if (settings.largeText) {
       document.body.classList.add('large-text');
     } else {
       document.body.classList.remove('large-text');
     }
-    
+
     if (settings.keyboardFocusVisible) {
       document.body.classList.add('keyboard-focus-visible');
     } else {
       document.body.classList.remove('keyboard-focus-visible');
     }
   }, [settings, onChange]);
-  
+
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -150,21 +150,21 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
         }
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [open]);
-  
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  
+
   const handleClose = () => {
     setAnchorEl(null);
   };
-  
+
   const handleChangeSetting = (key: keyof AccessibilitySettings) => {
     return (event: React.ChangeEvent<HTMLInputElement>) => {
       setSettings({
@@ -173,43 +173,42 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
       });
     };
   };
-  
+
   const handleFontSizeChange = (event: Event, newValue: number | number[]) => {
     const fontSizeValue = newValue as number;
     const newSettings = {
       ...settings,
       fontSizeMultiplier: fontSizeValue,
     };
-    
+
     // Update settings in component state
     setSettings(newSettings);
-    
+
     // Apply font size directly
-    document.documentElement.style.setProperty(
-      '--font-size-multiplier', 
-      fontSizeValue.toString()
-    );
-    
+    document.documentElement.style.setProperty('--font-size-multiplier', fontSizeValue.toString());
+
     // Set an inline style on html to trigger immediate update
     if (newSettings.largeText) {
       document.documentElement.style.fontSize = `calc(1rem * ${fontSizeValue})`;
     }
-    
+
     // Force layout reflow to apply changes immediately
     document.body.style.zoom = '99.99%';
-    setTimeout(() => { document.body.style.zoom = '100%'; }, 10);
-    
+    setTimeout(() => {
+      document.body.style.zoom = '100%';
+    }, 10);
+
     // Pass changes to parent component (App) through onChange prop
     onChange(newSettings);
-    
+
     // Log for debugging
     console.log('Font size changed:', fontSizeValue);
   };
-  
+
   const resetSettings = () => {
     // Update settings in component state
     setSettings(defaultSettings);
-    
+
     // Apply all settings directly
     Object.keys(defaultSettings).forEach((key) => {
       const settingKey = key as keyof AccessibilitySettings;
@@ -217,54 +216,56 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
         applySettingDirectly(settingKey, defaultSettings[settingKey]);
       }
     });
-    
+
     // Apply font size directly
     document.documentElement.style.setProperty(
-      '--font-size-multiplier', 
+      '--font-size-multiplier',
       defaultSettings.fontSizeMultiplier.toString()
     );
     document.documentElement.style.fontSize = '';
-    
+
     // Force layout reflow to apply changes immediately
     document.body.style.zoom = '99.99%';
-    setTimeout(() => { document.body.style.zoom = '100%'; }, 10);
-    
+    setTimeout(() => {
+      document.body.style.zoom = '100%';
+    }, 10);
+
     // Pass changes to parent component (App) through onChange prop
     onChange(defaultSettings);
-    
+
     // Log for debugging
     console.log('Settings reset to defaults');
   };
-  
+
   const handleSettingChange = (key: keyof AccessibilitySettings) => {
     if (key === 'fontSizeMultiplier') {
       return; // This is handled by the slider component
     }
-    
+
     // Toggle boolean settings
     const newSettings = {
       ...settings,
-      [key]: !settings[key]
+      [key]: !settings[key],
     };
-    
+
     // Update settings in component state
     setSettings(newSettings);
-    
+
     // Directly apply the changed setting
     applySettingDirectly(key, newSettings[key]);
-    
+
     // Pass changes to parent component (App) through onChange prop
     onChange(newSettings);
-    
+
     // Log for debugging
     console.log('Setting changed:', key, newSettings[key]);
   };
-  
+
   // Helper function to directly apply a setting
   const applySettingDirectly = (key: keyof AccessibilitySettings, value: any) => {
     console.log(`Directly applying ${key} = ${value}`);
-    
-    switch(key) {
+
+    switch (key) {
       case 'highContrast':
         if (value) {
           document.body.classList.add('high-contrast');
@@ -274,7 +275,7 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
           document.documentElement.style.setProperty('--high-contrast-mode', '0');
         }
         break;
-        
+
       case 'largeText':
         if (value) {
           document.body.classList.add('large-text');
@@ -287,7 +288,7 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
           document.documentElement.style.fontSize = '';
         }
         break;
-        
+
       case 'reducedMotion':
         if (value) {
           document.body.classList.add('reduced-motion');
@@ -297,7 +298,7 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
           document.documentElement.style.setProperty('--reduced-motion', '0');
         }
         break;
-        
+
       case 'keyboardFocusVisible':
         if (value) {
           document.body.classList.add('keyboard-focus-visible');
@@ -305,12 +306,12 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
           document.body.classList.remove('keyboard-focus-visible');
         }
         break;
-        
+
       default:
         break;
     }
   };
-  
+
   // Create debug overlay to visually show what settings are active - only when triggered with keyboard shortcut
   useEffect(() => {
     // Only in development mode
@@ -327,7 +328,7 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
       const handleDebugKeyDown = (e: KeyboardEvent) => {
         if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'd') {
           let debugOverlay = document.getElementById('accessibility-debug-overlay');
-          
+
           if (debugOverlay) {
             // If overlay exists, remove it
             debugOverlay.remove();
@@ -349,7 +350,7 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
             debugOverlay.style.border = '1px solid rgba(255,255,255,0.1)';
             debugOverlay.style.backdropFilter = 'blur(4px)';
             debugOverlay.style.maxWidth = '200px';
-            
+
             // Add close button
             const closeButton = document.createElement('button');
             closeButton.textContent = '×';
@@ -364,26 +365,26 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
             closeButton.style.padding = '2px 5px';
             closeButton.style.borderRadius = '4px';
             closeButton.title = 'Close debug panel (Alt+Shift+D)';
-            
+
             closeButton.addEventListener('mouseover', () => {
               closeButton.style.color = '#fff';
               closeButton.style.backgroundColor = 'rgba(255,255,255,0.1)';
             });
-            
+
             closeButton.addEventListener('mouseout', () => {
               closeButton.style.color = 'rgba(255,255,255,0.7)';
               closeButton.style.backgroundColor = 'transparent';
             });
-            
+
             closeButton.addEventListener('click', () => {
               debugOverlay?.remove();
             });
-            
-            const statusIcon = (active: boolean) => 
-              active 
-                ? `<span style="color:#4caf50;font-size:12px;margin-right:3px;">✓</span>` 
+
+            const statusIcon = (active: boolean) =>
+              active
+                ? `<span style="color:#4caf50;font-size:12px;margin-right:3px;">✓</span>`
                 : `<span style="color:#f44336;font-size:12px;margin-right:3px;">✕</span>`;
-            
+
             debugOverlay.innerHTML = `
               <div style="padding-right: 16px; font-weight:500;margin-bottom:5px;font-size:12px;border-bottom:1px solid rgba(255,255,255,0.15);padding-bottom:5px;">Accessibility Debug</div>
               <div style="display:flex;align-items:center;margin:3px 0;">${statusIcon(settings.highContrast)}High Contrast</div>
@@ -393,40 +394,40 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
               <div style="display:flex;align-items:center;margin:3px 0;">${statusIcon(settings.keyboardFocusVisible)}Keyboard Focus</div>
               <div style="margin-top:8px;font-size:10px;color:rgba(255,255,255,0.6);text-align:center;">Press Alt+Shift+D to toggle this panel</div>
             `;
-            
+
             debugOverlay.appendChild(closeButton);
             document.body.appendChild(debugOverlay);
-            
+
             // Make the debug overlay draggable
             let isDragging = false;
-            let offset = { x: 0, y: 0 };
-            
+            const offset = { x: 0, y: 0 };
+
             debugOverlay.style.cursor = 'move';
-            
+
             debugOverlay.addEventListener('mousedown', (e) => {
               isDragging = true;
               offset.x = e.clientX - debugOverlay.getBoundingClientRect().left;
               offset.y = e.clientY - debugOverlay.getBoundingClientRect().top;
             });
-            
+
             document.addEventListener('mousemove', (e) => {
               if (isDragging && debugOverlay) {
-                debugOverlay.style.left = (e.clientX - offset.x) + 'px';
-                debugOverlay.style.top = (e.clientY - offset.y) + 'px';
+                debugOverlay.style.left = e.clientX - offset.x + 'px';
+                debugOverlay.style.top = e.clientY - offset.y + 'px';
                 // Remove bottom if top is set
                 debugOverlay.style.bottom = 'auto';
               }
             });
-            
+
             document.addEventListener('mouseup', () => {
               isDragging = false;
             });
           }
         }
       };
-      
+
       window.addEventListener('keydown', handleDebugKeyDown);
-      
+
       // Cleanup function
       return () => {
         window.removeEventListener('keydown', handleDebugKeyDown);
@@ -434,7 +435,7 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
       };
     }
   }, [settings]);
-  
+
   return (
     <>
       <Tooltip title="Accessibility options (Alt+A)">
@@ -459,7 +460,7 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
           <AccessibilityIcon />
         </IconButton>
       </Tooltip>
-      
+
       <Menu
         id="accessibility-menu"
         anchorEl={anchorEl}
@@ -467,7 +468,7 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
         onClose={handleClose}
         TransitionProps={{
           style: { transformOrigin: 'top right' },
-          timeout: { enter: 300, exit: 200 }
+          timeout: { enter: 300, exit: 200 },
         }}
         MenuListProps={{
           'aria-labelledby': 'accessibility-button',
@@ -509,28 +510,35 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
               opacity: 0,
               animation: 'accessibilityItemEnter 0.5s ease forwards',
               animationDelay: '0.3s',
-            }
-          }
+            },
+          },
         }}
       >
         <Box sx={{ px: 2, py: 1 }}>
           <Typography variant="h6" component="h2" gutterBottom sx={{ color: '#212121 !important' }}>
             Accessibility Settings
           </Typography>
-          
+
           <Typography variant="caption" sx={{ color: '#757575 !important' }} paragraph>
-            Customize your experience with these accessibility options. Settings are saved automatically.
+            Customize your experience with these accessibility options. Settings are saved
+            automatically.
           </Typography>
         </Box>
-        
+
         <Divider />
-        
+
         <Box sx={{ px: 2, py: 1 }}>
-          <Typography variant="subtitle2" component="h3" gutterBottom sx={{ display: 'flex', alignItems: 'center', color: '#212121 !important' }}>
-            <FormatColorFillIcon fontSize="small" sx={{ mr: 1, color: '#1976d2 !important' }} /> Display
+          <Typography
+            variant="subtitle2"
+            component="h3"
+            gutterBottom
+            sx={{ display: 'flex', alignItems: 'center', color: '#212121 !important' }}
+          >
+            <FormatColorFillIcon fontSize="small" sx={{ mr: 1, color: '#1976d2 !important' }} />{' '}
+            Display
           </Typography>
-          
-          <MenuItem 
+
+          <MenuItem
             onClick={() => handleSettingChange('largeText')}
             sx={{
               '&:focus-visible': {
@@ -557,8 +565,8 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
             </ListItemIcon>
             <ListItemText primary="Large Text" secondary="Increases text size" />
           </MenuItem>
-          
-          <MenuItem 
+
+          <MenuItem
             onClick={() => handleSettingChange('highContrast')}
             sx={{
               '&:focus-visible': {
@@ -585,9 +593,14 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
             </ListItemIcon>
             <ListItemText primary="High Contrast" secondary="Enhances color contrast" />
           </MenuItem>
-          
+
           <Box sx={{ px: 1, mt: 1 }}>
-            <Typography id="font-size-slider-label" gutterBottom variant="body2" sx={{ color: '#212121 !important' }}>
+            <Typography
+              id="font-size-slider-label"
+              gutterBottom
+              variant="body2"
+              sx={{ color: '#212121 !important' }}
+            >
               Text size multiplier: {settings.fontSizeMultiplier.toFixed(1)}x
             </Typography>
             <Slider
@@ -621,15 +634,21 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
             />
           </Box>
         </Box>
-        
+
         <Divider />
-        
+
         <Box sx={{ px: 2, py: 1 }}>
-          <Typography variant="subtitle2" component="h3" gutterBottom sx={{ display: 'flex', alignItems: 'center', color: '#212121 !important' }}>
-            <SpeedIcon fontSize="small" sx={{ mr: 1, color: '#1976d2 !important' }} /> Motion & Interactions
+          <Typography
+            variant="subtitle2"
+            component="h3"
+            gutterBottom
+            sx={{ display: 'flex', alignItems: 'center', color: '#212121 !important' }}
+          >
+            <SpeedIcon fontSize="small" sx={{ mr: 1, color: '#1976d2 !important' }} /> Motion &
+            Interactions
           </Typography>
-          
-          <MenuItem 
+
+          <MenuItem
             onClick={() => handleSettingChange('reducedMotion')}
             sx={{
               '&:focus-visible': {
@@ -656,8 +675,8 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
             </ListItemIcon>
             <ListItemText primary="Reduced Motion" secondary="Minimizes animations" />
           </MenuItem>
-          
-          <MenuItem 
+
+          <MenuItem
             onClick={() => handleSettingChange('keyboardFocusVisible')}
             sx={{
               '&:focus-visible': {
@@ -682,16 +701,19 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
             <ListItemIcon>
               {settings.keyboardFocusVisible ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
             </ListItemIcon>
-            <ListItemText primary="Show keyboard focus indicators" secondary="Improves focus visibility" />
+            <ListItemText
+              primary="Show keyboard focus indicators"
+              secondary="Improves focus visibility"
+            />
           </MenuItem>
         </Box>
-        
+
         <Divider />
-        
+
         <Box sx={{ px: 2, py: 1.5, display: 'flex', justifyContent: 'space-between' }}>
-          <Button 
-            variant="outlined" 
-            size="small" 
+          <Button
+            variant="outlined"
+            size="small"
             onClick={resetSettings}
             aria-label="Reset all accessibility settings to defaults"
             sx={{
@@ -700,30 +722,32 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
               '&:hover': {
                 backgroundColor: 'rgba(25, 118, 210, 0.04) !important',
                 borderColor: '#1976d2 !important',
-              }
+              },
             }}
           >
             Reset to Defaults
           </Button>
-          <Button 
-            variant="contained" 
-            size="small" 
+          <Button
+            variant="contained"
+            size="small"
             onClick={handleClose}
             sx={{
               backgroundColor: '#1976d2 !important',
               color: '#ffffff !important',
               '&:hover': {
                 backgroundColor: '#1565c0 !important',
-              }
+              },
             }}
           >
             Close
           </Button>
         </Box>
       </Menu>
-      
+
       {/* Add animation keyframes */}
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @keyframes accessibilityMenuEnter {
           from {
             opacity: 0;
@@ -756,9 +780,11 @@ const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({
             opacity: 1;
           }
         }
-      `}} />
+      `,
+        }}
+      />
     </>
   );
 };
 
-export default AccessibilityMenu; 
+export default AccessibilityMenu;

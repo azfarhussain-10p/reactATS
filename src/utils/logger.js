@@ -13,7 +13,7 @@ const logger = {
   },
   debug: (message, ...args) => {
     console.debug(`[DEBUG] ${message}`, ...args);
-  }
+  },
 };
 
-export default logger; 
+export default logger;

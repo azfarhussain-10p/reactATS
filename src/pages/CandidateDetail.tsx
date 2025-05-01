@@ -8,12 +8,10 @@ const CandidateDetail: React.FC = () => {
         <Typography variant="h5" gutterBottom>
           Candidate Details
         </Typography>
-        <Typography>
-          This is a placeholder for the Candidate Detail page.
-        </Typography>
+        <Typography>This is a placeholder for the Candidate Detail page.</Typography>
       </Paper>
     </Box>
   );
 };
 
-export default CandidateDetail; 
+export default CandidateDetail;

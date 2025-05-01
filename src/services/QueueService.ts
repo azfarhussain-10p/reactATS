@@ -58,16 +58,16 @@ class QueueService {
   private maxConcurrent: number = 2; // Maximum number of concurrent tasks to process
   private listeners: Map<string, Array<(task: QueuedTask) => void>>;
   private isProcessing: boolean = false;
-  
+
   private constructor() {
     this.tasks = new Map();
     this.processors = new Map();
     this.listeners = new Map();
-    
+
     // Start processing tasks
     this.startProcessing();
   }
-  
+
   /**
    * Get the singleton instance
    */
@@ -77,7 +77,7 @@ class QueueService {
     }
     return QueueService.instance;
   }
-  
+
   /**
    * Register a processor for a specific task type
    * @param taskType Type of task
@@ -86,7 +86,7 @@ class QueueService {
   public registerProcessor<T, R>(taskType: TaskType, processor: TaskProcessor<T, R>): void {
     this.processors.set(taskType, processor as TaskProcessor);
   }
-  
+
   /**
    * Add a task to the queue
    * @param options Task options
@@ -94,7 +94,7 @@ class QueueService {
    */
   public enqueue<T>(options: CreateTaskOptions<T>): QueuedTask<T> {
     const { type, data, userId, priority = 5 } = options;
-    
+
     const task: QueuedTask<T> = {
       id: uuidv4(),
       type,
@@ -106,19 +106,19 @@ class QueueService {
       userId,
       priority,
     };
-    
+
     this.tasks.set(task.id, task);
     this.notifyListeners(task);
     console.log(`Task ${task.id} of type ${task.type} added to queue`);
-    
+
     // Trigger processing if needed
     if (!this.isProcessing) {
       this.startProcessing();
     }
-    
+
     return task;
   }
-  
+
   /**
    * Get the status of a task
    * @param taskId Task ID
@@ -127,17 +127,18 @@ class QueueService {
   public getTask<T>(taskId: string): QueuedTask<T> | null {
     return (this.tasks.get(taskId) as QueuedTask<T>) || null;
   }
-  
+
   /**
    * Get all tasks for a user
    * @param userId User ID
    * @returns Array of tasks
    */
   public getUserTasks<T>(userId: string): QueuedTask<T>[] {
-    return Array.from(this.tasks.values())
-      .filter(task => task.userId === userId) as QueuedTask<T>[];
+    return Array.from(this.tasks.values()).filter(
+      (task) => task.userId === userId
+    ) as QueuedTask<T>[];
   }
-  
+
   /**
    * Cancel a pending task
    * @param taskId Task ID
@@ -148,13 +149,13 @@ class QueueService {
     if (!task || task.status !== TaskStatus.PENDING) {
       return false;
     }
-    
+
     task.status = TaskStatus.CANCELLED;
     task.updatedAt = new Date();
     this.notifyListeners(task);
     return true;
   }
-  
+
   /**
    * Subscribe to changes in a task's status
    * @param taskId Task ID
@@ -165,9 +166,9 @@ class QueueService {
     if (!this.listeners.has(taskId)) {
       this.listeners.set(taskId, []);
     }
-    
+
     this.listeners.get(taskId)!.push(callback);
-    
+
     // Return unsubscribe function
     return () => {
       const taskListeners = this.listeners.get(taskId);
@@ -182,17 +183,17 @@ class QueueService {
       }
     };
   }
-  
+
   /**
    * Start processing tasks
    */
   private startProcessing(): void {
     if (this.isProcessing) return;
-    
+
     this.isProcessing = true;
     this.processNextTasks();
   }
-  
+
   /**
    * Process the next tasks in the queue
    */
@@ -200,12 +201,12 @@ class QueueService {
     if (this.activeProcesses >= this.maxConcurrent) {
       return;
     }
-    
+
     // Get tasks sorted by priority (lower number = higher priority)
     const pendingTasks = Array.from(this.tasks.values())
-      .filter(task => task.status === TaskStatus.PENDING)
+      .filter((task) => task.status === TaskStatus.PENDING)
       .sort((a, b) => a.priority - b.priority);
-    
+
     if (pendingTasks.length === 0) {
       if (this.activeProcesses === 0) {
         // No more tasks to process, stop processing
@@ -213,15 +214,15 @@ class QueueService {
       }
       return;
     }
-    
+
     // Process as many tasks as we can (up to maxConcurrent)
     const tasksToProcess = pendingTasks.slice(0, this.maxConcurrent - this.activeProcesses);
-    
+
     for (const task of tasksToProcess) {
       this.processTask(task);
     }
   }
-  
+
   /**
    * Process a single task
    * @param task Task to process
@@ -236,42 +237,42 @@ class QueueService {
       this.notifyListeners(task);
       return;
     }
-    
+
     // Update task status to processing
     task.status = TaskStatus.PROCESSING;
     task.updatedAt = new Date();
     this.notifyListeners(task);
-    
+
     this.activeProcesses++;
-    
+
     try {
       // Execute the task processor
       const result = await processor(task);
-      
+
       // Update task status to completed
       task.status = TaskStatus.COMPLETED;
       task.progress = 100;
       task.result = result;
       task.updatedAt = new Date();
       task.completedAt = new Date();
-      
+
       console.log(`Task ${task.id} of type ${task.type} completed successfully`);
     } catch (error) {
       // Update task status to failed
       task.status = TaskStatus.FAILED;
       task.error = error instanceof Error ? error.message : String(error);
       task.updatedAt = new Date();
-      
+
       console.error(`Task ${task.id} of type ${task.type} failed: ${task.error}`);
     } finally {
       this.activeProcesses--;
       this.notifyListeners(task);
-      
+
       // Process next tasks
       this.processNextTasks();
     }
   }
-  
+
   /**
    * Update task progress
    * @param taskId Task ID
@@ -282,12 +283,12 @@ class QueueService {
     if (!task || task.status !== TaskStatus.PROCESSING) {
       return;
     }
-    
+
     task.progress = Math.min(Math.max(0, progress), 99); // Keep under 100 until complete
     task.updatedAt = new Date();
     this.notifyListeners(task);
   }
-  
+
   /**
    * Notify all listeners for a task
    * @param task Task that changed
@@ -304,19 +305,19 @@ class QueueService {
       }
     }
   }
-  
+
   /**
    * Clean up completed and failed tasks older than the given age
    * @param maxAgeMs Maximum age in milliseconds (default: 1 day)
    */
   public cleanupOldTasks(maxAgeMs: number = 86400000): void {
     const cutoffTime = new Date(Date.now() - maxAgeMs);
-    
+
     for (const [taskId, task] of this.tasks.entries()) {
       if (
-        (task.status === TaskStatus.COMPLETED || 
-         task.status === TaskStatus.FAILED ||
-         task.status === TaskStatus.CANCELLED) &&
+        (task.status === TaskStatus.COMPLETED ||
+          task.status === TaskStatus.FAILED ||
+          task.status === TaskStatus.CANCELLED) &&
         task.updatedAt < cutoffTime
       ) {
         this.tasks.delete(taskId);
@@ -328,4 +329,4 @@ class QueueService {
 
 // Export singleton instance
 export default QueueService;
-export const queueService = QueueService.getInstance(); 
+export const queueService = QueueService.getInstance();

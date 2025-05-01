@@ -1,40 +1,5 @@
 [
   {
-    "id": 1,
-    "title": "Senior React Developer Test",
-    "department": "Engineering",
-    "location": "New York, NY",
-    "type": "Full-time",
-    "experience": "3-5 years",
-    "salary": "$120,000 - $150,000",
-    "description": "We are looking for a senior React developer to join our team and help build cutting-edge web applications.",
-    "responsibilities": [
-      "Develop new user-facing features using React.js",
-      "Build reusable components and front-end libraries for future use",
-      "Translate designs and wireframes into high-quality code",
-      "Optimize components for maximum performance across a vast array of web-capable devices and browsers",
-      "Coordinate with various teams working on different layers of the infrastructure"
-    ],
-    "requirements": [
-      "3+ years of experience with React.js and JavaScript ES6+",
-      "Strong proficiency in JavaScript and TypeScript",
-      "Experience with popular React workflows such as Redux",
-      "Familiarity with RESTful APIs and modern authorization mechanisms",
-      "Knowledge of modern front-end build pipelines and tools"
-    ],
-    "benefits": [
-      "Competitive salary",
-      "Health, dental, and vision insurance",
-      "401(k) matching",
-      "Remote work options",
-      "Professional development budget"
-    ],
-    "postedDate": "2023-10-15",
-    "status": "Closed",
-    "isFeatured": true,
-    "applicants": 28
-  },
-  {
     "id": 2,
     "title": "UX Designer",
     "department": "Design",
@@ -65,44 +30,11 @@
       "Professional development opportunities"
     ],
     "postedDate": "2023-09-20",
+    "createdDate": "2023-09-15",
     "status": "Active",
     "isFeatured": false,
-    "applicants": 45
-  },
-  {
-    "id": 3,
-    "title": "DevOps Engineer",
-    "department": "IT Operations",
-    "location": "San Francisco, CA",
-    "type": "Full-time",
-    "experience": "4-6 years",
-    "salary": "$130,000 - $160,000",
-    "description": "Join our team as a DevOps Engineer to help build and maintain our cloud infrastructure.",
-    "responsibilities": [
-      "Implement and maintain CI/CD pipelines",
-      "Manage cloud infrastructure using AWS or Azure",
-      "Automate deployment processes",
-      "Monitor system performance and reliability",
-      "Collaborate with development teams to improve delivery processes"
-    ],
-    "requirements": [
-      "4+ years of experience in DevOps or SRE roles",
-      "Strong knowledge of cloud services (AWS, Azure, or GCP)",
-      "Experience with container technologies like Docker and Kubernetes",
-      "Proficiency in scripting languages like Python, Bash, or PowerShell",
-      "Understanding of infrastructure as code (Terraform, CloudFormation)"
-    ],
-    "benefits": [
-      "Competitive compensation package",
-      "Health and dental coverage",
-      "Stock options",
-      "Flexible work arrangements",
-      "Training and certification support"
-    ],
-    "postedDate": "2023-11-05",
-    "status": "Active",
-    "isFeatured": true,
-    "applicants": 19
+    "applicants": 45,
+    "skills": ["UI/UX Design", "Figma", "User Research", "Wireframing", "Prototyping"]
   },
   {
     "id": 4,
@@ -135,9 +67,11 @@
       "Casual work environment"
     ],
     "postedDate": "2023-10-10",
+    "createdDate": "2023-10-05",
     "status": "On-Hold",
     "isFeatured": false,
-    "applicants": 60
+    "applicants": 60,
+    "skills": ["Digital Marketing", "SEO/SEM", "Social Media", "Analytics", "Content Creation"]
   },
   {
     "id": 5,
@@ -170,78 +104,376 @@
       "Career advancement opportunities"
     ],
     "postedDate": "2023-09-05",
+    "createdDate": "2023-09-01",
     "status": "Closed",
     "isFeatured": false,
-    "applicants": 42
+    "applicants": 42,
+    "skills": ["Product Management", "Agile", "Roadmapping", "Market Analysis", "User Stories"]
   },
   {
     "id": 6,
+    "title": "Senior Software Engineer (Featured)",
+    "department": "Engineering",
+    "location": "San Francisco, CA",
+    "type": "Full-time",
+    "experience": "5+ years",
+    "salary": "$150,000 - $190,000",
+    "description": "Join our engineering team to build cutting-edge software solutions and tackle complex challenges.",
+    "responsibilities": [
+      "Design and develop high-quality, scalable software",
+      "Lead technical architecture discussions and decisions",
+      "Mentor junior engineers and review code",
+      "Collaborate with product and design teams",
+      "Implement best practices for code quality and performance"
+    ],
+    "requirements": [
+      "5+ years of software engineering experience",
+      "Strong proficiency in JavaScript, TypeScript, and React",
+      "Experience with backend technologies like Node.js",
+      "Understanding of CI/CD pipelines and automated testing",
+      "Experience with cloud services (AWS, Azure, or GCP)"
+    ],
+    "benefits": [
+      "Competitive compensation package",
+      "Equity options",
+      "Premium health insurance",
+      "Unlimited PTO policy",
+      "Home office stipend",
+      "Education and conference budget"
+    ],
+    "postedDate": "2023-10-15",
+    "createdDate": "2023-10-10",
+    "status": "Active",
+    "isFeatured": true,
+    "applicants": 35,
+    "skills": ["JavaScript", "TypeScript", "React", "Node.js", "AWS", "System Design"]
+  },
+  {
+    "id": 7,
     "title": "Data Scientist",
-    "department": "Analytics",
+    "department": "Data",
+    "location": "New York, NY",
+    "type": "Full-time",
+    "experience": "3-5 years",
+    "salary": "$120,000 - $150,000",
+    "description": "We're looking for a Data Scientist to help extract insights from our data and build machine learning models.",
+    "responsibilities": [
+      "Develop and implement machine learning models",
+      "Process, cleanse, and verify data integrity",
+      "Analyze large datasets to discover patterns and trends",
+      "Create data visualizations to communicate findings",
+      "Collaborate with engineering and product teams"
+    ],
+    "requirements": [
+      "MS or PhD in Computer Science, Statistics, or related field",
+      "Experience with Python and data science libraries",
+      "Strong understanding of machine learning algorithms",
+      "Experience with SQL and data querying",
+      "Knowledge of statistics and experimental design"
+    ],
+    "benefits": [
+      "Competitive salary",
+      "Health, dental, and vision insurance",
+      "401k matching",
+      "Flexible work schedule",
+      "Career development opportunities"
+    ],
+    "postedDate": "2023-10-20",
+    "createdDate": "2023-10-15",
+    "status": "Active",
+    "isFeatured": true,
+    "applicants": 28,
+    "skills": ["Python", "Machine Learning", "SQL", "Statistics", "Data Visualization"]
+  },
+  {
+    "id": 8,
+    "title": "Part-time Content Writer",
+    "department": "Marketing",
+    "location": "Remote",
+    "type": "Part-time",
+    "experience": "1-2 years",
+    "salary": "$30-40/hour",
+    "description": "We're seeking a creative Content Writer to help create engaging content for our blog and social media channels.",
+    "responsibilities": [
+      "Write blog posts, articles, and social media content",
+      "Research industry trends and topics",
+      "Create content calendars and scheduling",
+      "Optimize content for SEO",
+      "Collaborate with the marketing team on content strategy"
+    ],
+    "requirements": [
+      "1+ years of content writing experience",
+      "Strong writing and editing skills",
+      "Knowledge of SEO best practices",
+      "Ability to work independently",
+      "Portfolio of previous work"
+    ],
+    "benefits": [
+      "Flexible working hours",
+      "Remote work",
+      "Competitive hourly rate",
+      "Opportunity for growth",
+      "Creative freedom"
+    ],
+    "postedDate": "",
+    "createdDate": "2023-10-25",
+    "status": "Draft",
+    "isFeatured": false,
+    "applicants": 0,
+    "skills": ["Content Writing", "SEO", "Social Media", "Editing", "Research"]
+  },
+  {
+    "id": 9,
+    "title": "DevOps Engineer (On-Hold)",
+    "department": "Engineering",
     "location": "Austin, TX",
     "type": "Full-time",
     "experience": "3-5 years",
     "salary": "$110,000 - $140,000",
-    "description": "Join our analytics team as a Data Scientist to help extract insights from our data and drive business decisions.",
+    "description": "We are looking for a DevOps Engineer to help maintain our cloud infrastructure and deployment pipelines.",
     "responsibilities": [
-      "Develop and implement machine learning models",
-      "Analyze large datasets to discover patterns and trends",
-      "Collaborate with product and engineering teams",
-      "Create visualizations and reports to communicate findings",
-      "Improve data collection procedures"
+      "Manage and optimize cloud infrastructure on AWS",
+      "Implement and maintain CI/CD pipelines",
+      "Automate deployment and monitoring processes",
+      "Ensure system reliability and performance",
+      "Collaborate with development teams on infrastructure needs"
     ],
     "requirements": [
-      "3+ years of experience in data science or related field",
-      "Strong skills in Python, R, or similar programming languages",
-      "Experience with machine learning frameworks and statistical analysis",
-      "Knowledge of SQL and database systems",
-      "Excellent problem-solving and communication skills"
+      "3+ years of DevOps experience",
+      "Experience with AWS or similar cloud platforms",
+      "Knowledge of containerization (Docker, Kubernetes)",
+      "Experience with infrastructure as code (Terraform, CloudFormation)",
+      "CI/CD experience (Jenkins, GitHub Actions, CircleCI)"
     ],
     "benefits": [
-      "Competitive compensation",
-      "Comprehensive benefits package",
-      "Flexible work options",
-      "Professional development allowance",
-      "Modern office space with amenities"
+      "Competitive salary",
+      "Health and wellness benefits",
+      "401k with company match",
+      "Flexible schedule",
+      "Professional development budget"
     ],
-    "postedDate": "2025-04-10",
-    "status": "Active",
-    "isFeatured": true,
-    "applicants": 33
+    "postedDate": "2023-09-15",
+    "createdDate": "2023-09-10",
+    "status": "On-Hold",
+    "isFeatured": false,
+    "applicants": 15,
+    "skills": ["AWS", "Docker", "Kubernetes", "Terraform", "CI/CD"]
   },
   {
-    "id": 7,
-    "title": "Principal Test Engineer",
-    "department": "QA",
-    "location": "Karachi, PAK",
-    "type": "Remote",
-    "experience": "3-5 years",
-    "salary": "$110,000 - $140,000",
-    "description": "Join our analytics team as a Data Scientist to help extract insights from our data and drive business decisions.",
+    "id": 10,
+    "title": "HR Manager (Incomplete Draft)",
+    "department": "Human Resources",
+    "location": "",
+    "type": "Full-time",
+    "experience": "",
+    "salary": "",
+    "description": "We're looking for an HR Manager to oversee all aspects of human resources management.",
     "responsibilities": [
-      "Develop and implement machine learning models",
-      "Analyze large datasets to discover patterns and trends",
-      "Collaborate with product and engineering teams",
-      "Create visualizations and reports to communicate findings",
-      "Improve data collection procedures"
+      "Oversee all HR functions including recruitment, onboarding, and employee relations",
+      "Develop and implement HR policies and procedures",
+      "Manage performance evaluation processes",
+      "Ensure compliance with employment laws and regulations",
+      "Partner with leadership on organizational development initiatives"
+    ],
+    "requirements": [],
+    "benefits": "",
+    "postedDate": "",
+    "createdDate": "2023-10-30",
+    "status": "Draft",
+    "isFeatured": false,
+    "applicants": 0,
+    "skills": []
+  },
+  {
+    "id": 11,
+    "title": "Frontend Developer (Featured)",
+    "department": "Engineering",
+    "location": "Seattle, WA",
+    "type": "Full-time",
+    "experience": "2-4 years",
+    "salary": "$100,000 - $130,000",
+    "description": "We're seeking a talented Frontend Developer to create stunning user interfaces and exceptional user experiences.",
+    "responsibilities": [
+      "Build responsive and performant user interfaces using React",
+      "Collaborate with designers to implement UI/UX designs",
+      "Write clean, maintainable, and well-tested code",
+      "Optimize applications for maximum performance",
+      "Participate in code reviews and technical discussions"
     ],
     "requirements": [
-      "3+ years of experience in data science or related field",
-      "Strong skills in Python, R, or similar programming languages",
-      "Experience with machine learning frameworks and statistical analysis",
-      "Knowledge of SQL and database systems",
-      "Excellent problem-solving and communication skills"
+      "2+ years of experience with React and modern JavaScript",
+      "Proficiency with HTML, CSS, and responsive design",
+      "Experience with state management (Redux, Context API, etc.)",
+      "Understanding of web performance optimization",
+      "Knowledge of testing frameworks like Jest and React Testing Library"
+    ],
+    "benefits": [
+      "Competitive salary",
+      "Health, dental, and vision insurance",
+      "401k matching",
+      "Remote work options",
+      "Professional development budget",
+      "Company-wide hackathons"
+    ],
+    "postedDate": "2023-10-25",
+    "createdDate": "2023-10-20",
+    "status": "Active",
+    "isFeatured": true,
+    "applicants": 42,
+    "skills": ["React", "JavaScript", "HTML/CSS", "Redux", "Jest", "Responsive Design"]
+  },
+  {
+    "id": 12,
+    "title": "Customer Support Specialist",
+    "department": "Customer Support",
+    "location": "Atlanta, GA",
+    "type": "Full-time",
+    "experience": "1-2 years",
+    "salary": "$45,000 - $55,000",
+    "description": "Join our customer support team to help provide excellent service to our valued customers.",
+    "responsibilities": [
+      "Respond to customer inquiries via email, phone, and chat",
+      "Troubleshoot and resolve customer issues",
+      "Document customer interactions in our CRM system",
+      "Identify common issues and suggest improvements",
+      "Collaborate with product teams on customer feedback"
+    ],
+    "requirements": [
+      "1+ years of customer support experience",
+      "Excellent communication skills",
+      "Problem-solving abilities",
+      "Patience and empathy",
+      "Basic technical troubleshooting skills"
+    ],
+    "benefits": [
+      "Competitive salary",
+      "Health benefits",
+      "Paid time off",
+      "Employee discounts",
+      "Career advancement opportunities"
+    ],
+    "postedDate": "2023-10-18",
+    "createdDate": "2023-10-15",
+    "status": "Active",
+    "isFeatured": false,
+    "applicants": 25,
+    "skills": [
+      "Customer Service",
+      "Communication",
+      "Problem Solving",
+      "CRM Systems",
+      "Troubleshooting"
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Internship - Software Engineering",
+    "department": "Engineering",
+    "location": "Denver, CO",
+    "type": "Internship",
+    "experience": "Student/Entry Level",
+    "salary": "$25-30/hour",
+    "description": "Join our engineering team for a summer internship to gain real-world experience in software development.",
+    "responsibilities": [
+      "Assist in developing new features under mentorship",
+      "Test and debug code",
+      "Participate in code reviews and team meetings",
+      "Learn our development workflows and best practices",
+      "Complete a capstone project by the end of the internship"
+    ],
+    "requirements": [
+      "Currently enrolled in a Computer Science or related degree program",
+      "Basic knowledge of programming languages (Java, Python, or JavaScript)",
+      "Eager to learn and contribute to a team environment",
+      "Good communication skills",
+      "Available for full-time (40 hours/week) during the summer"
+    ],
+    "benefits": [
+      "Competitive hourly pay",
+      "Mentorship from senior engineers",
+      "Networking opportunities",
+      "Potential for full-time offers",
+      "Resume-building experience"
+    ],
+    "postedDate": "2023-10-28",
+    "createdDate": "2023-10-25",
+    "status": "Active",
+    "isFeatured": false,
+    "applicants": 18,
+    "skills": ["Java", "Python", "JavaScript", "Problem Solving", "Version Control"]
+  },
+  {
+    "id": 14,
+    "title": "Senior Data Engineer (Closed)",
+    "department": "Data",
+    "location": "Chicago, IL",
+    "type": "Full-time",
+    "experience": "5+ years",
+    "salary": "$130,000 - $160,000",
+    "description": "We're looking for a Senior Data Engineer to design and build data pipelines and infrastructure for our analytics platform.",
+    "responsibilities": [
+      "Design and implement data processing systems",
+      "Build ETL pipelines for various data sources",
+      "Optimize data storage and retrieval systems",
+      "Ensure data quality and reliability",
+      "Collaborate with data scientists and analysts"
+    ],
+    "requirements": [
+      "5+ years of experience in data engineering",
+      "Proficiency with SQL and database design",
+      "Experience with big data technologies (Hadoop, Spark)",
+      "Knowledge of data warehousing solutions",
+      "Programming skills in Python or Scala"
     ],
     "benefits": [
       "Competitive compensation",
       "Comprehensive benefits package",
-      "Flexible work options",
-      "Professional development allowance",
-      "Modern office space with amenities"
+      "Flexible work arrangements",
+      "Professional development opportunities",
+      "Modern office with amenities"
     ],
-    "postedDate": "2025-03-10",
-    "status": "Active",
-    "isFeatured": true,
-    "applicants": 39
+    "postedDate": "2023-08-15",
+    "createdDate": "2023-08-10",
+    "status": "Closed",
+    "isFeatured": false,
+    "applicants": 38,
+    "skills": ["SQL", "ETL", "Hadoop", "Spark", "Python", "Data Warehousing"]
+  },
+  {
+    "id": 15,
+    "title": "QA Engineer (Ready to Publish Draft)",
+    "department": "Engineering",
+    "location": "Portland, OR",
+    "type": "Full-time",
+    "experience": "2-4 years",
+    "salary": "$85,000 - $110,000",
+    "description": "We're looking for a QA Engineer to ensure the quality of our software products through testing and automation.",
+    "responsibilities": [
+      "Develop and execute test plans and test cases",
+      "Create and maintain automated tests",
+      "Identify, document, and track bugs",
+      "Perform regression testing for new releases",
+      "Collaborate with developers to improve software quality"
+    ],
+    "requirements": [
+      "2+ years of software QA experience",
+      "Experience with test automation frameworks",
+      "Knowledge of testing methodologies",
+      "Basic programming skills",
+      "Attention to detail and problem-solving ability"
+    ],
+    "benefits": [
+      "Competitive salary",
+      "Health and dental insurance",
+      "Paid time off",
+      "401k matching",
+      "Flexible work arrangements"
+    ],
+    "postedDate": "",
+    "createdDate": "2023-10-28",
+    "status": "Draft",
+    "isFeatured": false,
+    "applicants": 0,
+    "skills": ["Test Automation", "Manual Testing", "JIRA", "Selenium", "Cypress", "Bug Tracking"]
   }
 ]

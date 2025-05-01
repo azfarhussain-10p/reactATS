@@ -49,17 +49,13 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children, value })
 
   const toggleDarkMode = () => {
     if (!value) {
-      setIsDarkMode(prev => !prev);
+      setIsDarkMode((prev) => !prev);
     }
   };
 
   const contextValue = value || { isDarkMode, toggleDarkMode };
 
-  return (
-    <ThemeContext.Provider value={contextValue}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;
 };
 
-export default ThemeContext; 
+export default ThemeContext;

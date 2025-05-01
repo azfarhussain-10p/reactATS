@@ -45,9 +45,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           ))}
         </Breadcrumbs>
       )}
-      
-      <Box 
-        sx={{ 
+
+      <Box
+        sx={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
@@ -59,16 +59,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             {title}
           </Typography>
           {subtitle && (
-            <Typography 
-              variant="body1" 
-              color="text.secondary"
-              sx={{ mt: 0.5 }}
-            >
+            <Typography variant="body1" color="text.secondary" sx={{ mt: 0.5 }}>
               {subtitle}
             </Typography>
           )}
         </Box>
-        
+
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {docsLink && (
             <Button
@@ -81,7 +77,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               Help
             </Button>
           )}
-          
+
           {actionButton && (
             <Button
               variant="contained"
@@ -94,10 +90,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           )}
         </Box>
       </Box>
-      
+
       <Divider sx={{ mt: 2, mb: 1 }} />
     </Box>
   );
 };
 
-export default PageHeader; 
+export default PageHeader;

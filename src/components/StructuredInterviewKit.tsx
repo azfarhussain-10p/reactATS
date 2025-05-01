@@ -1,43 +1,43 @@
 import React, { useState } from 'react';
-import { 
-  Box, 
-  Button, 
-  Card, 
-  CardContent, 
-  Chip, 
-  CircularProgress, 
-  Container, 
-  Dialog, 
-  DialogActions, 
-  DialogContent, 
-  DialogTitle, 
-  Divider, 
-  FormControl, 
-  Grid, 
-  IconButton, 
-  InputLabel, 
-  List, 
-  ListItem, 
-  ListItemIcon, 
-  ListItemSecondaryAction, 
-  ListItemText, 
-  MenuItem, 
-  Paper, 
-  Select, 
-  Tab, 
-  Tabs, 
-  TextField, 
-  Typography 
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemSecondaryAction,
+  ListItemText,
+  MenuItem,
+  Paper,
+  Select,
+  Tab,
+  Tabs,
+  TextField,
+  Typography,
 } from '@mui/material';
-import { 
-  Add as AddIcon, 
-  Create as EditIcon, 
-  Delete as DeleteIcon, 
-  AccessTime as TimeIcon, 
+import {
+  Add as AddIcon,
+  Create as EditIcon,
+  Delete as DeleteIcon,
+  AccessTime as TimeIcon,
   CheckCircle as CheckCircleIcon,
   Assignment as AssignmentIcon,
   Category as CategoryIcon,
-  Spellcheck as SpellcheckIcon
+  Spellcheck as SpellcheckIcon,
 } from '@mui/icons-material';
 import { useStructuredInterviewKit } from '../contexts/StructuredInterviewKitContext';
 import { InterviewKit, InterviewQuestion, QuestionCategory } from '../models/types';
@@ -63,11 +63,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`interview-kit-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
@@ -79,7 +75,9 @@ function a11yProps(index: number) {
   };
 }
 
-export default function StructuredInterviewKit({ standalone = false }: StructuredInterviewKitProps) {
+export default function StructuredInterviewKit({
+  standalone = false,
+}: StructuredInterviewKitProps) {
   const {
     loading,
     questionCategories,
@@ -138,7 +136,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
       newQuestion.difficultyLevelId
     ) {
       createInterviewQuestion({
-        ...newQuestion as InterviewQuestion,
+        ...(newQuestion as InterviewQuestion),
         id: `question-${Date.now()}`,
         followUpQuestions: [],
       });
@@ -180,21 +178,21 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
       <TabPanel value={tabValue} index={0}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h6">Available Interview Kits</Typography>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             startIcon={<AddIcon />}
             onClick={() => {
               createInterviewKit({
                 id: `kit-${Date.now()}`,
-                name: "New Interview Kit",
-                description: "A new interview kit",
-                status: "draft",
-                difficultyLevelId: difficultyLevels[0]?.id || "",
+                name: 'New Interview Kit',
+                description: 'A new interview kit',
+                status: 'draft',
+                difficultyLevelId: difficultyLevels[0]?.id || '',
                 questions: [],
                 totalTimeMinutes: 0,
-                createdBy: "current-user",
+                createdBy: 'current-user',
                 createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
+                updatedAt: new Date().toISOString(),
               });
             }}
           >
@@ -207,14 +205,14 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
             <Paper elevation={3} sx={{ height: '100%' }}>
               <List component="nav" aria-label="interview kits list">
                 {interviewKits.map((kit) => (
-                  <ListItem 
+                  <ListItem
                     key={kit.id}
                     selected={selectedKit?.id === kit.id}
                     onClick={() => handleKitSelect(kit)}
-                    sx={{ 
-                      flexDirection: 'column', 
+                    sx={{
+                      flexDirection: 'column',
                       alignItems: 'flex-start',
-                      py: 2 
+                      py: 2,
                     }}
                   >
                     <Box sx={{ display: 'flex', width: '100%', mb: 1 }}>
@@ -225,10 +223,16 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                         {kit.name}
                       </Typography>
                       <Box sx={{ ml: 'auto' }}>
-                        <Chip 
-                          label={kit.status} 
-                          size="small" 
-                          color={kit.status === 'active' ? 'success' : kit.status === 'draft' ? 'default' : 'error'} 
+                        <Chip
+                          label={kit.status}
+                          size="small"
+                          color={
+                            kit.status === 'active'
+                              ? 'success'
+                              : kit.status === 'draft'
+                                ? 'default'
+                                : 'error'
+                          }
                         />
                       </Box>
                     </Box>
@@ -236,13 +240,13 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                       <Typography component="span" variant="body2" color="text.primary">
                         {kit.questions.length} Questions
                       </Typography>
-                      <Typography 
-                        variant="body2" 
+                      <Typography
+                        variant="body2"
                         color="text.secondary"
-                        sx={{ 
+                        sx={{
                           display: 'block',
                           overflow: 'hidden',
-                          textOverflow: 'ellipsis'
+                          textOverflow: 'ellipsis',
                         }}
                         title={kit.description}
                       >
@@ -267,9 +271,9 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                       <IconButton aria-label="edit" size="small">
                         <EditIcon />
                       </IconButton>
-                      <IconButton 
-                        aria-label="delete" 
-                        size="small" 
+                      <IconButton
+                        aria-label="delete"
+                        size="small"
                         color="error"
                         onClick={() => {
                           deleteInterviewKit(selectedKit.id);
@@ -281,9 +285,9 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                     </Box>
                   </Box>
 
-                  <Typography 
-                    variant="body2" 
-                    color="text.secondary" 
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
                     paragraph
                     sx={{ whiteSpace: 'pre-line' }}
                   >
@@ -306,9 +310,13 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                       {selectedKit.questions
                         .sort((a, b) => a.order - b.order)
                         .map((kitQuestion) => {
-                          const question = interviewQuestions.find(q => q.id === kitQuestion.questionId);
-                          const category = questionCategories.find(c => c.id === question?.categoryId);
-                          
+                          const question = interviewQuestions.find(
+                            (q) => q.id === kitQuestion.questionId
+                          );
+                          const category = questionCategories.find(
+                            (c) => c.id === question?.categoryId
+                          );
+
                           return question ? (
                             <ListItem key={kitQuestion.id}>
                               <ListItemIcon>
@@ -322,7 +330,11 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                                 primary={question.question}
                                 secondary={
                                   <React.Fragment>
-                                    <Typography component="span" variant="body2" color="text.primary">
+                                    <Typography
+                                      component="span"
+                                      variant="body2"
+                                      color="text.primary"
+                                    >
                                       {category?.name} • {question.timeGuidelineMinutes} min
                                     </Typography>
                                   </React.Fragment>
@@ -339,8 +351,8 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                   )}
 
                   <Box mt={3}>
-                    <Button 
-                      variant="outlined" 
+                    <Button
+                      variant="outlined"
                       startIcon={<AddIcon />}
                       onClick={() => setTabValue(1)}
                     >
@@ -374,11 +386,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
       <TabPanel value={tabValue} index={1}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h6">Question Bank</Typography>
-          <Button 
-            variant="contained" 
-            startIcon={<AddIcon />}
-            onClick={handleOpenNewQuestionDialog}
-          >
+          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenNewQuestionDialog}>
             Add New Question
           </Button>
         </Box>
@@ -391,11 +399,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
               </Typography>
               <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel id="category-filter-label">Category</InputLabel>
-                <Select
-                  labelId="category-filter-label"
-                  label="Category"
-                  defaultValue=""
-                >
+                <Select labelId="category-filter-label" label="Category" defaultValue="">
                   <MenuItem value="">All Categories</MenuItem>
                   {questionCategories.map((category) => (
                     <MenuItem key={category.id} value={category.id}>
@@ -406,11 +410,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
               </FormControl>
               <FormControl fullWidth>
                 <InputLabel id="difficulty-filter-label">Difficulty</InputLabel>
-                <Select
-                  labelId="difficulty-filter-label"
-                  label="Difficulty"
-                  defaultValue=""
-                >
+                <Select labelId="difficulty-filter-label" label="Difficulty" defaultValue="">
                   <MenuItem value="">All Difficulty Levels</MenuItem>
                   {difficultyLevels.map((level) => (
                     <MenuItem key={level.id} value={level.id}>
@@ -426,9 +426,11 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
             <Paper elevation={3}>
               <List>
                 {interviewQuestions.map((question) => {
-                  const category = questionCategories.find(c => c.id === question.categoryId);
-                  const difficultyLevel = difficultyLevels.find(d => d.id === question.difficultyLevelId);
-                  
+                  const category = questionCategories.find((c) => c.id === question.categoryId);
+                  const difficultyLevel = difficultyLevels.find(
+                    (d) => d.id === question.difficultyLevelId
+                  );
+
                   return (
                     <React.Fragment key={question.id}>
                       <ListItem alignItems="flex-start">
@@ -438,11 +440,21 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                             <React.Fragment>
                               <Box display="flex" alignItems="center" mt={1} mb={1}>
                                 <CategoryIcon fontSize="small" sx={{ mr: 0.5 }} />
-                                <Typography component="span" variant="body2" color="text.primary" sx={{ mr: 2 }}>
+                                <Typography
+                                  component="span"
+                                  variant="body2"
+                                  color="text.primary"
+                                  sx={{ mr: 2 }}
+                                >
                                   {category?.name}
                                 </Typography>
                                 <SpellcheckIcon fontSize="small" sx={{ mr: 0.5 }} />
-                                <Typography component="span" variant="body2" color="text.primary" sx={{ mr: 2 }}>
+                                <Typography
+                                  component="span"
+                                  variant="body2"
+                                  color="text.primary"
+                                  sx={{ mr: 2 }}
+                                >
                                   {difficultyLevel?.name}
                                 </Typography>
                                 <TimeIcon fontSize="small" sx={{ mr: 0.5 }} />
@@ -474,7 +486,12 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
           </Grid>
         </Grid>
 
-        <Dialog open={openNewQuestionDialog} onClose={handleCloseNewQuestionDialog} maxWidth="md" fullWidth>
+        <Dialog
+          open={openNewQuestionDialog}
+          onClose={handleCloseNewQuestionDialog}
+          maxWidth="md"
+          fullWidth
+        >
           <DialogTitle>Add New Interview Question</DialogTitle>
           <DialogContent>
             <TextField
@@ -486,7 +503,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
               rows={3}
               variant="outlined"
               value={newQuestion.question}
-              onChange={(e) => setNewQuestion({...newQuestion, question: e.target.value})}
+              onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })}
               sx={{ mb: 2 }}
             />
             <TextField
@@ -498,7 +515,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
               rows={3}
               variant="outlined"
               value={newQuestion.expectedAnswer}
-              onChange={(e) => setNewQuestion({...newQuestion, expectedAnswer: e.target.value})}
+              onChange={(e) => setNewQuestion({ ...newQuestion, expectedAnswer: e.target.value })}
               sx={{ mb: 2 }}
             />
             <Grid container spacing={2}>
@@ -509,7 +526,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                     labelId="category-select-label"
                     value={newQuestion.categoryId}
                     label="Category"
-                    onChange={(e) => setNewQuestion({...newQuestion, categoryId: e.target.value})}
+                    onChange={(e) => setNewQuestion({ ...newQuestion, categoryId: e.target.value })}
                   >
                     {questionCategories.map((category) => (
                       <MenuItem key={category.id} value={category.id}>
@@ -526,7 +543,9 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                     labelId="difficulty-select-label"
                     value={newQuestion.difficultyLevelId}
                     label="Difficulty Level"
-                    onChange={(e) => setNewQuestion({...newQuestion, difficultyLevelId: e.target.value})}
+                    onChange={(e) =>
+                      setNewQuestion({ ...newQuestion, difficultyLevelId: e.target.value })
+                    }
                   >
                     {difficultyLevels.map((level) => (
                       <MenuItem key={level.id} value={level.id}>
@@ -543,7 +562,9 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                   variant="outlined"
                   fullWidth
                   value={newQuestion.timeGuidelineMinutes}
-                  onChange={(e) => setNewQuestion({...newQuestion, timeGuidelineMinutes: Number(e.target.value)})}
+                  onChange={(e) =>
+                    setNewQuestion({ ...newQuestion, timeGuidelineMinutes: Number(e.target.value) })
+                  }
                   InputProps={{ inputProps: { min: 1, max: 60 } }}
                 />
               </Grid>
@@ -561,10 +582,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
       <TabPanel value={tabValue} index={2}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h6">Interview Schedule Templates</Typography>
-          <Button 
-            variant="contained" 
-            startIcon={<AddIcon />}
-          >
+          <Button variant="contained" startIcon={<AddIcon />}>
             Create New Template
           </Button>
         </Box>
@@ -576,10 +594,16 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                 <CardContent>
                   <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                     <Typography variant="h6">{template.name}</Typography>
-                    <Chip 
-                      label={template.status} 
-                      size="small" 
-                      color={template.status === 'active' ? 'success' : template.status === 'draft' ? 'default' : 'error'} 
+                    <Chip
+                      label={template.status}
+                      size="small"
+                      color={
+                        template.status === 'active'
+                          ? 'success'
+                          : template.status === 'draft'
+                            ? 'default'
+                            : 'error'
+                      }
                     />
                   </Box>
                   <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -598,33 +622,27 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                     {template.stages
                       .sort((a, b) => a.order - b.order)
                       .map((stage) => {
-                        const kit = stage.kitId 
-                          ? interviewKits.find(k => k.id === stage.kitId) 
+                        const kit = stage.kitId
+                          ? interviewKits.find((k) => k.id === stage.kitId)
                           : null;
-                        
+
                         return (
                           <ListItem key={stage.id}>
-                            <ListItemText 
+                            <ListItemText
                               primary={`${stage.order}. ${stage.name} (${stage.durationMinutes} min)`}
-                              secondary={kit ? `Using kit: ${kit.name}` : 'No interview kit assigned'}
+                              secondary={
+                                kit ? `Using kit: ${kit.name}` : 'No interview kit assigned'
+                              }
                             />
                           </ListItem>
                         );
                       })}
                   </List>
                   <Box mt={2} display="flex" justifyContent="flex-end">
-                    <Button 
-                      startIcon={<EditIcon />} 
-                      size="small"
-                      sx={{ mr: 1 }}
-                    >
+                    <Button startIcon={<EditIcon />} size="small" sx={{ mr: 1 }}>
                       Edit
                     </Button>
-                    <Button 
-                      startIcon={<DeleteIcon />} 
-                      color="error" 
-                      size="small"
-                    >
+                    <Button startIcon={<DeleteIcon />} color="error" size="small">
                       Delete
                     </Button>
                   </Box>
@@ -645,10 +663,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
               <List>
                 {questionCategories.map((category) => (
                   <ListItem key={category.id}>
-                    <ListItemText 
-                      primary={category.name} 
-                      secondary={category.description} 
-                    />
+                    <ListItemText primary={category.name} secondary={category.description} />
                     <ListItemSecondaryAction>
                       <IconButton edge="end" aria-label="edit">
                         <EditIcon />
@@ -660,11 +675,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                   </ListItem>
                 ))}
               </List>
-              <Button 
-                startIcon={<AddIcon />} 
-                variant="outlined" 
-                sx={{ mt: 2 }}
-              >
+              <Button startIcon={<AddIcon />} variant="outlined" sx={{ mt: 2 }}>
                 Add Category
               </Button>
             </Paper>
@@ -678,10 +689,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
               <List>
                 {difficultyLevels.map((level) => (
                   <ListItem key={level.id}>
-                    <ListItemText 
-                      primary={level.name} 
-                      secondary={level.description} 
-                    />
+                    <ListItemText primary={level.name} secondary={level.description} />
                     <ListItemSecondaryAction>
                       <IconButton edge="end" aria-label="edit">
                         <EditIcon />
@@ -693,11 +701,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                   </ListItem>
                 ))}
               </List>
-              <Button 
-                startIcon={<AddIcon />} 
-                variant="outlined" 
-                sx={{ mt: 2 }}
-              >
+              <Button startIcon={<AddIcon />} variant="outlined" sx={{ mt: 2 }}>
                 Add Difficulty Level
               </Button>
             </Paper>
@@ -711,10 +715,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
               <List>
                 {scoringCriteria.map((criteria) => (
                   <ListItem key={criteria.id}>
-                    <ListItemText 
-                      primary={criteria.name} 
-                      secondary={criteria.description} 
-                    />
+                    <ListItemText primary={criteria.name} secondary={criteria.description} />
                     <ListItemSecondaryAction>
                       <IconButton edge="end" aria-label="edit">
                         <EditIcon />
@@ -726,11 +727,7 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
                   </ListItem>
                 ))}
               </List>
-              <Button 
-                startIcon={<AddIcon />} 
-                variant="outlined" 
-                sx={{ mt: 2 }}
-              >
+              <Button startIcon={<AddIcon />} variant="outlined" sx={{ mt: 2 }}>
                 Add Scoring Criteria
               </Button>
             </Paper>
@@ -739,4 +736,4 @@ export default function StructuredInterviewKit({ standalone = false }: Structure
       </TabPanel>
     </Container>
   );
-} 
+}

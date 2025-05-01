@@ -35,7 +35,12 @@ const QuillWrapper = forwardRef<ReactQuill, QuillWrapperProps>((props, ref) => {
   }, [ref, editorRef.current]);
 
   if (!isMounted) {
-    return <div ref={containerRef} style={style || { minHeight: '200px', border: '1px solid #ddd' }}></div>;
+    return (
+      <div
+        ref={containerRef}
+        style={style || { minHeight: '200px', border: '1px solid #ddd' }}
+      ></div>
+    );
   }
 
   return (
@@ -53,4 +58,4 @@ const QuillWrapper = forwardRef<ReactQuill, QuillWrapperProps>((props, ref) => {
   );
 });
 
-export default QuillWrapper; 
+export default QuillWrapper;

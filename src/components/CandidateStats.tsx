@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  Divider, 
-  Grid, 
-  Typography, 
-  LinearProgress, 
-  Chip, 
+import {
+  Box,
+  Card,
+  CardContent,
+  CardHeader,
+  Divider,
+  Grid,
+  Typography,
+  LinearProgress,
+  Chip,
   Stack,
   CircularProgress,
-  useTheme
+  useTheme,
 } from '@mui/material';
-import { 
+import {
   People as PeopleIcon,
   TrendingUp as TrendingUpIcon,
-  LocalOffer as TagIcon
+  LocalOffer as TagIcon,
 } from '@mui/icons-material';
 import { useCandidateContext } from '../contexts/CandidateContext';
 import { CandidateStatus, CandidateSource } from '../models/types';
@@ -34,7 +34,7 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
   variant = 'default',
   selectedStatus = 'all',
   selectedSource = 'all',
-  maxTagsToShow = 5
+  maxTagsToShow = 5,
 }) => {
   const { getCandidatesStats } = useCandidateContext();
   const [loading, setLoading] = useState(true);
@@ -85,7 +85,7 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
   const statusPercentages = Object.entries(stats.byStatus).map(([status, count]) => ({
     status,
     count,
-    percentage: stats.total > 0 ? (count / stats.total) * 100 : 0
+    percentage: stats.total > 0 ? (count / stats.total) * 100 : 0,
   }));
 
   // Sort status data by count in descending order
@@ -95,7 +95,7 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
   const sourcePercentages = Object.entries(stats.bySource).map(([source, count]) => ({
     source,
     count,
-    percentage: stats.total > 0 ? (count / stats.total) * 100 : 0
+    percentage: stats.total > 0 ? (count / stats.total) * 100 : 0,
   }));
 
   // Sort source data by count in descending order
@@ -103,15 +103,15 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
 
   // Status colors for visual representation
   const statusColors: Record<string, string> = {
-    'New': theme.palette.info.main,
-    'Screening': theme.palette.primary.main,
-    'Interview': theme.palette.secondary.main,
-    'Assessment': theme.palette.warning.main,
-    'Offer': theme.palette.success.main,
-    'Hired': theme.palette.success.dark,
-    'Rejected': theme.palette.error.main,
-    'Withdrawn': theme.palette.error.light,
-    'On Hold': theme.palette.grey[500]
+    New: theme.palette.info.main,
+    Screening: theme.palette.primary.main,
+    Interview: theme.palette.secondary.main,
+    Assessment: theme.palette.warning.main,
+    Offer: theme.palette.success.main,
+    Hired: theme.palette.success.dark,
+    Rejected: theme.palette.error.main,
+    Withdrawn: theme.palette.error.light,
+    'On Hold': theme.palette.grey[500],
   };
 
   // Compact view just shows the total and a few key metrics
@@ -119,10 +119,7 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
     return (
       <Card>
         {showTitle && (
-          <CardHeader 
-            title="Candidate Statistics" 
-            titleTypographyProps={{ variant: 'h6' }}
-          />
+          <CardHeader title="Candidate Statistics" titleTypographyProps={{ variant: 'h6' }} />
         )}
         <CardContent>
           <Stack direction="row" spacing={2} justifyContent="space-around">
@@ -161,8 +158,8 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
     return (
       <Card>
         {showTitle && (
-          <CardHeader 
-            title="Candidate Statistics" 
+          <CardHeader
+            title="Candidate Statistics"
             titleTypographyProps={{ variant: 'h6' }}
             avatar={<PeopleIcon />}
             subheader={`Total: ${stats.total} candidates`}
@@ -189,7 +186,7 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
                             borderRadius: '50%',
                             backgroundColor: statusColors[status] || theme.palette.grey[500],
                             display: 'inline-block',
-                            mr: 1
+                            mr: 1,
                           }}
                         />
                         {status}
@@ -207,7 +204,7 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
                         backgroundColor: theme.palette.grey[200],
                         '& .MuiLinearProgress-bar': {
                           backgroundColor: statusColors[status] || theme.palette.grey[500],
-                        }
+                        },
                       }}
                     />
                   </Box>
@@ -224,9 +221,7 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
                 {sortedSourceData.map(({ source, count, percentage }) => (
                   <Box key={source} sx={{ mb: 1.5 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="body2">
-                        {source}
-                      </Typography>
+                      <Typography variant="body2">{source}</Typography>
                       <Typography variant="body2" fontWeight="medium">
                         {count} ({percentage.toFixed(1)}%)
                       </Typography>
@@ -240,7 +235,7 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
                         backgroundColor: theme.palette.grey[200],
                         '& .MuiLinearProgress-bar': {
                           backgroundColor: theme.palette.primary.main,
-                        }
+                        },
                       }}
                     />
                   </Box>
@@ -255,11 +250,11 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                 {topTags.map(([tag, count]) => (
-                  <Chip 
-                    key={tag} 
-                    label={`${tag} (${count})`} 
-                    icon={<TagIcon />} 
-                    variant="outlined" 
+                  <Chip
+                    key={tag}
+                    label={`${tag} (${count})`}
+                    icon={<TagIcon />}
+                    variant="outlined"
                     size="small"
                     sx={{ mb: 1 }}
                   />
@@ -274,8 +269,8 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Box sx={{ position: 'relative', display: 'inline-flex', mr: 2 }}>
-                  <CircularProgress 
-                    variant="determinate" 
+                  <CircularProgress
+                    variant="determinate"
                     value={stats.avgRating * 20} // convert 0-5 scale to percentage
                     size={60}
                     thickness={6}
@@ -313,10 +308,7 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
   return (
     <Card>
       {showTitle && (
-        <CardHeader 
-          title="Candidate Statistics" 
-          titleTypographyProps={{ variant: 'h6' }}
-        />
+        <CardHeader title="Candidate Statistics" titleTypographyProps={{ variant: 'h6' }} />
       )}
       <Divider />
       <CardContent>
@@ -348,9 +340,7 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
             {sortedStatusData.slice(0, 5).map(({ status, count, percentage }) => (
               <Box key={status} sx={{ mb: 1 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="body2">
-                    {status}
-                  </Typography>
+                  <Typography variant="body2">{status}</Typography>
                   <Typography variant="body2" fontWeight="medium">
                     {count}
                   </Typography>
@@ -364,7 +354,7 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
                     backgroundColor: theme.palette.grey[200],
                     '& .MuiLinearProgress-bar': {
                       backgroundColor: statusColors[status] || theme.palette.grey[500],
-                    }
+                    },
                   }}
                 />
               </Box>
@@ -374,12 +364,7 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
           <Grid item xs={12}>
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
               {topTags.slice(0, 3).map(([tag, count]) => (
-                <Chip 
-                  key={tag} 
-                  label={`${tag} (${count})`} 
-                  size="small"
-                  sx={{ mb: 1 }}
-                />
+                <Chip key={tag} label={`${tag} (${count})`} size="small" sx={{ mb: 1 }} />
               ))}
             </Stack>
           </Grid>
@@ -389,4 +374,4 @@ const CandidateStats: React.FC<CandidateStatsProps> = ({
   );
 };
 
-export default CandidateStats; 
+export default CandidateStats;

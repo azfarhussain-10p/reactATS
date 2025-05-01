@@ -52,7 +52,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // API URL from env or default
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
     user: null,
@@ -65,13 +65,13 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem('auth_token');
-      
+
       if (token) {
         try {
           // Verify token expiration
           const decoded = jwtDecode<JwtPayload>(token);
           const currentTime = Date.now() / 1000;
-          
+
           if (decoded.exp < currentTime) {
             // Token expired, try to refresh
             const refreshed = await refreshToken();
@@ -103,7 +103,7 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
         }
       } else {
         // No token found
-        setAuthState(prev => ({ ...prev, loading: false }));
+        setAuthState((prev) => ({ ...prev, loading: false }));
       }
     };
 
@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
   const setupAuthState = (token: string) => {
     try {
       const decoded = jwtDecode<JwtPayload>(token);
-      
+
       const user: User = {
         id: decoded.sub,
         email: decoded.email,
@@ -132,7 +132,7 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
         role: decoded.role as User['role'],
         permissions: decoded.permissions || [],
       };
-      
+
       setAuthState({
         isAuthenticated: true,
         user,
@@ -140,14 +140,14 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
         loading: false,
         error: null,
       });
-      
+
       // Set token and user role in localStorage
       localStorage.setItem('auth_token', token);
       localStorage.setItem('userRole', user.role);
-      
+
       // Set up auth header for API requests
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
+
       return true;
     } catch (error) {
       console.error('Error setting up auth state:', error);
@@ -158,27 +158,27 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
         loading: false,
         error: 'Error processing authentication. Please try again.',
       });
-      
+
       localStorage.removeItem('auth_token');
       localStorage.removeItem('userRole');
       delete axios.defaults.headers.common['Authorization'];
-      
+
       return false;
     }
   };
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    setAuthState(prev => ({ ...prev, loading: true, error: null }));
-    
+    setAuthState((prev) => ({ ...prev, loading: true, error: null }));
+
     try {
       // Use SecurityService for authentication
       const authResult = await securityService.authenticate(email, password);
-      
+
       if (authResult && authResult.token) {
         setupAuthState(authResult.token);
         return true;
       } else {
-        setAuthState(prev => ({
+        setAuthState((prev) => ({
           ...prev,
           loading: false,
           error: 'Login failed. Invalid credentials.',
@@ -187,13 +187,13 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      
-      setAuthState(prev => ({
+
+      setAuthState((prev) => ({
         ...prev,
         loading: false,
         error: 'Login failed. Please check your credentials and try again.',
       }));
-      
+
       return false;
     }
   };
@@ -202,11 +202,11 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
     if (authState.token) {
       securityService.logout(authState.token);
     }
-    
+
     localStorage.removeItem('auth_token');
     localStorage.removeItem('userRole');
     delete axios.defaults.headers.common['Authorization'];
-    
+
     setAuthState({
       isAuthenticated: false,
       user: null,
@@ -225,17 +225,17 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
     firstName: string;
     lastName: string;
   }): Promise<boolean> => {
-    setAuthState(prev => ({ ...prev, loading: true, error: null }));
-    
+    setAuthState((prev) => ({ ...prev, loading: true, error: null }));
+
     try {
       // Use SecurityService for registration
       const result = await securityService.registerUser(userData);
-      
+
       if (result.success && result.token) {
         setupAuthState(result.token);
         return true;
       } else {
-        setAuthState(prev => ({
+        setAuthState((prev) => ({
           ...prev,
           loading: false,
           error: result.message || 'Registration failed. Please try again.',
@@ -244,13 +244,13 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
       }
     } catch (error) {
       console.error('Registration error:', error);
-      
-      setAuthState(prev => ({
+
+      setAuthState((prev) => ({
         ...prev,
         loading: false,
         error: 'Registration failed. Please try again.',
       }));
-      
+
       return false;
     }
   };
@@ -259,12 +259,12 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
     try {
       // Use SecurityService for token refresh
       const newToken = await securityService.refreshToken();
-      
+
       if (newToken) {
         setupAuthState(newToken);
         return true;
       }
-      
+
       return false;
     } catch (error) {
       console.error('Error refreshing token:', error);
@@ -276,7 +276,7 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
     if (!authState.isAuthenticated || !authState.user) {
       return false;
     }
-    
+
     return authState.user.permissions.includes(permission);
   };
 
@@ -284,34 +284,34 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
     if (!authState.isAuthenticated || !authState.user) {
       return false;
     }
-    
+
     if (Array.isArray(role)) {
       return role.includes(authState.user.role);
     }
-    
+
     return authState.user.role === role;
   };
 
   const clearError = () => {
-    setAuthState(prev => ({ ...prev, error: null }));
+    setAuthState((prev) => ({ ...prev, error: null }));
   };
 
   const updateUser = async (userData: Partial<User>): Promise<boolean> => {
     if (!authState.isAuthenticated || !authState.user) {
       return false;
     }
-    
+
     try {
       const response = await axios.put(`${API_URL}/auth/user`, userData);
-      
+
       if (response.data.user) {
-        setAuthState(prev => ({
+        setAuthState((prev) => ({
           ...prev,
           user: { ...prev.user!, ...response.data.user },
         }));
         return true;
       }
-      
+
       return false;
     } catch (error) {
       console.error('Error updating user:', error);
@@ -336,43 +336,43 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  
+
   return context;
 };
 
 // Higher-order component to protect routes that require authentication
-export const withAuth = <P extends Object>(
+export const withAuth = <P extends object>(
   Component: React.ComponentType<P>,
   requiredPermission?: string,
   requiredRole?: string | string[]
 ) => {
   const WithAuth: React.FC<P> = (props) => {
     const { isAuthenticated, loading, checkPermission, hasRole } = useAuth();
-    
+
     if (loading) {
       return <div>Loading authentication...</div>;
     }
-    
+
     if (!isAuthenticated) {
       return <div>Please log in to access this page.</div>;
     }
-    
+
     if (requiredPermission && !checkPermission(requiredPermission)) {
       return <div>You don't have permission to access this page.</div>;
     }
-    
+
     if (requiredRole && !hasRole(requiredRole)) {
       return <div>Your role doesn't allow access to this page.</div>;
     }
-    
+
     return <Component {...props} />;
   };
-  
+
   return WithAuth;
 };
 
-export default AuthContext; 
+export default AuthContext;

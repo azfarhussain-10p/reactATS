@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Box,
-  Typography, 
+  Typography,
   Paper,
   Button,
   IconButton,
@@ -34,9 +34,9 @@ import {
   ListItemText,
   SelectChangeEvent,
   Tab,
-  Tabs
+  Tabs,
 } from '@mui/material';
-import { 
+import {
   Add as AddIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
@@ -47,7 +47,7 @@ import {
   HourglassEmpty as HourglassEmptyIcon,
   Schedule as ScheduleIcon,
   Assignment as AssignmentIcon,
-  ArrowForward as ArrowForwardIcon
+  ArrowForward as ArrowForwardIcon,
 } from '@mui/icons-material';
 import { useCollaboration } from '../contexts/CollaborationContext';
 import { Task } from '../models/types';
@@ -70,11 +70,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`tasks-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 2 }}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box sx={{ p: 2 }}>{children}</Box>}
     </div>
   );
 }
@@ -85,17 +81,17 @@ interface TeamTasksProps {
 }
 
 const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false }) => {
-  const { 
-    tasks, 
-    createTask, 
-    updateTask, 
-    completeTask, 
+  const {
+    tasks,
+    createTask,
+    updateTask,
+    completeTask,
     assignTask,
     getTasksByAssignee,
     getTasksByCandidate,
-    teamMembers, 
+    teamMembers,
     currentUser,
-    getTeamMemberById
+    getTeamMemberById,
   } = useCollaboration();
 
   const [newTaskDialogOpen, setNewTaskDialogOpen] = useState(false);
@@ -103,7 +99,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
   const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [tabValue, setTabValue] = useState(0);
-  
+
   // New/edit task form state
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
@@ -111,18 +107,18 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
   const [taskCandidate, setTaskCandidate] = useState('');
   const [taskDueDate, setTaskDueDate] = useState('');
   const [taskPriority, setTaskPriority] = useState<'low' | 'medium' | 'high' | 'urgent'>('medium');
-  
+
   // Form validation errors
   const [titleError, setTitleError] = useState('');
   const [assigneeError, setAssigneeError] = useState('');
   const [dueDateError, setDueDateError] = useState('');
-  
+
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
 
   // Filter tasks based on props and tab
   useEffect(() => {
     let tasksToShow: Task[];
-    
+
     if (candidateId) {
       // When showing tasks for a specific candidate
       tasksToShow = getTasksByCandidate(candidateId);
@@ -135,32 +131,42 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
     } else {
       tasksToShow = [];
     }
-    
+
     // Further filter based on tab
-    if (tabValue === 0) { // Active tasks
-      tasksToShow = tasksToShow.filter(task => task.status !== 'completed');
-    } else if (tabValue === 1) { // Completed tasks
-      tasksToShow = tasksToShow.filter(task => task.status === 'completed');
+    if (tabValue === 0) {
+      // Active tasks
+      tasksToShow = tasksToShow.filter((task) => task.status !== 'completed');
+    } else if (tabValue === 1) {
+      // Completed tasks
+      tasksToShow = tasksToShow.filter((task) => task.status === 'completed');
     }
-    
+
     // Sort tasks
     tasksToShow.sort((a, b) => {
       // Sort by status (pending/in-progress first, then completed)
       if (a.status !== 'completed' && b.status === 'completed') return -1;
       if (a.status === 'completed' && b.status !== 'completed') return 1;
-      
+
       // Sort by priority
-      const priorityOrder = { 'urgent': 0, 'high': 1, 'medium': 2, 'low': 3 };
+      const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
       if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
         return priorityOrder[a.priority] - priorityOrder[b.priority];
       }
-      
+
       // Sort by due date
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     });
-    
+
     setFilteredTasks(tasksToShow);
-  }, [tasks, candidateId, showAllTasks, currentUser, tabValue, getTasksByAssignee, getTasksByCandidate]);
+  }, [
+    tasks,
+    candidateId,
+    showAllTasks,
+    currentUser,
+    tabValue,
+    getTasksByAssignee,
+    getTasksByCandidate,
+  ]);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -174,12 +180,12 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
     setTaskCandidate(candidateId || '');
     setTaskDueDate(format(new Date(Date.now() + 86400000), "yyyy-MM-dd'T'HH:mm")); // Tomorrow
     setTaskPriority('medium');
-    
+
     // Reset errors
     setTitleError('');
     setAssigneeError('');
     setDueDateError('');
-    
+
     setNewTaskDialogOpen(true);
   };
 
@@ -189,7 +195,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
 
   const handleOpenEditTaskDialog = (task: Task) => {
     setSelectedTask(task);
-    
+
     // Populate form with task data
     setTaskTitle(task.title);
     setTaskDescription(task.description);
@@ -197,12 +203,12 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
     setTaskCandidate(task.candidateId || '');
     setTaskDueDate(format(new Date(task.dueDate), "yyyy-MM-dd'T'HH:mm"));
     setTaskPriority(task.priority);
-    
+
     // Reset errors
     setTitleError('');
     setAssigneeError('');
     setDueDateError('');
-    
+
     setEditTaskDialogOpen(true);
   };
 
@@ -223,34 +229,34 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
 
   const validateForm = (): boolean => {
     let isValid = true;
-    
+
     if (!taskTitle.trim()) {
       setTitleError('Title is required');
       isValid = false;
     } else {
       setTitleError('');
     }
-    
+
     if (!taskAssignee) {
       setAssigneeError('Assignee is required');
       isValid = false;
     } else {
       setAssigneeError('');
     }
-    
+
     if (!taskDueDate) {
       setDueDateError('Due date is required');
       isValid = false;
     } else {
       setDueDateError('');
     }
-    
+
     return isValid;
   };
 
   const handleCreateTask = () => {
     if (!validateForm()) return;
-    
+
     createTask({
       title: taskTitle,
       description: taskDescription,
@@ -258,15 +264,15 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
       assignedBy: currentUser ? currentUser.id : 'unknown',
       dueDate: taskDueDate,
       priority: taskPriority,
-      candidateId: taskCandidate || undefined
+      candidateId: taskCandidate || undefined,
     });
-    
+
     handleCloseNewTaskDialog();
   };
 
   const handleUpdateTask = () => {
     if (!validateForm() || !selectedTask) return;
-    
+
     updateTask(selectedTask.id, {
       title: taskTitle,
       description: taskDescription,
@@ -274,9 +280,9 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
       dueDate: taskDueDate,
       priority: taskPriority,
       candidateId: taskCandidate || undefined,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
-    
+
     handleCloseEditTaskDialog();
   };
 
@@ -318,7 +324,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
       default:
         color = 'default';
     }
-    
+
     return (
       <Chip
         size="small"
@@ -331,7 +337,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
   const renderStatusChip = (status: string) => {
     let color: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
     let icon;
-    
+
     switch (status) {
       case 'pending':
         color = 'warning';
@@ -353,12 +359,15 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
         color = 'default';
         icon = null;
     }
-    
+
     return (
       <Chip
         size="small"
         icon={icon}
-        label={status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+        label={status
+          .split('-')
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')}
         color={color}
       />
     );
@@ -367,7 +376,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
   const renderDueDate = (dueDate: string) => {
     const date = new Date(dueDate);
     const isPastDue = isPast(date) && date < new Date();
-    
+
     return (
       <Typography
         variant="body2"
@@ -376,14 +385,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
       >
         <ScheduleIcon fontSize="small" sx={{ mr: 0.5 }} />
         {format(date, 'MMM dd, yyyy - h:mm a')}
-        {isPastDue && (
-          <Chip
-            label="Overdue"
-            size="small"
-            color="error"
-            sx={{ ml: 1 }}
-          />
-        )}
+        {isPastDue && <Chip label="Overdue" size="small" color="error" sx={{ ml: 1 }} />}
       </Typography>
     );
   };
@@ -398,9 +400,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
             No {tabValue === 0 ? 'active' : 'completed'} tasks
           </Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>
-            {tabValue === 0
-              ? 'All current tasks have been completed'
-              : 'No completed tasks yet'}
+            {tabValue === 0 ? 'All current tasks have been completed' : 'No completed tasks yet'}
           </Typography>
           <Button
             variant="outlined"
@@ -413,7 +413,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
         </Box>
       );
     }
-    
+
     return (
       <Grid container spacing={2}>
         {filteredTasks.map((task) => {
@@ -421,17 +421,17 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
           const assigner = getTeamMemberById(task.assignedBy);
           const isPastDue = isPast(new Date(task.dueDate)) && task.status !== 'completed';
           const isCurrentUserAssigned = currentUser && task.assignedTo === currentUser.id;
-          
+
           return (
             <Grid item xs={12} md={6} lg={4} key={task.id}>
-              <Card 
+              <Card
                 elevation={2}
-                sx={{ 
+                sx={{
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
                   borderLeft: '4px solid',
-                  borderColor: theme => 
+                  borderColor: (theme) =>
                     isPastDue
                       ? theme.palette.error.main
                       : task.status === 'completed'
@@ -440,23 +440,29 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
                           ? theme.palette.error.main
                           : task.priority === 'high'
                             ? theme.palette.warning.main
-                            : theme.palette.primary.main
+                            : theme.palette.primary.main,
                 }}
               >
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Typography variant="h6" component="div" gutterBottom noWrap sx={{ maxWidth: '70%' }}>
+                    <Typography
+                      variant="h6"
+                      component="div"
+                      gutterBottom
+                      noWrap
+                      sx={{ maxWidth: '70%' }}
+                    >
                       {task.title}
                     </Typography>
                     {renderPriorityChip(task.priority)}
                   </Box>
-                  
+
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                     {task.description}
                   </Typography>
-                  
+
                   <Divider sx={{ my: 1 }} />
-                  
+
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                     <Typography variant="body2" sx={{ mr: 1 }}>
                       <strong>Assigned to:</strong>
@@ -464,31 +470,30 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
                     <Chip
                       size="small"
                       avatar={
-                        <Avatar 
-                          src={assignee?.avatar} 
-                          alt={assignee?.name || 'User'}
-                        >
+                        <Avatar src={assignee?.avatar} alt={assignee?.name || 'User'}>
                           {!assignee?.avatar && (assignee?.name?.charAt(0) || 'U')}
                         </Avatar>
                       }
                       label={assignee?.name || 'Unknown User'}
-                      variant={isCurrentUserAssigned ? "filled" : "outlined"}
-                      color={isCurrentUserAssigned ? "primary" : "default"}
+                      variant={isCurrentUserAssigned ? 'filled' : 'outlined'}
+                      color={isCurrentUserAssigned ? 'primary' : 'default'}
                     />
                   </Box>
-                  
+
                   {renderDueDate(task.dueDate)}
-                  
+
                   <Box sx={{ mt: 1 }}>
-                    {renderStatusChip(isPastDue && task.status !== 'completed' ? 'overdue' : task.status)}
+                    {renderStatusChip(
+                      isPastDue && task.status !== 'completed' ? 'overdue' : task.status
+                    )}
                   </Box>
                 </CardContent>
-                
+
                 <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
                   <Box>
                     <Tooltip title="Edit Task">
-                      <IconButton 
-                        size="small" 
+                      <IconButton
+                        size="small"
                         onClick={() => handleOpenEditTaskDialog(task)}
                         aria-label="edit task"
                       >
@@ -496,8 +501,8 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Delete Task">
-                      <IconButton 
-                        size="small" 
+                      <IconButton
+                        size="small"
                         onClick={() => handleOpenDeleteDialog(task)}
                         aria-label="delete task"
                         color="error"
@@ -506,7 +511,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
                       </IconButton>
                     </Tooltip>
                   </Box>
-                  
+
                   {task.status !== 'completed' && (
                     <Button
                       size="small"
@@ -531,44 +536,31 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6">
-          {candidateId 
-            ? 'Candidate Tasks' 
-            : showAllTasks 
-              ? 'All Recruitment Tasks' 
-              : 'My Tasks'}
+          {candidateId ? 'Candidate Tasks' : showAllTasks ? 'All Recruitment Tasks' : 'My Tasks'}
         </Typography>
-        
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleOpenNewTaskDialog}
-        >
+
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenNewTaskDialog}>
           New Task
         </Button>
       </Box>
-      
+
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="task tabs">
           <Tab label="Active Tasks" id="tasks-tab-0" aria-controls="tasks-tabpanel-0" />
           <Tab label="Completed Tasks" id="tasks-tab-1" aria-controls="tasks-tabpanel-1" />
         </Tabs>
       </Box>
-      
+
       <TabPanel value={tabValue} index={0}>
         {renderTaskCards()}
       </TabPanel>
-      
+
       <TabPanel value={tabValue} index={1}>
         {renderTaskCards()}
       </TabPanel>
-      
+
       {/* New Task Dialog */}
-      <Dialog
-        open={newTaskDialogOpen}
-        onClose={handleCloseNewTaskDialog}
-        fullWidth
-        maxWidth="sm"
-      >
+      <Dialog open={newTaskDialogOpen} onClose={handleCloseNewTaskDialog} fullWidth maxWidth="sm">
         <DialogTitle>Create New Task</DialogTitle>
         <DialogContent>
           <TextField
@@ -582,7 +574,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
             helperText={titleError}
             required
           />
-          
+
           <TextField
             margin="normal"
             label="Description"
@@ -592,13 +584,8 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
             value={taskDescription}
             onChange={(e) => setTaskDescription(e.target.value)}
           />
-          
-          <FormControl 
-            fullWidth 
-            margin="normal"
-            error={!!assigneeError}
-            required
-          >
+
+          <FormControl fullWidth margin="normal" error={!!assigneeError} required>
             <InputLabel id="assignee-label">Assign To</InputLabel>
             <Select
               labelId="assignee-label"
@@ -609,8 +596,8 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
               {teamMembers.map((member) => (
                 <MenuItem key={member.id} value={member.id}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar 
-                      src={member.avatar} 
+                    <Avatar
+                      src={member.avatar}
                       alt={member.name}
                       sx={{ width: 24, height: 24, mr: 1 }}
                     >
@@ -623,15 +610,10 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
             </Select>
             {assigneeError && <FormHelperText>{assigneeError}</FormHelperText>}
           </FormControl>
-          
+
           <Grid container spacing={2} sx={{ mt: 0 }}>
             <Grid item xs={12} sm={6}>
-              <FormControl 
-                fullWidth 
-                margin="normal"
-                error={!!dueDateError}
-                required
-              >
+              <FormControl fullWidth margin="normal" error={!!dueDateError} required>
                 <TextField
                   label="Due Date & Time"
                   type="datetime-local"
@@ -645,7 +627,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
                 />
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth margin="normal">
                 <InputLabel id="priority-label">Priority</InputLabel>
@@ -663,7 +645,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
               </FormControl>
             </Grid>
           </Grid>
-          
+
           {!candidateId && (
             <FormControl fullWidth margin="normal">
               <InputLabel id="candidate-label">Related Candidate (Optional)</InputLabel>
@@ -683,23 +665,14 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseNewTaskDialog}>Cancel</Button>
-          <Button 
-            onClick={handleCreateTask} 
-            variant="contained" 
-            color="primary"
-          >
+          <Button onClick={handleCreateTask} variant="contained" color="primary">
             Create Task
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Edit Task Dialog */}
-      <Dialog
-        open={editTaskDialogOpen}
-        onClose={handleCloseEditTaskDialog}
-        fullWidth
-        maxWidth="sm"
-      >
+      <Dialog open={editTaskDialogOpen} onClose={handleCloseEditTaskDialog} fullWidth maxWidth="sm">
         <DialogTitle>Edit Task</DialogTitle>
         <DialogContent>
           <TextField
@@ -713,7 +686,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
             helperText={titleError}
             required
           />
-          
+
           <TextField
             margin="normal"
             label="Description"
@@ -723,13 +696,8 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
             value={taskDescription}
             onChange={(e) => setTaskDescription(e.target.value)}
           />
-          
-          <FormControl 
-            fullWidth 
-            margin="normal"
-            error={!!assigneeError}
-            required
-          >
+
+          <FormControl fullWidth margin="normal" error={!!assigneeError} required>
             <InputLabel id="edit-assignee-label">Assign To</InputLabel>
             <Select
               labelId="edit-assignee-label"
@@ -740,8 +708,8 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
               {teamMembers.map((member) => (
                 <MenuItem key={member.id} value={member.id}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar 
-                      src={member.avatar} 
+                    <Avatar
+                      src={member.avatar}
                       alt={member.name}
                       sx={{ width: 24, height: 24, mr: 1 }}
                     >
@@ -754,15 +722,10 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
             </Select>
             {assigneeError && <FormHelperText>{assigneeError}</FormHelperText>}
           </FormControl>
-          
+
           <Grid container spacing={2} sx={{ mt: 0 }}>
             <Grid item xs={12} sm={6}>
-              <FormControl 
-                fullWidth 
-                margin="normal"
-                error={!!dueDateError}
-                required
-              >
+              <FormControl fullWidth margin="normal" error={!!dueDateError} required>
                 <TextField
                   label="Due Date & Time"
                   type="datetime-local"
@@ -776,7 +739,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
                 />
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth margin="normal">
                 <InputLabel id="edit-priority-label">Priority</InputLabel>
@@ -794,7 +757,7 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
               </FormControl>
             </Grid>
           </Grid>
-          
+
           {!candidateId && (
             <FormControl fullWidth margin="normal">
               <InputLabel id="edit-candidate-label">Related Candidate (Optional)</InputLabel>
@@ -814,34 +777,24 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseEditTaskDialog}>Cancel</Button>
-          <Button 
-            onClick={handleUpdateTask} 
-            variant="contained" 
-            color="primary"
-          >
+          <Button onClick={handleUpdateTask} variant="contained" color="primary">
             Update Task
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={confirmDeleteDialogOpen}
-        onClose={handleCloseDeleteDialog}
-      >
+      <Dialog open={confirmDeleteDialogOpen} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Delete Task</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete the task "{selectedTask?.title}"? This action cannot be undone.
+            Are you sure you want to delete the task "{selectedTask?.title}"? This action cannot be
+            undone.
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
-          <Button 
-            onClick={handleDeleteTask} 
-            variant="contained" 
-            color="error"
-          >
+          <Button onClick={handleDeleteTask} variant="contained" color="error">
             Delete
           </Button>
         </DialogActions>
@@ -850,4 +803,4 @@ const TeamTasks: React.FC<TeamTasksProps> = ({ candidateId, showAllTasks = false
   );
 };
 
-export default TeamTasks; 
+export default TeamTasks;

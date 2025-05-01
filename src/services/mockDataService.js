@@ -18,17 +18,21 @@ class MockDataService {
       // Load jobs data
       const jobsData = this.loadData('mockJobs.json');
       // Handle both array format and {jobs: [...]} format
-      this.jobs = Array.isArray(jobsData) ? jobsData : (jobsData.jobs || []);
-      
+      this.jobs = Array.isArray(jobsData) ? jobsData : jobsData.jobs || [];
+
       // Load applications data
       const applicationsData = this.loadData('mockApplications.json');
-      this.applications = Array.isArray(applicationsData) ? applicationsData : (applicationsData.applications || []);
-      
+      this.applications = Array.isArray(applicationsData)
+        ? applicationsData
+        : applicationsData.applications || [];
+
       // Load job boards data
       const jobBoardsData = this.loadData('mockJobBoards.json');
-      this.jobBoards = Array.isArray(jobBoardsData) ? jobBoardsData : (jobBoardsData.jobBoards || []);
-      
-      console.log(`Loaded data: ${this.jobs.length} jobs, ${this.applications.length} applications, ${this.jobBoards.length} job boards`);
+      this.jobBoards = Array.isArray(jobBoardsData) ? jobBoardsData : jobBoardsData.jobBoards || [];
+
+      console.log(
+        `Loaded data: ${this.jobs.length} jobs, ${this.applications.length} applications, ${this.jobBoards.length} job boards`
+      );
     } catch (error) {
       console.error('Error loading data:', error);
       // Initialize with empty arrays if load fails
@@ -47,12 +51,12 @@ class MockDataService {
     try {
       const filePath = path.resolve(__dirname, '../data', filename);
       console.log(`Loading data from ${filePath}`);
-      
+
       if (!fs.existsSync(filePath)) {
         console.error(`File not found: ${filePath}`);
         return [];
       }
-      
+
       const data = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(data);
     } catch (error) {
@@ -83,34 +87,35 @@ class MockDataService {
   getJobs(filters = {}) {
     // Reload data to ensure we have the latest
     this.loadAllData();
-    
+
     let filteredJobs = [...this.jobs];
-    
+
     const { search, department, location, type, status } = filters;
 
     if (search) {
       const searchLower = search.toLowerCase();
-      filteredJobs = filteredJobs.filter(job =>
-        job.title.toLowerCase().includes(searchLower) ||
-        job.description.toLowerCase().includes(searchLower) ||
-        job.department.toLowerCase().includes(searchLower)
+      filteredJobs = filteredJobs.filter(
+        (job) =>
+          job.title.toLowerCase().includes(searchLower) ||
+          job.description.toLowerCase().includes(searchLower) ||
+          job.department.toLowerCase().includes(searchLower)
       );
     }
 
     if (department && department !== 'All') {
-      filteredJobs = filteredJobs.filter(job => job.department === department);
+      filteredJobs = filteredJobs.filter((job) => job.department === department);
     }
 
     if (location && location !== 'All') {
-      filteredJobs = filteredJobs.filter(job => job.location === location);
+      filteredJobs = filteredJobs.filter((job) => job.location === location);
     }
 
     if (type && type !== 'All') {
-      filteredJobs = filteredJobs.filter(job => job.type === type);
+      filteredJobs = filteredJobs.filter((job) => job.type === type);
     }
 
     if (status && status !== 'All') {
-      filteredJobs = filteredJobs.filter(job => job.status === status);
+      filteredJobs = filteredJobs.filter((job) => job.status === status);
     }
 
     return filteredJobs;
@@ -124,7 +129,7 @@ class MockDataService {
   getJobById(id) {
     // Reload data to ensure we have the latest
     this.loadAllData();
-    return this.jobs.find(job => job.id === id) || null;
+    return this.jobs.find((job) => job.id === id) || null;
   }
 
   /**
@@ -133,19 +138,19 @@ class MockDataService {
    * @returns {Object} The created job
    */
   createJob(jobData) {
-    const maxId = this.jobs.length > 0 ? Math.max(...this.jobs.map(job => job.id)) : 0;
-    
+    const maxId = this.jobs.length > 0 ? Math.max(...this.jobs.map((job) => job.id)) : 0;
+
     const newJob = {
       id: maxId + 1,
       ...jobData,
       postedDate: jobData.postedDate || new Date().toISOString().split('T')[0],
       applicants: jobData.applicants || 0,
-      status: jobData.status || 'Active'
+      status: jobData.status || 'Active',
     };
-    
+
     this.jobs.push(newJob);
     this.saveData('mockJobs.json', this.jobs);
-    
+
     return newJob;
   }
 
@@ -156,16 +161,16 @@ class MockDataService {
    * @returns {Object|null} The updated job or null if not found
    */
   updateJob(id, jobData) {
-    const jobIndex = this.jobs.findIndex(job => job.id === id);
-    
+    const jobIndex = this.jobs.findIndex((job) => job.id === id);
+
     if (jobIndex === -1) {
       return null;
     }
-    
+
     const updatedJob = { ...this.jobs[jobIndex], ...jobData };
     this.jobs[jobIndex] = updatedJob;
     this.saveData('mockJobs.json', this.jobs);
-    
+
     return updatedJob;
   }
 
@@ -175,15 +180,15 @@ class MockDataService {
    * @returns {Object|null} The deleted job or null if not found
    */
   deleteJob(id) {
-    const jobIndex = this.jobs.findIndex(job => job.id === id);
-    
+    const jobIndex = this.jobs.findIndex((job) => job.id === id);
+
     if (jobIndex === -1) {
       return null;
     }
-    
+
     const [deletedJob] = this.jobs.splice(jobIndex, 1);
     this.saveData('mockJobs.json', this.jobs);
-    
+
     return deletedJob;
   }
 
@@ -195,21 +200,23 @@ class MockDataService {
   getApplications(filters = {}) {
     // Reload data to ensure we have the latest
     this.loadAllData();
-    
+
     let filteredApplications = [...this.applications];
-    
+
     const { jobId, candidateId, status } = filters;
 
     if (jobId) {
-      filteredApplications = filteredApplications.filter(app => app.jobId === parseInt(jobId));
+      filteredApplications = filteredApplications.filter((app) => app.jobId === parseInt(jobId));
     }
 
     if (candidateId) {
-      filteredApplications = filteredApplications.filter(app => app.candidateId === parseInt(candidateId));
+      filteredApplications = filteredApplications.filter(
+        (app) => app.candidateId === parseInt(candidateId)
+      );
     }
 
     if (status) {
-      filteredApplications = filteredApplications.filter(app => app.status === status);
+      filteredApplications = filteredApplications.filter((app) => app.status === status);
     }
 
     return filteredApplications;
@@ -223,7 +230,7 @@ class MockDataService {
   getApplicationById(id) {
     // Reload data to ensure we have the latest
     this.loadAllData();
-    return this.applications.find(app => app.id === id) || null;
+    return this.applications.find((app) => app.id === id) || null;
   }
 
   /**
@@ -233,17 +240,16 @@ class MockDataService {
    */
   createApplication(applicationData) {
     const job = this.getJobById(parseInt(applicationData.jobId));
-    
+
     if (!job) {
       throw new Error('Job not found');
     }
-    
-    const maxId = this.applications.length > 0 
-      ? Math.max(...this.applications.map(app => app.id)) 
-      : 0;
-    
+
+    const maxId =
+      this.applications.length > 0 ? Math.max(...this.applications.map((app) => app.id)) : 0;
+
     const now = new Date().toISOString();
-    
+
     const newApplication = {
       id: maxId + 1,
       jobId: parseInt(applicationData.jobId),
@@ -268,25 +274,25 @@ class MockDataService {
           stage: 'Applied',
           enteredAt: now,
           exitedAt: null,
-          notes: 'Initial application submitted'
-        }
+          notes: 'Initial application submitted',
+        },
       ],
       notes: '',
       flagged: false,
-      lastUpdated: now
+      lastUpdated: now,
     };
-    
+
     this.applications.push(newApplication);
-    
+
     // Update job's applicant count
-    const jobIndex = this.jobs.findIndex(j => j.id === parseInt(applicationData.jobId));
+    const jobIndex = this.jobs.findIndex((j) => j.id === parseInt(applicationData.jobId));
     if (jobIndex !== -1) {
       this.jobs[jobIndex].applicants += 1;
       this.saveData('mockJobs.json', this.jobs);
     }
-    
+
     this.saveData('mockApplications.json', this.applications);
-    
+
     return newApplication;
   }
 
@@ -297,24 +303,24 @@ class MockDataService {
    * @returns {Object|null} The updated application or null if not found
    */
   updateApplication(id, applicationData) {
-    const applicationIndex = this.applications.findIndex(app => app.id === id);
-    
+    const applicationIndex = this.applications.findIndex((app) => app.id === id);
+
     if (applicationIndex === -1) {
       return null;
     }
-    
+
     // Prevent updating certain fields
     const { id: appId, appliedDate, ...updateableFields } = applicationData;
-    
-    const updatedApplication = { 
-      ...this.applications[applicationIndex], 
+
+    const updatedApplication = {
+      ...this.applications[applicationIndex],
       ...updateableFields,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
-    
+
     this.applications[applicationIndex] = updatedApplication;
     this.saveData('mockApplications.json', this.applications);
-    
+
     return updatedApplication;
   }
 
@@ -325,17 +331,17 @@ class MockDataService {
    * @returns {Object|null} The updated application or null if not found
    */
   updateApplicationStatus(id, status) {
-    const applicationIndex = this.applications.findIndex(app => app.id === id);
-    
+    const applicationIndex = this.applications.findIndex((app) => app.id === id);
+
     if (applicationIndex === -1) {
       return null;
     }
-    
+
     this.applications[applicationIndex].status = status;
     this.applications[applicationIndex].lastUpdated = new Date().toISOString();
-    
+
     this.saveData('mockApplications.json', this.applications);
-    
+
     return this.applications[applicationIndex];
   }
 
@@ -347,37 +353,37 @@ class MockDataService {
    * @returns {Object|null} The updated application or null if not found
    */
   updateApplicationStage(id, stage, notes) {
-    const applicationIndex = this.applications.findIndex(app => app.id === id);
-    
+    const applicationIndex = this.applications.findIndex((app) => app.id === id);
+
     if (applicationIndex === -1) {
       return null;
     }
-    
+
     const now = new Date().toISOString();
-    
+
     // Close the current stage
     const currentStageIndex = this.applications[applicationIndex].stageHistory.findIndex(
-      s => s.exitedAt === null
+      (s) => s.exitedAt === null
     );
-    
+
     if (currentStageIndex !== -1) {
       this.applications[applicationIndex].stageHistory[currentStageIndex].exitedAt = now;
     }
-    
+
     // Add the new stage
     this.applications[applicationIndex].stageHistory.push({
       stage,
       enteredAt: now,
       exitedAt: null,
-      notes: notes || `Moved to ${stage} stage`
+      notes: notes || `Moved to ${stage} stage`,
     });
-    
+
     // Update the current stage
     this.applications[applicationIndex].stage = stage;
     this.applications[applicationIndex].lastUpdated = now;
-    
+
     this.saveData('mockApplications.json', this.applications);
-    
+
     return this.applications[applicationIndex];
   }
 
@@ -387,15 +393,15 @@ class MockDataService {
    * @returns {Object|null} The deleted application or null if not found
    */
   deleteApplication(id) {
-    const applicationIndex = this.applications.findIndex(app => app.id === id);
-    
+    const applicationIndex = this.applications.findIndex((app) => app.id === id);
+
     if (applicationIndex === -1) {
       return null;
     }
-    
+
     const [deletedApplication] = this.applications.splice(applicationIndex, 1);
     this.saveData('mockApplications.json', this.applications);
-    
+
     return deletedApplication;
   }
 
@@ -417,7 +423,7 @@ class MockDataService {
   getJobBoardById(id) {
     // Reload data to ensure we have the latest
     this.loadAllData();
-    return this.jobBoards.find(board => board.id === id) || null;
+    return this.jobBoards.find((board) => board.id === id) || null;
   }
 
   /**
@@ -428,7 +434,7 @@ class MockDataService {
   getJobBoardBySlug(slug) {
     // Reload data to ensure we have the latest
     this.loadAllData();
-    return this.jobBoards.find(board => board.slug === slug && board.isActive) || null;
+    return this.jobBoards.find((board) => board.slug === slug && board.isActive) || null;
   }
 
   /**
@@ -438,16 +444,15 @@ class MockDataService {
    */
   createJobBoard(jobBoardData) {
     // Check if slug already exists
-    if (this.jobBoards.some(board => board.slug === jobBoardData.slug)) {
+    if (this.jobBoards.some((board) => board.slug === jobBoardData.slug)) {
       throw new Error('Slug already exists');
     }
-    
-    const maxId = this.jobBoards.length > 0 
-      ? Math.max(...this.jobBoards.map(board => board.id)) 
-      : 0;
-    
+
+    const maxId =
+      this.jobBoards.length > 0 ? Math.max(...this.jobBoards.map((board) => board.id)) : 0;
+
     const now = new Date().toISOString();
-    
+
     const newJobBoard = {
       id: maxId + 1,
       ...jobBoardData,
@@ -456,12 +461,12 @@ class MockDataService {
       isActive: jobBoardData.isActive !== undefined ? jobBoardData.isActive : true,
       featuredJobs: jobBoardData.featuredJobs || 0,
       jobsPerPage: jobBoardData.jobsPerPage || 10,
-      customFields: jobBoardData.customFields || []
+      customFields: jobBoardData.customFields || [],
     };
-    
+
     this.jobBoards.push(newJobBoard);
     this.saveData('mockJobBoards.json', this.jobBoards);
-    
+
     return newJobBoard;
   }
 
@@ -472,27 +477,29 @@ class MockDataService {
    * @returns {Object|null} The updated job board or null if not found
    */
   updateJobBoard(id, jobBoardData) {
-    const jobBoardIndex = this.jobBoards.findIndex(board => board.id === id);
-    
+    const jobBoardIndex = this.jobBoards.findIndex((board) => board.id === id);
+
     if (jobBoardIndex === -1) {
       return null;
     }
-    
+
     // Check if slug exists on another board
-    if (jobBoardData.slug && 
-        this.jobBoards.some(board => board.slug === jobBoardData.slug && board.id !== id)) {
+    if (
+      jobBoardData.slug &&
+      this.jobBoards.some((board) => board.slug === jobBoardData.slug && board.id !== id)
+    ) {
       throw new Error('Slug already exists on another board');
     }
-    
-    const updatedJobBoard = { 
-      ...this.jobBoards[jobBoardIndex], 
+
+    const updatedJobBoard = {
+      ...this.jobBoards[jobBoardIndex],
       ...jobBoardData,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
-    
+
     this.jobBoards[jobBoardIndex] = updatedJobBoard;
     this.saveData('mockJobBoards.json', this.jobBoards);
-    
+
     return updatedJobBoard;
   }
 
@@ -503,17 +510,17 @@ class MockDataService {
    * @returns {Object|null} The updated job board or null if not found
    */
   updateJobBoardStatus(id, isActive) {
-    const jobBoardIndex = this.jobBoards.findIndex(board => board.id === id);
-    
+    const jobBoardIndex = this.jobBoards.findIndex((board) => board.id === id);
+
     if (jobBoardIndex === -1) {
       return null;
     }
-    
+
     this.jobBoards[jobBoardIndex].isActive = isActive;
     this.jobBoards[jobBoardIndex].updatedAt = new Date().toISOString();
-    
+
     this.saveData('mockJobBoards.json', this.jobBoards);
-    
+
     return this.jobBoards[jobBoardIndex];
   }
 
@@ -523,15 +530,15 @@ class MockDataService {
    * @returns {Object|null} The deleted job board or null if not found
    */
   deleteJobBoard(id) {
-    const jobBoardIndex = this.jobBoards.findIndex(board => board.id === id);
-    
+    const jobBoardIndex = this.jobBoards.findIndex((board) => board.id === id);
+
     if (jobBoardIndex === -1) {
       return null;
     }
-    
+
     const [deletedJobBoard] = this.jobBoards.splice(jobBoardIndex, 1);
     this.saveData('mockJobBoards.json', this.jobBoards);
-    
+
     return deletedJobBoard;
   }
 
@@ -542,7 +549,7 @@ class MockDataService {
   getDepartments() {
     // Reload data to ensure we have the latest
     this.loadAllData();
-    return [...new Set(this.jobs.map(job => job.department))];
+    return [...new Set(this.jobs.map((job) => job.department))];
   }
 
   /**
@@ -552,7 +559,7 @@ class MockDataService {
   getLocations() {
     // Reload data to ensure we have the latest
     this.loadAllData();
-    return [...new Set(this.jobs.map(job => job.location))];
+    return [...new Set(this.jobs.map((job) => job.location))];
   }
 
   /**
@@ -562,11 +569,11 @@ class MockDataService {
   getJobTypes() {
     // Reload data to ensure we have the latest
     this.loadAllData();
-    return [...new Set(this.jobs.map(job => job.type))];
+    return [...new Set(this.jobs.map((job) => job.type))];
   }
 }
 
 // Create a singleton instance
 const mockDataService = new MockDataService();
 
-export default mockDataService; 
+export default mockDataService;

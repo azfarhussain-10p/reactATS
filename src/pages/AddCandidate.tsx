@@ -1,26 +1,26 @@
 import { useState } from 'react';
-import { 
-  Box, 
-  Paper, 
-  Typography, 
-  TextField, 
-  Button, 
-  Grid, 
-  FormControl, 
-  InputLabel, 
-  Select, 
-  MenuItem, 
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   Chip,
   IconButton,
   Divider,
   Stack,
   FormHelperText,
-  Alert
+  Alert,
 } from '@mui/material';
-import { 
-  Add as AddIcon, 
+import {
+  Add as AddIcon,
   Delete as DeleteIcon,
-  CloudUpload as CloudUploadIcon
+  CloudUpload as CloudUploadIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -70,10 +70,10 @@ function AddCandidate() {
 
   const [skills, setSkills] = useState<string[]>([]);
   const [currentSkill, setCurrentSkill] = useState('');
-  
+
   const [education, setEducation] = useState<EducationEntry[]>([]);
   const [experience, setExperience] = useState<ExperienceEntry[]>([]);
-  
+
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -85,7 +85,7 @@ function AddCandidate() {
       ...prev,
       [name]: value,
     }));
-    
+
     // Clear error for this field if exists
     if (errors[name]) {
       setErrors((prev) => {
@@ -103,7 +103,7 @@ function AddCandidate() {
       ...prev,
       [name]: value,
     }));
-    
+
     // Clear error for this field if exists
     if (errors[name]) {
       setErrors((prev) => {
@@ -121,7 +121,7 @@ function AddCandidate() {
         ...prev,
         [fieldName]: e.target.files![0],
       }));
-      
+
       // Clear error for this field if exists
       if (errors[fieldName]) {
         setErrors((prev) => {
@@ -161,14 +161,12 @@ function AddCandidate() {
 
   // Update education entry
   const handleEducationChange = (id: number, field: keyof EducationEntry, value: any) => {
-    setEducation(education.map(edu => 
-      edu.id === id ? { ...edu, [field]: value } : edu
-    ));
+    setEducation(education.map((edu) => (edu.id === id ? { ...edu, [field]: value } : edu)));
   };
 
   // Remove education entry
   const handleRemoveEducation = (id: number) => {
-    setEducation(education.filter(edu => edu.id !== id));
+    setEducation(education.filter((edu) => edu.id !== id));
   };
 
   // Add experience entry
@@ -187,58 +185,56 @@ function AddCandidate() {
 
   // Update experience entry
   const handleExperienceChange = (id: number, field: keyof ExperienceEntry, value: any) => {
-    setExperience(experience.map(exp => 
-      exp.id === id ? { ...exp, [field]: value } : exp
-    ));
+    setExperience(experience.map((exp) => (exp.id === id ? { ...exp, [field]: value } : exp)));
   };
 
   // Remove experience entry
   const handleRemoveExperience = (id: number) => {
-    setExperience(experience.filter(exp => exp.id !== id));
+    setExperience(experience.filter((exp) => exp.id !== id));
   };
 
   // Validate form fields
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
-    if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
-    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
+
+    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
+      newErrors.email = 'Email is invalid';
     }
-    if (!formData.phone.trim()) newErrors.phone = "Phone is required";
-    if (!formData.jobId) newErrors.jobId = "Please select a job position";
-    if (!formData.resumeFile) newErrors.resumeFile = "Resume is required";
-    
+    if (!formData.phone.trim()) newErrors.phone = 'Phone is required';
+    if (!formData.jobId) newErrors.jobId = 'Please select a job position';
+    if (!formData.resumeFile) newErrors.resumeFile = 'Resume is required';
+
     return newErrors;
   };
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-    
+
     setSubmitting(true);
-    
+
     // Simulate API call
     setTimeout(() => {
-      console.log("Form data submitted:", {
+      console.log('Form data submitted:', {
         ...formData,
         skills,
         education,
         experience,
-        fullName: `${formData.firstName} ${formData.lastName}`
+        fullName: `${formData.firstName} ${formData.lastName}`,
       });
       setSubmitting(false);
       setSuccess(true);
-      
+
       // Reset form after successful submission
       setTimeout(() => {
         setFormData({
@@ -272,18 +268,18 @@ function AddCandidate() {
           Add New Candidate
         </Typography>
         <Divider sx={{ mb: 3 }} />
-        
+
         {success && (
           <Alert severity="success" sx={{ mb: 3 }}>
             Candidate added successfully!
           </Alert>
         )}
-        
+
         <form onSubmit={handleSubmit}>
           <Typography variant="h6" gutterBottom>
             Basic Information
           </Typography>
-          
+
           {/* Basic Info Fields */}
           <Grid container spacing={2} sx={{ mb: 4 }}>
             <Grid item xs={12} sm={6}>
@@ -374,7 +370,7 @@ function AddCandidate() {
               />
             </Grid>
           </Grid>
-          
+
           {/* Skills Section */}
           <Typography variant="h6" gutterBottom>
             Skills
@@ -394,21 +390,13 @@ function AddCandidate() {
                 }}
                 sx={{ mr: 1 }}
               />
-              <Button 
-                variant="contained" 
-                onClick={handleAddSkill}
-                disabled={!currentSkill.trim()}
-              >
+              <Button variant="contained" onClick={handleAddSkill} disabled={!currentSkill.trim()}>
                 Add
               </Button>
             </Box>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               {skills.map((skill) => (
-                <Chip
-                  key={skill}
-                  label={skill}
-                  onDelete={() => handleRemoveSkill(skill)}
-                />
+                <Chip key={skill} label={skill} onDelete={() => handleRemoveSkill(skill)} />
               ))}
               {skills.length === 0 && (
                 <Typography variant="body2" color="text.secondary">
@@ -417,33 +405,31 @@ function AddCandidate() {
               )}
             </Box>
           </Box>
-          
+
           {/* Education Section */}
           <Box sx={{ mb: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
+            >
               <Typography variant="h6">Education</Typography>
-              <Button 
-                startIcon={<AddIcon />} 
-                onClick={handleAddEducation}
-                variant="outlined"
-              >
+              <Button startIcon={<AddIcon />} onClick={handleAddEducation} variant="outlined">
                 Add Education
               </Button>
             </Box>
-            
+
             {education.map((edu, index) => (
               <Paper key={edu.id} variant="outlined" sx={{ p: 2, mb: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                   <Typography variant="subtitle1">Education #{index + 1}</Typography>
-                  <IconButton 
-                    size="small" 
-                    color="error" 
+                  <IconButton
+                    size="small"
+                    color="error"
                     onClick={() => handleRemoveEducation(edu.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
                 </Box>
-                
+
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
                     <TextField
@@ -485,40 +471,38 @@ function AddCandidate() {
                 </Grid>
               </Paper>
             ))}
-            
+
             {education.length === 0 && (
               <Typography variant="body2" color="text.secondary">
                 No education history added yet.
               </Typography>
             )}
           </Box>
-          
+
           {/* Experience Section */}
           <Box sx={{ mb: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
+            >
               <Typography variant="h6">Work Experience</Typography>
-              <Button 
-                startIcon={<AddIcon />} 
-                onClick={handleAddExperience}
-                variant="outlined"
-              >
+              <Button startIcon={<AddIcon />} onClick={handleAddExperience} variant="outlined">
                 Add Experience
               </Button>
             </Box>
-            
+
             {experience.map((exp, index) => (
               <Paper key={exp.id} variant="outlined" sx={{ p: 2, mb: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                   <Typography variant="subtitle1">Experience #{index + 1}</Typography>
-                  <IconButton 
-                    size="small" 
-                    color="error" 
+                  <IconButton
+                    size="small"
+                    color="error"
                     onClick={() => handleRemoveExperience(exp.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
                 </Box>
-                
+
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
@@ -564,21 +548,23 @@ function AddCandidate() {
                       rows={3}
                       label="Description"
                       value={exp.description}
-                      onChange={(e) => handleExperienceChange(exp.id, 'description', e.target.value)}
+                      onChange={(e) =>
+                        handleExperienceChange(exp.id, 'description', e.target.value)
+                      }
                       placeholder="Describe roles, responsibilities, and achievements"
                     />
                   </Grid>
                 </Grid>
               </Paper>
             ))}
-            
+
             {experience.length === 0 && (
               <Typography variant="body2" color="text.secondary">
                 No work experience added yet.
               </Typography>
             )}
           </Box>
-          
+
           {/* Document Upload Section */}
           <Typography variant="h6" gutterBottom>
             Documents
@@ -605,9 +591,7 @@ function AddCandidate() {
                       {formData.resumeFile ? formData.resumeFile.name : 'Upload Resume'}
                     </Button>
                   </label>
-                  {errors.resumeFile && (
-                    <FormHelperText error>{errors.resumeFile}</FormHelperText>
-                  )}
+                  {errors.resumeFile && <FormHelperText error>{errors.resumeFile}</FormHelperText>}
                 </Box>
               </Stack>
             </Grid>
@@ -629,29 +613,22 @@ function AddCandidate() {
                       startIcon={<CloudUploadIcon />}
                       fullWidth
                     >
-                      {formData.coverLetterFile ? formData.coverLetterFile.name : 'Upload Cover Letter'}
+                      {formData.coverLetterFile
+                        ? formData.coverLetterFile.name
+                        : 'Upload Cover Letter'}
                     </Button>
                   </label>
                 </Box>
               </Stack>
             </Grid>
           </Grid>
-          
+
           {/* Form Submission */}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button 
-              type="button" 
-              variant="outlined" 
-              sx={{ mr: 1 }}
-              onClick={handleCancel}
-            >
+            <Button type="button" variant="outlined" sx={{ mr: 1 }} onClick={handleCancel}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              variant="contained" 
-              disabled={submitting}
-            >
+            <Button type="submit" variant="contained" disabled={submitting}>
               {submitting ? 'Submitting...' : 'Add Candidate'}
             </Button>
           </Box>
@@ -661,4 +638,4 @@ function AddCandidate() {
   );
 }
 
-export default AddCandidate; 
+export default AddCandidate;

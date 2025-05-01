@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+# Run prettier on staged files with explicit parser selection
+npx prettier --write --parser typescript $(git diff --staged --name-only --diff-filter=ACM "*.ts" "*.tsx")
+npx prettier --write --parser babel $(git diff --staged --name-only --diff-filter=ACM "*.js" "*.jsx")
+npx prettier --write --parser json $(git diff --staged --name-only --diff-filter=ACM "*.json")
+npx prettier --write --parser css $(git diff --staged --name-only --diff-filter=ACM "*.css" "*.scss")
+npx prettier --write --parser markdown $(git diff --staged --name-only --diff-filter=ACM "*.md")
+
+# Run our custom eslint fix script instead of lint-staged
+node fix-eslint.js
+
+# Add the fixed files back to staging
+git add .

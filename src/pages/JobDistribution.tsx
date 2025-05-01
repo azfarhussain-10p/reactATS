@@ -35,7 +35,7 @@ import {
   Snackbar,
   Card,
   CardContent,
-  InputAdornment
+  InputAdornment,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -54,7 +54,7 @@ import {
   Facebook as FacebookIcon,
   Language as WebsiteIcon,
   Link as LinkIcon,
-  Error as ErrorIcon
+  Error as ErrorIcon,
 } from '@mui/icons-material';
 import { SelectChangeEvent } from '@mui/material/Select';
 
@@ -119,7 +119,10 @@ type TabValue = 'boards' | 'distribution' | 'history';
 type JobBoardStatus = 'Connected' | 'Disconnected';
 
 // Custom components
-const PlatformIcon: React.FC<{ platform: string; size?: 'small' | 'medium' }> = ({ platform, size = 'medium' }) => {
+const PlatformIcon: React.FC<{ platform: string; size?: 'small' | 'medium' }> = ({
+  platform,
+  size = 'medium',
+}) => {
   const getIcon = () => {
     switch (platform.toLowerCase()) {
       case 'linkedin':
@@ -128,7 +131,7 @@ const PlatformIcon: React.FC<{ platform: string; size?: 'small' | 'medium' }> = 
         return <TwitterIcon fontSize={size} />;
       case 'facebook':
         return <FacebookIcon fontSize={size} />;
-    default:
+      default:
         return <WebsiteIcon fontSize={size} />;
     }
   };
@@ -136,27 +139,30 @@ const PlatformIcon: React.FC<{ platform: string; size?: 'small' | 'medium' }> = 
   return getIcon();
 };
 
-const StatusLabel: React.FC<{ status: string; type?: 'board' | 'job' | 'distribution' }> = ({ status, type = 'job' }) => {
+const StatusLabel: React.FC<{ status: string; type?: 'board' | 'job' | 'distribution' }> = ({
+  status,
+  type = 'job',
+}) => {
   const getColor = () => {
     if (type === 'board') {
       return status === 'Connected' ? 'success' : 'error';
     }
-    
+
     if (type === 'distribution') {
-  switch (status) {
-    case 'Published':
+      switch (status) {
+        case 'Published':
           return 'success';
         case 'Failed':
           return 'error';
         case 'Pending':
           return 'warning';
-    case 'Draft':
+        case 'Draft':
           return 'default';
         default:
           return 'default';
       }
     }
-    
+
     // Default job status colors
     switch (status) {
       case 'Active':
@@ -173,10 +179,10 @@ const StatusLabel: React.FC<{ status: string; type?: 'board' | 'job' | 'distribu
   };
 
   return (
-    <Chip 
-      label={status} 
-      size="small" 
-      color={getColor()} 
+    <Chip
+      label={status}
+      size="small"
+      color={getColor()}
       variant={type === 'board' && status === 'Connected' ? 'filled' : 'outlined'}
     />
   );
@@ -197,7 +203,7 @@ const mockJobBoards: JobBoard[] = [
     jobsPosted: 0,
     connectedDate: '',
     costPerJob: 0,
-    apiKey: ''
+    apiKey: '',
   },
   {
     id: 'indeed',
@@ -212,7 +218,7 @@ const mockJobBoards: JobBoard[] = [
     jobsPosted: 0,
     connectedDate: '',
     costPerJob: 0,
-    apiKey: ''
+    apiKey: '',
   },
   {
     id: 'glassdoor',
@@ -227,7 +233,7 @@ const mockJobBoards: JobBoard[] = [
     jobsPosted: 0,
     connectedDate: '',
     costPerJob: 0,
-    apiKey: ''
+    apiKey: '',
   },
   {
     id: 'monster',
@@ -242,7 +248,7 @@ const mockJobBoards: JobBoard[] = [
     jobsPosted: 0,
     connectedDate: '',
     costPerJob: 0,
-    apiKey: ''
+    apiKey: '',
   },
   {
     id: 'ziprecruiter',
@@ -257,8 +263,8 @@ const mockJobBoards: JobBoard[] = [
     jobsPosted: 0,
     connectedDate: '',
     costPerJob: 0,
-    apiKey: ''
-  }
+    apiKey: '',
+  },
 ];
 
 const mockJobs: Job[] = [
@@ -272,31 +278,31 @@ const mockJobs: Job[] = [
     postedDate: '2023-07-15',
     status: 'Active',
     distribution: [
-      { 
-        boardId: 'linkedin', 
-        status: 'Published', 
-        postedDate: '2023-07-16', 
+      {
+        boardId: 'linkedin',
+        status: 'Published',
+        postedDate: '2023-07-16',
         expiryDate: '2023-08-16',
         applicants: 24,
         views: 523,
         clicks: 89,
-        cost: 299
+        cost: 299,
       },
-      { 
-        boardId: 'indeed', 
-        status: 'Published', 
-        postedDate: '2023-07-16', 
+      {
+        boardId: 'indeed',
+        status: 'Published',
+        postedDate: '2023-07-16',
         expiryDate: '2023-08-16',
         applicants: 18,
         views: 412,
         clicks: 67,
-        cost: 0
+        cost: 0,
       },
-      { 
-        boardId: 'monster', 
-        status: 'Failed', 
-      }
-    ]
+      {
+        boardId: 'monster',
+        status: 'Failed',
+      },
+    ],
   },
   {
     id: 2,
@@ -308,21 +314,21 @@ const mockJobs: Job[] = [
     postedDate: '2023-07-20',
     status: 'Active',
     distribution: [
-      { 
-        boardId: 'linkedin', 
-        status: 'Published', 
-        postedDate: '2023-07-21', 
+      {
+        boardId: 'linkedin',
+        status: 'Published',
+        postedDate: '2023-07-21',
         expiryDate: '2023-08-21',
         applicants: 12,
         views: 345,
         clicks: 58,
-        cost: 299
+        cost: 299,
       },
-      { 
-        boardId: 'indeed', 
-        status: 'Pending' 
-      }
-    ]
+      {
+        boardId: 'indeed',
+        status: 'Pending',
+      },
+    ],
   },
   {
     id: 3,
@@ -334,11 +340,11 @@ const mockJobs: Job[] = [
     postedDate: '2023-07-10',
     status: 'On-Hold',
     distribution: [
-      { 
-        boardId: 'linkedin', 
-        status: 'Draft' 
-      }
-    ]
+      {
+        boardId: 'linkedin',
+        status: 'Draft',
+      },
+    ],
   },
   {
     id: 4,
@@ -350,44 +356,44 @@ const mockJobs: Job[] = [
     postedDate: '2023-07-05',
     status: 'Closed',
     distribution: [
-      { 
-        boardId: 'linkedin', 
-        status: 'Published', 
-        postedDate: '2023-07-06', 
+      {
+        boardId: 'linkedin',
+        status: 'Published',
+        postedDate: '2023-07-06',
         expiryDate: '2023-08-06',
         applicants: 31,
         views: 689,
         clicks: 112,
-        cost: 299
+        cost: 299,
       },
-      { 
-        boardId: 'indeed', 
-        status: 'Published', 
-        postedDate: '2023-07-06', 
+      {
+        boardId: 'indeed',
+        status: 'Published',
+        postedDate: '2023-07-06',
         expiryDate: '2023-08-06',
         applicants: 27,
         views: 542,
         clicks: 94,
-        cost: 0
+        cost: 0,
       },
-      { 
-        boardId: 'monster', 
-        status: 'Published', 
-        postedDate: '2023-07-06', 
+      {
+        boardId: 'monster',
+        status: 'Published',
+        postedDate: '2023-07-06',
         expiryDate: '2023-08-06',
         applicants: 14,
         views: 378,
         clicks: 63,
-        cost: 249
-      }
-    ]
-  }
+        cost: 249,
+      },
+    ],
+  },
 ];
 
 const mockDistributionHistory: DistributionHistory[] = [
-  { 
-    id: 1, 
-    jobId: 1, 
+  {
+    id: 1,
+    jobId: 1,
     jobTitle: 'Senior Frontend Developer',
     boardId: 'linkedin',
     boardName: 'LinkedIn',
@@ -397,10 +403,10 @@ const mockDistributionHistory: DistributionHistory[] = [
     applicants: 24,
     views: 523,
     clicks: 89,
-    cost: 299
+    cost: 299,
   },
-  { 
-    id: 2, 
+  {
+    id: 2,
     jobId: 1,
     jobTitle: 'Senior Frontend Developer',
     boardId: 'indeed',
@@ -411,12 +417,12 @@ const mockDistributionHistory: DistributionHistory[] = [
     applicants: 18,
     views: 412,
     clicks: 67,
-    cost: 0
+    cost: 0,
   },
   {
     id: 3,
-    jobId: 2, 
-    jobTitle: 'UX Designer', 
+    jobId: 2,
+    jobTitle: 'UX Designer',
     boardId: 'linkedin',
     boardName: 'LinkedIn',
     status: 'Published',
@@ -425,11 +431,11 @@ const mockDistributionHistory: DistributionHistory[] = [
     applicants: 12,
     views: 345,
     clicks: 58,
-    cost: 299
+    cost: 299,
   },
   {
     id: 4,
-    jobId: 4, 
+    jobId: 4,
     jobTitle: 'Marketing Specialist',
     boardId: 'linkedin',
     boardName: 'LinkedIn',
@@ -439,7 +445,7 @@ const mockDistributionHistory: DistributionHistory[] = [
     applicants: 31,
     views: 689,
     clicks: 112,
-    cost: 299
+    cost: 299,
   },
   {
     id: 5,
@@ -453,7 +459,7 @@ const mockDistributionHistory: DistributionHistory[] = [
     applicants: 27,
     views: 542,
     clicks: 94,
-    cost: 0
+    cost: 0,
   },
   {
     id: 6,
@@ -467,8 +473,8 @@ const mockDistributionHistory: DistributionHistory[] = [
     applicants: 14,
     views: 378,
     clicks: 63,
-    cost: 249
-  }
+    cost: 249,
+  },
 ];
 
 // Main component
@@ -477,7 +483,8 @@ const JobDistribution: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabValue>('boards');
   const [jobBoards, setJobBoards] = useState<JobBoard[]>(mockJobBoards);
   const [jobs, setJobs] = useState<Job[]>(mockJobs);
-  const [distributionHistory, setDistributionHistory] = useState<DistributionHistory[]>(mockDistributionHistory);
+  const [distributionHistory, setDistributionHistory] =
+    useState<DistributionHistory[]>(mockDistributionHistory);
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -492,35 +499,35 @@ const JobDistribution: React.FC = () => {
   const [isAddBoardDialogOpen, setIsAddBoardDialogOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [boardToDelete, setBoardToDelete] = useState<string | null>(null);
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
   // Derived state for filtered boards
   const filteredBoards = useMemo(() => {
-    return jobBoards.filter(board => {
+    return jobBoards.filter((board) => {
       // Apply search filter
       if (searchTerm && !board.name.toLowerCase().includes(searchTerm.toLowerCase())) {
         return false;
       }
-      
+
       // Apply type filter
       if (typeFilter !== 'All' && board.type !== typeFilter) {
         return false;
       }
-      
+
       // Apply status filter
       if (statusFilter !== 'All' && board.status !== statusFilter) {
         return false;
       }
-      
+
       return true;
     });
   }, [jobBoards, searchTerm, typeFilter, statusFilter]);
-  
+
   // Handle tab change
   const handleTabChange = (_event: React.SyntheticEvent, newValue: TabValue) => {
     setActiveTab(newValue);
   };
-  
+
   // Handle search change
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -541,19 +548,19 @@ const JobDistribution: React.FC = () => {
     return new Date(dateString).toLocaleDateString('en-GB', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
   // Open distribute dialog
   const handleOpenDistributeDialog = (job: Job) => {
     setSelectedJob(job);
-    
+
     // Pre-select boards that are connected
     const connectedBoardIds = jobBoards
-      .filter(board => board.status === 'Connected')
-      .map(board => board.id);
-    
+      .filter((board) => board.status === 'Connected')
+      .map((board) => board.id);
+
     setSelectedBoards(connectedBoardIds);
     setIsDistributeDialogOpen(true);
   };
@@ -567,9 +574,9 @@ const JobDistribution: React.FC = () => {
 
   // Toggle board selection
   const handleToggleBoardSelection = (boardId: string) => {
-    setSelectedBoards(prev => {
+    setSelectedBoards((prev) => {
       if (prev.includes(boardId)) {
-        return prev.filter(id => id !== boardId);
+        return prev.filter((id) => id !== boardId);
       } else {
         return [...prev, boardId];
       }
@@ -579,19 +586,17 @@ const JobDistribution: React.FC = () => {
   // Distribute job to selected boards
   const handleDistributeJob = () => {
     if (!selectedJob) return;
-    
+
     // Simulate distributing job to selected boards
-    const updatedJobs = jobs.map(job => {
+    const updatedJobs = jobs.map((job) => {
       if (job.id === selectedJob.id) {
         // Create new distribution entries for selected boards
         const updatedDistribution = [...job.distribution];
-        
-        selectedBoards.forEach(boardId => {
+
+        selectedBoards.forEach((boardId) => {
           // Check if board already exists in distribution
-          const existingIndex = updatedDistribution.findIndex(
-            dist => dist.boardId === boardId
-          );
-          
+          const existingIndex = updatedDistribution.findIndex((dist) => dist.boardId === boardId);
+
           if (existingIndex >= 0) {
             // Update existing distribution
             updatedDistribution[existingIndex] = {
@@ -602,9 +607,9 @@ const JobDistribution: React.FC = () => {
                 .toISOString()
                 .split('T')[0],
               applicants: 0,
-          views: 0,
-          clicks: 0,
-              cost: jobBoards.find(board => board.id === boardId)?.cost || 0
+              views: 0,
+              clicks: 0,
+              cost: jobBoards.find((board) => board.id === boardId)?.cost || 0,
             };
           } else {
             // Add new distribution
@@ -618,26 +623,26 @@ const JobDistribution: React.FC = () => {
               applicants: 0,
               views: 0,
               clicks: 0,
-              cost: jobBoards.find(board => board.id === boardId)?.cost || 0
+              cost: jobBoards.find((board) => board.id === boardId)?.cost || 0,
             });
           }
         });
-        
+
         return {
           ...job,
-          distribution: updatedDistribution
+          distribution: updatedDistribution,
         };
       }
       return job;
     });
-    
+
     // Update job distribution history
     const newHistoryEntries: DistributionHistory[] = [];
-    
-    selectedBoards.forEach(boardId => {
-      const board = jobBoards.find(b => b.id === boardId);
+
+    selectedBoards.forEach((boardId) => {
+      const board = jobBoards.find((b) => b.id === boardId);
       if (!board || !selectedJob) return;
-      
+
       newHistoryEntries.push({
         id: distributionHistory.length + newHistoryEntries.length + 1,
         jobId: selectedJob.id,
@@ -646,22 +651,22 @@ const JobDistribution: React.FC = () => {
         boardName: board.name,
         status: 'Published',
         postedDate: new Date().toISOString().split('T')[0],
-        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split('T')[0],
+        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         applicants: 0,
         views: 0,
         clicks: 0,
-        cost: board.cost
+        cost: board.cost,
       });
     });
-    
+
     setJobs(updatedJobs);
     setDistributionHistory([...distributionHistory, ...newHistoryEntries]);
-    
+
     // Close dialog and show success message
     handleCloseDistributeDialog();
-    setAlertMessage(`Job "${selectedJob.title}" successfully distributed to ${selectedBoards.length} job boards.`);
+    setAlertMessage(
+      `Job "${selectedJob.title}" successfully distributed to ${selectedBoards.length} job boards.`
+    );
     setAlertSeverity('success');
     setIsAlertOpen(true);
   };
@@ -674,18 +679,18 @@ const JobDistribution: React.FC = () => {
   // Connect or disconnect a job board
   const handleToggleBoardConnection = (boardId: string) => {
     setJobBoards(
-      jobBoards.map(board => {
+      jobBoards.map((board) => {
         if (board.id === boardId) {
           const newStatus = board.status === 'Connected' ? 'Disconnected' : 'Connected';
-          
+
           // Show alert
           setAlertMessage(`${board.name} successfully ${newStatus.toLowerCase()}.`);
           setAlertSeverity('success');
           setIsAlertOpen(true);
-          
+
           return {
             ...board,
-            status: newStatus as 'Connected' | 'Disconnected'
+            status: newStatus as 'Connected' | 'Disconnected',
           };
         }
         return board;
@@ -695,7 +700,7 @@ const JobDistribution: React.FC = () => {
 
   // Open edit board dialog
   const handleOpenEditDialog = (board: JobBoard) => {
-    setEditedBoard({...board});
+    setEditedBoard({ ...board });
     setIsEditBoardDialogOpen(true);
   };
 
@@ -721,7 +726,7 @@ const JobDistribution: React.FC = () => {
       jobsPosted: 0,
       connectedDate: new Date().toISOString().split('T')[0],
       costPerJob: 0,
-      apiKey: ''
+      apiKey: '',
     });
     // Reset validation errors when opening the dialog
     setValidationErrors({});
@@ -749,34 +754,34 @@ const JobDistribution: React.FC = () => {
   // Save board changes
   const handleSaveBoard = () => {
     if (!editedBoard) return;
-    
+
     // Initialize errors object
-    const errors: {[key: string]: string} = {};
-    
+    const errors: { [key: string]: string } = {};
+
     // Validate required fields
     if (!editedBoard.name || editedBoard.name.trim() === '') {
       errors.name = 'Platform name is required';
     }
-    
+
     // Check if we have any validation errors
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       return;
     }
-    
+
     // If validation passes, continue with saving
     if (isEditBoardDialogOpen) {
-      setJobBoards(prev => prev.map(board => 
-        board.id === editedBoard.id ? editedBoard : board
-      ));
+      setJobBoards((prev) =>
+        prev.map((board) => (board.id === editedBoard.id ? editedBoard : board))
+      );
       setIsEditBoardDialogOpen(false);
       setAlertMessage(`${editedBoard.name} successfully updated.`);
     } else {
-      setJobBoards(prev => [...prev, editedBoard]);
+      setJobBoards((prev) => [...prev, editedBoard]);
       setIsAddBoardDialogOpen(false);
       setAlertMessage(`${editedBoard.name} successfully added.`);
     }
-    
+
     setAlertSeverity('success');
     setIsAlertOpen(true);
     setEditedBoard(null);
@@ -786,13 +791,13 @@ const JobDistribution: React.FC = () => {
   // Delete board
   const handleDeleteBoard = () => {
     if (!boardToDelete) return;
-    
-    const boardName = jobBoards.find(board => board.id === boardToDelete)?.name || '';
-    
-    setJobBoards(prev => prev.filter(board => board.id !== boardToDelete));
+
+    const boardName = jobBoards.find((board) => board.id === boardToDelete)?.name || '';
+
+    setJobBoards((prev) => prev.filter((board) => board.id !== boardToDelete));
     setIsConfirmDeleteOpen(false);
     setBoardToDelete(null);
-    
+
     setAlertMessage(`${boardName} successfully removed.`);
     setAlertSeverity('success');
     setIsAlertOpen(true);
@@ -803,7 +808,7 @@ const JobDistribution: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         Job Distribution
       </Typography>
-      
+
       <Grid container spacing={3}>
         {/* Overview Cards */}
         <Grid component="div" item xs={12} md={4}>
@@ -816,18 +821,18 @@ const JobDistribution: React.FC = () => {
             </Typography>
           </Paper>
         </Grid>
-        
+
         <Grid component="div" item xs={12} md={4}>
           <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
             <Typography variant="h6" gutterBottom>
               Connected Platforms
             </Typography>
             <Typography variant="h3" color="primary">
-              {jobBoards.filter(board => board.status === 'Connected').length}
+              {jobBoards.filter((board) => board.status === 'Connected').length}
             </Typography>
           </Paper>
         </Grid>
-        
+
         <Grid component="div" item xs={12} md={4}>
           <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
             <Typography variant="h6" gutterBottom>
@@ -838,64 +843,69 @@ const JobDistribution: React.FC = () => {
             </Typography>
           </Paper>
         </Grid>
-        
+
         {/* Job Boards Section */}
         <Grid component="div" item xs={12}>
           <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6">
-                Connected Job Boards
-              </Typography>
-              <Button 
-                variant="contained" 
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
+            >
+              <Typography variant="h6">Connected Job Boards</Typography>
+              <Button
+                variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleOpenAddBoardDialog}
               >
                 Add Platform
               </Button>
             </Box>
-            
+
             <Grid container spacing={2}>
-              {filteredBoards.map(board => (
+              {filteredBoards.map((board) => (
                 <Grid component="div" item xs={12} sm={6} md={4} lg={3} key={board.id}>
-                  <Card 
-                    sx={{ 
+                  <Card
+                    sx={{
                       height: '100%',
                       borderLeft: `4px solid ${board.color}`,
-                      opacity: board.status === 'Connected' ? 1 : 0.6
+                      opacity: board.status === 'Connected' ? 1 : 0.6,
                     }}
                   >
                     <CardContent>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Box sx={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center',
-                          bgcolor: board.color,
-                          color: 'white',
-                          width: 36,
-                          height: 36,
-                          borderRadius: '50%',
-                          mr: 1
-                        }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            bgcolor: board.color,
+                            color: 'white',
+                            width: 36,
+                            height: 36,
+                            borderRadius: '50%',
+                            mr: 1,
+                          }}
+                        >
                           <PlatformIcon platform={board.id} />
                         </Box>
                         <Typography variant="h6">{board.name}</Typography>
                       </Box>
-                      
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
                         <StatusLabel status={board.status} type="board" />
-                        
+
                         <Box>
-                          <IconButton 
-                            size="small"
-                            onClick={() => handleOpenEditDialog(board)}
-                          >
+                          <IconButton size="small" onClick={() => handleOpenEditDialog(board)}>
                             <EditIcon fontSize="small" />
                           </IconButton>
                           {board.id !== 'linkedin' && (
-                            <IconButton 
-                              size="small" 
+                            <IconButton
+                              size="small"
                               color="error"
                               onClick={() => handleOpenDeleteConfirm(board.id)}
                             >
@@ -911,165 +921,179 @@ const JobDistribution: React.FC = () => {
             </Grid>
           </Paper>
         </Grid>
-        
+
         {/* Jobs for Distribution */}
         <Grid component="div" item xs={12}>
           <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
             <Typography variant="h6" gutterBottom>
               Jobs Available for Distribution
             </Typography>
-            
+
             <Grid container spacing={2}>
-              {jobs.filter(job => job.status === 'Active').map(job => (
-                <Grid item xs={12} sm={6} md={4} key={job.id}>
-                  <Card sx={{ height: '100%' }}>
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        {job.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
-                        Department: {job.department}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
-                        Status: {job.status}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
-                        Applicants: {job.distribution.filter(dist => dist.status === 'Published').length}
-                      </Typography>
-                      
-                      <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-                        <Button 
-                          variant="outlined"
-                          onClick={() => handleOpenDistributeDialog(job)}
-                          sx={{ flexGrow: 1 }}
-                        >
-                          Distribution
-                        </Button>
-                        <Button 
-                          variant="contained" 
-                          startIcon={<ShareIcon />}
-                          onClick={() => {
-                            // Make sure we have a job selected and boards to distribute to
-                            const connectedBoardIds = jobBoards
-                              .filter(board => board.status === 'Connected')
-                              .map(board => board.id);
-                            
-                            if (connectedBoardIds.length === 0) {
-                              setAlertMessage('No connected job boards available. Please connect at least one job board first.');
-                              setAlertSeverity('error');
-                              setIsAlertOpen(true);
-                              return;
-                            }
-                            
-                            // Set the selected job and boards, then call the distribute function
-                            setSelectedJob(job);
-                            setSelectedBoards(connectedBoardIds);
-                            
-                            // Directly call the distribution function without opening the dialog
-                            const updatedJobs = jobs.map(j => {
-                              if (j.id === job.id) {
-                                // Create new distribution entries for all connected boards
-                                const updatedDistribution = [...j.distribution];
-                                
-                                connectedBoardIds.forEach(boardId => {
-                                  // Check if board already exists in distribution
-                                  const existingIndex = updatedDistribution.findIndex(
-                                    dist => dist.boardId === boardId
-                                  );
-                                  
-                                  if (existingIndex >= 0) {
-                                    // Update existing distribution
-                                    updatedDistribution[existingIndex] = {
-                                      ...updatedDistribution[existingIndex],
-                                      status: 'Published',
-                                      postedDate: new Date().toISOString().split('T')[0],
-                                      expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                                        .toISOString()
-                                        .split('T')[0],
-                                      applicants: 0,
-                                      views: 0,
-                                      clicks: 0,
-                                      cost: jobBoards.find(board => board.id === boardId)?.cost || 0
-                                    };
-                                  } else {
-                                    // Add new distribution
-                                    updatedDistribution.push({
-                                      boardId,
-                                      status: 'Published',
-                                      postedDate: new Date().toISOString().split('T')[0],
-                                      expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                                        .toISOString()
-                                        .split('T')[0],
-                                      applicants: 0,
-                                      views: 0,
-                                      clicks: 0,
-                                      cost: jobBoards.find(board => board.id === boardId)?.cost || 0
-                                    });
-                                  }
-                                });
-                                
-                                return {
-                                  ...j,
-                                  distribution: updatedDistribution
-                                };
+              {jobs
+                .filter((job) => job.status === 'Active')
+                .map((job) => (
+                  <Grid item xs={12} sm={6} md={4} key={job.id}>
+                    <Card sx={{ height: '100%' }}>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                          {job.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                          Department: {job.department}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                          Status: {job.status}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                          Applicants:{' '}
+                          {job.distribution.filter((dist) => dist.status === 'Published').length}
+                        </Typography>
+
+                        <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                          <Button
+                            variant="outlined"
+                            onClick={() => handleOpenDistributeDialog(job)}
+                            sx={{ flexGrow: 1 }}
+                          >
+                            Distribution
+                          </Button>
+                          <Button
+                            variant="contained"
+                            startIcon={<ShareIcon />}
+                            onClick={() => {
+                              // Make sure we have a job selected and boards to distribute to
+                              const connectedBoardIds = jobBoards
+                                .filter((board) => board.status === 'Connected')
+                                .map((board) => board.id);
+
+                              if (connectedBoardIds.length === 0) {
+                                setAlertMessage(
+                                  'No connected job boards available. Please connect at least one job board first.'
+                                );
+                                setAlertSeverity('error');
+                                setIsAlertOpen(true);
+                                return;
                               }
-                              return j;
-                            });
-                            
-                            // Update job distribution history
-                            const newHistoryEntries: DistributionHistory[] = [];
-                            
-                            connectedBoardIds.forEach(boardId => {
-                              const board = jobBoards.find(b => b.id === boardId);
-                              if (!board) return;
-                              
-                              newHistoryEntries.push({
-                                id: distributionHistory.length + newHistoryEntries.length + 1,
-                                jobId: job.id,
-                                jobTitle: job.title,
-                                boardId,
-                                boardName: board.name,
-                                status: 'Published',
-                                postedDate: new Date().toISOString().split('T')[0],
-                                expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                                  .toISOString()
-                                  .split('T')[0],
-                                applicants: 0,
-                                views: 0,
-                                clicks: 0,
-                                cost: board.cost
+
+                              // Set the selected job and boards, then call the distribute function
+                              setSelectedJob(job);
+                              setSelectedBoards(connectedBoardIds);
+
+                              // Directly call the distribution function without opening the dialog
+                              const updatedJobs = jobs.map((j) => {
+                                if (j.id === job.id) {
+                                  // Create new distribution entries for all connected boards
+                                  const updatedDistribution = [...j.distribution];
+
+                                  connectedBoardIds.forEach((boardId) => {
+                                    // Check if board already exists in distribution
+                                    const existingIndex = updatedDistribution.findIndex(
+                                      (dist) => dist.boardId === boardId
+                                    );
+
+                                    if (existingIndex >= 0) {
+                                      // Update existing distribution
+                                      updatedDistribution[existingIndex] = {
+                                        ...updatedDistribution[existingIndex],
+                                        status: 'Published',
+                                        postedDate: new Date().toISOString().split('T')[0],
+                                        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                                          .toISOString()
+                                          .split('T')[0],
+                                        applicants: 0,
+                                        views: 0,
+                                        clicks: 0,
+                                        cost:
+                                          jobBoards.find((board) => board.id === boardId)?.cost ||
+                                          0,
+                                      };
+                                    } else {
+                                      // Add new distribution
+                                      updatedDistribution.push({
+                                        boardId,
+                                        status: 'Published',
+                                        postedDate: new Date().toISOString().split('T')[0],
+                                        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                                          .toISOString()
+                                          .split('T')[0],
+                                        applicants: 0,
+                                        views: 0,
+                                        clicks: 0,
+                                        cost:
+                                          jobBoards.find((board) => board.id === boardId)?.cost ||
+                                          0,
+                                      });
+                                    }
+                                  });
+
+                                  return {
+                                    ...j,
+                                    distribution: updatedDistribution,
+                                  };
+                                }
+                                return j;
                               });
-                            });
-                            
-                            // Update state
-                            setJobs(updatedJobs);
-                            setDistributionHistory([...distributionHistory, ...newHistoryEntries]);
-                            
-                            // Show success message
-                            setAlertMessage(`Job "${job.title}" successfully distributed to ${connectedBoardIds.length} job boards.`);
-                            setAlertSeverity('success');
-                            setIsAlertOpen(true);
-                          }}
-                        >
-                          Quick Publish
-                        </Button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
+
+                              // Update job distribution history
+                              const newHistoryEntries: DistributionHistory[] = [];
+
+                              connectedBoardIds.forEach((boardId) => {
+                                const board = jobBoards.find((b) => b.id === boardId);
+                                if (!board) return;
+
+                                newHistoryEntries.push({
+                                  id: distributionHistory.length + newHistoryEntries.length + 1,
+                                  jobId: job.id,
+                                  jobTitle: job.title,
+                                  boardId,
+                                  boardName: board.name,
+                                  status: 'Published',
+                                  postedDate: new Date().toISOString().split('T')[0],
+                                  expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                                    .toISOString()
+                                    .split('T')[0],
+                                  applicants: 0,
+                                  views: 0,
+                                  clicks: 0,
+                                  cost: board.cost,
+                                });
+                              });
+
+                              // Update state
+                              setJobs(updatedJobs);
+                              setDistributionHistory([
+                                ...distributionHistory,
+                                ...newHistoryEntries,
+                              ]);
+
+                              // Show success message
+                              setAlertMessage(
+                                `Job "${job.title}" successfully distributed to ${connectedBoardIds.length} job boards.`
+                              );
+                              setAlertSeverity('success');
+                              setIsAlertOpen(true);
+                            }}
+                          >
+                            Quick Publish
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
             </Grid>
           </Paper>
         </Grid>
-        
+
         {/* Distribution History */}
         <Grid component="div" item xs={12}>
           <Paper elevation={2} sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               Distribution History
             </Typography>
-            
-            {distributionHistory.map(dist => (
+
+            {distributionHistory.map((dist) => (
               <Card sx={{ mb: 2 }} key={dist.id}>
                 <CardContent>
                   <Grid container spacing={2}>
@@ -1080,35 +1104,48 @@ const JobDistribution: React.FC = () => {
                       </Typography>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
                         {dist.platforms?.map((platform, idx) => (
-                          <Chip 
-                            key={idx} 
-                            label={platform}
-                            size="small"
-                            variant="outlined"
-                          />
+                          <Chip key={idx} label={platform} size="small" variant="outlined" />
                         ))}
                       </Box>
                     </Grid>
-                    
+
                     <Grid component="div" item xs={12} md={6}>
                       <Grid container spacing={2}>
                         <Grid component="div" item xs={4}>
-                          <Typography variant="subtitle2" align="center">Views</Typography>
-                          <Typography variant="h6" align="center">{dist.views}</Typography>
+                          <Typography variant="subtitle2" align="center">
+                            Views
+                          </Typography>
+                          <Typography variant="h6" align="center">
+                            {dist.views}
+                          </Typography>
                         </Grid>
                         <Grid component="div" item xs={4}>
-                          <Typography variant="subtitle2" align="center">Clicks</Typography>
-                          <Typography variant="h6" align="center">{dist.clicks}</Typography>
+                          <Typography variant="subtitle2" align="center">
+                            Clicks
+                          </Typography>
+                          <Typography variant="h6" align="center">
+                            {dist.clicks}
+                          </Typography>
                         </Grid>
                         <Grid component="div" item xs={4}>
-                          <Typography variant="subtitle2" align="center">Applications</Typography>
-                          <Typography variant="h6" align="center" color="primary">{dist.applicants}</Typography>
+                          <Typography variant="subtitle2" align="center">
+                            Applications
+                          </Typography>
+                          <Typography variant="h6" align="center" color="primary">
+                            {dist.applicants}
+                          </Typography>
                         </Grid>
                       </Grid>
                     </Grid>
-                    
-                    <Grid component="div" item xs={12} md={2} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                      <Chip 
+
+                    <Grid
+                      component="div"
+                      item
+                      xs={12}
+                      md={2}
+                      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}
+                    >
+                      <Chip
                         icon={dist.status === 'Published' ? <CheckCircleIcon /> : <ErrorIcon />}
                         label={dist.status === 'Published' ? 'Complete' : 'Failed'}
                         color={dist.status === 'Published' ? 'success' : 'error'}
@@ -1121,20 +1158,23 @@ const JobDistribution: React.FC = () => {
           </Paper>
         </Grid>
       </Grid>
-      
+
       {/* Distribute Job Dialog */}
-      <Dialog open={isDistributeDialogOpen} onClose={handleCloseDistributeDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          Distribute Job
-        </DialogTitle>
+      <Dialog
+        open={isDistributeDialogOpen}
+        onClose={handleCloseDistributeDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Distribute Job</DialogTitle>
         <DialogContent>
           <Typography variant="subtitle1" gutterBottom>
             Select platforms to distribute:
             {selectedJob && ` "${selectedJob.title}"`}
           </Typography>
-          
+
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, my: 2 }}>
-            {filteredBoards.map(board => (
+            {filteredBoards.map((board) => (
               <Chip
                 key={board.id}
                 icon={<PlatformIcon platform={board.id} />}
@@ -1142,14 +1182,16 @@ const JobDistribution: React.FC = () => {
                 onClick={() => handleToggleBoardSelection(board.id)}
                 color={selectedBoards.includes(board.id) ? 'primary' : 'default'}
                 variant={selectedBoards.includes(board.id) ? 'filled' : 'outlined'}
-                sx={{ 
+                sx={{
                   cursor: 'pointer',
-                  '& .MuiChip-icon': { color: selectedBoards.includes(board.id) ? 'inherit' : board.color }
+                  '& .MuiChip-icon': {
+                    color: selectedBoards.includes(board.id) ? 'inherit' : board.color,
+                  },
                 }}
               />
             ))}
           </Box>
-          
+
           {selectedBoards.length === 0 && (
             <Alert severity="info" sx={{ mt: 2 }}>
               Please select at least one platform to distribute the job.
@@ -1157,11 +1199,9 @@ const JobDistribution: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDistributeDialog}>
-            Cancel
-          </Button>
-          <Button 
-            variant="contained" 
+          <Button onClick={handleCloseDistributeDialog}>Cancel</Button>
+          <Button
+            variant="contained"
             onClick={handleDistributeJob}
             disabled={selectedBoards.length === 0}
             startIcon={<ShareIcon />}
@@ -1170,12 +1210,10 @@ const JobDistribution: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Edit Board Dialog */}
       <Dialog open={isEditBoardDialogOpen} onClose={handleCloseEditDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          Edit Platform: {editedBoard?.name}
-        </DialogTitle>
+        <DialogTitle>Edit Platform: {editedBoard?.name}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12}>
@@ -1183,9 +1221,9 @@ const JobDistribution: React.FC = () => {
                 fullWidth
                 label="Platform Name"
                 value={editedBoard?.name || ''}
-                onChange={(e) => setEditedBoard(prev => 
-                  prev ? { ...prev, name: e.target.value } : null
-                )}
+                onChange={(e) =>
+                  setEditedBoard((prev) => (prev ? { ...prev, name: e.target.value } : null))
+                }
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -1193,9 +1231,11 @@ const JobDistribution: React.FC = () => {
                 <InputLabel>Type</InputLabel>
                 <Select
                   value={editedBoard?.type || ''}
-                  onChange={(e) => setEditedBoard(prev => 
-                    prev ? { ...prev, type: e.target.value as 'Premium' | 'Free' | 'Paid' } : null
-                  )}
+                  onChange={(e) =>
+                    setEditedBoard((prev) =>
+                      prev ? { ...prev, type: e.target.value as 'Premium' | 'Free' | 'Paid' } : null
+                    )
+                  }
                   label="Type"
                 >
                   <MenuItem value="Free">Free</MenuItem>
@@ -1209,9 +1249,11 @@ const JobDistribution: React.FC = () => {
                 <InputLabel>Status</InputLabel>
                 <Select
                   value={editedBoard?.status || ''}
-                  onChange={(e) => setEditedBoard(prev => 
-                    prev ? { ...prev, status: e.target.value as JobBoardStatus } : null
-                  )}
+                  onChange={(e) =>
+                    setEditedBoard((prev) =>
+                      prev ? { ...prev, status: e.target.value as JobBoardStatus } : null
+                    )
+                  }
                   label="Status"
                 >
                   <MenuItem value="Connected">Connected</MenuItem>
@@ -1228,9 +1270,11 @@ const JobDistribution: React.FC = () => {
                   startAdornment: <InputAdornment position="start">$</InputAdornment>,
                 }}
                 value={editedBoard?.cost || 0}
-                onChange={(e) => setEditedBoard(prev => 
-                  prev ? { ...prev, cost: Number(e.target.value) } : null
-                )}
+                onChange={(e) =>
+                  setEditedBoard((prev) =>
+                    prev ? { ...prev, cost: Number(e.target.value) } : null
+                  )
+                }
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -1238,32 +1282,29 @@ const JobDistribution: React.FC = () => {
                 fullWidth
                 label="API Key"
                 value={editedBoard?.apiKey || ''}
-                onChange={(e) => setEditedBoard(prev => 
-                  prev ? { ...prev, apiKey: e.target.value } : null
-                )}
+                onChange={(e) =>
+                  setEditedBoard((prev) => (prev ? { ...prev, apiKey: e.target.value } : null))
+                }
               />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseEditDialog}>
-            Cancel
-          </Button>
-          <Button 
-            variant="contained" 
-            onClick={handleSaveBoard}
-            startIcon={<CheckCircleIcon />}
-          >
+          <Button onClick={handleCloseEditDialog}>Cancel</Button>
+          <Button variant="contained" onClick={handleSaveBoard} startIcon={<CheckCircleIcon />}>
             Save Changes
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Add Board Dialog */}
-      <Dialog open={isAddBoardDialogOpen} onClose={handleCloseAddBoardDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          Add New Platform
-        </DialogTitle>
+      <Dialog
+        open={isAddBoardDialogOpen}
+        onClose={handleCloseAddBoardDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Add New Platform</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12}>
@@ -1272,12 +1313,10 @@ const JobDistribution: React.FC = () => {
                 label="Platform Name"
                 value={editedBoard?.name || ''}
                 onChange={(e) => {
-                  setEditedBoard(prev => 
-                    prev ? { ...prev, name: e.target.value } : null
-                  );
+                  setEditedBoard((prev) => (prev ? { ...prev, name: e.target.value } : null));
                   // Clear validation error when user types
                   if (e.target.value.trim() !== '') {
-                    setValidationErrors(prev => ({...prev, name: ''}));
+                    setValidationErrors((prev) => ({ ...prev, name: '' }));
                   }
                 }}
                 required
@@ -1290,9 +1329,11 @@ const JobDistribution: React.FC = () => {
                 <InputLabel>Type</InputLabel>
                 <Select
                   value={editedBoard?.type || ''}
-                  onChange={(e) => setEditedBoard(prev => 
-                    prev ? { ...prev, type: e.target.value as 'Premium' | 'Free' | 'Paid' } : null
-                  )}
+                  onChange={(e) =>
+                    setEditedBoard((prev) =>
+                      prev ? { ...prev, type: e.target.value as 'Premium' | 'Free' | 'Paid' } : null
+                    )
+                  }
                   label="Type"
                 >
                   <MenuItem value="Free">Free</MenuItem>
@@ -1310,9 +1351,11 @@ const JobDistribution: React.FC = () => {
                   startAdornment: <InputAdornment position="start">$</InputAdornment>,
                 }}
                 value={editedBoard?.cost || 0}
-                onChange={(e) => setEditedBoard(prev => 
-                  prev ? { ...prev, cost: Number(e.target.value) } : null
-                )}
+                onChange={(e) =>
+                  setEditedBoard((prev) =>
+                    prev ? { ...prev, cost: Number(e.target.value) } : null
+                  )
+                }
               />
             </Grid>
             <Grid item xs={12}>
@@ -1320,22 +1363,16 @@ const JobDistribution: React.FC = () => {
                 fullWidth
                 label="API Key"
                 value={editedBoard?.apiKey || ''}
-                onChange={(e) => setEditedBoard(prev => 
-                  prev ? { ...prev, apiKey: e.target.value } : null
-                )}
+                onChange={(e) =>
+                  setEditedBoard((prev) => (prev ? { ...prev, apiKey: e.target.value } : null))
+                }
               />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseAddBoardDialog}>
-            Cancel
-          </Button>
-          <Button 
-            variant="contained" 
-            onClick={handleSaveBoard}
-            startIcon={<CheckCircleIcon />}
-          >
+          <Button onClick={handleCloseAddBoardDialog}>Cancel</Button>
+          <Button variant="contained" onClick={handleSaveBoard} startIcon={<CheckCircleIcon />}>
             Add Platform
           </Button>
         </DialogActions>
@@ -1343,21 +1380,17 @@ const JobDistribution: React.FC = () => {
 
       {/* Confirm Delete Dialog */}
       <Dialog open={isConfirmDeleteOpen} onClose={handleCloseDeleteConfirm}>
-        <DialogTitle>
-          Confirm Delete
-        </DialogTitle>
+        <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography>
             Are you sure you want to delete this platform? This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDeleteConfirm}>
-            Cancel
-          </Button>
-          <Button 
-            variant="contained" 
-            color="error" 
+          <Button onClick={handleCloseDeleteConfirm}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="error"
             onClick={handleDeleteBoard}
             startIcon={<DeleteIcon />}
           >
@@ -1365,7 +1398,7 @@ const JobDistribution: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Snackbar for notifications */}
       <Snackbar
         open={isAlertOpen}
@@ -1373,11 +1406,7 @@ const JobDistribution: React.FC = () => {
         onClose={handleCloseAlert}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
-        <Alert 
-          onClose={handleCloseAlert} 
-          severity={alertSeverity}
-          sx={{ width: '100%' }}
-        >
+        <Alert onClose={handleCloseAlert} severity={alertSeverity} sx={{ width: '100%' }}>
           {alertMessage}
         </Alert>
       </Snackbar>
@@ -1385,4 +1414,4 @@ const JobDistribution: React.FC = () => {
   );
 };
 
-export default JobDistribution; 
+export default JobDistribution;

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Paper, 
-  LinearProgress, 
-  Button, 
+import {
+  Box,
+  Typography,
+  Paper,
+  LinearProgress,
+  Button,
   Alert,
   IconButton,
   Drawer,
@@ -15,9 +15,9 @@ import {
   ListItemText,
   Chip,
   Tooltip,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
-import { 
+import {
   Close as CloseIcon,
   CheckCircle as SuccessIcon,
   Error as ErrorIcon,
@@ -26,7 +26,7 @@ import {
   RestartAlt as RetryIcon,
   Delete as DeleteIcon,
   Settings as SettingsIcon,
-  Download as DownloadIcon
+  Download as DownloadIcon,
 } from '@mui/icons-material';
 import QueueService, { TaskStatus, QueuedTask, TaskType } from '../services/QueueService';
 
@@ -68,7 +68,13 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onRetry, onCancel, onDownload
       case TaskStatus.PENDING:
         return <PendingIcon sx={{ color: statusColors[TaskStatus.PENDING] }} />;
       case TaskStatus.PROCESSING:
-        return <CircularProgress size={20} thickness={5} sx={{ color: statusColors[TaskStatus.PROCESSING] }} />;
+        return (
+          <CircularProgress
+            size={20}
+            thickness={5}
+            sx={{ color: statusColors[TaskStatus.PROCESSING] }}
+          />
+        );
       case TaskStatus.CANCELLED:
         return <CloseIcon sx={{ color: statusColors[TaskStatus.CANCELLED] }} />;
       default:
@@ -83,17 +89,17 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onRetry, onCancel, onDownload
         <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
           {taskTypeLabels[task.type] || task.type}
         </Typography>
-        <Chip 
-          size="small" 
-          label={task.status} 
-          sx={{ 
+        <Chip
+          size="small"
+          label={task.status}
+          sx={{
             backgroundColor: `${statusColors[task.status]}20`,
             color: statusColors[task.status],
-            fontWeight: 'bold'
-          }} 
+            fontWeight: 'bold',
+          }}
         />
       </Box>
-      
+
       <Box sx={{ mt: 1, mb: 1 }}>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
           Created: {task.createdAt.toLocaleString()}
@@ -104,7 +110,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onRetry, onCancel, onDownload
           </Typography>
         )}
       </Box>
-      
+
       {task.status === TaskStatus.PROCESSING && (
         <Box sx={{ my: 1 }}>
           <LinearProgress variant="determinate" value={task.progress} />
@@ -113,13 +119,13 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onRetry, onCancel, onDownload
           </Typography>
         </Box>
       )}
-      
+
       {task.error && (
         <Alert severity="error" sx={{ mt: 1, mb: 1 }}>
           {task.error}
         </Alert>
       )}
-      
+
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
         {task.status === TaskStatus.FAILED && onRetry && (
           <Tooltip title="Retry">
@@ -128,7 +134,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onRetry, onCancel, onDownload
             </IconButton>
           </Tooltip>
         )}
-        
+
         {task.status === TaskStatus.PENDING && onCancel && (
           <Tooltip title="Cancel">
             <IconButton size="small" onClick={() => onCancel(task.id)} sx={{ mr: 1 }}>
@@ -136,7 +142,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onRetry, onCancel, onDownload
             </IconButton>
           </Tooltip>
         )}
-        
+
         {task.status === TaskStatus.COMPLETED && task.result && onDownload && (
           <Tooltip title="Download result">
             <IconButton size="small" onClick={() => onDownload(task)} sx={{ mr: 1 }}>
@@ -144,14 +150,17 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onRetry, onCancel, onDownload
             </IconButton>
           </Tooltip>
         )}
-        
-        {(task.status === TaskStatus.COMPLETED || task.status === TaskStatus.FAILED || task.status === TaskStatus.CANCELLED) && onDelete && (
-          <Tooltip title="Delete">
-            <IconButton size="small" onClick={() => onDelete(task.id)} color="error">
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        )}
+
+        {(task.status === TaskStatus.COMPLETED ||
+          task.status === TaskStatus.FAILED ||
+          task.status === TaskStatus.CANCELLED) &&
+          onDelete && (
+            <Tooltip title="Delete">
+              <IconButton size="small" onClick={() => onDelete(task.id)} color="error">
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
+          )}
       </Box>
     </Paper>
   );
@@ -168,79 +177,81 @@ const TaskManager: React.FC<TaskManagerProps> = ({ userId, onTask }) => {
   const [tasks, setTasks] = useState<QueuedTask[]>([]);
   const [activeTasks, setActiveTasks] = useState<QueuedTask[]>([]);
   const queueService = QueueService.getInstance();
-  
+
   // Load tasks when component mounts
   useEffect(() => {
     const loadTasks = () => {
       const userTasks = queueService.getUserTasks(userId);
       setTasks(userTasks);
-      
+
       // Set active tasks (pending or processing)
-      setActiveTasks(userTasks.filter(task => 
-        task.status === TaskStatus.PENDING || 
-        task.status === TaskStatus.PROCESSING
-      ));
+      setActiveTasks(
+        userTasks.filter(
+          (task) => task.status === TaskStatus.PENDING || task.status === TaskStatus.PROCESSING
+        )
+      );
     };
-    
+
     // Load initial tasks
     loadTasks();
-    
+
     // Set up interval to refresh tasks
     const intervalId = setInterval(loadTasks, 3000);
-    
+
     // Clean up on unmount
     return () => clearInterval(intervalId);
   }, [userId]);
-  
+
   // Set up task subscriptions
   useEffect(() => {
     const unsubscribers: (() => void)[] = [];
-    
+
     // Subscribe to all tasks
-    tasks.forEach(task => {
+    tasks.forEach((task) => {
       const unsubscribe = queueService.subscribeToTask(task.id, (updatedTask) => {
-        setTasks(prevTasks => 
-          prevTasks.map(t => t.id === updatedTask.id ? updatedTask : t)
-        );
-        
+        setTasks((prevTasks) => prevTasks.map((t) => (t.id === updatedTask.id ? updatedTask : t)));
+
         // Update active tasks
-        setActiveTasks(prevActiveTasks => {
-          const filtered = prevActiveTasks.filter(t => t.id !== updatedTask.id);
-          if (updatedTask.status === TaskStatus.PENDING || updatedTask.status === TaskStatus.PROCESSING) {
+        setActiveTasks((prevActiveTasks) => {
+          const filtered = prevActiveTasks.filter((t) => t.id !== updatedTask.id);
+          if (
+            updatedTask.status === TaskStatus.PENDING ||
+            updatedTask.status === TaskStatus.PROCESSING
+          ) {
             return [...filtered, updatedTask];
           }
           return filtered;
         });
-        
+
         // Call onTask callback if provided
         if (onTask) {
           onTask(updatedTask);
         }
       });
-      
+
       unsubscribers.push(unsubscribe);
     });
-    
+
     // Clean up subscriptions on unmount or when tasks change
     return () => {
-      unsubscribers.forEach(unsubscribe => unsubscribe());
+      unsubscribers.forEach((unsubscribe) => unsubscribe());
     };
-  }, [tasks.map(t => t.id).join(',')]);
-  
+  }, [tasks.map((t) => t.id).join(',')]);
+
   const handleRetry = (task: QueuedTask) => {
     // Create a new task with the same data
     queueService.enqueue({
       type: task.type,
       data: task.data,
       userId: task.userId,
-      priority: task.priority
+      priority: task.priority,
     });
   };
-  
+
   const handleCancel = (taskId: string) => {
     queueService.cancelTask(taskId);
   };
-  
+
   const handleDownload = (task: QueuedTask) => {
     // Implementation depends on the result type
     // This is a basic example for downloading JSON
@@ -256,30 +267,30 @@ const TaskManager: React.FC<TaskManagerProps> = ({ userId, onTask }) => {
       URL.revokeObjectURL(url);
     }
   };
-  
+
   const handleDelete = (taskId: string) => {
     // Note: The actual task deletion would typically be handled by the QueueService
     // For now, we'll just update our local state
-    setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
   };
-  
+
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
   };
-  
+
   return (
     <>
       {/* Task button with badge showing active tasks count */}
       <Tooltip title="Task Manager">
-        <Badge 
-          badgeContent={activeTasks.length} 
+        <Badge
+          badgeContent={activeTasks.length}
           color="primary"
           overlap="circular"
           variant="dot"
           invisible={activeTasks.length === 0}
         >
-          <IconButton 
-            onClick={toggleDrawer} 
+          <IconButton
+            onClick={toggleDrawer}
             color="inherit"
             sx={{
               position: 'fixed',
@@ -299,17 +310,25 @@ const TaskManager: React.FC<TaskManagerProps> = ({ userId, onTask }) => {
           </IconButton>
         </Badge>
       </Tooltip>
-      
+
       {/* Task drawer */}
       <Drawer
         anchor="right"
         open={isOpen}
         onClose={toggleDrawer}
         PaperProps={{
-          sx: { width: { xs: '100%', sm: 400 }, maxWidth: '100%' }
+          sx: { width: { xs: '100%', sm: 400 }, maxWidth: '100%' },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            p: 2,
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Task Manager
           </Typography>
@@ -317,42 +336,37 @@ const TaskManager: React.FC<TaskManagerProps> = ({ userId, onTask }) => {
             <CloseIcon />
           </IconButton>
         </Box>
-        
+
         {activeTasks.length > 0 && (
           <Box sx={{ p: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
               Active Tasks ({activeTasks.length})
             </Typography>
-            {activeTasks.map(task => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                onCancel={handleCancel}
-              />
+            {activeTasks.map((task) => (
+              <TaskItem key={task.id} task={task} onCancel={handleCancel} />
             ))}
           </Box>
         )}
-        
+
         <Divider />
-        
+
         <Box sx={{ p: 2, overflowY: 'auto', flexGrow: 1 }}>
           <Typography variant="subtitle1" gutterBottom>
             Recent Tasks
           </Typography>
-          
-          {tasks.filter(task => 
-            task.status !== TaskStatus.PENDING && 
-            task.status !== TaskStatus.PROCESSING
+
+          {tasks.filter(
+            (task) => task.status !== TaskStatus.PENDING && task.status !== TaskStatus.PROCESSING
           ).length === 0 ? (
             <Alert severity="info">No completed tasks yet</Alert>
           ) : (
             tasks
-              .filter(task => 
-                task.status !== TaskStatus.PENDING && 
-                task.status !== TaskStatus.PROCESSING
+              .filter(
+                (task) =>
+                  task.status !== TaskStatus.PENDING && task.status !== TaskStatus.PROCESSING
               )
               .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
-              .map(task => (
+              .map((task) => (
                 <TaskItem
                   key={task.id}
                   task={task}
@@ -368,4 +382,4 @@ const TaskManager: React.FC<TaskManagerProps> = ({ userId, onTask }) => {
   );
 };
 
-export default TaskManager; 
+export default TaskManager;

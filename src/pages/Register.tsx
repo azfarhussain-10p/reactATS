@@ -23,42 +23,45 @@ function Register() {
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Reset status messages
     setError('');
     setSuccess('');
-    
+
     // Simple validation
     if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
       setError('All fields are required');
       safeAnnounce('Registration failed. All fields are required.', 'assertive');
       return;
     }
-    
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       safeAnnounce('Registration failed. Passwords do not match.', 'assertive');
       return;
     }
-    
+
     if (password.length < 6) {
       setError('Password must be at least 6 characters long');
-      safeAnnounce('Registration failed. Password must be at least 6 characters long.', 'assertive');
+      safeAnnounce(
+        'Registration failed. Password must be at least 6 characters long.',
+        'assertive'
+      );
       return;
     }
-    
+
     try {
       // In a real app, this would call an API to register the user
       // For demo purposes, just show success message
       setSuccess('Registration successful! You can now login.');
       safeAnnounce('Registration successful! You can now login.', 'polite');
-      
+
       // Clear the form
       setName('');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
-      
+
       // Redirect to login after a delay
       setTimeout(() => {
         navigate('/login');
@@ -77,43 +80,59 @@ function Register() {
           <form onSubmit={handleRegister}>
             <h1>Create Account</h1>
             <div className="social-icons">
-              <a href="#" className="icon"><i className="fa-brands fa-google-plus-g"></i></a>
-              <a href="#" className="icon"><i className="fa-brands fa-facebook-f"></i></a>
-              <a href="#" className="icon"><i className="fa-brands fa-github"></i></a>
-              <a href="#" className="icon"><i className="fa-brands fa-linkedin-in"></i></a>
+              <a href="#" className="icon">
+                <i className="fa-brands fa-google-plus-g"></i>
+              </a>
+              <a href="#" className="icon">
+                <i className="fa-brands fa-facebook-f"></i>
+              </a>
+              <a href="#" className="icon">
+                <i className="fa-brands fa-github"></i>
+              </a>
+              <a href="#" className="icon">
+                <i className="fa-brands fa-linkedin-in"></i>
+              </a>
             </div>
             <span>or use your email for registration</span>
-            
-            {error && <div className="error-message" role="alert">{error}</div>}
-            {success && <div className="success-message" role="alert">{success}</div>}
-            
-            <input 
-              type="text" 
-              placeholder="Name" 
+
+            {error && (
+              <div className="error-message" role="alert">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="success-message" role="alert">
+                {success}
+              </div>
+            )}
+
+            <input
+              type="text"
+              placeholder="Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
               aria-label="Name"
             />
-            <input 
-              type="email" 
-              placeholder="Email" 
+            <input
+              type="email"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               aria-label="Email"
             />
-            <input 
-              type="password" 
-              placeholder="Password" 
+            <input
+              type="password"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               aria-label="Password"
             />
-            <input 
-              type="password" 
-              placeholder="Confirm Password" 
+            <input
+              type="password"
+              placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -130,4 +149,4 @@ function Register() {
   );
 }
 
-export default Register; 
+export default Register;

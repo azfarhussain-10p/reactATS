@@ -7,7 +7,7 @@ import {
   EngagementLevel,
   ContactHistoryItem,
   TouchPoint,
-  Candidate
+  Candidate,
 } from '../models/types';
 
 // Context interface
@@ -17,26 +17,37 @@ interface TalentPoolContextType {
   relationships: CandidateRelationship[];
   isLoading: boolean;
   error: string | null;
-  
+
   // Talent Pool operations
-  createTalentPool: (pool: Omit<TalentPool, 'id' | 'createdAt' | 'updatedAt'>) => Promise<TalentPool>;
+  createTalentPool: (
+    pool: Omit<TalentPool, 'id' | 'createdAt' | 'updatedAt'>
+  ) => Promise<TalentPool>;
   updateTalentPool: (id: string, updates: Partial<TalentPool>) => Promise<TalentPool>;
   deleteTalentPool: (id: string) => Promise<boolean>;
-  
+
   // Filter operations
   addFilterToPool: (poolId: string, filter: Omit<TalentPoolFilter, 'id'>) => Promise<TalentPool>;
   removeFilterFromPool: (poolId: string, filterId: string) => Promise<TalentPool>;
-  
+
   // Candidate operations
   addCandidateToPool: (poolId: string, candidateId: string) => Promise<boolean>;
   removeCandidateFromPool: (poolId: string, candidateId: string) => Promise<boolean>;
   getCandidatesInPool: (poolId: string) => Promise<string[]>;
-  
+
   // Relationship management
   getRelationship: (candidateId: string) => CandidateRelationship | null;
-  updateRelationship: (id: string, updates: Partial<CandidateRelationship>) => Promise<CandidateRelationship>;
-  addContactHistory: (relationshipId: string, contact: Omit<ContactHistoryItem, 'id'>) => Promise<ContactHistoryItem>;
-  addTouchPoint: (relationshipId: string, touchPoint: Omit<TouchPoint, 'id'>) => Promise<TouchPoint>;
+  updateRelationship: (
+    id: string,
+    updates: Partial<CandidateRelationship>
+  ) => Promise<CandidateRelationship>;
+  addContactHistory: (
+    relationshipId: string,
+    contact: Omit<ContactHistoryItem, 'id'>
+  ) => Promise<ContactHistoryItem>;
+  addTouchPoint: (
+    relationshipId: string,
+    touchPoint: Omit<TouchPoint, 'id'>
+  ) => Promise<TouchPoint>;
   updateEngagementScore: (relationshipId: string) => Promise<number>;
 }
 
@@ -53,21 +64,21 @@ const sampleTalentPools: TalentPool[] = [
         id: 'filter-1',
         field: 'skills',
         operator: 'in',
-        values: ['JavaScript', 'React', 'Node.js']
+        values: ['JavaScript', 'React', 'Node.js'],
       },
       {
         id: 'filter-2',
         field: 'totalYearsOfExperience',
         operator: 'greaterThan',
-        value: 3
-      }
+        value: 3,
+      },
     ],
     candidateIds: ['1', '2', '5', '8'],
     campaignIds: ['campaign-1'],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     isDefault: false,
-    color: '#3498db'
+    color: '#3498db',
   },
   {
     id: 'pool-2',
@@ -80,21 +91,21 @@ const sampleTalentPools: TalentPool[] = [
         id: 'filter-3',
         field: 'status',
         operator: 'in',
-        values: ['Rejected', 'Withdrawn']
+        values: ['Rejected', 'Withdrawn'],
       },
       {
         id: 'filter-4',
         field: 'rating',
         operator: 'greaterThan',
-        value: 3
-      }
+        value: 3,
+      },
     ],
     candidateIds: ['3', '4', '7'],
     campaignIds: ['campaign-2'],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     isDefault: false,
-    color: '#e74c3c'
+    color: '#e74c3c',
   },
   {
     id: 'pool-3',
@@ -107,22 +118,22 @@ const sampleTalentPools: TalentPool[] = [
         id: 'filter-5',
         field: 'title',
         operator: 'contains',
-        value: 'Lead'
+        value: 'Lead',
       },
       {
         id: 'filter-6',
         field: 'totalYearsOfExperience',
         operator: 'greaterThan',
-        value: 7
-      }
+        value: 7,
+      },
     ],
     candidateIds: ['6', '9'],
     campaignIds: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     isDefault: false,
-    color: '#9b59b6'
-  }
+    color: '#9b59b6',
+  },
 ];
 
 const sampleRelationships: CandidateRelationship[] = [
@@ -142,7 +153,7 @@ const sampleRelationships: CandidateRelationship[] = [
         response: 'Showed interest and wants to learn more',
         followUpRequired: true,
         followUpDate: new Date('2023-06-22').toISOString(),
-        createdBy: 'recruiter1'
+        createdBy: 'recruiter1',
       },
       {
         id: 'contact-2',
@@ -155,8 +166,8 @@ const sampleRelationships: CandidateRelationship[] = [
         response: 'Eager to proceed to technical interview',
         followUpRequired: true,
         followUpDate: new Date('2023-06-30').toISOString(),
-        createdBy: 'recruiter1'
-      }
+        createdBy: 'recruiter1',
+      },
     ],
     touchPoints: [
       {
@@ -166,8 +177,8 @@ const sampleRelationships: CandidateRelationship[] = [
         title: '5 Years at Current Company',
         description: 'Congratulate on 5-year work anniversary at current employer',
         status: 'Pending',
-        notes: 'Good time to re-engage about new opportunities'
-      }
+        notes: 'Good time to re-engage about new opportunities',
+      },
     ],
     engagementLevel: 'Hot',
     engagementScore: 85,
@@ -180,7 +191,7 @@ const sampleRelationships: CandidateRelationship[] = [
     leadSource: 'LinkedIn',
     assignedTo: 'recruiter1',
     createdAt: new Date('2023-06-15').toISOString(),
-    updatedAt: new Date('2023-06-23').toISOString()
+    updatedAt: new Date('2023-06-23').toISOString(),
   },
   {
     id: 'rel-2',
@@ -198,8 +209,8 @@ const sampleRelationships: CandidateRelationship[] = [
         response: 'Understood and expressed interest in future opportunities',
         followUpRequired: true,
         followUpDate: new Date('2023-08-10').toISOString(),
-        createdBy: 'recruiter2'
-      }
+        createdBy: 'recruiter2',
+      },
     ],
     touchPoints: [],
     engagementLevel: 'Warm',
@@ -211,8 +222,8 @@ const sampleRelationships: CandidateRelationship[] = [
     preferredContactMethod: 'Email',
     leadSource: 'Indeed',
     createdAt: new Date('2023-05-10').toISOString(),
-    updatedAt: new Date('2023-05-10').toISOString()
-  }
+    updatedAt: new Date('2023-05-10').toISOString(),
+  },
 ];
 
 // Create the context
@@ -226,541 +237,565 @@ export const TalentPoolProvider: React.FC<{ children: ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
 
   // Talent Pool operations
-  const createTalentPool = useCallback(async (
-    pool: Omit<TalentPool, 'id' | 'createdAt' | 'updatedAt'>
-  ): Promise<TalentPool> => {
-    setIsLoading(true);
-    setError(null);
+  const createTalentPool = useCallback(
+    async (pool: Omit<TalentPool, 'id' | 'createdAt' | 'updatedAt'>): Promise<TalentPool> => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
-      const newPool: TalentPool = {
-        ...pool,
-        id: `pool-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+        const newPool: TalentPool = {
+          ...pool,
+          id: `pool-${Date.now()}`,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
 
-      setTalentPools(prev => [...prev, newPool]);
-      return newPool;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create talent pool';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const updateTalentPool = useCallback(async (
-    id: string,
-    updates: Partial<TalentPool>
-  ): Promise<TalentPool> => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      const index = talentPools.findIndex(pool => pool.id === id);
-      if (index === -1) {
-        throw new Error('Talent pool not found');
+        setTalentPools((prev) => [...prev, newPool]);
+        return newPool;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to create talent pool';
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
       }
+    },
+    []
+  );
 
-      const updatedPool = {
-        ...talentPools[index],
-        ...updates,
-        updatedAt: new Date().toISOString()
-      };
+  const updateTalentPool = useCallback(
+    async (id: string, updates: Partial<TalentPool>): Promise<TalentPool> => {
+      setIsLoading(true);
+      setError(null);
 
-      const newPools = [...talentPools];
-      newPools[index] = updatedPool;
-      setTalentPools(newPools);
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
-      return updatedPool;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update talent pool';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [talentPools]);
-
-  const deleteTalentPool = useCallback(async (id: string): Promise<boolean> => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      const index = talentPools.findIndex(pool => pool.id === id);
-      if (index === -1) {
-        throw new Error('Talent pool not found');
-      }
-
-      // Remove pool from relationships
-      const updatedRelationships = relationships.map(rel => {
-        if (rel.talentPoolIds.includes(id)) {
-          return {
-            ...rel,
-            talentPoolIds: rel.talentPoolIds.filter(poolId => poolId !== id),
-            updatedAt: new Date().toISOString()
-          };
+        const index = talentPools.findIndex((pool) => pool.id === id);
+        if (index === -1) {
+          throw new Error('Talent pool not found');
         }
-        return rel;
-      });
 
-      setRelationships(updatedRelationships);
-      setTalentPools(talentPools.filter(pool => pool.id !== id));
-      return true;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete talent pool';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [talentPools, relationships]);
+        const updatedPool = {
+          ...talentPools[index],
+          ...updates,
+          updatedAt: new Date().toISOString(),
+        };
+
+        const newPools = [...talentPools];
+        newPools[index] = updatedPool;
+        setTalentPools(newPools);
+
+        return updatedPool;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to update talent pool';
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [talentPools]
+  );
+
+  const deleteTalentPool = useCallback(
+    async (id: string): Promise<boolean> => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        const index = talentPools.findIndex((pool) => pool.id === id);
+        if (index === -1) {
+          throw new Error('Talent pool not found');
+        }
+
+        // Remove pool from relationships
+        const updatedRelationships = relationships.map((rel) => {
+          if (rel.talentPoolIds.includes(id)) {
+            return {
+              ...rel,
+              talentPoolIds: rel.talentPoolIds.filter((poolId) => poolId !== id),
+              updatedAt: new Date().toISOString(),
+            };
+          }
+          return rel;
+        });
+
+        setRelationships(updatedRelationships);
+        setTalentPools(talentPools.filter((pool) => pool.id !== id));
+        return true;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to delete talent pool';
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [talentPools, relationships]
+  );
 
   // Filter operations
-  const addFilterToPool = useCallback(async (
-    poolId: string,
-    filter: Omit<TalentPoolFilter, 'id'>
-  ): Promise<TalentPool> => {
-    setIsLoading(true);
-    setError(null);
+  const addFilterToPool = useCallback(
+    async (poolId: string, filter: Omit<TalentPoolFilter, 'id'>): Promise<TalentPool> => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 300));
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
-      const poolIndex = talentPools.findIndex(pool => pool.id === poolId);
-      if (poolIndex === -1) {
-        throw new Error('Talent pool not found');
+        const poolIndex = talentPools.findIndex((pool) => pool.id === poolId);
+        if (poolIndex === -1) {
+          throw new Error('Talent pool not found');
+        }
+
+        const newFilter: TalentPoolFilter = {
+          ...filter,
+          id: `filter-${Date.now()}`,
+        };
+
+        const updatedPool = {
+          ...talentPools[poolIndex],
+          filters: [...talentPools[poolIndex].filters, newFilter],
+          updatedAt: new Date().toISOString(),
+        };
+
+        const newPools = [...talentPools];
+        newPools[poolIndex] = updatedPool;
+        setTalentPools(newPools);
+
+        return updatedPool;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to add filter';
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [talentPools]
+  );
 
-      const newFilter: TalentPoolFilter = {
-        ...filter,
-        id: `filter-${Date.now()}`
-      };
+  const removeFilterFromPool = useCallback(
+    async (poolId: string, filterId: string): Promise<TalentPool> => {
+      setIsLoading(true);
+      setError(null);
 
-      const updatedPool = {
-        ...talentPools[poolIndex],
-        filters: [...talentPools[poolIndex].filters, newFilter],
-        updatedAt: new Date().toISOString()
-      };
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
-      const newPools = [...talentPools];
-      newPools[poolIndex] = updatedPool;
-      setTalentPools(newPools);
+        const poolIndex = talentPools.findIndex((pool) => pool.id === poolId);
+        if (poolIndex === -1) {
+          throw new Error('Talent pool not found');
+        }
 
-      return updatedPool;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to add filter';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [talentPools]);
+        const updatedPool = {
+          ...talentPools[poolIndex],
+          filters: talentPools[poolIndex].filters.filter((f) => f.id !== filterId),
+          updatedAt: new Date().toISOString(),
+        };
 
-  const removeFilterFromPool = useCallback(async (
-    poolId: string,
-    filterId: string
-  ): Promise<TalentPool> => {
-    setIsLoading(true);
-    setError(null);
+        const newPools = [...talentPools];
+        newPools[poolIndex] = updatedPool;
+        setTalentPools(newPools);
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      const poolIndex = talentPools.findIndex(pool => pool.id === poolId);
-      if (poolIndex === -1) {
-        throw new Error('Talent pool not found');
+        return updatedPool;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to remove filter';
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
       }
-
-      const updatedPool = {
-        ...talentPools[poolIndex],
-        filters: talentPools[poolIndex].filters.filter(f => f.id !== filterId),
-        updatedAt: new Date().toISOString()
-      };
-
-      const newPools = [...talentPools];
-      newPools[poolIndex] = updatedPool;
-      setTalentPools(newPools);
-
-      return updatedPool;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to remove filter';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [talentPools]);
+    },
+    [talentPools]
+  );
 
   // Candidate operations
-  const addCandidateToPool = useCallback(async (
-    poolId: string,
-    candidateId: string
-  ): Promise<boolean> => {
-    setIsLoading(true);
-    setError(null);
+  const addCandidateToPool = useCallback(
+    async (poolId: string, candidateId: string): Promise<boolean> => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 300));
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
-      const poolIndex = talentPools.findIndex(pool => pool.id === poolId);
-      if (poolIndex === -1) {
-        throw new Error('Talent pool not found');
-      }
+        const poolIndex = talentPools.findIndex((pool) => pool.id === poolId);
+        if (poolIndex === -1) {
+          throw new Error('Talent pool not found');
+        }
 
-      // Check if candidate is already in the pool
-      if (talentPools[poolIndex].candidateIds.includes(candidateId)) {
-        return true; // Already in pool
-      }
+        // Check if candidate is already in the pool
+        if (talentPools[poolIndex].candidateIds.includes(candidateId)) {
+          return true; // Already in pool
+        }
 
-      const updatedPool = {
-        ...talentPools[poolIndex],
-        candidateIds: [...talentPools[poolIndex].candidateIds, candidateId],
-        updatedAt: new Date().toISOString()
-      };
-
-      const newPools = [...talentPools];
-      newPools[poolIndex] = updatedPool;
-      setTalentPools(newPools);
-
-      // Update or create candidate relationship
-      const relationshipIndex = relationships.findIndex(rel => rel.candidateId === candidateId);
-      if (relationshipIndex !== -1) {
-        // Update existing relationship
-        const updatedRelationship = {
-          ...relationships[relationshipIndex],
-          talentPoolIds: [...relationships[relationshipIndex].talentPoolIds, poolId],
-          updatedAt: new Date().toISOString()
+        const updatedPool = {
+          ...talentPools[poolIndex],
+          candidateIds: [...talentPools[poolIndex].candidateIds, candidateId],
+          updatedAt: new Date().toISOString(),
         };
 
-        const newRelationships = [...relationships];
-        newRelationships[relationshipIndex] = updatedRelationship;
-        setRelationships(newRelationships);
-      } else {
-        // Create a new relationship
-        const newRelationship: CandidateRelationship = {
-          id: `rel-${Date.now()}`,
-          candidateId,
-          talentPoolIds: [poolId],
-          contactHistory: [],
-          touchPoints: [],
-          engagementLevel: 'Cold',
-          engagementScore: 0,
-          lastContact: '',
-          notes: '',
-          responseRate: 0,
-          preferredContactMethod: 'Email',
-          leadSource: 'Manual Addition',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+        const newPools = [...talentPools];
+        newPools[poolIndex] = updatedPool;
+        setTalentPools(newPools);
+
+        // Update or create candidate relationship
+        const relationshipIndex = relationships.findIndex((rel) => rel.candidateId === candidateId);
+        if (relationshipIndex !== -1) {
+          // Update existing relationship
+          const updatedRelationship = {
+            ...relationships[relationshipIndex],
+            talentPoolIds: [...relationships[relationshipIndex].talentPoolIds, poolId],
+            updatedAt: new Date().toISOString(),
+          };
+
+          const newRelationships = [...relationships];
+          newRelationships[relationshipIndex] = updatedRelationship;
+          setRelationships(newRelationships);
+        } else {
+          // Create a new relationship
+          const newRelationship: CandidateRelationship = {
+            id: `rel-${Date.now()}`,
+            candidateId,
+            talentPoolIds: [poolId],
+            contactHistory: [],
+            touchPoints: [],
+            engagementLevel: 'Cold',
+            engagementScore: 0,
+            lastContact: '',
+            notes: '',
+            responseRate: 0,
+            preferredContactMethod: 'Email',
+            leadSource: 'Manual Addition',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+
+          setRelationships([...relationships, newRelationship]);
+        }
+
+        return true;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to add candidate to pool';
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [talentPools, relationships]
+  );
+
+  const removeCandidateFromPool = useCallback(
+    async (poolId: string, candidateId: string): Promise<boolean> => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        const poolIndex = talentPools.findIndex((pool) => pool.id === poolId);
+        if (poolIndex === -1) {
+          throw new Error('Talent pool not found');
+        }
+
+        const updatedPool = {
+          ...talentPools[poolIndex],
+          candidateIds: talentPools[poolIndex].candidateIds.filter((id) => id !== candidateId),
+          updatedAt: new Date().toISOString(),
         };
 
-        setRelationships([...relationships, newRelationship]);
+        const newPools = [...talentPools];
+        newPools[poolIndex] = updatedPool;
+        setTalentPools(newPools);
+
+        // Update candidate relationship
+        const relationshipIndex = relationships.findIndex((rel) => rel.candidateId === candidateId);
+        if (relationshipIndex !== -1) {
+          const updatedRelationship = {
+            ...relationships[relationshipIndex],
+            talentPoolIds: relationships[relationshipIndex].talentPoolIds.filter(
+              (id) => id !== poolId
+            ),
+            updatedAt: new Date().toISOString(),
+          };
+
+          const newRelationships = [...relationships];
+          newRelationships[relationshipIndex] = updatedRelationship;
+          setRelationships(newRelationships);
+        }
+
+        return true;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Failed to remove candidate from pool';
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [talentPools, relationships]
+  );
 
-      return true;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to add candidate to pool';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [talentPools, relationships]);
+  const getCandidatesInPool = useCallback(
+    async (poolId: string): Promise<string[]> => {
+      setIsLoading(true);
+      setError(null);
 
-  const removeCandidateFromPool = useCallback(async (
-    poolId: string,
-    candidateId: string
-  ): Promise<boolean> => {
-    setIsLoading(true);
-    setError(null);
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 300));
+        const pool = talentPools.find((p) => p.id === poolId);
+        if (!pool) {
+          throw new Error('Talent pool not found');
+        }
 
-      const poolIndex = talentPools.findIndex(pool => pool.id === poolId);
-      if (poolIndex === -1) {
-        throw new Error('Talent pool not found');
+        return pool.candidateIds;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Failed to get candidates in pool';
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
       }
-
-      const updatedPool = {
-        ...talentPools[poolIndex],
-        candidateIds: talentPools[poolIndex].candidateIds.filter(id => id !== candidateId),
-        updatedAt: new Date().toISOString()
-      };
-
-      const newPools = [...talentPools];
-      newPools[poolIndex] = updatedPool;
-      setTalentPools(newPools);
-
-      // Update candidate relationship
-      const relationshipIndex = relationships.findIndex(rel => rel.candidateId === candidateId);
-      if (relationshipIndex !== -1) {
-        const updatedRelationship = {
-          ...relationships[relationshipIndex],
-          talentPoolIds: relationships[relationshipIndex].talentPoolIds.filter(id => id !== poolId),
-          updatedAt: new Date().toISOString()
-        };
-
-        const newRelationships = [...relationships];
-        newRelationships[relationshipIndex] = updatedRelationship;
-        setRelationships(newRelationships);
-      }
-
-      return true;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to remove candidate from pool';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [talentPools, relationships]);
-
-  const getCandidatesInPool = useCallback(async (poolId: string): Promise<string[]> => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      const pool = talentPools.find(p => p.id === poolId);
-      if (!pool) {
-        throw new Error('Talent pool not found');
-      }
-
-      return pool.candidateIds;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to get candidates in pool';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [talentPools]);
+    },
+    [talentPools]
+  );
 
   // Relationship management
-  const getRelationship = useCallback((candidateId: string): CandidateRelationship | null => {
-    return relationships.find(rel => rel.candidateId === candidateId) || null;
-  }, [relationships]);
+  const getRelationship = useCallback(
+    (candidateId: string): CandidateRelationship | null => {
+      return relationships.find((rel) => rel.candidateId === candidateId) || null;
+    },
+    [relationships]
+  );
 
-  const updateRelationship = useCallback(async (
-    id: string,
-    updates: Partial<CandidateRelationship>
-  ): Promise<CandidateRelationship> => {
-    setIsLoading(true);
-    setError(null);
+  const updateRelationship = useCallback(
+    async (id: string, updates: Partial<CandidateRelationship>): Promise<CandidateRelationship> => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 400));
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 400));
 
-      const index = relationships.findIndex(rel => rel.id === id);
-      if (index === -1) {
-        throw new Error('Relationship not found');
+        const index = relationships.findIndex((rel) => rel.id === id);
+        if (index === -1) {
+          throw new Error('Relationship not found');
+        }
+
+        const updatedRelationship = {
+          ...relationships[index],
+          ...updates,
+          updatedAt: new Date().toISOString(),
+        };
+
+        const newRelationships = [...relationships];
+        newRelationships[index] = updatedRelationship;
+        setRelationships(newRelationships);
+
+        return updatedRelationship;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to update relationship';
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [relationships]
+  );
 
-      const updatedRelationship = {
-        ...relationships[index],
-        ...updates,
-        updatedAt: new Date().toISOString()
-      };
+  const addContactHistory = useCallback(
+    async (
+      relationshipId: string,
+      contact: Omit<ContactHistoryItem, 'id'>
+    ): Promise<ContactHistoryItem> => {
+      setIsLoading(true);
+      setError(null);
 
-      const newRelationships = [...relationships];
-      newRelationships[index] = updatedRelationship;
-      setRelationships(newRelationships);
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
-      return updatedRelationship;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update relationship';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [relationships]);
+        const relationshipIndex = relationships.findIndex((rel) => rel.id === relationshipId);
+        if (relationshipIndex === -1) {
+          throw new Error('Relationship not found');
+        }
 
-  const addContactHistory = useCallback(async (
-    relationshipId: string,
-    contact: Omit<ContactHistoryItem, 'id'>
-  ): Promise<ContactHistoryItem> => {
-    setIsLoading(true);
-    setError(null);
+        const newContact: ContactHistoryItem = {
+          ...contact,
+          id: `contact-${Date.now()}`,
+        };
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 300));
+        const updatedRelationship = {
+          ...relationships[relationshipIndex],
+          contactHistory: [newContact, ...relationships[relationshipIndex].contactHistory],
+          lastContact: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
 
-      const relationshipIndex = relationships.findIndex(rel => rel.id === relationshipId);
-      if (relationshipIndex === -1) {
-        throw new Error('Relationship not found');
+        const newRelationships = [...relationships];
+        newRelationships[relationshipIndex] = updatedRelationship;
+        setRelationships(newRelationships);
+
+        // Update engagement score after adding contact
+        updateEngagementScore(relationshipId);
+
+        return newContact;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to add contact history';
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [relationships]
+  );
 
-      const newContact: ContactHistoryItem = {
-        ...contact,
-        id: `contact-${Date.now()}`
-      };
+  const addTouchPoint = useCallback(
+    async (relationshipId: string, touchPoint: Omit<TouchPoint, 'id'>): Promise<TouchPoint> => {
+      setIsLoading(true);
+      setError(null);
 
-      const updatedRelationship = {
-        ...relationships[relationshipIndex],
-        contactHistory: [newContact, ...relationships[relationshipIndex].contactHistory],
-        lastContact: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
-      const newRelationships = [...relationships];
-      newRelationships[relationshipIndex] = updatedRelationship;
-      setRelationships(newRelationships);
+        const relationshipIndex = relationships.findIndex((rel) => rel.id === relationshipId);
+        if (relationshipIndex === -1) {
+          throw new Error('Relationship not found');
+        }
 
-      // Update engagement score after adding contact
-      updateEngagementScore(relationshipId);
+        const newTouchPoint: TouchPoint = {
+          ...touchPoint,
+          id: `touch-${Date.now()}`,
+        };
 
-      return newContact;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to add contact history';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [relationships]);
+        const updatedRelationship = {
+          ...relationships[relationshipIndex],
+          touchPoints: [...relationships[relationshipIndex].touchPoints, newTouchPoint],
+          updatedAt: new Date().toISOString(),
+        };
 
-  const addTouchPoint = useCallback(async (
-    relationshipId: string,
-    touchPoint: Omit<TouchPoint, 'id'>
-  ): Promise<TouchPoint> => {
-    setIsLoading(true);
-    setError(null);
+        const newRelationships = [...relationships];
+        newRelationships[relationshipIndex] = updatedRelationship;
+        setRelationships(newRelationships);
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      const relationshipIndex = relationships.findIndex(rel => rel.id === relationshipId);
-      if (relationshipIndex === -1) {
-        throw new Error('Relationship not found');
+        return newTouchPoint;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to add touch point';
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [relationships]
+  );
 
-      const newTouchPoint: TouchPoint = {
-        ...touchPoint,
-        id: `touch-${Date.now()}`
-      };
+  const updateEngagementScore = useCallback(
+    async (relationshipId: string): Promise<number> => {
+      setIsLoading(true);
+      setError(null);
 
-      const updatedRelationship = {
-        ...relationships[relationshipIndex],
-        touchPoints: [...relationships[relationshipIndex].touchPoints, newTouchPoint],
-        updatedAt: new Date().toISOString()
-      };
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 400));
 
-      const newRelationships = [...relationships];
-      newRelationships[relationshipIndex] = updatedRelationship;
-      setRelationships(newRelationships);
+        const relationshipIndex = relationships.findIndex((rel) => rel.id === relationshipId);
+        if (relationshipIndex === -1) {
+          throw new Error('Relationship not found');
+        }
 
-      return newTouchPoint;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to add touch point';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [relationships]);
+        const relationship = relationships[relationshipIndex];
 
-  const updateEngagementScore = useCallback(async (relationshipId: string): Promise<number> => {
-    setIsLoading(true);
-    setError(null);
+        // Calculate engagement score based on various factors
+        // This is a simplified algorithm for demo purposes
+        let score = 0;
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 400));
+        // Recent contact increases score
+        const lastContactDate = new Date(relationship.lastContact);
+        const daysSinceLastContact =
+          (new Date().getTime() - lastContactDate.getTime()) / (1000 * 3600 * 24);
 
-      const relationshipIndex = relationships.findIndex(rel => rel.id === relationshipId);
-      if (relationshipIndex === -1) {
-        throw new Error('Relationship not found');
+        if (daysSinceLastContact < 7) {
+          score += 20;
+        } else if (daysSinceLastContact < 30) {
+          score += 10;
+        } else if (daysSinceLastContact < 90) {
+          score += 5;
+        }
+
+        // Response rate contributes to score
+        score += Math.round(relationship.responseRate * 20);
+
+        // Number of contacts contributes to score
+        score += Math.min(20, relationship.contactHistory.length * 2);
+
+        // Positive outcomes contribute to score
+        const positiveOutcomes = relationship.contactHistory.filter(
+          (c) => c.outcome === 'Positive'
+        ).length;
+        score += positiveOutcomes * 5;
+
+        // Normalize to 0-100 range
+        score = Math.min(100, Math.max(0, score));
+
+        // Determine engagement level based on score
+        let engagementLevel: EngagementLevel;
+        if (score >= 80) {
+          engagementLevel = 'Very Hot';
+        } else if (score >= 60) {
+          engagementLevel = 'Hot';
+        } else if (score >= 40) {
+          engagementLevel = 'Warm';
+        } else if (score >= 20) {
+          engagementLevel = 'Cold';
+        } else {
+          engagementLevel = 'Not Interested';
+        }
+
+        // Update the relationship
+        const updatedRelationship = {
+          ...relationship,
+          engagementScore: score,
+          engagementLevel,
+          updatedAt: new Date().toISOString(),
+        };
+
+        const newRelationships = [...relationships];
+        newRelationships[relationshipIndex] = updatedRelationship;
+        setRelationships(newRelationships);
+
+        return score;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Failed to update engagement score';
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
       }
-
-      const relationship = relationships[relationshipIndex];
-      
-      // Calculate engagement score based on various factors
-      // This is a simplified algorithm for demo purposes
-      let score = 0;
-      
-      // Recent contact increases score
-      const lastContactDate = new Date(relationship.lastContact);
-      const daysSinceLastContact = (new Date().getTime() - lastContactDate.getTime()) / (1000 * 3600 * 24);
-      
-      if (daysSinceLastContact < 7) {
-        score += 20;
-      } else if (daysSinceLastContact < 30) {
-        score += 10;
-      } else if (daysSinceLastContact < 90) {
-        score += 5;
-      }
-      
-      // Response rate contributes to score
-      score += Math.round(relationship.responseRate * 20);
-      
-      // Number of contacts contributes to score
-      score += Math.min(20, relationship.contactHistory.length * 2);
-      
-      // Positive outcomes contribute to score
-      const positiveOutcomes = relationship.contactHistory.filter(c => c.outcome === 'Positive').length;
-      score += positiveOutcomes * 5;
-      
-      // Normalize to 0-100 range
-      score = Math.min(100, Math.max(0, score));
-      
-      // Determine engagement level based on score
-      let engagementLevel: EngagementLevel;
-      if (score >= 80) {
-        engagementLevel = 'Very Hot';
-      } else if (score >= 60) {
-        engagementLevel = 'Hot';
-      } else if (score >= 40) {
-        engagementLevel = 'Warm';
-      } else if (score >= 20) {
-        engagementLevel = 'Cold';
-      } else {
-        engagementLevel = 'Not Interested';
-      }
-      
-      // Update the relationship
-      const updatedRelationship = {
-        ...relationship,
-        engagementScore: score,
-        engagementLevel,
-        updatedAt: new Date().toISOString()
-      };
-      
-      const newRelationships = [...relationships];
-      newRelationships[relationshipIndex] = updatedRelationship;
-      setRelationships(newRelationships);
-      
-      return score;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update engagement score';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [relationships]);
+    },
+    [relationships]
+  );
 
   // Context value
   const contextValue: TalentPoolContextType = {
@@ -768,41 +803,37 @@ export const TalentPoolProvider: React.FC<{ children: ReactNode }> = ({ children
     relationships,
     isLoading,
     error,
-    
+
     createTalentPool,
     updateTalentPool,
     deleteTalentPool,
-    
+
     addFilterToPool,
     removeFilterFromPool,
-    
+
     addCandidateToPool,
     removeCandidateFromPool,
     getCandidatesInPool,
-    
+
     getRelationship,
     updateRelationship,
     addContactHistory,
     addTouchPoint,
-    updateEngagementScore
+    updateEngagementScore,
   };
 
-  return (
-    <TalentPoolContext.Provider value={contextValue}>
-      {children}
-    </TalentPoolContext.Provider>
-  );
+  return <TalentPoolContext.Provider value={contextValue}>{children}</TalentPoolContext.Provider>;
 };
 
 // Custom hook for using the context
 export const useTalentPool = () => {
   const context = useContext(TalentPoolContext);
-  
+
   if (context === undefined) {
     throw new Error('useTalentPool must be used within a TalentPoolProvider');
   }
-  
+
   return context;
 };
 
-export default TalentPoolContext; 
+export default TalentPoolContext;

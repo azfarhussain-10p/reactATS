@@ -20,4 +20,4 @@ const AuthCheck: React.FC = () => {
   return <Outlet />;
 };
 
-export default AuthCheck; 
+export default AuthCheck;

@@ -33,9 +33,9 @@ router.get('/security/config', (req, res) => {
 
 router.get('/security/csrf-token', (req, res) => {
   // Generate a simple CSRF token (in a real app, this would be more secure)
-  const token = Math.random().toString(36).substring(2, 15) + 
-                Math.random().toString(36).substring(2, 15);
-  
+  const token =
+    Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
   res.json({ token });
 });
 
@@ -83,9 +83,9 @@ router.get('/', (req, res) => {
       '/api/locations',
       '/api/job-types',
       '/api/security/config',
-      '/api/security/csrf-token'
-    ]
+      '/api/security/csrf-token',
+    ],
   });
 });
 
-export default router; 
+export default router;

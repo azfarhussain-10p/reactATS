@@ -17,7 +17,7 @@ import {
   useMediaQuery,
   Avatar,
   Menu,
-  MenuItem
+  MenuItem,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -28,7 +28,7 @@ import {
   Assessment as AssessmentIcon,
   Settings as SettingsIcon,
   Person as PersonIcon,
-  ExitToApp as LogoutIcon
+  ExitToApp as LogoutIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -83,14 +83,16 @@ const Layout: React.FC = () => {
 
   const drawer = (
     <Box>
-      <Box sx={{ 
-        p: 2, 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        bgcolor: 'primary.main',
-        color: 'white'
-      }}>
+      <Box
+        sx={{
+          p: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'primary.main',
+          color: 'white',
+        }}
+      >
         <Typography variant="h6" noWrap component="div">
           ATS Application
         </Typography>
@@ -100,9 +102,7 @@ const Layout: React.FC = () => {
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton onClick={() => navigateTo(item.path)}>
-              <ListItemIcon>
-                {item.icon}
-              </ListItemIcon>
+              <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
           </ListItem>
@@ -115,9 +115,7 @@ const Layout: React.FC = () => {
             {adminMenuItems.map((item) => (
               <ListItem key={item.text} disablePadding>
                 <ListItemButton onClick={() => navigateTo(item.path)}>
-                  <ListItemIcon>
-                    {item.icon}
-                  </ListItemIcon>
+                  <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText primary={item.text} />
                 </ListItemButton>
               </ListItem>
@@ -178,10 +176,12 @@ const Layout: React.FC = () => {
             open={Boolean(anchorEl)}
             onClose={handleProfileMenuClose}
           >
-            <MenuItem onClick={() => {
-              handleProfileMenuClose();
-              navigateTo('/profile');
-            }}>
+            <MenuItem
+              onClick={() => {
+                handleProfileMenuClose();
+                navigateTo('/profile');
+              }}
+            >
               <ListItemIcon>
                 <PersonIcon fontSize="small" />
               </ListItemIcon>
@@ -196,10 +196,7 @@ const Layout: React.FC = () => {
           </Menu>
         </Toolbar>
       </AppBar>
-      <Box
-        component="nav"
-        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
-      >
+      <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
         {/* Mobile drawer */}
         <Drawer
           variant="temporary"
@@ -243,4 +240,4 @@ const Layout: React.FC = () => {
   );
 };
 
-export default Layout; 
+export default Layout;

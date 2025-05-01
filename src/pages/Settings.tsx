@@ -19,7 +19,7 @@ import {
   Snackbar,
   useTheme as useMuiTheme,
   Stack,
-  Grid
+  Grid,
 } from '@mui/material';
 import {
   Person as PersonIcon,
@@ -33,7 +33,7 @@ import {
   Upload as UploadIcon,
   Brightness4 as DarkModeIcon,
   Brightness7 as LightModeIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -55,11 +55,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`settings-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
@@ -73,7 +69,7 @@ function a11yProps(index: number) {
 
 const Settings = () => {
   const { user, updateUser, clearError } = useAuth();
-  
+
   // Try/catch for theme context since it might not be available
   let themeContext;
   try {
@@ -81,7 +77,7 @@ const Settings = () => {
   } catch (e) {
     console.log('Theme context not available, using default light theme');
   }
-  
+
   const muiTheme = useMuiTheme();
   const [value, setValue] = useState(0);
   const [firstName, setFirstName] = useState('');
@@ -115,7 +111,7 @@ const Settings = () => {
         firstName,
         lastName,
         email,
-        phone
+        phone,
       });
       setSuccessMessage('Profile updated successfully!');
       setOpenSnackbar(true);
@@ -127,17 +123,17 @@ const Settings = () => {
       alert('New passwords do not match!');
       return;
     }
-    
+
     if (newPassword.length < 8) {
       alert('Password must be at least 8 characters long');
       return;
     }
-    
+
     // In a real app, you would call an API to update the password
     console.log('Password change requested');
     setSuccessMessage('Password updated successfully!');
     setOpenSnackbar(true);
-    
+
     // Reset fields
     setCurrentPassword('');
     setNewPassword('');
@@ -164,30 +160,24 @@ const Settings = () => {
         <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
           Manage your account settings and preferences
         </Typography>
-        
+
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs 
-              value={value} 
-              onChange={handleTabChange} 
-              aria-label="settings tabs"
-            >
+            <Tabs value={value} onChange={handleTabChange} aria-label="settings tabs">
               <Tab icon={<PersonIcon />} label="Profile" {...a11yProps(0)} />
               <Tab icon={<LockIcon />} label="Password" {...a11yProps(1)} />
               <Tab icon={<NotificationsIcon />} label="Notifications" {...a11yProps(2)} />
               <Tab icon={<PaletteIcon />} label="Appearance" {...a11yProps(3)} />
             </Tabs>
           </Box>
-          
+
           {/* Profile Tab */}
           <TabPanel value={value} index={0}>
             <Grid container spacing={3}>
               <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
                 <Card>
                   <CardContent sx={{ p: 3 }}>
-                    <Avatar 
-                      sx={{ width: 120, height: 120, mx: 'auto', mb: 2 }}
-                    >
+                    <Avatar sx={{ width: 120, height: 120, mx: 'auto', mb: 2 }}>
                       {firstName && lastName ? `${firstName[0]}${lastName[0]}` : 'HR'}
                     </Avatar>
                     <Typography variant="h6" gutterBottom>
@@ -196,17 +186,13 @@ const Settings = () => {
                     <Typography variant="body2" color="text.secondary" gutterBottom>
                       {user?.role || 'User'}
                     </Typography>
-                    <Button 
-                      variant="outlined" 
-                      startIcon={<UploadIcon />}
-                      sx={{ mt: 2 }}
-                    >
+                    <Button variant="outlined" startIcon={<UploadIcon />} sx={{ mt: 2 }}>
                       Upload Photo
                     </Button>
                   </CardContent>
                 </Card>
               </Grid>
-              
+
               <Grid item xs={12} md={8}>
                 <Typography variant="h6" gutterBottom>
                   Personal Information
@@ -265,7 +251,7 @@ const Settings = () => {
               </Grid>
             </Grid>
           </TabPanel>
-          
+
           {/* Password Tab */}
           <TabPanel value={value} index={1}>
             <Grid container spacing={3} justifyContent="center">
@@ -297,17 +283,13 @@ const Settings = () => {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   sx={{ mb: 3 }}
                 />
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handlePasswordChange}
-                >
+                <Button variant="contained" color="primary" onClick={handlePasswordChange}>
                   Update Password
                 </Button>
               </Grid>
             </Grid>
           </TabPanel>
-          
+
           {/* Notifications Tab */}
           <TabPanel value={value} index={2}>
             <Typography variant="h6" gutterBottom>
@@ -328,11 +310,12 @@ const Settings = () => {
                   label="Receive email notifications"
                 />
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Get email notifications for candidate applications, interview updates, and other important events.
+                  Get email notifications for candidate applications, interview updates, and other
+                  important events.
                 </Typography>
               </CardContent>
             </Card>
-            
+
             <Card sx={{ mb: 3 }}>
               <CardContent>
                 <Typography variant="subtitle1" gutterBottom>
@@ -352,42 +335,45 @@ const Settings = () => {
                 </Typography>
               </CardContent>
             </Card>
-            
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleNotificationSettingsUpdate}
-            >
+
+            <Button variant="contained" color="primary" onClick={handleNotificationSettingsUpdate}>
               Save Notification Settings
             </Button>
           </TabPanel>
-          
+
           {/* Appearance Tab */}
           <TabPanel value={value} index={3}>
             <Typography variant="h6" gutterBottom>
               Appearance Settings
             </Typography>
-            
+
             {themeContext ? (
               <>
                 <Card sx={{ mb: 3 }}>
                   <CardContent>
                     <Grid container spacing={2} alignItems="center">
                       <Grid item>
-                        {themeContext.isDarkMode ? 
-                          <DarkModeIcon sx={{ color: 'primary.main', animation: 'pulse 2s infinite ease-in-out' }} /> : 
-                          <LightModeIcon sx={{ color: 'warning.main', animation: 'spin 10s linear infinite' }} />
-                        }
+                        {themeContext.isDarkMode ? (
+                          <DarkModeIcon
+                            sx={{
+                              color: 'primary.main',
+                              animation: 'pulse 2s infinite ease-in-out',
+                            }}
+                          />
+                        ) : (
+                          <LightModeIcon
+                            sx={{ color: 'warning.main', animation: 'spin 10s linear infinite' }}
+                          />
+                        )}
                       </Grid>
                       <Grid item xs>
                         <Typography variant="subtitle1">
                           {themeContext.isDarkMode ? 'Dark Mode' : 'Light Mode'}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          {themeContext.isDarkMode 
-                            ? 'Using dark theme to reduce eye strain and save battery' 
-                            : 'Using light theme for better readability in bright environments'
-                          }
+                          {themeContext.isDarkMode
+                            ? 'Using dark theme to reduce eye strain and save battery'
+                            : 'Using light theme for better readability in bright environments'}
                         </Typography>
                       </Grid>
                       <Grid item>
@@ -414,76 +400,86 @@ const Settings = () => {
                     </Grid>
                   </CardContent>
                 </Card>
-                
+
                 <Card sx={{ mb: 3 }}>
                   <CardContent>
                     <Typography variant="subtitle1" gutterBottom>
                       Current Theme
                     </Typography>
-                    <Box 
-                      sx={{ 
-                        p: 2, 
-                        borderRadius: 1, 
+                    <Box
+                      sx={{
+                        p: 2,
+                        borderRadius: 1,
                         bgcolor: muiTheme.palette.background.default,
                         color: muiTheme.palette.text.primary,
                         border: `1px solid ${muiTheme.palette.divider}`,
-                        mb: 2
+                        mb: 2,
                       }}
                     >
                       <Typography variant="body2">
-                        {themeContext.isDarkMode ? 'Dark theme is currently active' : 'Light theme is currently active'}
+                        {themeContext.isDarkMode
+                          ? 'Dark theme is currently active'
+                          : 'Light theme is currently active'}
                       </Typography>
                       <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                        <Box sx={{ 
-                          width: 40, 
-                          height: 40, 
-                          bgcolor: muiTheme.palette.primary.main, 
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: muiTheme.palette.primary.contrastText,
-                          fontSize: '10px'
-                        }}>
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            bgcolor: muiTheme.palette.primary.main,
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: muiTheme.palette.primary.contrastText,
+                            fontSize: '10px',
+                          }}
+                        >
                           Primary
                         </Box>
-                        <Box sx={{ 
-                          width: 40, 
-                          height: 40, 
-                          bgcolor: muiTheme.palette.secondary.main, 
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: muiTheme.palette.secondary.contrastText,
-                          fontSize: '10px'
-                        }}>
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            bgcolor: muiTheme.palette.secondary.main,
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: muiTheme.palette.secondary.contrastText,
+                            fontSize: '10px',
+                          }}
+                        >
                           Secondary
                         </Box>
-                        <Box sx={{ 
-                          width: 40, 
-                          height: 40, 
-                          bgcolor: muiTheme.palette.error.main, 
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#fff',
-                          fontSize: '10px'
-                        }}>
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            bgcolor: muiTheme.palette.error.main,
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#fff',
+                            fontSize: '10px',
+                          }}
+                        >
                           Error
                         </Box>
-                        <Box sx={{ 
-                          width: 40, 
-                          height: 40, 
-                          bgcolor: muiTheme.palette.success.main, 
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#fff',
-                          fontSize: '10px'
-                        }}>
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            bgcolor: muiTheme.palette.success.main,
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#fff',
+                            fontSize: '10px',
+                          }}
+                        >
                           Success
                         </Box>
                       </Box>
@@ -499,18 +495,16 @@ const Settings = () => {
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <SettingsIcon sx={{ mr: 1, color: 'primary.main' }} />
-                    <Typography variant="subtitle1">
-                      Theme Settings Not Available
-                    </Typography>
+                    <Typography variant="subtitle1">Theme Settings Not Available</Typography>
                   </Box>
                   <Typography variant="body2" color="text.secondary">
-                    Theme context is not available in this view. To change theme settings,
-                    please try refreshing the page or contact your administrator.
+                    Theme context is not available in this view. To change theme settings, please
+                    try refreshing the page or contact your administrator.
                   </Typography>
                 </CardContent>
               </Card>
             )}
-            
+
             <Typography variant="subtitle1" gutterBottom>
               More Customization Options
             </Typography>
@@ -520,18 +514,14 @@ const Settings = () => {
           </TabPanel>
         </Box>
       </Paper>
-      
+
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity="success" 
-          sx={{ width: '100%' }}
-        >
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
           {successMessage}
         </Alert>
       </Snackbar>
@@ -539,4 +529,4 @@ const Settings = () => {
   );
 };
 
-export default Settings; 
+export default Settings;

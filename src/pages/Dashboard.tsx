@@ -1,28 +1,28 @@
 /**
  * React ATS Application - Dashboard Component
- * 
+ *
  * Main dashboard view that provides an overview of hiring activities,
  * candidate statistics, and quick access to key features.
- * 
+ *
  * Copyright (c) 2024-2025 Syed Azfar Hussain - Principal Test Consultant at 10Pearls Pakistan
  * All rights reserved.
- * 
+ *
  * Licensed under the terms of 10Pearls proprietary license.
  * Unauthorized copying, redistribution, or use of this file is strictly prohibited.
  */
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Box, 
-  Grid, 
-  Paper, 
-  Typography, 
-  Button, 
-  Card, 
-  CardContent, 
-  CardActions, 
-  CardHeader, 
+import {
+  Box,
+  Grid,
+  Paper,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  CardActions,
+  CardHeader,
   Divider,
   IconButton,
   List,
@@ -34,13 +34,13 @@ import {
   Container,
   useTheme,
   useMediaQuery,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
-import { 
-  Person as PersonIcon, 
-  Work as WorkIcon, 
-  Event as EventIcon, 
-  Assessment as AssessmentIcon, 
+import {
+  Person as PersonIcon,
+  Work as WorkIcon,
+  Event as EventIcon,
+  Assessment as AssessmentIcon,
   BusinessCenter as BusinessCenterIcon,
   Schedule as ScheduleIcon,
   Description as DescriptionIcon,
@@ -56,7 +56,7 @@ import {
   Dashboard as DashboardIcon,
   PersonAdd as PersonAddIcon,
   ArrowUpward,
-  ArrowDownward
+  ArrowDownward,
 } from '@mui/icons-material';
 import useAnalyticsNavigation from '../hooks/useAnalyticsNavigation';
 import CandidateStats from '../components/CandidateStats';
@@ -75,21 +75,39 @@ const Dashboard: React.FC = () => {
 
   // Mock data for dashboard
   const upcomingInterviews = [
-    { id: 1, candidateName: 'John Doe', position: 'Senior React Developer', time: '10:00 AM', date: 'Today' },
-    { id: 2, candidateName: 'Jane Smith', position: 'UX Designer', time: '2:30 PM', date: 'Tomorrow' },
-    { id: 3, candidateName: 'Mike Johnson', position: 'DevOps Engineer', time: '11:15 AM', date: '05/20/2023' }
+    {
+      id: 1,
+      candidateName: 'John Doe',
+      position: 'Senior React Developer',
+      time: '10:00 AM',
+      date: 'Today',
+    },
+    {
+      id: 2,
+      candidateName: 'Jane Smith',
+      position: 'UX Designer',
+      time: '2:30 PM',
+      date: 'Tomorrow',
+    },
+    {
+      id: 3,
+      candidateName: 'Mike Johnson',
+      position: 'DevOps Engineer',
+      time: '11:15 AM',
+      date: '05/20/2023',
+    },
   ];
 
   const recentCandidates = [
     { id: 1, name: 'Emily Brown', position: 'Frontend Developer', status: 'Phone Screening' },
     { id: 2, name: 'Robert Wilson', position: 'Product Manager', status: 'Technical Interview' },
-    { id: 3, name: 'Linda Garcia', position: 'QA Engineer', status: 'Offer Sent' }
+    { id: 3, name: 'Linda Garcia', position: 'QA Engineer', status: 'Offer Sent' },
   ];
 
   const activeJobs = [
     { id: 1, title: 'Senior React Developer', department: 'Engineering', applicants: 24 },
     { id: 2, title: 'UX Designer', department: 'Design', applicants: 18 },
-    { id: 3, title: 'DevOps Engineer', department: 'Infrastructure', applicants: 12 }
+    { id: 3, title: 'DevOps Engineer', department: 'Infrastructure', applicants: 12 },
   ];
 
   // Helper functions for navigation
@@ -123,7 +141,9 @@ const Dashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -132,7 +152,9 @@ const Dashboard: React.FC = () => {
   if (error) {
     return (
       <Box sx={{ p: 3 }}>
-        <Typography color="error" variant="h6">{error}</Typography>
+        <Typography color="error" variant="h6">
+          {error}
+        </Typography>
         <Button variant="contained" onClick={() => window.location.reload()} sx={{ mt: 2 }}>
           Retry
         </Button>
@@ -141,32 +163,34 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <Box sx={{ 
-      bgcolor: '#f9fafb', 
-      minHeight: 'calc(100vh - 80px)',
-      width: '100%',
-      pt: { xs: 2, sm: 3 },
-      pb: { xs: 4, sm: 6 }
-    }}>
+    <Box
+      sx={{
+        bgcolor: '#f9fafb',
+        minHeight: 'calc(100vh - 80px)',
+        width: '100%',
+        pt: { xs: 2, sm: 3 },
+        pb: { xs: 4, sm: 6 },
+      }}
+    >
       <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
-        <Paper 
-          elevation={0} 
-          sx={{ 
+        <Paper
+          elevation={0}
+          sx={{
             p: { xs: 2, sm: 3, md: 4 },
             borderRadius: 2,
             backgroundColor: 'white',
             mb: 3,
-            overflow: 'hidden'
+            overflow: 'hidden',
           }}
         >
           <Typography variant="h4" component="h1" fontWeight="500" gutterBottom>
             Welcome to Your ATS Dashboard
             {userRole === 'admin' && (
-              <Chip 
-                label="Admin" 
-                color="primary" 
-                size="small" 
-                sx={{ ml: 2, verticalAlign: 'middle' }} 
+              <Chip
+                label="Admin"
+                color="primary"
+                size="small"
+                sx={{ ml: 2, verticalAlign: 'middle' }}
               />
             )}
           </Typography>
@@ -174,18 +198,18 @@ const Dashboard: React.FC = () => {
             Manage your recruitment process efficiently
           </Typography>
         </Paper>
-        
+
         <Box sx={{ mt: 4, mb: 4 }}>
           <Typography variant="h5" component="h2" fontWeight="500" sx={{ mb: 3 }}>
             Quick Actions
           </Typography>
-          
+
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6} md={3}>
-              <Card 
-                sx={{ 
-                  p: 2, 
-                  display: 'flex', 
+              <Card
+                sx={{
+                  p: 2,
+                  display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   textAlign: 'center',
@@ -194,8 +218,8 @@ const Dashboard: React.FC = () => {
                   transition: 'transform 0.2s, box-shadow 0.2s',
                   '&:hover': {
                     transform: 'translateY(-5px)',
-                    boxShadow: 3
-                  }
+                    boxShadow: 3,
+                  },
                 }}
                 onClick={() => navigateTo('/candidates/add')}
               >
@@ -204,7 +228,7 @@ const Dashboard: React.FC = () => {
                     bgcolor: 'primary.light',
                     p: 2,
                     borderRadius: '50%',
-                    mb: 2
+                    mb: 2,
                   }}
                 >
                   <PersonAddIcon sx={{ fontSize: 40, color: 'primary.main' }} />
@@ -217,12 +241,12 @@ const Dashboard: React.FC = () => {
                 </Typography>
               </Card>
             </Grid>
-            
+
             <Grid item xs={12} sm={6} md={3}>
-              <Card 
-                sx={{ 
-                  p: 2, 
-                  display: 'flex', 
+              <Card
+                sx={{
+                  p: 2,
+                  display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   textAlign: 'center',
@@ -231,8 +255,8 @@ const Dashboard: React.FC = () => {
                   transition: 'transform 0.2s, box-shadow 0.2s',
                   '&:hover': {
                     transform: 'translateY(-5px)',
-                    boxShadow: 3
-                  }
+                    boxShadow: 3,
+                  },
                 }}
                 onClick={() => navigateTo('/jobs/create')}
               >
@@ -241,7 +265,7 @@ const Dashboard: React.FC = () => {
                     bgcolor: '#e3f2fd',
                     p: 2,
                     borderRadius: '50%',
-                    mb: 2
+                    mb: 2,
                   }}
                 >
                   <WorkIcon sx={{ fontSize: 40, color: '#1976d2' }} />
@@ -254,12 +278,12 @@ const Dashboard: React.FC = () => {
                 </Typography>
               </Card>
             </Grid>
-            
+
             <Grid item xs={12} sm={6} md={3}>
-              <Card 
-                sx={{ 
-                  p: 2, 
-                  display: 'flex', 
+              <Card
+                sx={{
+                  p: 2,
+                  display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   textAlign: 'center',
@@ -268,8 +292,8 @@ const Dashboard: React.FC = () => {
                   transition: 'transform 0.2s, box-shadow 0.2s',
                   '&:hover': {
                     transform: 'translateY(-5px)',
-                    boxShadow: 3
-                  }
+                    boxShadow: 3,
+                  },
                 }}
                 onClick={() => navigateTo('/schedule-interview')}
               >
@@ -278,7 +302,7 @@ const Dashboard: React.FC = () => {
                     bgcolor: '#e8f5e9',
                     p: 2,
                     borderRadius: '50%',
-                    mb: 2
+                    mb: 2,
                   }}
                 >
                   <EventIcon sx={{ fontSize: 40, color: '#2e7d32' }} />
@@ -291,12 +315,12 @@ const Dashboard: React.FC = () => {
                 </Typography>
               </Card>
             </Grid>
-            
+
             <Grid item xs={12} sm={6} md={3}>
-              <Card 
-                sx={{ 
-                  p: 2, 
-                  display: 'flex', 
+              <Card
+                sx={{
+                  p: 2,
+                  display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   textAlign: 'center',
@@ -305,8 +329,8 @@ const Dashboard: React.FC = () => {
                   transition: 'transform 0.2s, box-shadow 0.2s',
                   '&:hover': {
                     transform: 'translateY(-5px)',
-                    boxShadow: 3
-                  }
+                    boxShadow: 3,
+                  },
                 }}
                 onClick={() => navigateTo('/analytics')}
               >
@@ -315,7 +339,7 @@ const Dashboard: React.FC = () => {
                     bgcolor: '#fce4ec',
                     p: 2,
                     borderRadius: '50%',
-                    mb: 2
+                    mb: 2,
                   }}
                 >
                   <BarChartIcon sx={{ fontSize: 40, color: '#c2185b' }} />
@@ -330,16 +354,16 @@ const Dashboard: React.FC = () => {
             </Grid>
           </Grid>
         </Box>
-        
+
         {/* Candidate Statistics Section */}
         <Box sx={{ mb: 4 }}>
-          <Typography 
-            variant="h5" 
-            component="h2" 
-            fontWeight="500" 
-            sx={{ 
+          <Typography
+            variant="h5"
+            component="h2"
+            fontWeight="500"
+            sx={{
               mb: 3,
-              px: { xs: 1, sm: 0 }
+              px: { xs: 1, sm: 0 },
             }}
           >
             Candidate Statistics
@@ -348,11 +372,7 @@ const Dashboard: React.FC = () => {
             <Grid item xs={12} md={8}>
               <Box sx={{ position: 'relative' }}>
                 {candidates && candidates.length > 0 ? (
-                  <CandidateStats 
-                    variant="detailed" 
-                    showTitle={false} 
-                    maxTagsToShow={8}
-                  />
+                  <CandidateStats variant="detailed" showTitle={false} maxTagsToShow={8} />
                 ) : (
                   <Card sx={{ p: 3 }}>
                     <Typography variant="body1" align="center">
@@ -365,10 +385,7 @@ const Dashboard: React.FC = () => {
             <Grid item xs={12} md={4}>
               <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 3 }}>
                 {candidates && candidates.length > 0 ? (
-                  <CandidateStats 
-                    variant="compact" 
-                    showTitle={true}
-                  />
+                  <CandidateStats variant="compact" showTitle={true} />
                 ) : (
                   <Card sx={{ p: 3 }}>
                     <Typography variant="body1" align="center">
@@ -377,15 +394,19 @@ const Dashboard: React.FC = () => {
                   </Card>
                 )}
                 <Card sx={{ flexGrow: 1 }}>
-                  <CardHeader 
-                    title="Hiring Progress" 
-                    titleTypographyProps={{ variant: 'h6' }}
-                  />
+                  <CardHeader title="Hiring Progress" titleTypographyProps={{ variant: 'h6' }} />
                   <Divider />
                   <CardContent sx={{ pt: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                      <Button 
-                        variant="contained" 
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100%',
+                      }}
+                    >
+                      <Button
+                        variant="contained"
                         color="primary"
                         onClick={() => navigateTo('/advanced-analytics')}
                         endIcon={<BarChartIcon />}
@@ -399,23 +420,30 @@ const Dashboard: React.FC = () => {
             </Grid>
           </Grid>
         </Box>
-        
+
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
-            <Paper 
-              elevation={1} 
-              sx={{ 
-                p: { xs: 2, sm: 3 }, 
+            <Paper
+              elevation={1}
+              sx={{
+                p: { xs: 2, sm: 3 },
                 height: '100%',
-                borderRadius: 2
+                borderRadius: 2,
               }}
             >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 2,
+                }}
+              >
                 <Typography variant="h6" component="h3" fontWeight="500">
                   Upcoming Interviews
                 </Typography>
-                <Button 
-                  size="small" 
+                <Button
+                  size="small"
                   onClick={() => navigateTo('/interviews')}
                   endIcon={<ArrowForwardIcon />}
                 >
@@ -423,19 +451,19 @@ const Dashboard: React.FC = () => {
                 </Button>
               </Box>
               <Divider sx={{ mb: 2 }} />
-              
+
               <List sx={{ p: 0 }}>
-                {upcomingInterviews.map(interview => (
+                {upcomingInterviews.map((interview) => (
                   <ListItem
                     key={interview.id}
                     disablePadding
-                    sx={{ 
-                      mb: 1.5, 
-                      p: 1.5, 
-                      backgroundColor: 'background.paper', 
+                    sx={{
+                      mb: 1.5,
+                      p: 1.5,
+                      backgroundColor: 'background.paper',
                       borderRadius: 1,
                       boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                      '&:hover': { backgroundColor: '#f8f9fa' }
+                      '&:hover': { backgroundColor: '#f8f9fa' },
                     }}
                   >
                     <ListItemIcon sx={{ minWidth: '40px' }}>
@@ -443,7 +471,7 @@ const Dashboard: React.FC = () => {
                         {interview.candidateName.charAt(0)}
                       </Avatar>
                     </ListItemIcon>
-                    <ListItemText 
+                    <ListItemText
                       primary={interview.candidateName}
                       secondary={interview.position}
                     />
@@ -458,7 +486,7 @@ const Dashboard: React.FC = () => {
                   </ListItem>
                 ))}
               </List>
-              
+
               {upcomingInterviews.length === 0 && (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <Typography variant="body2" color="text.secondary">
@@ -468,22 +496,29 @@ const Dashboard: React.FC = () => {
               )}
             </Paper>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
-            <Paper 
-              elevation={1} 
-              sx={{ 
-                p: { xs: 2, sm: 3 }, 
+            <Paper
+              elevation={1}
+              sx={{
+                p: { xs: 2, sm: 3 },
                 height: '100%',
-                borderRadius: 2
+                borderRadius: 2,
               }}
             >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 2,
+                }}
+              >
                 <Typography variant="h6" component="h3" fontWeight="500">
                   Recent Candidates
                 </Typography>
-                <Button 
-                  size="small" 
+                <Button
+                  size="small"
                   onClick={() => navigateTo('/candidates')}
                   endIcon={<ArrowForwardIcon />}
                 >
@@ -491,73 +526,77 @@ const Dashboard: React.FC = () => {
                 </Button>
               </Box>
               <Divider sx={{ mb: 2 }} />
-              
-              
-                {recentCandidates.map(candidate => (
-                  <ListItem
-                    key={candidate.id}
-                    disablePadding
-                    sx={{ 
-                      mb: 1.5, 
-                      p: 1.5, 
-                      backgroundColor: 'background.paper', 
-                      borderRadius: 1,
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                      '&:hover': { backgroundColor: '#f8f9fa' },
-                      flexDirection: 'column',
-                      alignItems: 'flex-start'
-                    }}
-                  >
-                    <Box sx={{ 
+
+              {recentCandidates.map((candidate) => (
+                <ListItem
+                  key={candidate.id}
+                  disablePadding
+                  sx={{
+                    mb: 1.5,
+                    p: 1.5,
+                    backgroundColor: 'background.paper',
+                    borderRadius: 1,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                    '&:hover': { backgroundColor: '#f8f9fa' },
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                  }}
+                >
+                  <Box
+                    sx={{
                       display: 'flex',
                       width: '100%',
                       alignItems: 'center',
-                      mb: 1
-                    }}>
-                      <Avatar sx={{ 
-                        bgcolor: 'secondary.light', 
-                        width: 40, 
+                      mb: 1,
+                    }}
+                  >
+                    <Avatar
+                      sx={{
+                        bgcolor: 'secondary.light',
+                        width: 40,
                         height: 40,
-                        mr: 2
-                      }}>
-                        {candidate.name.charAt(0)}
-                      </Avatar>
-                      <Box sx={{ 
+                        mr: 2,
+                      }}
+                    >
+                      {candidate.name.charAt(0)}
+                    </Avatar>
+                    <Box
+                      sx={{
                         flexGrow: 1,
-                        overflow: 'hidden'
-                      }}>
-                        <Typography variant="body1" fontWeight="500" noWrap>
-                          {candidate.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" noWrap>
-                          {candidate.position}
-                        </Typography>
-                      </Box>
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <Typography variant="body1" fontWeight="500" noWrap>
+                        {candidate.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" noWrap>
+                        {candidate.position}
+                      </Typography>
                     </Box>
-                    
-                    <Box sx={{ 
-                      width: '100%', 
+                  </Box>
+
+                  <Box
+                    sx={{
+                      width: '100%',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      pl: { xs: 0, sm: 7 }
-                    }}>
-                      <Chip 
-                        label={candidate.status}
-                        size="small"
-                        color="primary"
-                        variant={candidate.status === 'New' ? 'outlined' : 'filled'}
-                      />
-                      <Button 
-                        size="small" 
-                        onClick={() => navigateTo(`/candidates/${candidate.id}`)}
-                      >
-                        View Profile
-                      </Button>
-                    </Box>
-                  </ListItem>
-                ))}
-              
+                      pl: { xs: 0, sm: 7 },
+                    }}
+                  >
+                    <Chip
+                      label={candidate.status}
+                      size="small"
+                      color="primary"
+                      variant={candidate.status === 'New' ? 'outlined' : 'filled'}
+                    />
+                    <Button size="small" onClick={() => navigateTo(`/candidates/${candidate.id}`)}>
+                      View Profile
+                    </Button>
+                  </Box>
+                </ListItem>
+              ))}
+
               {recentCandidates.length === 0 && (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <Typography variant="body2" color="text.secondary">
@@ -571,18 +610,18 @@ const Dashboard: React.FC = () => {
 
         {/* More Features Section */}
         <Box sx={{ mt: 4 }}>
-          <Paper 
-            elevation={1} 
-            sx={{ 
+          <Paper
+            elevation={1}
+            sx={{
               p: { xs: 2, sm: 3 },
-              borderRadius: 2
+              borderRadius: 2,
             }}
           >
             <Typography variant="h6" component="h2" fontWeight="500" gutterBottom>
               More Features
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            
+
             <Grid container spacing={2}>
               <Grid item xs={6} sm={4} md={2}>
                 <Button
@@ -590,12 +629,12 @@ const Dashboard: React.FC = () => {
                   startIcon={<DescriptionIcon />}
                   onClick={() => navigateTo('/document-sharing')}
                   fullWidth
-                  sx={{ 
-                    justifyContent: 'flex-start', 
-                    textTransform: 'none', 
+                  sx={{
+                    justifyContent: 'flex-start',
+                    textTransform: 'none',
                     py: 1.5,
                     borderRadius: 2,
-                    height: '100%'
+                    height: '100%',
                   }}
                 >
                   Documents
@@ -607,12 +646,12 @@ const Dashboard: React.FC = () => {
                   startIcon={<SchoolIcon />}
                   onClick={() => navigateTo('/skills-gap')}
                   fullWidth
-                  sx={{ 
-                    justifyContent: 'flex-start', 
-                    textTransform: 'none', 
+                  sx={{
+                    justifyContent: 'flex-start',
+                    textTransform: 'none',
                     py: 1.5,
                     borderRadius: 2,
-                    height: '100%'
+                    height: '100%',
                   }}
                 >
                   Skills Gap
@@ -624,12 +663,12 @@ const Dashboard: React.FC = () => {
                   startIcon={<EmailIcon />}
                   onClick={() => navigateTo('/email-campaigns')}
                   fullWidth
-                  sx={{ 
-                    justifyContent: 'flex-start', 
-                    textTransform: 'none', 
+                  sx={{
+                    justifyContent: 'flex-start',
+                    textTransform: 'none',
                     py: 1.5,
                     borderRadius: 2,
-                    height: '100%'
+                    height: '100%',
                   }}
                 >
                   Email Campaigns
@@ -641,12 +680,12 @@ const Dashboard: React.FC = () => {
                   startIcon={<AssignmentIcon />}
                   onClick={() => navigateTo('/interview-kits')}
                   fullWidth
-                  sx={{ 
-                    justifyContent: 'flex-start', 
-                    textTransform: 'none', 
+                  sx={{
+                    justifyContent: 'flex-start',
+                    textTransform: 'none',
                     py: 1.5,
                     borderRadius: 2,
-                    height: '100%'
+                    height: '100%',
                   }}
                 >
                   Interview Kits
@@ -658,12 +697,12 @@ const Dashboard: React.FC = () => {
                   startIcon={<FileIcon />}
                   onClick={() => navigateTo('/resume-parser')}
                   fullWidth
-                  sx={{ 
-                    justifyContent: 'flex-start', 
-                    textTransform: 'none', 
+                  sx={{
+                    justifyContent: 'flex-start',
+                    textTransform: 'none',
                     py: 1.5,
                     borderRadius: 2,
-                    height: '100%'
+                    height: '100%',
                   }}
                 >
                   Resume Parser
@@ -675,12 +714,12 @@ const Dashboard: React.FC = () => {
                   startIcon={<BarChartIcon />}
                   onClick={() => navigateTo('/reports')}
                   fullWidth
-                  sx={{ 
-                    justifyContent: 'flex-start', 
-                    textTransform: 'none', 
+                  sx={{
+                    justifyContent: 'flex-start',
+                    textTransform: 'none',
                     py: 1.5,
                     borderRadius: 2,
-                    height: '100%'
+                    height: '100%',
                   }}
                 >
                   Reports
@@ -689,17 +728,17 @@ const Dashboard: React.FC = () => {
             </Grid>
           </Paper>
         </Box>
-        
+
         {/* Admin Only Section */}
         {userRole === 'admin' && (
           <Box sx={{ mt: 4 }}>
-            <Paper 
-              elevation={1} 
-              sx={{ 
+            <Paper
+              elevation={1}
+              sx={{
                 p: { xs: 2, sm: 3 },
                 bgcolor: '#f8f9fa',
                 borderRadius: 2,
-                border: '1px solid #e0e0e0'
+                border: '1px solid #e0e0e0',
               }}
             >
               <Typography variant="h6" component="h2" fontWeight="500" gutterBottom>
@@ -708,7 +747,7 @@ const Dashboard: React.FC = () => {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 These tools are only available to administrators
               </Typography>
-              
+
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6} md={4}>
                   <Button
@@ -717,11 +756,11 @@ const Dashboard: React.FC = () => {
                     startIcon={<PeopleAltIcon />}
                     onClick={() => navigateTo('/user-management')}
                     fullWidth
-                    sx={{ 
-                      textTransform: 'none', 
-                      py: 1.5, 
+                    sx={{
+                      textTransform: 'none',
+                      py: 1.5,
                       borderRadius: 2,
-                      boxShadow: 2
+                      boxShadow: 2,
                     }}
                   >
                     User Management
@@ -734,11 +773,11 @@ const Dashboard: React.FC = () => {
                     startIcon={<SettingsIcon />}
                     onClick={() => navigateTo('/settings')}
                     fullWidth
-                    sx={{ 
-                      textTransform: 'none', 
-                      py: 1.5, 
+                    sx={{
+                      textTransform: 'none',
+                      py: 1.5,
                       borderRadius: 2,
-                      boxShadow: 2
+                      boxShadow: 2,
                     }}
                   >
                     System Settings
@@ -751,11 +790,11 @@ const Dashboard: React.FC = () => {
                     startIcon={<DashboardIcon />}
                     onClick={() => navigateTo('/advanced-dashboard')}
                     fullWidth
-                    sx={{ 
-                      textTransform: 'none', 
-                      py: 1.5, 
+                    sx={{
+                      textTransform: 'none',
+                      py: 1.5,
                       borderRadius: 2,
-                      boxShadow: 2
+                      boxShadow: 2,
                     }}
                   >
                     Custom Dashboards
@@ -766,14 +805,14 @@ const Dashboard: React.FC = () => {
           </Box>
         )}
       </Container>
-      <Box 
-        sx={{ 
+      <Box
+        sx={{
           textAlign: 'center',
           padding: '16px',
           fontSize: '0.85rem',
           color: 'text.secondary',
           mt: 4,
-          borderTop: '1px solid #e0e0e0'
+          borderTop: '1px solid #e0e0e0',
         }}
       >
         &copy; 2024-2025 Syed Azfar Hussain - 10Pearls Pakistan. All rights reserved.
@@ -782,4 +821,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

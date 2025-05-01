@@ -1,6 +1,7 @@
 # ATS Documentation Navigation Map
 
 ## 📍 Quick Access
+
 - [Main Documentation](../README.md)
 - [User Guide](./guides/USER_GUIDE.md)
 - [API Reference](./api/README.md)
@@ -52,66 +53,78 @@ docs/
 ## 🔍 Documentation by Role
 
 ### For End Users
-1. [Quick Start Guide](/docs/guides/quick-start.md)
-2. [User Guide](/docs/guides/USER_GUIDE.md)
-3. [Troubleshooting](/docs/guides/troubleshooting/common-issues.md)
+
+1. [Quick Start Guide](./guides/quick-start.md)
+2. [User Guide](./guides/USER_GUIDE.md)
+3. [Troubleshooting](./guides/troubleshooting/common-issues.md)
 
 ### For Administrators
-1. [Admin Guide](/docs/guides/admin/admin-guide.md)
-2. [System Configuration](/docs/guides/admin/system-config.md)
-3. [Security Guidelines](/docs/guides/best-practices/security.md)
+
+1. [Admin Guide](./guides/admin/admin-guide.md)
+2. [System Configuration](./guides/admin/system-config.md)
+3. [Security Guidelines](./guides/best-practices/security.md)
 
 ### For Developers
-1. [API Documentation](/docs/api/README.md)
-2. [Database Structure](/docs/technical/database-structure.md)
-3. [Component Guide](/docs/components/README.md)
+
+1. [API Documentation](./api/README.md)
+2. [Database Structure](./technical/database-structure.md)
+3. [Component Guide](./components/README.md)
+4. [Prettier Integration Guide](./prettier-guide.md)
 
 ### For DevOps
-1. [Database Operations](/docs/technical/database-operations.md)
-2. [Performance Guide](/docs/guides/best-practices/performance.md)
-3. [Monitoring Guide](/docs/guides/admin/monitoring.md)
+
+1. [Database Operations](./technical/database-operations.md)
+2. [Performance Guide](./guides/best-practices/performance.md)
+3. [Monitoring Guide](./guides/admin/monitoring.md)
 
 ## 🔄 Common Workflows
 
 ### Candidate Management
-1. [Candidate Pipeline](/docs/features/candidate-pipeline.md)
-2. [Interview Process](/docs/features/structured-interviews.md)
-3. [Offer Management](/docs/features/offer-management.md)
+
+1. [Candidate Pipeline](./features/candidate-pipeline.md)
+2. [Interview Process](./features/structured-interviews.md)
+3. [Offer Management](./features/offer-management.md)
 
 ### Job Management
-1. [Job Posting](/docs/guides/recruiter/job-posting.md)
-2. [Applicant Tracking](/docs/features/applicant-tracking.md)
-3. [Analytics](/docs/features/analytics-dashboard.md)
+
+1. [Job Posting](./guides/recruiter/job-posting.md)
+2. [Applicant Tracking](./features/applicant-tracking.md)
+3. [Analytics](./features/analytics-dashboard.md)
 
 ### System Administration
-1. [User Management](/docs/guides/admin/user-management.md)
-2. [Access Control](/docs/guides/admin/access-control.md)
-3. [System Maintenance](/docs/guides/admin/maintenance.md)
+
+1. [User Management](./guides/admin/user-management.md)
+2. [Access Control](./guides/admin/access-control.md)
+3. [System Maintenance](./guides/admin/maintenance.md)
 
 ## 🔗 Cross-Reference Index
 
 ### Authentication & Security
-- [Auth Flow](/docs/features/auth-flow.md)
-- [Security Best Practices](/docs/guides/best-practices/security.md)
-- [Auth Components](/docs/components/auth/README.md)
-- [Auth APIs](/docs/api/endpoints/auth/README.md)
+
+- [Auth Flow](./features/auth-flow.md)
+- [Security Best Practices](./guides/best-practices/security.md)
+- [Auth Components](./components/auth/README.md)
+- [Auth APIs](./api/endpoints/auth/README.md)
 
 ### Database & Performance
-- [Database Structure](/docs/technical/database-structure.md)
-- [Database Operations](/docs/technical/database-operations.md)
-- [Performance Optimization](/docs/guides/best-practices/performance.md)
-- [Monitoring](/docs/guides/admin/monitoring.md)
+
+- [Database Structure](./technical/database-structure.md)
+- [Database Operations](./technical/database-operations.md)
+- [Performance Optimization](./technical/performance.md)
+- [Monitoring](./guides/admin/monitoring.md)
 
 ### User Interface
-- [UI Components](/docs/components/ui/README.md)
-- [Accessibility](/docs/guides/best-practices/accessibility.md)
-- [Form Builder](/docs/features/dynamic-forms.md)
-- [Layout System](/docs/components/layout/README.md)
+
+- [UI Components](./components/ui/README.md)
+- [Accessibility](./guides/best-practices/accessibility.md)
+- [Form Builder](./features/dynamic-forms.md)
+- [Layout System](./components/layout/README.md)
 
 ## 📝 Contributing to Documentation
-- [Style Guide](/docs/guides/contributing/style-guide.md)
-- [Documentation Templates](/docs/guides/contributing/templates.md)
-- [Contribution Process](/docs/guides/contributing/guidelines.md)
+
+- [Style Guide](./guides/contributing/style-guide.md)
+- [Documentation Templates](./guides/contributing/templates.md)
+- [Contribution Process](./guides/contributing/guidelines.md)
 
 # Documentation Navigation Map
 
@@ -139,6 +152,7 @@ The documentation is organized into the following sections:
 - [Configuration Guide](./guides/configuration.md) - Configuration options
 
 Role-specific guides:
+
 - [Administrator Guide](./guides/admin/admin-guide.md)
 - [Recruiter Guide](./guides/recruiter/recruiter-guide.md)
 - [Hiring Manager Guide](./guides/hiring-manager/hiring-manager-guide.md)
@@ -147,13 +161,17 @@ Role-specific guides:
 ### Feature Documentation
 
 Core Features:
+
 - [Job Draft & Publishing](./features/job-draft-publishing.md) - Draft and publishing system
+- [Application Process](./features/application-process.md) - End-to-end application workflow
+- [Status-Based Controls](./features/application-process.md#application-restrictions) - Job status impact on applications
 - [Offline Support](./features/OFFLINE_CAPABILITIES.md) - Working without internet
 - [Authentication & Security](./features/auth-flow.md) - Identity and access management
 - [Candidate Pipeline](./features/candidate-pipeline.md) - Applicant tracking workflow
 - [Interview Management](./features/structured-interviews.md) - Structured interview process
 
 Advanced Features:
+
 - [Analytics Dashboard](./features/analytics-dashboard.md) - Recruitment metrics
 - [Job Board Integration](./features/job-board-integration.md) - External job posting
 - [Document Sharing](./features/document-sharing.md) - File management
@@ -181,6 +199,8 @@ Advanced Features:
 - [Security Implementation](./technical/security.md) - Security measures
 - [Performance Optimization](./technical/performance.md) - Speed and reliability
 - [Integration Framework](./technical/integrations.md) - Third-party connections
+- [Prettier Integration Guide](./prettier-guide.md) - Code formatting standards
+- [ESLint Configuration](../README.md#eslint-configuration) - Code quality standards
 
 ## Feature Guides by User Role
 
@@ -211,4 +231,4 @@ Advanced Features:
 - [Managing Job Drafts](./features/job-draft-publishing.md#draft-mode) - Work with draft jobs
 - [Reviewing Applications](./guides/USER_GUIDE.md#candidate-management) - Process applications
 - [Scheduling Interviews](./guides/USER_GUIDE.md#interview-management) - Set up interviews
-- [Generating Reports](./guides/USER_GUIDE.md#reporting-and-analytics) - Create custom reports 
+- [Generating Reports](./guides/USER_GUIDE.md#reporting-and-analytics) - Create custom reports

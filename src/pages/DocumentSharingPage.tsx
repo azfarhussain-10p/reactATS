@@ -10,11 +10,11 @@ const DocumentSharingPage: React.FC = () => {
           Document Sharing & Collaboration
         </Typography>
         <Typography variant="body1" paragraph>
-          This tool allows teams to share and collaborate on interview documents, assessments, and other files
-          related to the recruitment process.
+          This tool allows teams to share and collaborate on interview documents, assessments, and
+          other files related to the recruitment process.
         </Typography>
       </Paper>
-      
+
       <Box mt={3}>
         <DocumentSharing />
       </Box>
@@ -22,4 +22,4 @@ const DocumentSharingPage: React.FC = () => {
   );
 };
 
-export default DocumentSharingPage; 
+export default DocumentSharingPage;

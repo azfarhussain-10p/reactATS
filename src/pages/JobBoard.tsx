@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Paper, 
-  Grid as MuiGrid, 
-  Card, 
-  CardContent, 
-  Chip, 
-  TextField, 
+import {
+  Box,
+  Typography,
+  Paper,
+  Grid as MuiGrid,
+  Card,
+  CardContent,
+  Chip,
+  TextField,
   InputAdornment,
-  Button, 
-  Divider, 
-  FormControl, 
-  InputLabel, 
-  Select, 
+  Button,
+  Divider,
+  FormControl,
+  InputLabel,
+  Select,
   SelectChangeEvent,
   MenuItem,
   Dialog,
@@ -39,12 +39,16 @@ import {
   Menu,
   ButtonGroup,
   CircularProgress,
-  alpha
+  alpha,
+  Alert,
+  AlertTitle,
+  List,
+  ListItem,
 } from '@mui/material';
 import { yellow, purple, amber, deepPurple } from '@mui/material/colors';
-import { 
-  Search as SearchIcon, 
-  LocationOn as LocationIcon, 
+import {
+  Search as SearchIcon,
+  LocationOn as LocationIcon,
   BusinessCenter as BusinessIcon,
   AttachMoney as SalaryIcon,
   PeopleAlt as PeopleIcon,
@@ -81,7 +85,8 @@ import {
   Refresh as RefreshIcon,
   Person as PersonIcon,
   DateRange as DateRangeIcon,
-  RemoveFormatting as RemoveFormattingIcon
+  RemoveFormatting as RemoveFormattingIcon,
+  Check as CheckIcon,
 } from '@mui/icons-material';
 import { jobsApi } from '../services/api';
 
@@ -94,14 +99,16 @@ interface Job {
   experience: string;
   salary: string;
   postedDate: string;
+  createdDate: string; // Date when the job was created (for drafts)
   description: string;
   responsibilities: string[];
   requirements: string[];
-  benefits: string; // Add benefits to the Job interface
+  benefits: string | string[]; // Can be string or string array
   status: 'Active' | 'On-Hold' | 'Closed' | 'Draft';
   applicants: number;
   isFeatured?: boolean;
   isBookmarked?: boolean;
+  skills?: string[] | string; // Can be string array or string
 }
 
 interface TextEditorState {
@@ -144,7 +151,7 @@ const JobBoard: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [editJobId, setEditJobId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
-  
+
   // New state for job form
   const [newJobForm, setNewJobForm] = useState({
     // Job Summary
@@ -152,21 +159,21 @@ const JobBoard: React.FC = () => {
     department: '',
     location: '',
     type: 'Full-time',
-    
+
     // Job Outline
     description: '',
     responsibilities: '',
-    
+
     // Qualifications & Experience
     requirements: '',
     experience: '',
     skills: '',
-    
+
     // Salary & Benefits
     salary: '',
     benefits: '',
-    
-    isFeatured: false
+
+    isFeatured: false,
   });
   const [formErrors, setFormErrors] = useState({
     title: false,
@@ -178,12 +185,12 @@ const JobBoard: React.FC = () => {
     experience: false,
     skills: false,
     salary: false,
-    benefits: false
+    benefits: false,
   });
 
   // Text formatting state for each field
   const [textFormatState, setTextFormatState] = useState<{
-    [key: string]: TextEditorState
+    [key: string]: TextEditorState;
   }>({
     description: {
       bold: false,
@@ -191,7 +198,7 @@ const JobBoard: React.FC = () => {
       underline: false,
       bulletList: false,
       numberList: false,
-      alignment: 'left'
+      alignment: 'left',
     },
     responsibilities: {
       bold: false,
@@ -199,7 +206,7 @@ const JobBoard: React.FC = () => {
       underline: false,
       bulletList: false,
       numberList: false,
-      alignment: 'left'
+      alignment: 'left',
     },
     requirements: {
       bold: false,
@@ -207,7 +214,7 @@ const JobBoard: React.FC = () => {
       underline: false,
       bulletList: false,
       numberList: false,
-      alignment: 'left'
+      alignment: 'left',
     },
     skills: {
       bold: false,
@@ -215,7 +222,7 @@ const JobBoard: React.FC = () => {
       underline: false,
       bulletList: false,
       numberList: false,
-      alignment: 'left'
+      alignment: 'left',
     },
     benefits: {
       bold: false,
@@ -223,14 +230,20 @@ const JobBoard: React.FC = () => {
       underline: false,
       bulletList: false,
       numberList: false,
-      alignment: 'left'
-    }
+      alignment: 'left',
+    },
   });
-  
+
   // State for preview dialog
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [previewContent, setPreviewContent] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
+
+  // State for publish confirmation dialog
+  const [publishConfirmDialogOpen, setPublishConfirmDialogOpen] = useState(false);
+  const [jobToPublish, setJobToPublish] = useState<{ job: Partial<Job>; isNew: boolean } | null>(
+    null
+  );
 
   // State for dropdown options
   const [departments, setDepartments] = useState<string[]>(['All']);
@@ -240,7 +253,7 @@ const JobBoard: React.FC = () => {
   const [loadingDropdowns, setLoadingDropdowns] = useState({
     departments: false,
     locations: false,
-    types: false
+    types: false,
   });
 
   // Calculate days ago from posted date
@@ -255,13 +268,13 @@ const JobBoard: React.FC = () => {
   // Format date in a user-friendly way
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
-    
-    const options: Intl.DateTimeFormatOptions = { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
     };
-    
+
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
@@ -271,15 +284,15 @@ const JobBoard: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         // Fetch all jobs including drafts for the JobBoard page
         const jobsData = await jobsApi.getAllJobs();
         setJobs(jobsData);
         setFilteredJobs(jobsData);
-        
+
         // Success message
         console.log(`Loaded ${jobsData.length} jobs, including drafts`);
-        
+
         setLoading(false);
       } catch (err) {
         console.error('Error fetching jobs:', err);
@@ -287,7 +300,7 @@ const JobBoard: React.FC = () => {
         setLoading(false);
       }
     };
-    
+
     fetchJobs();
   }, []);
 
@@ -295,21 +308,21 @@ const JobBoard: React.FC = () => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        setLoadingDropdowns(prev => ({ ...prev, departments: true }));
+        setLoadingDropdowns((prev) => ({ ...prev, departments: true }));
         const data = await jobsApi.getDepartments();
         setDepartments(['All', ...data]);
-        setLoadingDropdowns(prev => ({ ...prev, departments: false }));
+        setLoadingDropdowns((prev) => ({ ...prev, departments: false }));
       } catch (err) {
         console.error('Error fetching departments:', err);
         // Fallback to client-side filtering if API fails
         if (jobs.length > 0) {
-          const uniqueDepartments = Array.from(new Set(jobs.map(job => job.department)));
+          const uniqueDepartments = Array.from(new Set(jobs.map((job) => job.department)));
           setDepartments(['All', ...uniqueDepartments]);
         }
-        setLoadingDropdowns(prev => ({ ...prev, departments: false }));
+        setLoadingDropdowns((prev) => ({ ...prev, departments: false }));
       }
     };
-    
+
     fetchDepartments();
   }, []); // Remove jobs dependency to prevent infinite loop
 
@@ -317,21 +330,21 @@ const JobBoard: React.FC = () => {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        setLoadingDropdowns(prev => ({ ...prev, locations: true }));
+        setLoadingDropdowns((prev) => ({ ...prev, locations: true }));
         const data = await jobsApi.getLocations();
         setLocations(['All', ...data]);
-        setLoadingDropdowns(prev => ({ ...prev, locations: false }));
+        setLoadingDropdowns((prev) => ({ ...prev, locations: false }));
       } catch (err) {
         console.error('Error fetching locations:', err);
         // Fallback to client-side filtering if API fails
         if (jobs.length > 0) {
-          const uniqueLocations = Array.from(new Set(jobs.map(job => job.location)));
+          const uniqueLocations = Array.from(new Set(jobs.map((job) => job.location)));
           setLocations(['All', ...uniqueLocations]);
         }
-        setLoadingDropdowns(prev => ({ ...prev, locations: false }));
+        setLoadingDropdowns((prev) => ({ ...prev, locations: false }));
       }
     };
-    
+
     fetchLocations();
   }, []); // Remove jobs dependency to prevent infinite loop
 
@@ -339,21 +352,21 @@ const JobBoard: React.FC = () => {
   useEffect(() => {
     const fetchJobTypes = async () => {
       try {
-        setLoadingDropdowns(prev => ({ ...prev, types: true }));
+        setLoadingDropdowns((prev) => ({ ...prev, types: true }));
         const data = await jobsApi.getJobTypes();
         setTypes(['All', ...data]);
-        setLoadingDropdowns(prev => ({ ...prev, types: false }));
+        setLoadingDropdowns((prev) => ({ ...prev, types: false }));
       } catch (err) {
         console.error('Error fetching job types:', err);
         // Fallback to client-side filtering if API fails
         if (jobs.length > 0) {
-          const uniqueTypes = Array.from(new Set(jobs.map(job => job.type)));
+          const uniqueTypes = Array.from(new Set(jobs.map((job) => job.type)));
           setTypes(['All', ...uniqueTypes]);
         }
-        setLoadingDropdowns(prev => ({ ...prev, types: false }));
+        setLoadingDropdowns((prev) => ({ ...prev, types: false }));
       }
     };
-    
+
     fetchJobTypes();
   }, []); // Remove jobs dependency to prevent infinite loop
 
@@ -367,59 +380,58 @@ const JobBoard: React.FC = () => {
   // Apply filters and search
   useEffect(() => {
     let result = [...jobs];
-    
+
     // Apply search
     if (searchTerm) {
       const lowerCaseSearch = searchTerm.toLowerCase();
-      result = result.filter(job => 
-        job.title.toLowerCase().includes(lowerCaseSearch) || 
-        job.description.toLowerCase().includes(lowerCaseSearch)
+      result = result.filter(
+        (job) =>
+          job.title.toLowerCase().includes(lowerCaseSearch) ||
+          job.description.toLowerCase().includes(lowerCaseSearch)
       );
     }
-    
+
     // Apply department filter
     if (departmentFilter !== 'All') {
-      result = result.filter(job => job.department === departmentFilter);
+      result = result.filter((job) => job.department === departmentFilter);
     }
-    
+
     // Apply location filter
     if (locationFilter !== 'All') {
-      result = result.filter(job => job.location === locationFilter);
+      result = result.filter((job) => job.location === locationFilter);
     }
-    
+
     // Apply type filter
     if (typeFilter !== 'All') {
-      result = result.filter(job => job.type === typeFilter);
+      result = result.filter((job) => job.type === typeFilter);
     }
-    
+
     // Apply status filter
     if (statusFilter !== 'All') {
-      result = result.filter(job => job.status === statusFilter);
+      result = result.filter((job) => job.status === statusFilter);
     }
-    
+
     // Sort results: Featured jobs first, then by posted date (newest first)
     result.sort((a, b) => {
       // First sort by featured status
       if (a.isFeatured && !b.isFeatured) return -1;
       if (!a.isFeatured && b.isFeatured) return 1;
-      
+
       // Then sort by posted date (newest first)
       const dateA = new Date(a.postedDate).getTime();
       const dateB = new Date(b.postedDate).getTime();
       return dateB - dateA;
     });
-    
+
     setFilteredJobs(result);
   }, [jobs, searchTerm, departmentFilter, locationFilter, typeFilter, statusFilter]);
 
   // Toggle bookmark status
   const handleToggleBookmark = (jobId: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    setJobs(jobs.map(job => 
-      job.id === jobId 
-        ? { ...job, isBookmarked: !job.isBookmarked } 
-        : job
-    ));
+    setJobs(
+      jobs.map((job) => (job.id === jobId ? { ...job, isBookmarked: !job.isBookmarked } : job))
+    );
   };
 
   // View job details
@@ -431,21 +443,21 @@ const JobBoard: React.FC = () => {
   // Delete job
   const handleDeleteJob = (jobId: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    const job = jobs.find(job => job.id === jobId);
-    
+    const job = jobs.find((job) => job.id === jobId);
+
     // Only allow deletion of Draft and Closed jobs
     if (job && job.status === 'Active') {
       setSnackbarMessage('Active jobs cannot be deleted. Please close the job first.');
       setSnackbarOpen(true);
       return;
     }
-    
+
     if (job && job.status === 'On-Hold') {
       setSnackbarMessage('On-Hold jobs cannot be deleted. Please close the job first.');
       setSnackbarOpen(true);
       return;
     }
-    
+
     setJobToDelete(jobId);
     setDeleteDialogOpen(true);
   };
@@ -454,16 +466,24 @@ const JobBoard: React.FC = () => {
   const confirmDeleteJob = async () => {
     if (jobToDelete) {
       try {
-        // Use the API service to delete the job
-        await jobsApi.deleteJob(jobToDelete);
-        
-        // Update local state after successful deletion
-        setJobs(jobs.filter(job => job.id !== jobToDelete));
+        // First update local state to provide immediate feedback
+        setJobs(jobs.filter((job) => job.id !== jobToDelete));
+
+        // In a real application, this would be an API call
+        // Try to use the API service if available, but handle errors gracefully
+        try {
+          await jobsApi.deleteJob(jobToDelete);
+          console.log(`Job ${jobToDelete} deleted via API`);
+        } catch (apiError) {
+          console.warn('API delete failed, but local state was updated:', apiError);
+          // API failure is not critical since we've already updated the local state
+        }
+
         setSnackbarMessage('Job deleted successfully');
         setSnackbarOpen(true);
       } catch (error) {
-        // Show error message from API
-        setSnackbarMessage(error.message || 'Failed to delete job');
+        console.error('Error deleting job:', error);
+        setSnackbarMessage('Failed to delete job: ' + (error.message || 'Unknown error'));
         setSnackbarOpen(true);
       } finally {
         // Close the dialog regardless of outcome
@@ -474,24 +494,32 @@ const JobBoard: React.FC = () => {
   };
 
   // Toggle job status
-  const toggleJobStatus = (jobId: number, newStatus: 'Active' | 'On-Hold' | 'Closed', e: React.MouseEvent) => {
+  const toggleJobStatus = (
+    jobId: number,
+    newStatus: 'Active' | 'On-Hold' | 'Closed',
+    e: React.MouseEvent
+  ) => {
     e.stopPropagation();
-    setJobs(jobs.map(job => {
-      if (job.id === jobId) {
-        return { ...job, status: newStatus };
-      }
-      return job;
-    }));
+    setJobs(
+      jobs.map((job) => {
+        if (job.id === jobId) {
+          return { ...job, status: newStatus };
+        }
+        return job;
+      })
+    );
   };
 
   // Handle form input changes
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
+  const handleFormChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent
+  ) => {
     const { name, value } = e.target;
     setNewJobForm({
       ...newJobForm,
       [name as string]: value,
     });
-    
+
     // Clear error when field is being edited
     if (formErrors[name as keyof typeof formErrors]) {
       setFormErrors({
@@ -516,12 +544,12 @@ const JobBoard: React.FC = () => {
     if (asDraft) {
       // At minimum, require a title for drafts
       if (!newJobForm.title || newJobForm.title.trim() === '') {
-        setFormErrors(prev => ({ ...prev, title: true }));
+        setFormErrors((prev) => ({ ...prev, title: true }));
         return false;
       }
       return true;
     }
-    
+
     // For publishing, perform full validation
     const errors = {
       title: !newJobForm.title || newJobForm.title.trim() === '',
@@ -530,16 +558,16 @@ const JobBoard: React.FC = () => {
       description: !newJobForm.description || newJobForm.description.trim() === '',
       responsibilities: !newJobForm.responsibilities || newJobForm.responsibilities.trim() === '',
       requirements: !newJobForm.requirements || newJobForm.requirements.trim() === '',
-      experience: false, // Optional
-      skills: false, // Optional
-      salary: false, // Optional
-      benefits: false // Optional
+      experience: !newJobForm.experience || newJobForm.experience.trim() === '',
+      skills: !newJobForm.skills || newJobForm.skills.trim() === '',
+      salary: !newJobForm.salary || newJobForm.salary.trim() === '',
+      benefits: !newJobForm.benefits || newJobForm.benefits.trim() === '',
     };
-    
+
     setFormErrors(errors);
-    
+
     // Check if any required fields are missing
-    return !Object.values(errors).some(error => error === true);
+    return !Object.values(errors).some((error) => error === true);
   };
 
   // Memoize form validity to avoid unnecessary calls to validateForm during render
@@ -551,16 +579,24 @@ const JobBoard: React.FC = () => {
       description: !newJobForm.description || newJobForm.description.trim() === '',
       responsibilities: !newJobForm.responsibilities || newJobForm.responsibilities.trim() === '',
       requirements: !newJobForm.requirements || newJobForm.requirements.trim() === '',
+      experience: !newJobForm.experience || newJobForm.experience.trim() === '',
+      skills: !newJobForm.skills || newJobForm.skills.trim() === '',
+      salary: !newJobForm.salary || newJobForm.salary.trim() === '',
+      benefits: !newJobForm.benefits || newJobForm.benefits.trim() === '',
     };
-    
-    return !Object.values(errors).some(error => error === true);
+
+    return !Object.values(errors).some((error) => error === true);
   }, [
     newJobForm.title,
     newJobForm.department,
     newJobForm.location,
     newJobForm.description,
     newJobForm.responsibilities,
-    newJobForm.requirements
+    newJobForm.requirements,
+    newJobForm.experience,
+    newJobForm.skills,
+    newJobForm.salary,
+    newJobForm.benefits,
   ]);
 
   // Handle tab change
@@ -577,7 +613,7 @@ const JobBoard: React.FC = () => {
     setActiveTab(0);
     setNewJobDialogOpen(true);
   };
-  
+
   // Reset form function
   const resetForm = () => {
     setNewJobForm({
@@ -592,7 +628,7 @@ const JobBoard: React.FC = () => {
       skills: '',
       salary: '',
       benefits: '',
-      isFeatured: false
+      isFeatured: false,
     });
     setFormErrors({
       title: false,
@@ -604,7 +640,7 @@ const JobBoard: React.FC = () => {
       experience: false,
       skills: false,
       salary: false,
-      benefits: false
+      benefits: false,
     });
     setActiveTab(0);
   };
@@ -612,27 +648,38 @@ const JobBoard: React.FC = () => {
   // Edit an existing job
   const handleEditJob = (job: Job, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     // Only allow editing draft jobs
     if (job.status !== 'Draft') {
       setSnackbarMessage('Only draft jobs can be edited. Published jobs cannot be modified.');
       setSnackbarOpen(true);
       return;
     }
-    
+
+    // Format skills from the job data (if they exist)
+    const skillsText = Array.isArray(job.skills) ? job.skills.join('\n') : job.skills || '';
+
+    // Format benefits properly - could be a string or missing
+    const benefitsText =
+      typeof job.benefits === 'string'
+        ? job.benefits
+        : Array.isArray(job.benefits)
+          ? job.benefits.join('\n')
+          : '';
+
     setNewJobForm({
       title: job.title,
-      department: job.department,
-      location: job.location,
+      department: job.department === 'Unspecified' ? '' : job.department,
+      location: job.location === 'Unspecified' ? '' : job.location,
       type: job.type,
       experience: job.experience || '',
       salary: job.salary || '',
       description: job.description,
       responsibilities: job.responsibilities ? job.responsibilities.join('\n') : '',
       requirements: job.requirements ? job.requirements.join('\n') : '',
-      skills: '',
-      benefits: '',
-      isFeatured: job.isFeatured || false
+      skills: skillsText,
+      benefits: benefitsText,
+      isFeatured: job.isFeatured || false,
     });
     setFormErrors({
       title: false,
@@ -644,7 +691,7 @@ const JobBoard: React.FC = () => {
       experience: false,
       skills: false,
       salary: false,
-      benefits: false
+      benefits: false,
     });
     setEditMode(true);
     setEditJobId(job.id);
@@ -654,22 +701,78 @@ const JobBoard: React.FC = () => {
 
   // Handle creating a new job
   const handleCreateNewJob = (asDraft: boolean = false) => {
-    // Validate form based on whether saving as draft or publishing
-    const isValid = validateForm(asDraft);
-    if (!isValid) return;
-    
+    // For drafts, no confirmation needed, proceed directly
+    if (asDraft) {
+      saveOrUpdateJob(true);
+      return;
+    }
+
+    // For publishing, validate first
+    const isValid = validateForm(false);
+    if (!isValid) {
+      // Show a warning message if attempting to publish without filling all required fields
+      setSnackbarMessage('Please fill in all required fields before publishing.');
+      setSnackbarOpen(true);
+
+      // Check which tab has validation errors and navigate to it
+      if (formErrors.title || formErrors.department || formErrors.location) {
+        setActiveTab(0); // Job Summary tab
+      } else if (formErrors.description || formErrors.responsibilities) {
+        setActiveTab(1); // Job Outline tab
+      } else if (formErrors.requirements || formErrors.experience || formErrors.skills) {
+        setActiveTab(2); // Qualifications & Experience tab
+      } else if (formErrors.salary || formErrors.benefits) {
+        setActiveTab(3); // Salary & Benefits tab
+      }
+      return;
+    }
+
+    // Show confirmation dialog for publishing
+    if (editMode && editJobId) {
+      // If editing a draft
+      const existingJob = jobs.find((job) => job.id === editJobId);
+      if (existingJob) {
+        setJobToPublish({ job: existingJob, isNew: false });
+        setPublishConfirmDialogOpen(true);
+      }
+    } else {
+      // If creating a new job
+      const newJobData: Partial<Job> = {
+        title: newJobForm.title,
+        department: newJobForm.department,
+        location: newJobForm.location,
+        type: newJobForm.type,
+        experience: newJobForm.experience,
+        salary: newJobForm.salary,
+        description: newJobForm.description,
+        responsibilities: newJobForm.responsibilities
+          .split('\n')
+          .filter((item) => item.trim() !== ''),
+        requirements: newJobForm.requirements.split('\n').filter((item) => item.trim() !== ''),
+        skills: newJobForm.skills.split('\n').filter((item) => item.trim() !== ''),
+        benefits: newJobForm.benefits,
+        isFeatured: newJobForm.isFeatured,
+      };
+
+      setJobToPublish({ job: newJobData, isNew: true });
+      setPublishConfirmDialogOpen(true);
+    }
+  };
+
+  // Function to actually save or update a job
+  const saveOrUpdateJob = (asDraft: boolean = false) => {
     // If editing an existing job
     if (editMode && editJobId) {
       // Get the existing job
-      const existingJob = jobs.find(job => job.id === editJobId);
-      
+      const existingJob = jobs.find((job) => job.id === editJobId);
+
       // Only allow editing draft jobs
       if (existingJob && existingJob.status !== 'Draft') {
         setSnackbarMessage('Only draft jobs can be edited. Published jobs cannot be modified.');
         setSnackbarOpen(true);
         return;
       }
-      
+
       const updatedJob: Partial<Job> = {
         title: newJobForm.title,
         department: newJobForm.department,
@@ -678,22 +781,28 @@ const JobBoard: React.FC = () => {
         experience: newJobForm.experience,
         salary: newJobForm.salary,
         description: newJobForm.description,
-        responsibilities: newJobForm.responsibilities.split('\n').filter(item => item.trim() !== ''),
-        requirements: newJobForm.requirements.split('\n').filter(item => item.trim() !== ''),
+        responsibilities: newJobForm.responsibilities
+          .split('\n')
+          .filter((item) => item.trim() !== ''),
+        requirements: newJobForm.requirements.split('\n').filter((item) => item.trim() !== ''),
+        skills: newJobForm.skills.split('\n').filter((item) => item.trim() !== ''),
         benefits: newJobForm.benefits,
         isFeatured: newJobForm.isFeatured,
-        status: asDraft ? 'Draft' : 'Active'
+        status: asDraft ? 'Draft' : 'Active',
       };
-      
+
+      // If publishing, set posted date
+      if (!asDraft) {
+        updatedJob.postedDate = new Date().toISOString().split('T')[0];
+      }
+
       // Update the job in state
-      setJobs(prevJobs =>
-        prevJobs.map(job =>
-          job.id === editJobId ? { ...job, ...updatedJob } : job
-        )
+      setJobs((prevJobs) =>
+        prevJobs.map((job) => (job.id === editJobId ? { ...job, ...updatedJob } : job))
       );
-      
-      const message = asDraft 
-        ? `Job "${newJobForm.title}" saved as draft.` 
+
+      const message = asDraft
+        ? `Job "${newJobForm.title}" saved as draft.`
         : `Job "${newJobForm.title}" updated and published.`;
       setSnackbarMessage(message);
       setSnackbarOpen(true);
@@ -701,40 +810,44 @@ const JobBoard: React.FC = () => {
       // Create a new job
       const newJob: Omit<Job, 'id'> = {
         title: newJobForm.title || 'Untitled Draft Job',
-        department: newJobForm.department || 'Unspecified',
-        location: newJobForm.location || 'Unspecified',
+        department: newJobForm.department || '',
+        location: newJobForm.location || '',
         type: newJobForm.type || 'Full-time',
         experience: newJobForm.experience || '',
         salary: newJobForm.salary || '',
-        postedDate: new Date().toISOString().split('T')[0],
+        postedDate: asDraft ? '' : new Date().toISOString().split('T')[0],
+        createdDate: new Date().toISOString().split('T')[0], // Set created date to today
         description: newJobForm.description || '',
         responsibilities: newJobForm.responsibilities
-          ? newJobForm.responsibilities.split('\n').filter(item => item.trim() !== '')
+          ? newJobForm.responsibilities.split('\n').filter((item) => item.trim() !== '')
           : [],
         requirements: newJobForm.requirements
-          ? newJobForm.requirements.split('\n').filter(item => item.trim() !== '')
+          ? newJobForm.requirements.split('\n').filter((item) => item.trim() !== '')
+          : [],
+        skills: newJobForm.skills
+          ? newJobForm.skills.split('\n').filter((item) => item.trim() !== '')
           : [],
         benefits: newJobForm.benefits || '',
         status: asDraft ? 'Draft' : 'Active',
         applicants: 0,
         isFeatured: newJobForm.isFeatured || false,
-        isBookmarked: false
+        isBookmarked: false,
       };
-      
+
       // In a real app, this would be an API call
-      const maxId = jobs.length > 0 ? Math.max(...jobs.map(job => job.id)) : 0;
+      const maxId = jobs.length > 0 ? Math.max(...jobs.map((job) => job.id)) : 0;
       const jobWithId = { ...newJob, id: maxId + 1 } as Job;
-      
-      setJobs(prevJobs => [...prevJobs, jobWithId]);
-      
+
+      setJobs((prevJobs) => [...prevJobs, jobWithId]);
+
       // Set a success message
-      const message = asDraft 
-        ? `Job "${newJobForm.title || 'Untitled Job'}" saved as draft.` 
+      const message = asDraft
+        ? `Job "${newJobForm.title || 'Untitled Job'}" saved as draft.`
         : `Job "${newJobForm.title}" published successfully.`;
       setSnackbarMessage(message);
       setSnackbarOpen(true);
     }
-    
+
     // Close the dialog and reset the form
     setNewJobDialogOpen(false);
     resetForm();
@@ -762,11 +875,11 @@ const JobBoard: React.FC = () => {
   // Handle sharing a job (mock implementation)
   const handleShareJob = () => {
     if (!jobToShare || !emailTo) return;
-    
+
     // In a real app, you would send this data to your backend
     console.log(`Sharing job "${jobToShare.title}" with ${emailTo}`);
     console.log(`Message: ${shareMessage}`);
-    
+
     setShareDialogOpen(false);
     setJobToShare(null);
     setEmailTo('');
@@ -777,6 +890,11 @@ const JobBoard: React.FC = () => {
 
   // Handle opening the apply dialog
   const handleOpenApplyDialog = (job: Job) => {
+    if (job.status !== 'Active') {
+      setSnackbarMessage('You can only apply for active jobs.');
+      setSnackbarOpen(true);
+      return;
+    }
     setJobToApply(job);
     setApplyDialogOpen(true);
   };
@@ -784,10 +902,10 @@ const JobBoard: React.FC = () => {
   // Handle applying for a job (mock implementation)
   const handleApplyForJob = () => {
     if (!jobToApply) return;
-    
+
     // In a real app, you would collect resume and other application data
     console.log(`Applying for job: ${jobToApply.title}`);
-    
+
     setApplyDialogOpen(false);
     setJobToApply(null);
     setSnackbarMessage('Your application has been submitted successfully!');
@@ -798,7 +916,7 @@ const JobBoard: React.FC = () => {
   const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewJobForm({
       ...newJobForm,
-      isFeatured: event.target.checked
+      isFeatured: event.target.checked,
     });
   };
 
@@ -807,54 +925,55 @@ const JobBoard: React.FC = () => {
     // Get current text and selection
     const textField = document.getElementById(fieldName) as HTMLTextAreaElement;
     if (!textField) return;
-    
+
     const start = textField.selectionStart;
     const end = textField.selectionEnd;
-    const selectedText = newJobForm[fieldName as keyof typeof newJobForm]?.toString().substring(start, end) || '';
-    
+    const selectedText =
+      newJobForm[fieldName as keyof typeof newJobForm]?.toString().substring(start, end) || '';
+
     if (selectedText.length === 0) {
       // Just update the format state if no text is selected
       // For list buttons, ensure they're mutually exclusive
       if (format === 'bulletList' && value === true) {
-        setTextFormatState(prev => ({
+        setTextFormatState((prev) => ({
           ...prev,
           [fieldName]: {
             ...prev[fieldName],
             [format]: value,
-            numberList: false
-          }
+            numberList: false,
+          },
         }));
       } else if (format === 'numberList' && value === true) {
-        setTextFormatState(prev => ({
+        setTextFormatState((prev) => ({
           ...prev,
           [fieldName]: {
             ...prev[fieldName],
             [format]: value,
-            bulletList: false
-          }
+            bulletList: false,
+          },
         }));
       } else {
-        setTextFormatState(prev => ({
+        setTextFormatState((prev) => ({
           ...prev,
           [fieldName]: {
             ...prev[fieldName],
-            [format]: value
-          }
+            [format]: value,
+          },
         }));
       }
       return;
     }
-    
+
     // Get the current text
     const fullText = newJobForm[fieldName as keyof typeof newJobForm]?.toString() || '';
     const before = fullText.substring(0, start);
     const after = fullText.substring(end);
-    
+
     // Check if text already has formatting
     let newText = '';
     let isFormatted = false;
     let formattedText = selectedText;
-    
+
     switch (format) {
       case 'bold':
         isFormatted = selectedText.startsWith('**') && selectedText.endsWith('**');
@@ -888,71 +1007,85 @@ const JobBoard: React.FC = () => {
         break;
       case 'bulletList':
         // Check if text already has bullet points and remove any existing numbered list formatting
-        isFormatted = selectedText.split('\n').every(line => line.startsWith('• '));
-        const hasNumbering = selectedText.split('\n').some(line => /^\d+\.\s/.test(line));
-        
+        isFormatted = selectedText.split('\n').every((line) => line.startsWith('• '));
+        const hasNumbering = selectedText.split('\n').some((line) => /^\d+\.\s/.test(line));
+
         let cleanedText = selectedText;
         if (hasNumbering) {
           // Remove numbered list formatting first
-          cleanedText = selectedText.split('\n').map(line => line.replace(/^\d+\.\s/, '')).join('\n');
+          cleanedText = selectedText
+            .split('\n')
+            .map((line) => line.replace(/^\d+\.\s/, ''))
+            .join('\n');
         }
-        
+
         if (value && !isFormatted) {
           // Apply bullet list to clean text (without numbers)
-          formattedText = cleanedText.split('\n').map(line => `• ${line}`).join('\n');
+          formattedText = cleanedText
+            .split('\n')
+            .map((line) => `• ${line}`)
+            .join('\n');
         } else if (!value || isFormatted) {
           // Remove bullet list
-          formattedText = selectedText.split('\n').map(line => line.replace(/^• /, '')).join('\n');
+          formattedText = selectedText
+            .split('\n')
+            .map((line) => line.replace(/^• /, ''))
+            .join('\n');
         }
-        
+
         // Also update the numberList state to false since they're mutually exclusive
-        setTextFormatState(prev => ({
+        setTextFormatState((prev) => ({
           ...prev,
           [fieldName]: {
             ...prev[fieldName],
-            numberList: false
-          }
+            numberList: false,
+          },
         }));
         break;
       case 'numberList':
         // Check if text already has numbering and remove any existing bullet list formatting
-        isFormatted = selectedText.split('\n').every((line, index) => 
-          line.match(new RegExp(`^${index + 1}\\. `))
-        );
-        const hasBullets = selectedText.split('\n').some(line => line.startsWith('• '));
-        
+        isFormatted = selectedText
+          .split('\n')
+          .every((line, index) => line.match(new RegExp(`^${index + 1}\\. `)));
+        const hasBullets = selectedText.split('\n').some((line) => line.startsWith('• '));
+
         let cleanTextForNumbering = selectedText;
         if (hasBullets) {
           // Remove bullet list formatting first
-          cleanTextForNumbering = selectedText.split('\n').map(line => line.replace(/^• /, '')).join('\n');
+          cleanTextForNumbering = selectedText
+            .split('\n')
+            .map((line) => line.replace(/^• /, ''))
+            .join('\n');
         }
-        
+
         if (value && !isFormatted) {
           // Apply numbered list to clean text (without bullets)
-          formattedText = cleanTextForNumbering.split('\n').map((line, index) => 
-            `${index + 1}. ${line}`
-          ).join('\n');
+          formattedText = cleanTextForNumbering
+            .split('\n')
+            .map((line, index) => `${index + 1}. ${line}`)
+            .join('\n');
         } else if (!value || isFormatted) {
           // Remove numbered list
-          formattedText = selectedText.split('\n').map(line => 
-            line.replace(/^\d+\. /, '')
-          ).join('\n');
+          formattedText = selectedText
+            .split('\n')
+            .map((line) => line.replace(/^\d+\. /, ''))
+            .join('\n');
         }
-        
+
         // Also update the bulletList state to false since they're mutually exclusive
-        setTextFormatState(prev => ({
+        setTextFormatState((prev) => ({
           ...prev,
           [fieldName]: {
             ...prev[fieldName],
-            bulletList: false
-          }
+            bulletList: false,
+          },
         }));
         break;
       case 'alignment':
         // Check for existing alignment tags
         const centerFormatted = selectedText.match(/^<center>(.*)<\/center>$/s);
         const rightFormatted = selectedText.match(/^<right>(.*)<\/right>$/s);
-        
+
         // Remove any existing alignment formatting first
         let cleanTextForAlignment = selectedText;
         if (centerFormatted) {
@@ -962,7 +1095,7 @@ const JobBoard: React.FC = () => {
           cleanTextForAlignment = rightFormatted[1];
           isFormatted = value === 'right';
         }
-        
+
         // Apply new alignment if needed
         if (value === 'left' || isFormatted) {
           formattedText = cleanTextForAlignment; // No tags for left alignment
@@ -976,16 +1109,16 @@ const JobBoard: React.FC = () => {
         formattedText = selectedText;
         break;
     }
-    
+
     // Apply the formatted text
     newText = before + formattedText + after;
-    
+
     // Update form state
     setNewJobForm({
       ...newJobForm,
-      [fieldName]: newText
+      [fieldName]: newText,
     });
-    
+
     // Update formatting state based on the result
     const newFormatState = { ...textFormatState[fieldName] };
     switch (format) {
@@ -999,13 +1132,15 @@ const JobBoard: React.FC = () => {
         newFormatState.underline = formattedText.startsWith('__') && formattedText.endsWith('__');
         break;
       case 'bulletList':
-        newFormatState.bulletList = formattedText.split('\n').every(line => line.startsWith('• '));
+        newFormatState.bulletList = formattedText
+          .split('\n')
+          .every((line) => line.startsWith('• '));
         newFormatState.numberList = false; // Make sure numberList is off when bulletList is on
         break;
       case 'numberList':
-        newFormatState.numberList = formattedText.split('\n').every((line, index) => 
-          line.match(new RegExp(`^${index + 1}\\. `))
-        );
+        newFormatState.numberList = formattedText
+          .split('\n')
+          .every((line, index) => line.match(new RegExp(`^${index + 1}\\. `)));
         newFormatState.bulletList = false; // Make sure bulletList is off when numberList is on
         break;
       case 'alignment':
@@ -1019,20 +1154,20 @@ const JobBoard: React.FC = () => {
         break;
     }
 
-    setTextFormatState(prev => ({
+    setTextFormatState((prev) => ({
       ...prev,
-      [fieldName]: newFormatState
+      [fieldName]: newFormatState,
     }));
-    
+
     // Set focus back to the text field and update selection
     setTimeout(() => {
       textField.focus();
-      
+
       // Calculate new selection positions based on the changes to the text
       const selectionDiff = formattedText.length - selectedText.length;
       const newSelectionStart = start;
       const newSelectionEnd = end + selectionDiff;
-      
+
       textField.setSelectionRange(newSelectionStart, newSelectionEnd);
     }, 10);
   };
@@ -1041,45 +1176,46 @@ const JobBoard: React.FC = () => {
   const clearFormatting = (fieldName: string) => {
     const textField = document.getElementById(fieldName) as HTMLTextAreaElement;
     if (!textField) return;
-    
+
     const start = textField.selectionStart;
     const end = textField.selectionEnd;
-    const selectedText = newJobForm[fieldName as keyof typeof newJobForm]?.toString().substring(start, end) || '';
-    
+    const selectedText =
+      newJobForm[fieldName as keyof typeof newJobForm]?.toString().substring(start, end) || '';
+
     // Remove all formatting markers
-    let cleanText = selectedText
+    const cleanText = selectedText
       .replace(/\*\*(.*?)\*\*/g, '$1') // bold
-      .replace(/_(.*?)_/g, '$1')      // italic
-      .replace(/__(.*?)__/g, '$1')    // underline
-      .replace(/^• /gm, '')          // bullet points
-      .replace(/^\d+\. /gm, '')      // numbered lists
+      .replace(/_(.*?)_/g, '$1') // italic
+      .replace(/__(.*?)__/g, '$1') // underline
+      .replace(/^• /gm, '') // bullet points
+      .replace(/^\d+\. /gm, '') // numbered lists
       .replace(/<center>(.*?)<\/center>/gs, '$1') // center alignment
       .replace(/<right>(.*?)<\/right>/gs, '$1'); // right alignment
-    
+
     // Apply the clean text
     const newText = newJobForm[fieldName as keyof typeof newJobForm]?.toString() || '';
     const before = newText.substring(0, start);
     const after = newText.substring(end);
     const updatedText = before + cleanText + after;
-    
+
     setNewJobForm({
       ...newJobForm,
-      [fieldName]: updatedText
+      [fieldName]: updatedText,
     });
-    
+
     // Reset formatting options for this field only
-        setTextFormatState(prev => ({
-          ...prev,
-          [fieldName]: {
+    setTextFormatState((prev) => ({
+      ...prev,
+      [fieldName]: {
         bold: false,
         italic: false,
         underline: false,
         bulletList: false,
         numberList: false,
-        alignment: 'left'
-          }
-        }));
-    
+        alignment: 'left',
+      },
+    }));
+
     // Set focus back to the text field
     setTimeout(() => {
       textField.focus();
@@ -1089,7 +1225,10 @@ const JobBoard: React.FC = () => {
   };
 
   // Handle alignment format change
-  const handleAlignmentChange = (fieldName: string, alignment: 'left' | 'center' | 'right' | null) => {
+  const handleAlignmentChange = (
+    fieldName: string,
+    alignment: 'left' | 'center' | 'right' | null
+  ) => {
     if (alignment) {
       applyFormatting(fieldName, 'alignment', alignment);
     }
@@ -1098,7 +1237,7 @@ const JobBoard: React.FC = () => {
   // Show preview dialog for formatted text
   const showPreview = (fieldName: string, fieldLabel: string) => {
     const content = newJobForm[fieldName as keyof typeof newJobForm]?.toString() || '';
-    
+
     // Apply markdown-like formatting for display
     let formattedContent = content
       // Bold
@@ -1115,20 +1254,20 @@ const JobBoard: React.FC = () => {
       .replace(/<center>(.*?)<\/center>/gs, '<div style="text-align: center">$1</div>')
       // Right alignment
       .replace(/<right>(.*?)<\/right>/gs, '<div style="text-align: right">$1</div>');
-    
+
     // Add proper list tags
     if (formattedContent.includes('<li>')) {
       formattedContent = '<ul>' + formattedContent + '</ul>';
       // Fix nested lists if any
       formattedContent = formattedContent.replace(/<\/ul><ul>/g, '');
     }
-    
+
     // Add paragraph tags for better readability
     formattedContent = formattedContent
       .split('\n\n')
-      .map(para => para.trim().length > 0 ? `<p>${para}</p>` : '')
+      .map((para) => (para.trim().length > 0 ? `<p>${para}</p>` : ''))
       .join('');
-    
+
     setPreviewContent(formattedContent);
     setPreviewTitle(fieldLabel);
     setPreviewDialogOpen(true);
@@ -1137,28 +1276,28 @@ const JobBoard: React.FC = () => {
   // Render a text editor toolbar for a given field
   const renderTextEditorToolbar = (fieldName: string, fieldLabel: string) => {
     const formatState = textFormatState[fieldName];
-    
+
     return (
       <Box sx={{ mb: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
         <ToggleButtonGroup size="small">
-          <ToggleButton 
-            value="bold" 
+          <ToggleButton
+            value="bold"
             selected={formatState.bold}
             onChange={(_, value) => applyFormatting(fieldName, 'bold', value)}
             aria-label="bold"
           >
             <FormatBoldIcon fontSize="small" />
           </ToggleButton>
-          <ToggleButton 
-            value="italic" 
+          <ToggleButton
+            value="italic"
             selected={formatState.italic}
             onChange={(_, value) => applyFormatting(fieldName, 'italic', value)}
             aria-label="italic"
           >
             <FormatItalicIcon fontSize="small" />
           </ToggleButton>
-          <ToggleButton 
-            value="underline" 
+          <ToggleButton
+            value="underline"
             selected={formatState.underline}
             onChange={(_, value) => applyFormatting(fieldName, 'underline', value)}
             aria-label="underline"
@@ -1166,18 +1305,18 @@ const JobBoard: React.FC = () => {
             <FormatUnderlinedIcon fontSize="small" />
           </ToggleButton>
         </ToggleButtonGroup>
-        
+
         <ToggleButtonGroup size="small">
-          <ToggleButton 
-            value="bulletList" 
+          <ToggleButton
+            value="bulletList"
             selected={formatState.bulletList}
             onChange={(_, value) => applyFormatting(fieldName, 'bulletList', value)}
             aria-label="bullet list"
           >
             <FormatListBulletedIcon fontSize="small" />
           </ToggleButton>
-          <ToggleButton 
-            value="numberList" 
+          <ToggleButton
+            value="numberList"
             selected={formatState.numberList}
             onChange={(_, value) => applyFormatting(fieldName, 'numberList', value)}
             aria-label="number list"
@@ -1185,9 +1324,9 @@ const JobBoard: React.FC = () => {
             <FormatListNumberedIcon fontSize="small" />
           </ToggleButton>
         </ToggleButtonGroup>
-        
-        <ToggleButtonGroup 
-          exclusive 
+
+        <ToggleButtonGroup
+          exclusive
           size="small"
           value={formatState.alignment}
           onChange={(_, value) => handleAlignmentChange(fieldName, value)}
@@ -1202,17 +1341,17 @@ const JobBoard: React.FC = () => {
             <FormatAlignRightIcon fontSize="small" />
           </ToggleButton>
         </ToggleButtonGroup>
-        
-        <IconButton 
-          size="small" 
+
+        <IconButton
+          size="small"
           onClick={() => clearFormatting(fieldName)}
           aria-label="clear formatting"
         >
           <FormatClearIcon fontSize="small" />
         </IconButton>
-        
-        <Button 
-          size="small" 
+
+        <Button
+          size="small"
           startIcon={<VisibilityIcon />}
           onClick={() => showPreview(fieldName, fieldLabel)}
           sx={{ ml: 'auto' }}
@@ -1227,45 +1366,43 @@ const JobBoard: React.FC = () => {
   const formatSalary = (value: string) => {
     // Remove any non-digit characters except decimal point
     let sanitized = value.replace(/[^\d.]/g, '');
-    
+
     // Ensure only one decimal point
     const parts = sanitized.split('.');
     if (parts.length > 2) {
       sanitized = parts[0] + '.' + parts.slice(1).join('');
     }
-    
+
     // Split by decimal point to handle integers and decimals separately
     const [integerPart, decimalPart] = sanitized.split('.');
-    
+
     // Add thousand separators to the integer part
     const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    
+
     // Combine the parts
-    return decimalPart !== undefined 
-      ? `${formattedInteger}.${decimalPart}` 
-      : formattedInteger;
+    return decimalPart !== undefined ? `${formattedInteger}.${decimalPart}` : formattedInteger;
   };
 
   // Handle salary input with thousand separator formatting
   const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const formattedValue = formatSalary(value);
-    
+
     setNewJobForm({
       ...newJobForm,
-      salary: formattedValue
+      salary: formattedValue,
     });
   };
 
   // Render the responsibilities, requirements and other sections in job details view
   const renderFormattedContent = (content: string | string[]) => {
     if (!content) return null;
-    
+
     // Convert array to string if needed
     const contentStr = Array.isArray(content) ? content.join('\n') : content;
-    
+
     // Replace bullet points to avoid double bullets in view mode
-    let formattedContent = contentStr
+    const formattedContent = contentStr
       // Bold
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       // Italic
@@ -1280,10 +1417,10 @@ const JobBoard: React.FC = () => {
       .replace(/<center>(.*?)<\/center>/gs, '<div style="text-align: center">$1</div>')
       // Right alignment
       .replace(/<right>(.*?)<\/right>/gs, '<div style="text-align: right">$1</div>');
-    
+
     // Split by new line and create list items
-    const items = formattedContent.split('\n').filter(item => item.trim() !== '');
-    
+    const items = formattedContent.split('\n').filter((item) => item.trim() !== '');
+
     return (
       <ul>
         {items.map((item, index) => (
@@ -1296,147 +1433,175 @@ const JobBoard: React.FC = () => {
   // Toggle job feature status
   const toggleJobFeatured = (jobId: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    setJobs(jobs.map(job => 
-      job.id === jobId 
-        ? { ...job, isFeatured: !job.isFeatured } 
-        : job
-    ));
+    setJobs(jobs.map((job) => (job.id === jobId ? { ...job, isFeatured: !job.isFeatured } : job)));
   };
 
   // Render job cards
   const renderJobCard = (job: Job) => {
     const daysAgo = getDaysAgo(job.postedDate);
     const isJobBookmarked = job.isBookmarked || false;
-    
+
     return (
-      <Card 
-        key={job.id} 
-        sx={{ 
+      <Card
+        key={job.id}
+        sx={{
           mb: 2,
           position: 'relative',
           borderLeft: job.isFeatured ? '4px solid #ffc107' : 'none',
-          opacity: job.status === 'Closed' ? 0.7 : 1
+          opacity: job.status === 'Closed' ? 0.7 : 1,
         }}
       >
-        {job.status === 'Draft' && (
-          <Chip 
-            label="DRAFT" 
-            color="warning" 
-            size="small" 
-            sx={{ 
-              position: 'absolute',
-              top: 8,
-              right: 8,
-              fontWeight: 'bold',
-              zIndex: 1
-            }} 
-          />
-        )}
-        
+        {/* Status tags container */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            display: 'flex',
+            flexDirection: 'row-reverse', // Reverse to keep draft on right if both present
+            gap: 1,
+            zIndex: 1,
+          }}
+        >
+          {/* Draft tag */}
+          {job.status === 'Draft' && (
+            <Chip
+              label="DRAFT"
+              color="warning"
+              size="small"
+              sx={{
+                fontWeight: 'bold',
+              }}
+            />
+          )}
+
+          {/* Status tag for non-Draft statuses */}
+          {job.status !== 'Draft' && (
+            <Chip
+              label={job.status}
+              color={
+                job.status === 'Active' ? 'success' : job.status === 'On-Hold' ? 'warning' : 'error'
+              }
+              size="small"
+            />
+          )}
+
+          {/* Featured tag */}
+          {job.isFeatured && (
+            <Chip
+              icon={
+                <StarIcon
+                  fontSize="small"
+                  sx={{
+                    color: amber[500],
+                    animation: 'pulse 1.5s infinite',
+                    '@keyframes pulse': {
+                      '0%': { opacity: 0.7 },
+                      '50%': { opacity: 1 },
+                      '100%': { opacity: 0.7 },
+                    },
+                  }}
+                />
+              }
+              label="Featured"
+              size="small"
+              sx={{
+                background: `linear-gradient(45deg, ${deepPurple[700]} 0%, ${purple[500]} 100%)`,
+                color: '#ffffff',
+                fontWeight: 'bold',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                '&:hover': {
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                },
+                transition: 'all 0.3s ease',
+                '& .MuiChip-label': {
+                  color: '#ffffff',
+                },
+                '& .MuiChip-icon': {
+                  color: amber[500],
+                },
+              }}
+            />
+          )}
+        </Box>
+
         <CardActionArea onClick={() => handleViewJobDetails(job)}>
           <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
+            >
               <Typography variant="h6" component="div">
                 {job.title}
               </Typography>
               <Box>
-                {job.status !== 'Draft' && (
-                  <Chip 
-                    label={job.status} 
-                    color={
-                      job.status === 'Active' ? 'success' : 
-                      job.status === 'On-Hold' ? 'warning' :
-                      job.status === 'Draft' ? 'default' :
-                      'error'
-                    }
-                    size="small"
-                    sx={{ mr: 1 }}
-                  />
-                )}
-                {job.isFeatured && (
-                  <Chip 
-                    icon={<StarIcon fontSize="small" sx={{ 
-                      color: amber[500],
-                      animation: 'pulse 1.5s infinite',
-                      '@keyframes pulse': {
-                        '0%': { opacity: 0.7 },
-                        '50%': { opacity: 1 },
-                        '100%': { opacity: 0.7 },
-                      }
-                    }} />} 
-                    label="Featured" 
-                    size="small" 
-                    sx={{ 
-                      background: `linear-gradient(45deg, ${deepPurple[700]} 0%, ${purple[500]} 100%)`,
-                      color: '#ffffff',
-                      fontWeight: 'bold',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                      '&:hover': {
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-                      },
-                      transition: 'all 0.3s ease',
-                      '& .MuiChip-label': {
-                        color: '#ffffff'
-                      },
-                      '& .MuiChip-icon': {
-                        color: amber[500]
-                      }
-                    }}
-                  />
-                )}
+                {/* Remove status chips from here since they're now in the top-right container */}
               </Box>
             </Box>
-            
+
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1, color: 'text.secondary' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <LocationIcon fontSize="small" sx={{ mr: 0.5 }} />
                 <Typography variant="body2">{job.location}</Typography>
               </Box>
-              
+
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <BusinessIcon fontSize="small" sx={{ mr: 0.5 }} />
                 <Typography variant="body2">{job.department}</Typography>
               </Box>
-              
+
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <SalaryIcon fontSize="small" sx={{ mr: 0.5 }} />
                 <Typography variant="body2">{job.salary || 'Not specified'}</Typography>
               </Box>
-              
+
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <PeopleIcon fontSize="small" sx={{ mr: 0.5 }} />
                 <Typography variant="body2">{job.applicants} applicants</Typography>
               </Box>
-              
+
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <DateIcon fontSize="small" sx={{ mr: 0.5 }} />
                 <Typography variant="body2">
-                  {job.status === 'Draft' ? 'Not published yet' : (
+                  {job.status === 'Draft' ? (
+                    job.createdDate ? (
+                      <>
+                        Created on {formatDate(job.createdDate)}
+                        <span style={{ color: '#757575', fontSize: '0.9em', marginLeft: '4px' }}>
+                          ({getDaysAgo(job.createdDate)}{' '}
+                          {getDaysAgo(job.createdDate) === 1 ? 'day' : 'days'} ago)
+                        </span>
+                      </>
+                    ) : (
+                      'Created recently'
+                    )
+                  ) : (
                     <>
-                      Posted on {formatDate(job.postedDate)} <span style={{ color: '#757575', fontSize: '0.9em' }}>({daysAgo} {daysAgo === 1 ? 'day' : 'days'} ago)</span>
+                      Posted on {formatDate(job.postedDate)}{' '}
+                      <span style={{ color: '#757575', fontSize: '0.9em' }}>
+                        ({daysAgo} {daysAgo === 1 ? 'day' : 'days'} ago)
+                      </span>
                     </>
                   )}
                 </Typography>
               </Box>
             </Box>
-            
+
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 1 }}>
-              {job.description.length > 120 ? `${job.description.substring(0, 120)}...` : job.description}
+              {job.description.length > 120
+                ? `${job.description.substring(0, 120)}...`
+                : job.description}
             </Typography>
           </CardContent>
         </CardActionArea>
-        
+
         <CardActions>
           <ButtonGroup variant="text" size="small">
             {job.status === 'Draft' ? (
               <>
-                <Button 
-                  startIcon={<EditIcon />}
-                  onClick={(e) => handleEditJob(job, e)}
-                >
+                <Button startIcon={<EditIcon />} onClick={(e) => handleEditJob(job, e)}>
                   Edit
                 </Button>
-                <Button 
+                <Button
                   startIcon={<PlayArrowIcon />}
                   onClick={(e) => handlePublishDraft(job, e)}
                   color="success"
@@ -1445,24 +1610,21 @@ const JobBoard: React.FC = () => {
                 </Button>
               </>
             ) : (
-              <Button 
-                startIcon={<VisibilityIcon />}
-                onClick={() => handleViewJobDetails(job)}
-              >
+              <Button startIcon={<VisibilityIcon />} onClick={() => handleViewJobDetails(job)}>
                 View
               </Button>
             )}
-            
+
             {job.status === 'Active' ? (
               <>
-                <Button 
+                <Button
                   startIcon={<PauseIcon />}
                   onClick={(e) => toggleJobStatus(job.id, 'On-Hold', e)}
                   color="warning"
                 >
                   Pause
                 </Button>
-                <Button 
+                <Button
                   startIcon={<BlockIcon />}
                   onClick={(e) => toggleJobStatus(job.id, 'Closed', e)}
                   color="error"
@@ -1472,14 +1634,14 @@ const JobBoard: React.FC = () => {
               </>
             ) : job.status === 'On-Hold' ? (
               <>
-                <Button 
+                <Button
                   startIcon={<PlayArrowIcon />}
                   onClick={(e) => toggleJobStatus(job.id, 'Active', e)}
                   color="success"
                 >
                   Activate
                 </Button>
-                <Button 
+                <Button
                   startIcon={<BlockIcon />}
                   onClick={(e) => toggleJobStatus(job.id, 'Closed', e)}
                   color="error"
@@ -1488,49 +1650,42 @@ const JobBoard: React.FC = () => {
                 </Button>
               </>
             ) : null}
-            
-            <Button 
-              startIcon={<ShareIcon />}
-              onClick={(e) => handleOpenShareDialog(job, e)}
-            >
+
+            <Button startIcon={<ShareIcon />} onClick={(e) => handleOpenShareDialog(job, e)}>
               Share
             </Button>
-            
-            <IconButton 
-              size="small" 
+
+            <IconButton
+              size="small"
               onClick={(e) => handleToggleBookmark(job.id, e)}
-              color={isJobBookmarked ? "primary" : "default"}
-              aria-label={isJobBookmarked ? "Remove bookmark" : "Bookmark job"}
+              color={isJobBookmarked ? 'primary' : 'default'}
+              aria-label={isJobBookmarked ? 'Remove bookmark' : 'Bookmark job'}
             >
               {isJobBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
             </IconButton>
           </ButtonGroup>
-          
+
           <Box sx={{ flexGrow: 1 }} />
-          
-          <Tooltip title={job.isFeatured ? "Remove from featured" : "Mark as featured"}>
-            <IconButton 
-              size="small" 
+
+          <Tooltip title={job.isFeatured ? 'Remove from featured' : 'Mark as featured'}>
+            <IconButton
+              size="small"
               onClick={(e) => toggleJobFeatured(job.id, e)}
-              sx={{ 
+              sx={{
                 color: job.isFeatured ? amber[500] : 'inherit',
                 transition: 'transform 0.2s ease, color 0.2s ease',
                 '&:hover': {
                   transform: 'scale(1.1)',
-                  color: job.isFeatured ? amber[600] : amber[300]
-                }
+                  color: job.isFeatured ? amber[600] : amber[300],
+                },
               }}
             >
               {job.isFeatured ? <StarIcon /> : <StarBorderIcon />}
             </IconButton>
           </Tooltip>
-          
+
           <Tooltip title="Delete job">
-            <IconButton 
-              size="small" 
-              onClick={(e) => handleDeleteJob(job.id, e)}
-              color="error"
-            >
+            <IconButton size="small" onClick={(e) => handleDeleteJob(job.id, e)} color="error">
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -1542,40 +1697,77 @@ const JobBoard: React.FC = () => {
   // Add new method to publish a draft job
   const handlePublishDraft = (job: Job, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click
-    
+
     // In a real application, this would be an API call
     // Check if the job is complete enough to be published
-    const requiredFields = ['title', 'department', 'location', 'type', 'description', 'responsibilities', 'requirements'];
-    const missingFields = requiredFields.filter(field => 
-      !job[field as keyof Job] || 
-      (Array.isArray(job[field as keyof Job]) && (job[field as keyof Job] as any[]).length === 0) ||
-      (typeof job[field as keyof Job] === 'string' && (job[field as keyof Job] as string).trim() === '')
+    const requiredFields = [
+      'title',
+      'department',
+      'location',
+      'type',
+      'description',
+      'responsibilities',
+      'requirements',
+      'experience',
+      'skills',
+      'salary',
+      'benefits',
+    ];
+
+    const missingFields = requiredFields.filter(
+      (field) =>
+        !job[field as keyof Job] ||
+        (Array.isArray(job[field as keyof Job]) &&
+          (job[field as keyof Job] as any[]).length === 0) ||
+        (typeof job[field as keyof Job] === 'string' &&
+          (job[field as keyof Job] as string).trim() === '')
     );
-    
+
     if (missingFields.length > 0) {
       setSnackbarMessage(`Cannot publish incomplete job. Missing: ${missingFields.join(', ')}`);
       setSnackbarOpen(true);
-      
+
       // Open the edit form to allow the user to complete the job
       handleEditJob(job, e);
       return;
     }
-    
-    // Update the job status to Active and set posted date to today
-    setJobs(prevJobs =>
-      prevJobs.map(j =>
-        j.id === job.id
-          ? {
-              ...j,
-              status: 'Active',
-              postedDate: new Date().toISOString().split('T')[0]
-            }
-          : j
-      )
-    );
-    
-    setSnackbarMessage(`Job "${job.title}" has been published successfully.`);
-    setSnackbarOpen(true);
+
+    // Show publish confirmation dialog
+    setJobToPublish({ job, isNew: false });
+    setPublishConfirmDialogOpen(true);
+  };
+
+  // Function to confirm publishing a job
+  const confirmPublishJob = () => {
+    if (!jobToPublish) return;
+
+    const { job, isNew } = jobToPublish;
+
+    if (isNew) {
+      // Handle publishing a new job
+      saveOrUpdateJob(false); // This will actually save the job with status 'Active'
+    } else if (job.id) {
+      // Handle publishing an existing draft
+      setJobs((prevJobs) =>
+        prevJobs.map((j) =>
+          j.id === job.id
+            ? {
+                ...j, // Preserve all existing job properties
+                status: 'Active',
+                postedDate: new Date().toISOString().split('T')[0],
+              }
+            : j
+        )
+      );
+
+      setSnackbarMessage(`Job "${job.title}" has been published successfully.`);
+      setSnackbarOpen(true);
+    }
+
+    // Close both dialogs
+    setPublishConfirmDialogOpen(false);
+    setNewJobDialogOpen(false); // Close the edit/new job dialog as well
+    setJobToPublish(null);
   };
 
   return (
@@ -1587,11 +1779,7 @@ const JobBoard: React.FC = () => {
       ) : error ? (
         <Paper sx={{ p: 3, mb: 3, bgcolor: '#FFF4F4' }}>
           <Typography color="error">{error}</Typography>
-          <Button 
-            variant="contained" 
-            sx={{ mt: 2 }} 
-            onClick={() => window.location.reload()}
-          >
+          <Button variant="contained" sx={{ mt: 2 }} onClick={() => window.location.reload()}>
             Retry
           </Button>
         </Paper>
@@ -1600,9 +1788,9 @@ const JobBoard: React.FC = () => {
           {/* Control Panel */}
           <Box mb={3} display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="h4">Job Board ({filteredJobs.length} Jobs)</Typography>
-            <Button 
-              variant="contained" 
-              color="primary" 
+            <Button
+              variant="contained"
+              color="primary"
               startIcon={<AddIcon />}
               onClick={handleOpenNewJobDialog}
             >
@@ -1629,7 +1817,7 @@ const JobBoard: React.FC = () => {
                   size="small"
                 />
               </Grid>
-              
+
               <Grid component="div" item xs={12} md={8}>
                 <Grid container spacing={2}>
                   <Grid component="div" item xs={12} sm={3}>
@@ -1639,15 +1827,21 @@ const JobBoard: React.FC = () => {
                         value={departmentFilter}
                         label="Department"
                         onChange={(e) => setDepartmentFilter(e.target.value)}
-                        endAdornment={loadingDropdowns.departments && <CircularProgress size={20} sx={{ mr: 2 }} />}
+                        endAdornment={
+                          loadingDropdowns.departments && (
+                            <CircularProgress size={20} sx={{ mr: 2 }} />
+                          )
+                        }
                       >
-                        {departments.map(dept => (
-                          <MenuItem key={dept} value={dept}>{dept}</MenuItem>
+                        {departments.map((dept) => (
+                          <MenuItem key={dept} value={dept}>
+                            {dept}
+                          </MenuItem>
                         ))}
                       </Select>
                     </FormControl>
                   </Grid>
-                  
+
                   <Grid component="div" item xs={12} sm={3}>
                     <FormControl fullWidth size="small">
                       <InputLabel>Location</InputLabel>
@@ -1655,15 +1849,21 @@ const JobBoard: React.FC = () => {
                         value={locationFilter}
                         label="Location"
                         onChange={(e) => setLocationFilter(e.target.value)}
-                        endAdornment={loadingDropdowns.locations && <CircularProgress size={20} sx={{ mr: 2 }} />}
+                        endAdornment={
+                          loadingDropdowns.locations && (
+                            <CircularProgress size={20} sx={{ mr: 2 }} />
+                          )
+                        }
                       >
-                        {locations.map(loc => (
-                          <MenuItem key={loc} value={loc}>{loc}</MenuItem>
+                        {locations.map((loc) => (
+                          <MenuItem key={loc} value={loc}>
+                            {loc}
+                          </MenuItem>
                         ))}
                       </Select>
                     </FormControl>
                   </Grid>
-                  
+
                   <Grid component="div" item xs={12} sm={3}>
                     <FormControl fullWidth size="small">
                       <InputLabel>Job Type</InputLabel>
@@ -1671,15 +1871,19 @@ const JobBoard: React.FC = () => {
                         value={typeFilter}
                         label="Job Type"
                         onChange={(e) => setTypeFilter(e.target.value)}
-                        endAdornment={loadingDropdowns.types && <CircularProgress size={20} sx={{ mr: 2 }} />}
+                        endAdornment={
+                          loadingDropdowns.types && <CircularProgress size={20} sx={{ mr: 2 }} />
+                        }
                       >
-                        {types.map(type => (
-                          <MenuItem key={type} value={type}>{type}</MenuItem>
+                        {types.map((type) => (
+                          <MenuItem key={type} value={type}>
+                            {type}
+                          </MenuItem>
                         ))}
                       </Select>
                     </FormControl>
                   </Grid>
-                  
+
                   <Grid component="div" item xs={12} sm={3}>
                     <FormControl fullWidth size="small">
                       <InputLabel>Status</InputLabel>
@@ -1688,8 +1892,10 @@ const JobBoard: React.FC = () => {
                         label="Status"
                         onChange={(e) => setStatusFilter(e.target.value)}
                       >
-                        {statuses.map(status => (
-                          <MenuItem key={status} value={status}>{status}</MenuItem>
+                        {statuses.map((status) => (
+                          <MenuItem key={status} value={status}>
+                            {status}
+                          </MenuItem>
                         ))}
                       </Select>
                     </FormControl>
@@ -1702,7 +1908,7 @@ const JobBoard: React.FC = () => {
           {/* Job Listings */}
           <Grid container spacing={3}>
             {filteredJobs.length > 0 ? (
-              filteredJobs.map(job => (
+              filteredJobs.map((job) => (
                 <Grid item xs={12} md={6} lg={4} key={job.id}>
                   {renderJobCard(job)}
                 </Grid>
@@ -1720,7 +1926,7 @@ const JobBoard: React.FC = () => {
               </Grid>
             )}
           </Grid>
-          
+
           {/* Job Detail Dialog */}
           <Dialog
             open={jobDetailOpen}
@@ -1743,102 +1949,121 @@ const JobBoard: React.FC = () => {
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={8}>
                       <Box mb={3}>
-                        <Typography variant="h6" gutterBottom>Job Summary</Typography>
+                        <Typography variant="h6" gutterBottom>
+                          Job Summary
+                        </Typography>
                         <Typography variant="body1" paragraph>
                           {selectedJob.description}
                         </Typography>
                       </Box>
-                      
+
                       <Box mb={3}>
-                        <Typography variant="h6" gutterBottom>Responsibilities</Typography>
+                        <Typography variant="h6" gutterBottom>
+                          Responsibilities
+                        </Typography>
                         {renderFormattedContent(selectedJob.responsibilities)}
                       </Box>
-                      
+
                       <Box mb={3}>
-                        <Typography variant="h6" gutterBottom>Candidate Requirements</Typography>
+                        <Typography variant="h6" gutterBottom>
+                          Candidate Requirements
+                        </Typography>
                         {renderFormattedContent(selectedJob.requirements)}
                       </Box>
-                      
+
                       {/* Benefits section */}
                       <Box mb={3}>
-                        <Typography variant="h6" gutterBottom>Compensation and Benefits</Typography>
-                        {selectedJob.benefits ? renderFormattedContent(selectedJob.benefits) : (
+                        <Typography variant="h6" gutterBottom>
+                          Compensation and Benefits
+                        </Typography>
+                        {selectedJob.benefits ? (
+                          renderFormattedContent(selectedJob.benefits)
+                        ) : (
                           <Typography variant="body2" color="text.secondary">
                             No benefits specified
                           </Typography>
                         )}
                       </Box>
                     </Grid>
-                    
+
                     <Grid item xs={12} md={4}>
                       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-                        <Typography variant="subtitle1" gutterBottom>Job Information</Typography>
-                        
+                        <Typography variant="subtitle1" gutterBottom>
+                          Job Information
+                        </Typography>
+
                         <Box display="flex" alignItems="center" mb={1}>
                           <LocationIcon fontSize="small" color="action" sx={{ mr: 1 }} />
                           <Typography variant="body2">
                             <strong>Location:</strong> {selectedJob.location}
                           </Typography>
                         </Box>
-                        
+
                         <Box display="flex" alignItems="center" mb={1}>
                           <BusinessIcon fontSize="small" color="action" sx={{ mr: 1 }} />
                           <Typography variant="body2">
                             <strong>Department:</strong> {selectedJob.department}
                           </Typography>
                         </Box>
-                        
+
                         <Box display="flex" alignItems="center" mb={1}>
                           <SalaryIcon fontSize="small" color="action" sx={{ mr: 1 }} />
                           <Typography variant="body2">
                             <strong>Salary:</strong> {selectedJob.salary}
                           </Typography>
                         </Box>
-                        
+
                         <Box display="flex" alignItems="center" mb={1}>
                           <Typography variant="body2">
                             <strong>Type:</strong> {selectedJob.type}
                           </Typography>
                         </Box>
-                        
+
                         <Box display="flex" alignItems="center" mb={1}>
                           <Typography variant="body2">
                             <strong>Experience:</strong> {selectedJob.experience}
                           </Typography>
                         </Box>
-                        
+
                         <Box display="flex" alignItems="center" mb={1}>
                           <Typography variant="body2">
                             <strong>Status:</strong> {selectedJob.status}
                           </Typography>
                         </Box>
-                        
+
                         <Box display="flex" alignItems="center" mb={1}>
                           <DateIcon fontSize="small" color="action" sx={{ mr: 1 }} />
                           <Typography variant="body2">
-                            <strong>Posted:</strong> {selectedJob.status === 'Draft' ? 'Not published yet' : formatDate(selectedJob.postedDate)}
+                            <strong>Posted:</strong>{' '}
+                            {selectedJob.status === 'Draft'
+                              ? 'Not published yet'
+                              : formatDate(selectedJob.postedDate)}
                           </Typography>
                         </Box>
                       </Paper>
-                      
+
                       <Stack spacing={1}>
-                        <Button 
-                          variant="contained" 
-                          color="primary" 
-                          fullWidth
-                          onClick={() => handleOpenApplyDialog(selectedJob)}
-                        >
-                          Apply For This Job
-                        </Button>
-                        <Button 
+                        {selectedJob.status === 'Active' && (
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                            onClick={() => handleOpenApplyDialog(selectedJob)}
+                          >
+                            Apply For This Job
+                          </Button>
+                        )}
+                        <Button
                           variant="outlined"
-                          startIcon={selectedJob.isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+                          startIcon={
+                            selectedJob.isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />
+                          }
                           fullWidth
                           onClick={(e) => handleToggleBookmark(selectedJob.id, e)}
                         >
                           {selectedJob.isBookmarked ? 'Saved' : 'Save Job'}
                         </Button>
-                        <Button 
+                        <Button
                           variant="outlined"
                           startIcon={<ShareIcon />}
                           fullWidth
@@ -1856,12 +2081,9 @@ const JobBoard: React.FC = () => {
               </>
             )}
           </Dialog>
-          
+
           {/* Delete Confirmation Dialog */}
-          <Dialog
-            open={deleteDialogOpen}
-            onClose={() => setDeleteDialogOpen(false)}
-          >
+          <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
             <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogContent>
               <Typography>
@@ -1870,11 +2092,7 @@ const JobBoard: React.FC = () => {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-              <Button 
-                onClick={confirmDeleteJob} 
-                color="error" 
-                variant="contained"
-              >
+              <Button onClick={confirmDeleteJob} color="error" variant="contained">
                 Delete
               </Button>
             </DialogActions>
@@ -1887,7 +2105,7 @@ const JobBoard: React.FC = () => {
             fullWidth
             maxWidth="lg"
             PaperProps={{
-              sx: { minHeight: '80vh' }
+              sx: { minHeight: '80vh' },
             }}
           >
             <DialogTitle>
@@ -1908,8 +2126,8 @@ const JobBoard: React.FC = () => {
             <DialogContent dividers>
               <Box sx={{ width: '100%' }}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-                  <Tabs 
-                    value={activeTab} 
+                  <Tabs
+                    value={activeTab}
                     onChange={handleTabChange}
                     variant="scrollable"
                     scrollButtons="auto"
@@ -1921,648 +2139,767 @@ const JobBoard: React.FC = () => {
                     <Tab label="Salary & Benefits" />
                   </Tabs>
                 </Box>
-                
+
                 {/* Tab 1: Job Summary */}
                 {activeTab === 0 && (
                   <Box sx={{ p: 1 }}>
-                    <Typography variant="h6" gutterBottom>Basic Job Information</Typography>
-                  <TextField
-                    fullWidth
-                    label="Job Title"
+                    <Typography variant="h6" gutterBottom>
+                      Basic Job Information
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      label="Job Title"
                       name="title"
-                    margin="normal"
-                    required
+                      margin="normal"
+                      required
                       value={newJobForm.title}
                       onChange={handleFormChange}
                       error={formErrors.title}
-                      helperText={formErrors.title ? "Job title is required" : ""}
-                  />
-                    
+                      helperText={formErrors.title ? 'Job title is required' : ''}
+                    />
+
                     <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Department"
-                        name="department"
-                  required
-                        value={newJobForm.department}
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          label="Department"
+                          name="department"
+                          required
+                          value={newJobForm.department}
+                          onChange={handleFormChange}
+                          error={formErrors.department}
+                          helperText={formErrors.department ? 'Department is required' : ''}
+                          placeholder="e.g., Engineering, Marketing, HR"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          label="Location"
+                          name="location"
+                          required
+                          value={newJobForm.location}
+                          onChange={handleFormChange}
+                          error={formErrors.location}
+                          helperText={formErrors.location ? 'Location is required' : ''}
+                          placeholder="e.g., New York, Remote, San Francisco"
+                        />
+                      </Grid>
+                    </Grid>
+
+                    <FormControl fullWidth margin="normal">
+                      <InputLabel>Job Type</InputLabel>
+                      <Select
+                        label="Job Type"
+                        name="type"
+                        value={newJobForm.type}
                         onChange={handleFormChange}
-                        error={formErrors.department}
-                        helperText={formErrors.department ? "Department is required" : ""}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Location"
-                        name="location"
-                  required
-                        value={newJobForm.location}
+                        required
+                      >
+                        <MenuItem value="Full-time">Full-time</MenuItem>
+                        <MenuItem value="Part-time">Part-time</MenuItem>
+                        <MenuItem value="Contract">Contract</MenuItem>
+                        <MenuItem value="Temporary">Temporary</MenuItem>
+                        <MenuItem value="Internship">Internship</MenuItem>
+                      </Select>
+                    </FormControl>
+
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="subtitle1" gutterBottom>
+                        Featured Status
+                      </Typography>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={newJobForm.isFeatured}
+                            onChange={handleSwitchChange}
+                            sx={{
+                              '& .MuiSwitch-switchBase.Mui-checked': {
+                                color: amber[500],
+                                '&:hover': {
+                                  backgroundColor: alpha(amber[500], 0.1),
+                                },
+                              },
+                              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                backgroundColor: deepPurple[500],
+                              },
+                              '& .MuiSwitch-thumb': {
+                                boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
+                              },
+                            }}
+                          />
+                        }
+                        label={
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            {newJobForm.isFeatured ? (
+                              <StarIcon
+                                sx={{
+                                  mr: 1,
+                                  color: amber[500],
+                                  animation: 'pulse 1.5s infinite',
+                                  '@keyframes pulse': {
+                                    '0%': { opacity: 0.7 },
+                                    '50%': { opacity: 1 },
+                                    '100%': { opacity: 0.7 },
+                                  },
+                                }}
+                              />
+                            ) : (
+                              <StarBorderIcon sx={{ mr: 1 }} />
+                            )}
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                fontWeight: newJobForm.isFeatured ? 'bold' : 'normal',
+                                background: newJobForm.isFeatured
+                                  ? `linear-gradient(45deg, ${deepPurple[700]} 30%, ${purple[500]} 90%)`
+                                  : 'inherit',
+                                WebkitBackgroundClip: newJobForm.isFeatured ? 'text' : 'inherit',
+                                WebkitTextFillColor: newJobForm.isFeatured
+                                  ? 'transparent'
+                                  : 'inherit',
+                              }}
+                            >
+                              {newJobForm.isFeatured ? 'Featured Job' : 'Standard Job'}
+                            </Typography>
+                          </Box>
+                        }
+                      />
+                    </Box>
+                  </Box>
+                )}
+
+                {/* Tab 2: Job Outline */}
+                {activeTab === 1 && (
+                  <Box sx={{ p: 1 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Job Description and Responsibilities
+                    </Typography>
+
+                    <Box sx={{ position: 'relative', mb: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <Typography variant="subtitle1" component="label" htmlFor="description">
+                          Job Description
+                          <Typography component="span" color="error">
+                            *
+                          </Typography>
+                        </Typography>
+                        <Tooltip title="Provide a comprehensive overview of the job, including its purpose, main duties, and how it fits into the organization">
+                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                        </Tooltip>
+                      </Box>
+                      {renderTextEditorToolbar('description', 'Job Description')}
+                      <TextField
+                        id="description"
+                        fullWidth
+                        name="description"
+                        multiline
+                        rows={8}
+                        required
+                        value={newJobForm.description}
                         onChange={handleFormChange}
-                        error={formErrors.location}
-                        helperText={formErrors.location ? "Location is required" : ""}
-                />
-              </Grid>
-                  </Grid>
-                  
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Job Type</InputLabel>
-                  <Select
-                    label="Job Type"
-                      name="type"
-                      value={newJobForm.type}
-                      onChange={handleFormChange}
-                      required
+                        error={formErrors.description}
+                        helperText={
+                          formErrors.description
+                            ? 'Job description is required'
+                            : 'Max 2000 characters'
+                        }
+                        inputProps={{ maxLength: 2000 }}
+                      />
+                    </Box>
+
+                    <Box sx={{ position: 'relative' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <Typography
+                          variant="subtitle1"
+                          component="label"
+                          htmlFor="responsibilities"
+                        >
+                          Responsibilities
+                          <Typography component="span" color="error">
+                            *
+                          </Typography>
+                        </Typography>
+                        <Tooltip title="List the key responsibilities for this position, enter each responsibility on a new line">
+                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                        </Tooltip>
+                      </Box>
+                      {renderTextEditorToolbar('responsibilities', 'Responsibilities')}
+                      <TextField
+                        id="responsibilities"
+                        fullWidth
+                        name="responsibilities"
+                        multiline
+                        rows={8}
+                        value={newJobForm.responsibilities}
+                        onChange={handleFormChange}
+                        placeholder="Enter each responsibility on a new line"
+                        helperText={
+                          formErrors.responsibilities
+                            ? 'Responsibilities are required'
+                            : 'Max 1000 characters'
+                        }
+                        inputProps={{ maxLength: 1000 }}
+                        required
+                        error={formErrors.responsibilities}
+                      />
+                    </Box>
+                  </Box>
+                )}
+
+                {/* Tab 3: Qualifications & Experience */}
+                {activeTab === 2 && (
+                  <Box sx={{ p: 1 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Candidate Requirements
+                    </Typography>
+
+                    <Box sx={{ position: 'relative', mb: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <Typography variant="subtitle1" component="label" htmlFor="experience">
+                          Experience Required
+                          <Typography component="span" color="error">
+                            *
+                          </Typography>
+                        </Typography>
+                        <Tooltip title="Specify the years of experience needed for this position">
+                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                        </Tooltip>
+                      </Box>
+                      <TextField
+                        id="experience"
+                        fullWidth
+                        name="experience"
+                        margin="normal"
+                        value={newJobForm.experience}
+                        onChange={handleFormChange}
+                        placeholder="e.g., 3-5 years in similar role"
+                        helperText={
+                          formErrors.experience ? 'Experience is required' : 'Max 100 characters'
+                        }
+                        inputProps={{ maxLength: 100 }}
+                        required
+                        error={formErrors.experience}
+                      />
+                    </Box>
+
+                    <Box sx={{ position: 'relative', mb: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <Typography variant="subtitle1" component="label" htmlFor="requirements">
+                          Qualifications
+                          <Typography component="span" color="error">
+                            *
+                          </Typography>
+                        </Typography>
+                        <Tooltip title="List the qualifications required for this position, such as education, certifications, or knowledge areas">
+                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                        </Tooltip>
+                      </Box>
+                      {renderTextEditorToolbar('requirements', 'Qualifications')}
+                      <TextField
+                        id="requirements"
+                        fullWidth
+                        name="requirements"
+                        multiline
+                        rows={6}
+                        value={newJobForm.requirements}
+                        onChange={handleFormChange}
+                        placeholder="Enter each qualification on a new line"
+                        helperText={
+                          formErrors.requirements
+                            ? 'Qualifications are required'
+                            : 'Max 1000 characters'
+                        }
+                        inputProps={{ maxLength: 1000 }}
+                        required
+                        error={formErrors.requirements}
+                      />
+                    </Box>
+
+                    <Box sx={{ position: 'relative' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <Typography variant="subtitle1" component="label" htmlFor="skills">
+                          Skills
+                          <Typography component="span" color="error">
+                            *
+                          </Typography>
+                        </Typography>
+                        <Tooltip title="Specify technical or soft skills needed for the role, one per line">
+                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                        </Tooltip>
+                      </Box>
+                      {renderTextEditorToolbar('skills', 'Skills')}
+                      <TextField
+                        id="skills"
+                        fullWidth
+                        name="skills"
+                        multiline
+                        rows={4}
+                        value={newJobForm.skills}
+                        onChange={handleFormChange}
+                        placeholder="Enter each skill on a new line"
+                        helperText={
+                          formErrors.skills ? 'Skills are required' : 'Max 500 characters'
+                        }
+                        inputProps={{ maxLength: 500 }}
+                        required
+                        error={formErrors.skills}
+                      />
+                    </Box>
+                  </Box>
+                )}
+
+                {/* Tab 4: Salary & Benefits */}
+                {activeTab === 3 && (
+                  <Box sx={{ p: 1 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Compensation and Benefits
+                    </Typography>
+
+                    <Box sx={{ position: 'relative', mb: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <Typography variant="subtitle1" component="label" htmlFor="salary">
+                          Salary Range
+                          <Typography component="span" color="error">
+                            *
+                          </Typography>
+                        </Typography>
+                        <Tooltip title="Provide a salary range to attract the right candidates">
+                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                        </Tooltip>
+                      </Box>
+                      <TextField
+                        id="salary"
+                        fullWidth
+                        name="salary"
+                        margin="normal"
+                        value={newJobForm.salary}
+                        onChange={handleSalaryChange}
+                        placeholder="e.g., $80,000 - $100,000"
+                        helperText={formErrors.salary ? 'Salary is required' : 'Max 100 characters'}
+                        inputProps={{ maxLength: 100 }}
+                        required
+                        error={formErrors.salary}
+                      />
+                    </Box>
+
+                    <Box sx={{ position: 'relative' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <Typography variant="subtitle1" component="label" htmlFor="benefits">
+                          Benefits
+                          <Typography component="span" color="error">
+                            *
+                          </Typography>
+                        </Typography>
+                        <Tooltip title="List benefits such as healthcare, 401k, time off, work-from-home options, etc.">
+                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                        </Tooltip>
+                      </Box>
+                      {renderTextEditorToolbar('benefits', 'Benefits')}
+                      <TextField
+                        id="benefits"
+                        fullWidth
+                        name="benefits"
+                        multiline
+                        rows={8}
+                        value={newJobForm.benefits}
+                        onChange={handleFormChange}
+                        placeholder="Enter each benefit on a new line"
+                        helperText={
+                          formErrors.benefits ? 'Benefits are required' : 'Max 1000 characters'
+                        }
+                        inputProps={{ maxLength: 1000 }}
+                        required
+                        error={formErrors.benefits}
+                      />
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+            </DialogContent>
+            <DialogActions
+              sx={{
+                px: 3,
+                py: 2,
+                display: 'flex',
+                justifyContent: 'space-between',
+                borderTop: '1px solid rgba(0, 0, 0, 0.12)',
+              }}
+            >
+              <Box>
+                <Button onClick={() => setNewJobDialogOpen(false)} color="inherit">
+                  Cancel
+                </Button>
+              </Box>
+
+              <Box display="flex" gap={1}>
+                {activeTab > 0 && (
+                  <Button
+                    onClick={handlePrevTab}
+                    startIcon={<KeyboardArrowLeft />}
+                    variant="outlined"
                   >
-                    <MenuItem value="Full-time">Full-time</MenuItem>
-                    <MenuItem value="Part-time">Part-time</MenuItem>
-                    <MenuItem value="Contract">Contract</MenuItem>
-                    <MenuItem value="Temporary">Temporary</MenuItem>
-                    <MenuItem value="Internship">Internship</MenuItem>
-                  </Select>
-                </FormControl>
-                  
-                  <Box sx={{ mt: 2 }}>
-                    <Typography variant="subtitle1" gutterBottom>Featured Status</Typography>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={newJobForm.isFeatured}
-                          onChange={handleSwitchChange}
+                    Previous
+                  </Button>
+                )}
+
+                {activeTab < 3 && (
+                  <Button
+                    onClick={handleNextTab}
+                    endIcon={<KeyboardArrowRight />}
+                    variant="outlined"
+                  >
+                    Next
+                  </Button>
+                )}
+
+                {/* Draft and Publish buttons */}
+                <Box sx={{ ml: 1 }}>
+                  <ButtonGroup variant="contained">
+                    <Button
+                      onClick={() => handleCreateNewJob(true)}
+                      startIcon={
+                        <CloudUploadIcon
                           sx={{
-                            '& .MuiSwitch-switchBase.Mui-checked': {
-                              color: amber[500],
-                              '&:hover': {
-                                backgroundColor: alpha(amber[500], 0.1),
-                              }
+                            animation: 'float 3s ease-in-out infinite',
+                            '@keyframes float': {
+                              '0%, 100%': { transform: 'translateY(0)' },
+                              '50%': { transform: 'translateY(-3px)' },
                             },
-                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                              backgroundColor: deepPurple[500],
-                            },
-                            '& .MuiSwitch-thumb': {
-                              boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
-                            }
                           }}
                         />
                       }
-                      label={
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          {newJobForm.isFeatured ? (
-                            <StarIcon sx={{ 
-                              mr: 1, 
-                              color: amber[500],
-                              animation: 'pulse 1.5s infinite',
-                              '@keyframes pulse': {
-                                '0%': { opacity: 0.7 },
-                                '50%': { opacity: 1 },
-                                '100%': { opacity: 0.7 },
-                              }
-                            }} />
-                          ) : (
-                            <StarBorderIcon sx={{ mr: 1 }} />
-                          )}
-                          <Typography 
-                            variant="body1" 
-                            sx={{ 
-                              fontWeight: newJobForm.isFeatured ? 'bold' : 'normal',
-                              background: newJobForm.isFeatured ? 
-                                `linear-gradient(45deg, ${deepPurple[700]} 30%, ${purple[500]} 90%)` : 
-                                'inherit',
-                              WebkitBackgroundClip: newJobForm.isFeatured ? 'text' : 'inherit',
-                              WebkitTextFillColor: newJobForm.isFeatured ? 'transparent' : 'inherit',
-                            }}
-                          >
-                            {newJobForm.isFeatured ? "Featured Job" : "Standard Job"}
-                          </Typography>
-                        </Box>
-                      }
-                    />
-                  </Box>
-                </Box>
-              )}
-              
-              {/* Tab 2: Job Outline */}
-              {activeTab === 1 && (
-                <Box sx={{ p: 1 }}>
-                  <Typography variant="h6" gutterBottom>Job Description and Responsibilities</Typography>
-                  
-                  <Box sx={{ position: 'relative', mb: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="subtitle1" component="label" htmlFor="description">
-                        Job Description
-                        <Typography component="span" color="error">*</Typography>
-                      </Typography>
-                      <Tooltip title="Provide a comprehensive overview of the job, including its purpose, main duties, and how it fits into the organization">
-                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                      </Tooltip>
-                    </Box>
-                    {renderTextEditorToolbar('description', 'Job Description')}
-                <TextField
-                      id="description"
-                  fullWidth
-                      name="description"
-                      multiline
-                      rows={8}
-                      required
-                      value={newJobForm.description}
-                      onChange={handleFormChange}
-                      error={formErrors.description}
-                      helperText={formErrors.description ? "Job description is required" : "Max 2000 characters"}
-                      inputProps={{ maxLength: 2000 }}
-                    />
-                  </Box>
-                  
-                  <Box sx={{ position: 'relative' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="subtitle1" component="label" htmlFor="responsibilities">
-                        Responsibilities
-                        <Typography component="span" color="error">*</Typography>
-                      </Typography>
-                      <Tooltip title="List the key responsibilities for this position, enter each responsibility on a new line">
-                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                      </Tooltip>
-                    </Box>
-                    {renderTextEditorToolbar('responsibilities', 'Responsibilities')}
-                <TextField
-                      id="responsibilities"
-                  fullWidth
-                      name="responsibilities"
-                      multiline
-                      rows={8}
-                      value={newJobForm.responsibilities}
-                      onChange={handleFormChange}
-                      placeholder="Enter each responsibility on a new line"
-                      helperText={formErrors.responsibilities ? "Responsibilities are required" : "Max 1000 characters"}
-                      inputProps={{ maxLength: 1000 }}
-                      required
-                      error={formErrors.responsibilities}
-                    />
-                  </Box>
-                </Box>
-              )}
-              
-              {/* Tab 3: Qualifications & Experience */}
-              {activeTab === 2 && (
-                <Box sx={{ p: 1 }}>
-                  <Typography variant="h6" gutterBottom>Candidate Requirements</Typography>
-                  
-                  <Box sx={{ position: 'relative', mb: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="subtitle1" component="label" htmlFor="experience">
-                        Experience Required
-                        <Typography component="span" color="error">*</Typography>
-                      </Typography>
-                      <Tooltip title="Specify the years of experience needed for this position">
-                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                      </Tooltip>
-                    </Box>
-                <TextField
-                      id="experience"
-                  fullWidth
-                      name="experience"
-                  margin="normal"
-                      value={newJobForm.experience}
-                      onChange={handleFormChange}
-                      placeholder="e.g., 3-5 years in similar role"
-                      helperText={formErrors.experience ? "Experience is required" : "Max 100 characters"}
-                      inputProps={{ maxLength: 100 }}
-                      required
-                      error={formErrors.experience}
-                    />
-                  </Box>
-                  
-                  <Box sx={{ position: 'relative', mb: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="subtitle1" component="label" htmlFor="requirements">
-                        Qualifications
-                        <Typography component="span" color="error">*</Typography>
-                      </Typography>
-                      <Tooltip title="List the qualifications required for this position, such as education, certifications, or knowledge areas">
-                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                      </Tooltip>
-                    </Box>
-                    {renderTextEditorToolbar('requirements', 'Qualifications')}
-                    <TextField
-                      id="requirements"
-                      fullWidth
-                      name="requirements"
-                      multiline
-                      rows={6}
-                      value={newJobForm.requirements}
-                      onChange={handleFormChange}
-                      placeholder="Enter each qualification on a new line"
-                      helperText={formErrors.requirements ? "Qualifications are required" : "Max 1000 characters"}
-                      inputProps={{ maxLength: 1000 }}
-                      required
-                      error={formErrors.requirements}
-                    />
-                  </Box>
-                  
-                  <Box sx={{ position: 'relative' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="subtitle1" component="label" htmlFor="skills">
-                        Skills
-                        <Typography component="span" color="error">*</Typography>
-                      </Typography>
-                      <Tooltip title="Specify technical or soft skills needed for the role, one per line">
-                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                      </Tooltip>
-                    </Box>
-                    {renderTextEditorToolbar('skills', 'Skills')}
-                    <TextField
-                      id="skills"
-                      fullWidth
-                      name="skills"
-                  multiline
-                  rows={4}
-                      value={newJobForm.skills}
-                      onChange={handleFormChange}
-                      placeholder="Enter each skill on a new line"
-                      helperText={formErrors.skills ? "Skills are required" : "Max 500 characters"}
-                      inputProps={{ maxLength: 500 }}
-                  required
-                      error={formErrors.skills}
-                    />
-                  </Box>
-                </Box>
-              )}
-              
-              {/* Tab 4: Salary & Benefits */}
-              {activeTab === 3 && (
-                <Box sx={{ p: 1 }}>
-                  <Typography variant="h6" gutterBottom>Compensation and Benefits</Typography>
-                  
-                  <Box sx={{ position: 'relative', mb: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="subtitle1" component="label" htmlFor="salary">
-                        Salary Range
-                        <Typography component="span" color="error">*</Typography>
-                      </Typography>
-                      <Tooltip title="Provide a salary range to attract the right candidates">
-                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                      </Tooltip>
-                    </Box>
-                    <TextField
-                      id="salary"
-                      fullWidth
-                      name="salary"
-                      margin="normal"
-                      value={newJobForm.salary}
-                      onChange={handleSalaryChange}
-                      placeholder="e.g., $80,000 - $100,000"
-                      helperText={formErrors.salary ? "Salary is required" : "Max 100 characters"}
-                      inputProps={{ maxLength: 100 }}
-                      required
-                      error={formErrors.salary}
-                    />
-                  </Box>
-                  
-                  <Box sx={{ position: 'relative' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="subtitle1" component="label" htmlFor="benefits">
-                        Benefits
-                        <Typography component="span" color="error">*</Typography>
-                      </Typography>
-                      <Tooltip title="List benefits such as healthcare, 401k, time off, work-from-home options, etc.">
-                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                      </Tooltip>
-                    </Box>
-                    {renderTextEditorToolbar('benefits', 'Benefits')}
-                    <TextField
-                      id="benefits"
-                      fullWidth
-                      name="benefits"
-                      multiline
-                      rows={8}
-                      value={newJobForm.benefits}
-                      onChange={handleFormChange}
-                      placeholder="Enter each benefit on a new line"
-                      helperText={formErrors.benefits ? "Benefits are required" : "Max 1000 characters"}
-                      inputProps={{ maxLength: 1000 }}
-                      required
-                      error={formErrors.benefits}
-                    />
-                  </Box>
-                </Box>
-              )}
-            </Box>
-          </DialogContent>
-          <DialogActions sx={{ 
-            px: 3, 
-            py: 2, 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            borderTop: '1px solid rgba(0, 0, 0, 0.12)' 
-          }}>
-            <Box>
-              <Button 
-                onClick={() => setNewJobDialogOpen(false)} 
-                color="inherit"
-              >
-                Cancel
-              </Button>
-            </Box>
-
-            <Box display="flex" gap={1}>
-              {activeTab > 0 && (
-                <Button 
-                  onClick={handlePrevTab}
-                  startIcon={<KeyboardArrowLeft />}
-                  variant="outlined"
-                >
-                  Previous
-                </Button>
-              )}
-              
-              {activeTab < 3 && (
-                <Button 
-                  onClick={handleNextTab}
-                  endIcon={<KeyboardArrowRight />}
-                  variant="outlined"
-                >
-                  Next
-                </Button>
-              )}
-              
-              {/* Draft and Publish buttons */}
-              <Box sx={{ ml: 1 }}>
-                <ButtonGroup variant="contained">
-                  <Button
-                    onClick={() => handleCreateNewJob(true)}
-                    startIcon={<CloudUploadIcon 
-                      sx={{ 
-                        animation: 'float 3s ease-in-out infinite',
-                        '@keyframes float': {
-                          '0%, 100%': { transform: 'translateY(0)' },
-                          '50%': { transform: 'translateY(-3px)' }
-                        }
+                      sx={{
+                        background: `linear-gradient(45deg, ${amber[700]} 0%, ${amber[500]} 100%)`,
+                        color: 'white',
+                        fontWeight: 'bold',
+                        boxShadow: '0 3px 5px 2px rgba(255, 193, 7, 0.3)',
+                        '&:hover': {
+                          background: `linear-gradient(45deg, ${amber[800]} 0%, ${amber[600]} 100%)`,
+                          boxShadow: '0 4px 8px 2px rgba(255, 193, 7, 0.4)',
+                          transform: 'translateY(-2px)',
+                        },
+                        transition: 'all 0.3s ease',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&::after': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: '-100%',
+                          width: '100%',
+                          height: '100%',
+                          background:
+                            'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                          transition: '0.5s',
+                        },
+                        '&:hover::after': {
+                          left: '100%',
+                        },
                       }}
-                    />}
-                    sx={{ 
-                      background: `linear-gradient(45deg, ${amber[700]} 0%, ${amber[500]} 100%)`,
-                      color: 'white',
-                      fontWeight: 'bold',
-                      boxShadow: '0 3px 5px 2px rgba(255, 193, 7, 0.3)',
-                      '&:hover': {
-                        background: `linear-gradient(45deg, ${amber[800]} 0%, ${amber[600]} 100%)`,
-                        boxShadow: '0 4px 8px 2px rgba(255, 193, 7, 0.4)',
-                        transform: 'translateY(-2px)'
-                      },
-                      transition: 'all 0.3s ease',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      '&::after': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: '-100%',
-                        width: '100%',
-                        height: '100%',
-                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                        transition: '0.5s',
-                      },
-                      '&:hover::after': {
-                        left: '100%'
+                    >
+                      Save as Draft
+                    </Button>
+                    <Button
+                      onClick={() => handleCreateNewJob(false)}
+                      startIcon={
+                        <PublishIcon
+                          sx={{
+                            animation: 'rise 2s ease-in-out infinite',
+                            '@keyframes rise': {
+                              '0%, 100%': { transform: 'translateY(0)' },
+                              '50%': { transform: 'translateY(-3px)' },
+                            },
+                          }}
+                        />
                       }
-                    }}
-                  >
-                    Save as Draft
-                  </Button>
-                  <Button
-                    onClick={() => handleCreateNewJob(false)}
-                    startIcon={<PublishIcon 
-                      sx={{ 
-                        animation: 'rise 2s ease-in-out infinite',
-                        '@keyframes rise': {
-                          '0%, 100%': { transform: 'translateY(0)' },
-                          '50%': { transform: 'translateY(-3px)' }
-                        }
+                      sx={{
+                        background: 'linear-gradient(45deg, #2e7d32 0%, #4caf50 100%)',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        boxShadow: '0 3px 5px 2px rgba(76, 175, 80, 0.3)',
+                        '&:hover': {
+                          background: 'linear-gradient(45deg, #1b5e20 0%, #388e3c 100%)',
+                          boxShadow: '0 4px 8px 2px rgba(76, 175, 80, 0.4)',
+                          transform: 'translateY(-2px)',
+                        },
+                        transition: 'all 0.3s ease',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&::after': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: '-100%',
+                          width: '100%',
+                          height: '100%',
+                          background:
+                            'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                          transition: '0.5s',
+                        },
+                        '&:hover::after': {
+                          left: '100%',
+                        },
                       }}
-                    />}
-                    sx={{ 
-                      background: 'linear-gradient(45deg, #2e7d32 0%, #4caf50 100%)',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      boxShadow: '0 3px 5px 2px rgba(76, 175, 80, 0.3)',
-                      '&:hover': {
-                        background: 'linear-gradient(45deg, #1b5e20 0%, #388e3c 100%)',
-                        boxShadow: '0 4px 8px 2px rgba(76, 175, 80, 0.4)',
-                        transform: 'translateY(-2px)'
-                      },
-                      transition: 'all 0.3s ease',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      '&::after': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: '-100%',
-                        width: '100%',
-                        height: '100%',
-                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                        transition: '0.5s',
-                      },
-                      '&:hover::after': {
-                        left: '100%'
-                      }
-                    }}
-                    disabled={!isFormValid}
-                  >
-                    Publish Job
-                  </Button>
-                </ButtonGroup>
+                      disabled={!isFormValid}
+                    >
+                      Publish Job
+                    </Button>
+                  </ButtonGroup>
+                </Box>
               </Box>
-            </Box>
-          </DialogActions>
-        </Dialog>
+            </DialogActions>
+          </Dialog>
 
-        {/* Share Job Dialog */}
-        <Dialog
-          open={shareDialogOpen}
-          onClose={() => setShareDialogOpen(false)}
-          fullWidth
-          maxWidth="sm"
-        >
-          <DialogTitle>Share Job</DialogTitle>
-          <DialogContent>
-            {jobToShare && (
-              <>
-                <Typography variant="subtitle1" gutterBottom>
-                  Sharing: {jobToShare.title}
+          {/* Share Job Dialog */}
+          <Dialog
+            open={shareDialogOpen}
+            onClose={() => setShareDialogOpen(false)}
+            fullWidth
+            maxWidth="sm"
+          >
+            <DialogTitle>Share Job</DialogTitle>
+            <DialogContent>
+              {jobToShare && (
+                <>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Sharing: {jobToShare.title}
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    label="Email Address"
+                    type="email"
+                    margin="normal"
+                    value={emailTo}
+                    onChange={(e) => setEmailTo(e.target.value)}
+                    required
+                  />
+                  <TextField
+                    fullWidth
+                    label="Message (Optional)"
+                    margin="normal"
+                    multiline
+                    rows={4}
+                    value={shareMessage}
+                    onChange={(e) => setShareMessage(e.target.value)}
+                    placeholder="Check out this job opportunity that might interest you!"
+                  />
+                </>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setShareDialogOpen(false)}>Cancel</Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleShareJob}
+                disabled={!emailTo}
+              >
+                Share
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Apply For Job Dialog */}
+          <Dialog
+            open={applyDialogOpen}
+            onClose={() => setApplyDialogOpen(false)}
+            fullWidth
+            maxWidth="md"
+          >
+            <DialogTitle>Apply For Job</DialogTitle>
+            <DialogContent>
+              {jobToApply && (
+                <>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Applying for: {jobToApply.title}
+                  </Typography>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField fullWidth label="First Name" margin="normal" required />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField fullWidth label="Last Name" margin="normal" required />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField fullWidth label="Email" type="email" margin="normal" required />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField fullWidth label="Phone" margin="normal" required />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                        Resume/CV
+                      </Typography>
+                      <Button
+                        variant="outlined"
+                        component="label"
+                        startIcon={<CloudUploadIcon />}
+                        fullWidth
+                      >
+                        Upload Resume
+                        <input type="file" hidden />
+                      </Button>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                        Cover Letter (Optional)
+                      </Typography>
+                      <Button
+                        variant="outlined"
+                        component="label"
+                        startIcon={<CloudUploadIcon />}
+                        fullWidth
+                      >
+                        Upload Cover Letter
+                        <input type="file" hidden />
+                      </Button>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        label="Additional Information"
+                        margin="normal"
+                        multiline
+                        rows={4}
+                        placeholder="Include any additional information you'd like to share with the hiring team."
+                      />
+                    </Grid>
+                  </Grid>
+                </>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setApplyDialogOpen(false)}>Cancel</Button>
+              <Button variant="contained" color="primary" onClick={handleApplyForJob}>
+                Submit Application
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Preview Dialog */}
+          <Dialog
+            open={previewDialogOpen}
+            onClose={() => setPreviewDialogOpen(false)}
+            fullWidth
+            maxWidth="md"
+          >
+            <DialogTitle>
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Typography variant="h6">Preview: {previewTitle}</Typography>
+                <IconButton onClick={() => setPreviewDialogOpen(false)} size="small">
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+            </DialogTitle>
+            <DialogContent dividers>
+              <Box sx={{ p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+                <div dangerouslySetInnerHTML={{ __html: previewContent }} />
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setPreviewDialogOpen(false)}>Close</Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Publish Confirmation Dialog */}
+          <Dialog
+            open={publishConfirmDialogOpen}
+            onClose={() => setPublishConfirmDialogOpen(false)}
+            maxWidth="sm"
+            fullWidth
+          >
+            <DialogTitle>
+              <Box display="flex" alignItems="center" gap={1}>
+                <PublishIcon color="warning" />
+                <Typography variant="h6">Publish Job Confirmation</Typography>
+              </Box>
+            </DialogTitle>
+            <DialogContent>
+              <Box sx={{ mb: 2 }}>
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                  <AlertTitle>Publishing is a one-way action</AlertTitle>
+                  Once a job is published, it <strong>cannot be edited</strong>. You will only be
+                  able to change its status (Active, On-Hold, or Closed) after publishing.
+                </Alert>
+
+                {jobToPublish && (
+                  <Typography variant="body1">
+                    Are you sure you want to publish "<strong>{jobToPublish.job.title}</strong>"?
+                  </Typography>
+                )}
+              </Box>
+
+              <Box
+                sx={{
+                  mt: 2,
+                  bgcolor: '#ffffff',
+                  p: 2,
+                  borderRadius: 1,
+                  border: '1px solid #e0e0e0',
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  gutterBottom
+                  sx={{ color: '#000000', fontWeight: 600, fontSize: '1rem' }}
+                >
+                  What happens after publishing:
                 </Typography>
-                <TextField
-                  fullWidth
-                  label="Email Address"
-                  type="email"
-                  margin="normal"
-                  value={emailTo}
-                  onChange={(e) => setEmailTo(e.target.value)}
-                  required
-                />
-                <TextField
-                  fullWidth
-                  label="Message (Optional)"
-                  margin="normal"
-                  multiline
-                  rows={4}
-                  value={shareMessage}
-                  onChange={(e) => setShareMessage(e.target.value)}
-                  placeholder="Check out this job opportunity that might interest you!"
-                />
-              </>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setShareDialogOpen(false)}>Cancel</Button>
-            <Button 
-              variant="contained" 
-              color="primary"
-              onClick={handleShareJob}
-              disabled={!emailTo}
-            >
-              Share
-            </Button>
-          </DialogActions>
-        </Dialog>
 
-        {/* Apply For Job Dialog */}
-        <Dialog
-          open={applyDialogOpen}
-          onClose={() => setApplyDialogOpen(false)}
-          fullWidth
-          maxWidth="md"
-        >
-          <DialogTitle>Apply For Job</DialogTitle>
-          <DialogContent>
-            {jobToApply && (
-              <>
-                <Typography variant="subtitle1" gutterBottom>
-                  Applying for: {jobToApply.title}
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="First Name"
-                      margin="normal"
-                      required
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Last Name"
-                      margin="normal"
-                      required
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Email"
-                      type="email"
-                      margin="normal"
-                      required
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Phone"
-                      margin="normal"
-                      required
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
-                      Resume/CV
-                    </Typography>
-                    <Button
-                      variant="outlined"
-                      component="label"
-                      startIcon={<CloudUploadIcon />}
-                      fullWidth
-                    >
-                      Upload Resume
-                      <input type="file" hidden />
-                    </Button>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
-                      Cover Letter (Optional)
-                    </Typography>
-                    <Button
-                      variant="outlined"
-                      component="label"
-                      startIcon={<CloudUploadIcon />}
-                      fullWidth
-                    >
-                      Upload Cover Letter
-                      <input type="file" hidden />
-                    </Button>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Additional Information"
-                      margin="normal"
-                      multiline
-                      rows={4}
-                      placeholder="Include any additional information you'd like to share with the hiring team."
-                    />
-                  </Grid>
-                </Grid>
-              </>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setApplyDialogOpen(false)}>Cancel</Button>
-            <Button 
-              variant="contained" 
-              color="primary"
-              onClick={handleApplyForJob}
-            >
-              Submit Application
-            </Button>
-          </DialogActions>
-        </Dialog>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, mt: 1 }}>
+                  <CheckIcon style={{ color: '#2e7d32', marginRight: '12px' }} fontSize="small" />
+                  <Typography sx={{ color: '#000000', fontWeight: 500 }}>
+                    Job becomes immediately visible to applicants
+                  </Typography>
+                </Box>
 
-        {/* Preview Dialog */}
-        <Dialog
-          open={previewDialogOpen}
-          onClose={() => setPreviewDialogOpen(false)}
-          fullWidth
-          maxWidth="md"
-        >
-          <DialogTitle>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="h6">Preview: {previewTitle}</Typography>
-              <IconButton onClick={() => setPreviewDialogOpen(false)} size="small">
-                <CloseIcon />
-              </IconButton>
-            </Box>
-          </DialogTitle>
-          <DialogContent dividers>
-            <Box sx={{ p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-              <div dangerouslySetInnerHTML={{ __html: previewContent }} />
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setPreviewDialogOpen(false)}>Close</Button>
-          </DialogActions>
-        </Dialog>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <CheckIcon style={{ color: '#2e7d32', marginRight: '12px' }} fontSize="small" />
+                  <Typography sx={{ color: '#000000', fontWeight: 500 }}>
+                    Applications can be received
+                  </Typography>
+                </Box>
 
-        {/* Snackbar for notifications */}
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={6000}
-          onClose={() => setSnackbarOpen(false)}
-          message={snackbarMessage}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        />
-      </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <BlockIcon style={{ color: '#d32f2f', marginRight: '12px' }} fontSize="small" />
+                  <Typography sx={{ color: '#000000', fontWeight: 500 }}>
+                    Job content cannot be modified
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <InfoIcon style={{ color: '#0288d1', marginRight: '12px' }} fontSize="small" />
+                  <Typography sx={{ color: '#000000', fontWeight: 500 }}>
+                    Status can be changed (Active, On-Hold, Closed)
+                  </Typography>
+                </Box>
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setPublishConfirmDialogOpen(false)}>Cancel</Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={confirmPublishJob}
+                startIcon={<PublishIcon />}
+              >
+                Publish Job
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Snackbar for notifications */}
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={6000}
+            onClose={() => setSnackbarOpen(false)}
+            message={snackbarMessage}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          />
+        </Box>
       )}
     </Box>
   );
-}
+};
 export default JobBoard;

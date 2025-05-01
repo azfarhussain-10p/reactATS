@@ -11,7 +11,7 @@ const CareerHeader = () => {
             <img src="/assets/10Pearls.png" alt="10Pearls Logo" className="company-logo" />
           </Link>
         </div>
-        
+
         <nav className="career-navigation">
           <ul className="nav-links">
             <li>
@@ -25,14 +25,18 @@ const CareerHeader = () => {
             </li>
           </ul>
         </nav>
-        
+
         <div className="auth-links">
-          <Link to="/login" className="login-link">Log In</Link>
-          <Link to="/register" className="register-link">Sign Up</Link>
+          <Link to="/login" className="login-link">
+            Log In
+          </Link>
+          <Link to="/register" className="register-link">
+            Sign Up
+          </Link>
         </div>
       </div>
     </header>
   );
 };
 
-export default CareerHeader; 
+export default CareerHeader;

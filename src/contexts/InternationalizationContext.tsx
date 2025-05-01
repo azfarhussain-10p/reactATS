@@ -9,7 +9,7 @@ export const availableLanguages = {
   zh: '中文',
   ja: '日本語',
   ar: 'العربية',
-  hi: 'हिन्दी'
+  hi: 'हिन्दी',
 };
 
 // Define language direction by language code
@@ -21,7 +21,7 @@ export const languageDirections: Record<string, 'ltr' | 'rtl'> = {
   zh: 'ltr',
   ja: 'ltr',
   ar: 'rtl',
-  hi: 'ltr'
+  hi: 'ltr',
 };
 
 // Interface for internationalization context
@@ -36,7 +36,9 @@ interface InternationalizationContextType {
 }
 
 // Create context
-const InternationalizationContext = createContext<InternationalizationContextType | undefined>(undefined);
+const InternationalizationContext = createContext<InternationalizationContextType | undefined>(
+  undefined
+);
 
 // Translation data store - in a real app, this would be loaded from a server or JSON files
 const translations: Record<string, Record<string, string>> = {
@@ -81,7 +83,7 @@ const translations: Record<string, Record<string, string>> = {
     'compliance.dataDeletion': 'Data Deletion Request',
     'compliance.eeoc': 'Equal Employment Opportunity',
     'compliance.anonymizedReview': 'Anonymized Review',
-    'compliance.geoCompliance': 'Geolocation Compliance'
+    'compliance.geoCompliance': 'Geolocation Compliance',
   },
   es: {
     'app.title': 'Aplicación ATS',
@@ -117,14 +119,15 @@ const translations: Record<string, Record<string, string>> = {
     'footer.termsOfService': 'Términos de Servicio',
     'footer.dataProtection': 'Protección de Datos',
     'gdpr.notice': 'Esta aplicación procesa datos personales de acuerdo con las regulaciones GDPR.',
-    'ccpa.notice': 'Los residentes de California tienen derechos específicos de privacidad bajo CCPA.',
+    'ccpa.notice':
+      'Los residentes de California tienen derechos específicos de privacidad bajo CCPA.',
     'compliance.dataRetention': 'Retención de Datos',
     'compliance.candidateConsent': 'Consentimiento del Candidato',
     'compliance.dataAccess': 'Solicitud de Acceso a Datos',
     'compliance.dataDeletion': 'Solicitud de Eliminación de Datos',
     'compliance.eeoc': 'Igualdad de Oportunidades de Empleo',
     'compliance.anonymizedReview': 'Revisión Anónima',
-    'compliance.geoCompliance': 'Cumplimiento de Geolocalización'
+    'compliance.geoCompliance': 'Cumplimiento de Geolocalización',
   },
   // Add more languages as needed
 };
@@ -135,80 +138,80 @@ export const InternationalizationProvider: React.FC<{ children: ReactNode }> = (
   const getBrowserLanguage = (): string => {
     // Get browser language (first 2 chars)
     const browserLang = navigator.language.slice(0, 2);
-    
+
     // Check if browser language is supported
     return browserLang in availableLanguages ? browserLang : 'en';
   };
-  
+
   const [currentLanguage, setCurrentLanguage] = useState<string>(() => {
     const savedLanguage = localStorage.getItem('preferredLanguage');
     return savedLanguage || getBrowserLanguage();
   });
-  
+
   // Keep track of text direction based on language
   const [direction, setDirection] = useState<'ltr' | 'rtl'>(
     languageDirections[currentLanguage] || 'ltr'
   );
-  
+
   // Update direction when language changes
   useEffect(() => {
     setDirection(languageDirections[currentLanguage] || 'ltr');
-    
+
     // Update the dir attribute on the html element
     document.documentElement.dir = languageDirections[currentLanguage] || 'ltr';
-    
+
     // Save preference to localStorage
     localStorage.setItem('preferredLanguage', currentLanguage);
   }, [currentLanguage]);
-  
+
   // Function to change the language
   const setLanguage = (language: string) => {
     if (language in availableLanguages) {
       setCurrentLanguage(language);
     }
   };
-  
+
   // Function to translate a key with optional parameters
   const translate = (key: string, params?: Record<string, string | number>): string => {
     // Get the translation from the current language
     const translation = translations[currentLanguage]?.[key] || translations.en[key] || key;
-    
+
     // If no parameters, return the translation as is
     if (!params) {
       return translation;
     }
-    
+
     // Replace parameters in the translation
     return Object.entries(params).reduce((acc, [paramKey, paramValue]) => {
       return acc.replace(new RegExp(`{{${paramKey}}}`, 'g'), String(paramValue));
     }, translation);
   };
-  
+
   // Format a date according to the current language
   const formatDate = (date: Date | string): string => {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
-    
+
     return dateObj.toLocaleDateString(currentLanguage, {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
-  
+
   // Format a number according to the current language
   const formatNumber = (num: number): string => {
     return num.toLocaleString(currentLanguage);
   };
-  
+
   // Format currency according to the current language
   const formatCurrency = (amount: number, currency: string = 'USD'): string => {
     return amount.toLocaleString(currentLanguage, {
       style: 'currency',
       currency,
-      currencyDisplay: 'symbol'
+      currencyDisplay: 'symbol',
     });
   };
-  
+
   // Context value
   const value: InternationalizationContextType = {
     currentLanguage,
@@ -217,9 +220,9 @@ export const InternationalizationProvider: React.FC<{ children: ReactNode }> = (
     translate,
     formatDate,
     formatNumber,
-    formatCurrency
+    formatCurrency,
   };
-  
+
   return (
     <InternationalizationContext.Provider value={value}>
       {children}
@@ -230,11 +233,11 @@ export const InternationalizationProvider: React.FC<{ children: ReactNode }> = (
 // Custom hook for using the internationalization context
 export const useInternationalization = (): InternationalizationContextType => {
   const context = useContext(InternationalizationContext);
-  
+
   if (context === undefined) {
     throw new Error('useInternationalization must be used within an InternationalizationProvider');
   }
-  
+
   return context;
 };
 
@@ -242,4 +245,4 @@ export const useInternationalization = (): InternationalizationContextType => {
 export const useTranslate = () => {
   const { translate } = useInternationalization();
   return translate;
-}; 
+};

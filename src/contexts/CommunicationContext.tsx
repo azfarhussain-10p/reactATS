@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { 
-  EmailTemplate, 
-  EmailTemplateCategory, 
-  ScheduledCommunication, 
+import {
+  EmailTemplate,
+  EmailTemplateCategory,
+  ScheduledCommunication,
   CommunicationLog,
   CommunicationPreferences,
-  Candidate
+  Candidate,
 } from '../models/types';
 import { useCandidateContext } from './CandidateContext';
 import { announce } from '../components/ScreenReaderAnnouncer';
@@ -22,18 +22,18 @@ const mockEmailTemplates: EmailTemplate[] = [
     variables: ['firstName', 'jobTitle', 'companyName'],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    isDefault: true
+    isDefault: true,
   },
   {
     id: '2',
     name: 'Interview Invitation',
     subject: 'Interview Invitation for {{jobTitle}} position',
-    body: '<p>Dear {{firstName}},</p><p>We were impressed with your application and would like to invite you for an interview for the {{jobTitle}} position.</p><p>Please use the link below to select a time that works for you:</p><p>{{interviewLink}}</p><p>If you have any questions, please don\'t hesitate to reach out.</p><p>Best regards,<br/>{{recruiterName}}<br/>{{companyName}}</p>',
+    body: "<p>Dear {{firstName}},</p><p>We were impressed with your application and would like to invite you for an interview for the {{jobTitle}} position.</p><p>Please use the link below to select a time that works for you:</p><p>{{interviewLink}}</p><p>If you have any questions, please don't hesitate to reach out.</p><p>Best regards,<br/>{{recruiterName}}<br/>{{companyName}}</p>",
     category: 'Interview Invitation',
     variables: ['firstName', 'jobTitle', 'interviewLink', 'recruiterName', 'companyName'],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    isDefault: true
+    isDefault: true,
   },
   {
     id: '3',
@@ -41,10 +41,18 @@ const mockEmailTemplates: EmailTemplate[] = [
     subject: 'Reminder: Your interview for {{jobTitle}} is tomorrow',
     body: '<p>Dear {{firstName}},</p><p>This is a friendly reminder that your interview for the {{jobTitle}} position is scheduled for tomorrow, {{interviewDate}} at {{interviewTime}}.</p><p><strong>Interview details:</strong></p><p>{{interviewDetails}}</p><p>Please let us know if you need to reschedule or have any questions.</p><p>Best regards,<br/>{{recruiterName}}<br/>{{companyName}}</p>',
     category: 'Interview Reminder',
-    variables: ['firstName', 'jobTitle', 'interviewDate', 'interviewTime', 'interviewDetails', 'recruiterName', 'companyName'],
+    variables: [
+      'firstName',
+      'jobTitle',
+      'interviewDate',
+      'interviewTime',
+      'interviewDetails',
+      'recruiterName',
+      'companyName',
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    isDefault: true
+    isDefault: true,
   },
   {
     id: '4',
@@ -55,7 +63,7 @@ const mockEmailTemplates: EmailTemplate[] = [
     variables: ['firstName', 'jobTitle', 'companyName'],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    isDefault: true
+    isDefault: true,
   },
   {
     id: '5',
@@ -63,11 +71,20 @@ const mockEmailTemplates: EmailTemplate[] = [
     subject: 'Job Offer: {{jobTitle}} at {{companyName}}',
     body: '<p>Dear {{firstName}},</p><p>We are pleased to offer you the position of {{jobTitle}} at {{companyName}}. Based on your experience, skills, and performance during the interview process, we believe you would be a valuable addition to our team.</p><p><strong>Position Details:</strong></p><p>Title: {{jobTitle}}<br/>Department: {{department}}<br/>Start Date: {{startDate}}<br/>Salary: {{salary}}</p><p>Please review the attached formal offer letter for complete details about the position, benefits, and terms of employment.</p><p>To accept this offer, please sign the attached document and return it by {{responseDeadline}}.</p><p>We look forward to welcoming you to our team!</p><p>Best regards,<br/>{{hiringManagerName}}<br/>{{companyName}}</p>',
     category: 'Offer Letter',
-    variables: ['firstName', 'jobTitle', 'companyName', 'department', 'startDate', 'salary', 'responseDeadline', 'hiringManagerName'],
+    variables: [
+      'firstName',
+      'jobTitle',
+      'companyName',
+      'department',
+      'startDate',
+      'salary',
+      'responseDeadline',
+      'hiringManagerName',
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    isDefault: true
-  }
+    isDefault: true,
+  },
 ];
 
 // Mock data for scheduled communications
@@ -86,10 +103,10 @@ const mockScheduledCommunications: ScheduledCommunication[] = [
       interviewTime: '10:00 AM',
       interviewDetails: 'Video call via Zoom. Link will be sent 30 minutes before the interview.',
       recruiterName: 'Jane Smith',
-      companyName: 'Tech Innovations Inc.'
+      companyName: 'Tech Innovations Inc.',
     },
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   },
   {
     id: '2',
@@ -105,11 +122,11 @@ const mockScheduledCommunications: ScheduledCommunication[] = [
       interviewTime: '2:00 PM',
       interviewDetails: 'In-person at our headquarters. Please bring a photo ID for check-in.',
       recruiterName: 'Jane Smith',
-      companyName: 'Tech Innovations Inc.'
+      companyName: 'Tech Innovations Inc.',
     },
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
+    updatedAt: new Date().toISOString(),
+  },
 ];
 
 // Mock data for communication logs
@@ -126,8 +143,8 @@ const mockCommunicationLogs: CommunicationLog[] = [
     status: 'Delivered',
     metadata: {
       openedAt: new Date(Date.now() - 518400000).toISOString(),
-      clickedAt: new Date(Date.now() - 518300000).toISOString()
-    }
+      clickedAt: new Date(Date.now() - 518300000).toISOString(),
+    },
   },
   {
     id: '2',
@@ -140,8 +157,8 @@ const mockCommunicationLogs: CommunicationLog[] = [
     direction: 'Outbound',
     status: 'Opened',
     metadata: {
-      openedAt: new Date(Date.now() - 345000000).toISOString()
-    }
+      openedAt: new Date(Date.now() - 345000000).toISOString(),
+    },
   },
   {
     id: '3',
@@ -153,8 +170,8 @@ const mockCommunicationLogs: CommunicationLog[] = [
     channel: 'Email',
     direction: 'Outbound',
     status: 'Delivered',
-    metadata: {}
-  }
+    metadata: {},
+  },
 ];
 
 // Context interface
@@ -162,33 +179,48 @@ interface CommunicationContextType {
   emailTemplates: EmailTemplate[];
   scheduledCommunications: ScheduledCommunication[];
   communicationLogs: CommunicationLog[];
-  
+
   // Email template methods
   getTemplateById: (id: string) => EmailTemplate | undefined;
   getTemplatesByCategory: (category: EmailTemplateCategory) => EmailTemplate[];
-  createEmailTemplate: (template: Omit<EmailTemplate, 'id' | 'createdAt' | 'updatedAt'>) => EmailTemplate;
+  createEmailTemplate: (
+    template: Omit<EmailTemplate, 'id' | 'createdAt' | 'updatedAt'>
+  ) => EmailTemplate;
   updateEmailTemplate: (id: string, template: Partial<EmailTemplate>) => EmailTemplate | undefined;
   deleteEmailTemplate: (id: string) => boolean;
-  
+
   // Scheduled communication methods
-  scheduleCommunication: (communication: Omit<ScheduledCommunication, 'id' | 'createdAt' | 'updatedAt' | 'status'>) => ScheduledCommunication;
+  scheduleCommunication: (
+    communication: Omit<ScheduledCommunication, 'id' | 'createdAt' | 'updatedAt' | 'status'>
+  ) => ScheduledCommunication;
   cancelScheduledCommunication: (id: string) => boolean;
   getScheduledCommunicationsForCandidate: (candidateId: string) => ScheduledCommunication[];
-  
+
   // Communication log methods
   getCommunicationLogsForCandidate: (candidateId: string) => CommunicationLog[];
   logCommunication: (log: Omit<CommunicationLog, 'id' | 'sentAt'>) => CommunicationLog;
-  
+
   // Bulk operations
-  sendBulkCommunication: (templateId: string, candidateIds: string[], data: Record<string, any>) => CommunicationLog[];
-  
+  sendBulkCommunication: (
+    templateId: string,
+    candidateIds: string[],
+    data: Record<string, any>
+  ) => CommunicationLog[];
+
   // Message preview and sending
-  previewMessage: (templateId: string, data: Record<string, any>) => { subject: string; body: string };
-  sendMessage: (templateId: string, candidateId: string, data: Record<string, any>) => CommunicationLog;
-  
+  previewMessage: (
+    templateId: string,
+    data: Record<string, any>
+  ) => { subject: string; body: string };
+  sendMessage: (
+    templateId: string,
+    candidateId: string,
+    data: Record<string, any>
+  ) => CommunicationLog;
+
   // Utility functions
   getTemplateVariables: (templateId: string) => string[];
-  
+
   // SMS functionality
   sendSMS: (candidateId: string, message: string) => Promise<boolean>;
 }
@@ -199,23 +231,26 @@ const CommunicationContext = createContext<CommunicationContextType | undefined>
 // Provider component
 export const CommunicationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>(mockEmailTemplates);
-  const [scheduledCommunications, setScheduledCommunications] = useState<ScheduledCommunication[]>(mockScheduledCommunications);
-  const [communicationLogs, setCommunicationLogs] = useState<CommunicationLog[]>(mockCommunicationLogs);
-  
+  const [scheduledCommunications, setScheduledCommunications] = useState<ScheduledCommunication[]>(
+    mockScheduledCommunications
+  );
+  const [communicationLogs, setCommunicationLogs] =
+    useState<CommunicationLog[]>(mockCommunicationLogs);
+
   const candidateContext = useCandidateContext();
-  
+
   // Check scheduled communications regularly
   useEffect(() => {
     const checkScheduledCommunications = () => {
       const now = new Date();
       const updatedCommunications: ScheduledCommunication[] = [];
       const newLogs: CommunicationLog[] = [];
-      
-      scheduledCommunications.forEach(comm => {
+
+      scheduledCommunications.forEach((comm) => {
         if (comm.status === 'Pending' && new Date(comm.scheduledDate) <= now) {
           // This communication is due to be sent
-          const template = emailTemplates.find(t => t.id === comm.templateId);
-          
+          const template = emailTemplates.find((t) => t.id === comm.templateId);
+
           if (template) {
             // Create a new log entry
             const newLog: CommunicationLog = {
@@ -228,18 +263,18 @@ export const CommunicationProvider: React.FC<{ children: ReactNode }> = ({ child
               channel: comm.channel === 'Both' ? 'Email' : comm.channel,
               direction: 'Outbound',
               status: 'Delivered',
-              metadata: {}
+              metadata: {},
             };
-            
+
             newLogs.push(newLog);
-            
+
             // Mark as sent
             updatedCommunications.push({
               ...comm,
               status: 'Sent',
-              updatedAt: now.toISOString()
+              updatedAt: now.toISOString(),
             });
-            
+
             // If 'Both' was selected, create an SMS log as well
             if (comm.channel === 'Both') {
               newLogs.push({
@@ -252,7 +287,7 @@ export const CommunicationProvider: React.FC<{ children: ReactNode }> = ({ child
                 channel: 'SMS',
                 direction: 'Outbound',
                 status: 'Delivered',
-                metadata: {}
+                metadata: {},
               });
             }
           }
@@ -260,32 +295,36 @@ export const CommunicationProvider: React.FC<{ children: ReactNode }> = ({ child
           updatedCommunications.push(comm);
         }
       });
-      
+
       // Update state with sent communications and new logs
       if (updatedCommunications.length !== scheduledCommunications.length) {
         setScheduledCommunications(updatedCommunications);
-        setCommunicationLogs(prev => [...prev, ...newLogs]);
+        setCommunicationLogs((prev) => [...prev, ...newLogs]);
       }
     };
-    
+
     // Run initially
     checkScheduledCommunications();
-    
+
     // Set up interval (every minute)
     const intervalId = setInterval(checkScheduledCommunications, 60000);
-    
+
     return () => clearInterval(intervalId);
   }, [scheduledCommunications, emailTemplates]);
-  
+
   // Process template with data
-  const processTemplate = (template: string, data: Record<string, any>, plainText = false): string => {
+  const processTemplate = (
+    template: string,
+    data: Record<string, any>,
+    plainText = false
+  ): string => {
     let result = template;
-    
+
     // Replace variables
     Object.entries(data).forEach(([key, value]) => {
       result = result.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
     });
-    
+
     // Convert to plain text if needed (for SMS)
     if (plainText) {
       // Simple HTML to plain text conversion
@@ -302,43 +341,48 @@ export const CommunicationProvider: React.FC<{ children: ReactNode }> = ({ child
         .replace(/&#39;/g, "'")
         .trim();
     }
-    
+
     return result;
   };
-  
+
   // Email template methods
   const getTemplateById = (id: string): EmailTemplate | undefined => {
-    return emailTemplates.find(template => template.id === id);
+    return emailTemplates.find((template) => template.id === id);
   };
-  
+
   const getTemplatesByCategory = (category: EmailTemplateCategory): EmailTemplate[] => {
-    return emailTemplates.filter(template => template.category === category);
+    return emailTemplates.filter((template) => template.category === category);
   };
-  
-  const createEmailTemplate = (template: Omit<EmailTemplate, 'id' | 'createdAt' | 'updatedAt'>): EmailTemplate => {
+
+  const createEmailTemplate = (
+    template: Omit<EmailTemplate, 'id' | 'createdAt' | 'updatedAt'>
+  ): EmailTemplate => {
     const now = new Date().toISOString();
     const newTemplate: EmailTemplate = {
       ...template,
       id: uuidv4(),
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
     };
-    
-    setEmailTemplates(prev => [...prev, newTemplate]);
+
+    setEmailTemplates((prev) => [...prev, newTemplate]);
     announce(`Email template "${template.name}" created`);
     return newTemplate;
   };
-  
-  const updateEmailTemplate = (id: string, template: Partial<EmailTemplate>): EmailTemplate | undefined => {
+
+  const updateEmailTemplate = (
+    id: string,
+    template: Partial<EmailTemplate>
+  ): EmailTemplate | undefined => {
     let updatedTemplate: EmailTemplate | undefined;
-    
-    setEmailTemplates(prev => {
-      const updated = prev.map(t => {
+
+    setEmailTemplates((prev) => {
+      const updated = prev.map((t) => {
         if (t.id === id) {
           updatedTemplate = {
             ...t,
             ...template,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
           };
           return updatedTemplate;
         }
@@ -346,99 +390,108 @@ export const CommunicationProvider: React.FC<{ children: ReactNode }> = ({ child
       });
       return updated;
     });
-    
+
     if (updatedTemplate) {
       announce(`Email template "${updatedTemplate.name}" updated`);
     }
-    
+
     return updatedTemplate;
   };
-  
+
   const deleteEmailTemplate = (id: string): boolean => {
-    const templateToDelete = emailTemplates.find(t => t.id === id);
-    
+    const templateToDelete = emailTemplates.find((t) => t.id === id);
+
     if (!templateToDelete) {
       return false;
     }
-    
-    setEmailTemplates(prev => prev.filter(t => t.id !== id));
+
+    setEmailTemplates((prev) => prev.filter((t) => t.id !== id));
     announce(`Email template "${templateToDelete.name}" deleted`);
     return true;
   };
-  
+
   // Scheduled communication methods
-  const scheduleCommunication = (communication: Omit<ScheduledCommunication, 'id' | 'createdAt' | 'updatedAt' | 'status'>): ScheduledCommunication => {
+  const scheduleCommunication = (
+    communication: Omit<ScheduledCommunication, 'id' | 'createdAt' | 'updatedAt' | 'status'>
+  ): ScheduledCommunication => {
     const now = new Date().toISOString();
     const newCommunication: ScheduledCommunication = {
       ...communication,
       id: uuidv4(),
       status: 'Pending',
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
     };
-    
-    setScheduledCommunications(prev => [...prev, newCommunication]);
-    announce(`Communication scheduled for ${new Date(communication.scheduledDate).toLocaleDateString()}`);
+
+    setScheduledCommunications((prev) => [...prev, newCommunication]);
+    announce(
+      `Communication scheduled for ${new Date(communication.scheduledDate).toLocaleDateString()}`
+    );
     return newCommunication;
   };
-  
+
   const cancelScheduledCommunication = (id: string): boolean => {
-    const commToCancel = scheduledCommunications.find(c => c.id === id);
-    
+    const commToCancel = scheduledCommunications.find((c) => c.id === id);
+
     if (!commToCancel || commToCancel.status !== 'Pending') {
       return false;
     }
-    
-    setScheduledCommunications(prev => 
-      prev.map(c => c.id === id 
-        ? { ...c, status: 'Cancelled', updatedAt: new Date().toISOString() } 
-        : c
+
+    setScheduledCommunications((prev) =>
+      prev.map((c) =>
+        c.id === id ? { ...c, status: 'Cancelled', updatedAt: new Date().toISOString() } : c
       )
     );
-    
+
     announce('Scheduled communication cancelled');
     return true;
   };
-  
-  const getScheduledCommunicationsForCandidate = (candidateId: string): ScheduledCommunication[] => {
-    return scheduledCommunications.filter(c => c.candidateId === candidateId);
+
+  const getScheduledCommunicationsForCandidate = (
+    candidateId: string
+  ): ScheduledCommunication[] => {
+    return scheduledCommunications.filter((c) => c.candidateId === candidateId);
   };
-  
+
   // Communication log methods
   const getCommunicationLogsForCandidate = (candidateId: string): CommunicationLog[] => {
-    return communicationLogs.filter(log => log.candidateId === candidateId);
+    return communicationLogs.filter((log) => log.candidateId === candidateId);
   };
-  
+
   const logCommunication = (log: Omit<CommunicationLog, 'id' | 'sentAt'>): CommunicationLog => {
     const newLog: CommunicationLog = {
       ...log,
       id: uuidv4(),
-      sentAt: new Date().toISOString()
+      sentAt: new Date().toISOString(),
     };
-    
-    setCommunicationLogs(prev => [...prev, newLog]);
+
+    setCommunicationLogs((prev) => [...prev, newLog]);
     return newLog;
   };
-  
+
   // Bulk operations
-  const sendBulkCommunication = (templateId: string, candidateIds: string[], data: Record<string, any>): CommunicationLog[] => {
-    const template = emailTemplates.find(t => t.id === templateId);
-    
+  const sendBulkCommunication = (
+    templateId: string,
+    candidateIds: string[],
+    data: Record<string, any>
+  ): CommunicationLog[] => {
+    const template = emailTemplates.find((t) => t.id === templateId);
+
     if (!template) {
       throw new Error(`Template with ID ${templateId} not found`);
     }
-    
+
     const now = new Date().toISOString();
-    const newLogs: CommunicationLog[] = candidateIds.map(candidateId => {
+    const newLogs: CommunicationLog[] = candidateIds.map((candidateId) => {
       // Get candidate-specific data
-      const candidate = candidateContext?.candidates.find(c => c.id.toString() === candidateId);
+      const candidate = candidateContext?.candidates.find((c) => c.id.toString() === candidateId);
       const candidateData = {
         firstName: candidate?.personalInfo.firstName || 'Candidate',
         lastName: candidate?.personalInfo.lastName || '',
         email: candidate?.personalInfo.email || '',
-        ...data
+        ...data,
       };
-      
+
       return {
         id: uuidv4(),
         candidateId,
@@ -449,38 +502,45 @@ export const CommunicationProvider: React.FC<{ children: ReactNode }> = ({ child
         channel: 'Email',
         direction: 'Outbound',
         status: 'Delivered',
-        metadata: {}
+        metadata: {},
       };
     });
-    
-    setCommunicationLogs(prev => [...prev, ...newLogs]);
+
+    setCommunicationLogs((prev) => [...prev, ...newLogs]);
     announce(`Sent bulk communication to ${candidateIds.length} candidates`);
     return newLogs;
   };
-  
+
   // Message preview and sending
-  const previewMessage = (templateId: string, data: Record<string, any>): { subject: string; body: string } => {
-    const template = emailTemplates.find(t => t.id === templateId);
-    
+  const previewMessage = (
+    templateId: string,
+    data: Record<string, any>
+  ): { subject: string; body: string } => {
+    const template = emailTemplates.find((t) => t.id === templateId);
+
     if (!template) {
       return { subject: '', body: '' };
     }
-    
+
     return {
       subject: processTemplate(template.subject, data),
-      body: processTemplate(template.body, data)
+      body: processTemplate(template.body, data),
     };
   };
-  
-  const sendMessage = (templateId: string, candidateId: string, data: Record<string, any>): CommunicationLog => {
-    const template = emailTemplates.find(t => t.id === templateId);
-    
+
+  const sendMessage = (
+    templateId: string,
+    candidateId: string,
+    data: Record<string, any>
+  ): CommunicationLog => {
+    const template = emailTemplates.find((t) => t.id === templateId);
+
     if (!template) {
       throw new Error(`Template with ID ${templateId} not found`);
     }
-    
+
     const { subject, body } = previewMessage(templateId, data);
-    
+
     const newLog: CommunicationLog = {
       id: uuidv4(),
       candidateId,
@@ -491,24 +551,24 @@ export const CommunicationProvider: React.FC<{ children: ReactNode }> = ({ child
       channel: 'Email',
       direction: 'Outbound',
       status: 'Delivered',
-      metadata: {}
+      metadata: {},
     };
-    
-    setCommunicationLogs(prev => [...prev, newLog]);
+
+    setCommunicationLogs((prev) => [...prev, newLog]);
     announce('Message sent');
     return newLog;
   };
-  
+
   // Utility functions
   const getTemplateVariables = (templateId: string): string[] => {
-    const template = emailTemplates.find(t => t.id === templateId);
+    const template = emailTemplates.find((t) => t.id === templateId);
     return template?.variables || [];
   };
-  
+
   // SMS functionality
   const sendSMS = async (candidateId: string, message: string): Promise<boolean> => {
     // Simulate sending SMS
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => {
         const newLog: CommunicationLog = {
           id: uuidv4(),
@@ -519,16 +579,16 @@ export const CommunicationProvider: React.FC<{ children: ReactNode }> = ({ child
           channel: 'SMS',
           direction: 'Outbound',
           status: 'Delivered',
-          metadata: {}
+          metadata: {},
         };
-        
-        setCommunicationLogs(prev => [...prev, newLog]);
+
+        setCommunicationLogs((prev) => [...prev, newLog]);
         announce('SMS sent');
         resolve(true);
       }, 1000);
     });
   };
-  
+
   const value = {
     emailTemplates,
     scheduledCommunications,
@@ -547,14 +607,10 @@ export const CommunicationProvider: React.FC<{ children: ReactNode }> = ({ child
     previewMessage,
     sendMessage,
     getTemplateVariables,
-    sendSMS
+    sendSMS,
   };
 
-  return (
-    <CommunicationContext.Provider value={value}>
-      {children}
-    </CommunicationContext.Provider>
-  );
+  return <CommunicationContext.Provider value={value}>{children}</CommunicationContext.Provider>;
 };
 
 // Hook to use the communication context
@@ -564,4 +620,4 @@ export const useCommunication = () => {
     throw new Error('useCommunication must be used within a CommunicationProvider');
   }
   return context;
-}; 
+};

@@ -1,9 +1,9 @@
 import React from 'react';
-import { 
-  Box, 
-  Paper, 
-  Typography, 
-  IconButton, 
+import {
+  Box,
+  Paper,
+  Typography,
+  IconButton,
   Tooltip,
   Switch,
   FormControlLabel,
@@ -12,15 +12,15 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  useTheme
+  useTheme,
 } from '@mui/material';
-import { 
-  DragIndicator as DragIcon, 
+import {
+  DragIndicator as DragIcon,
   Delete as DeleteIcon,
   ContentCopy as DuplicateIcon,
   Settings as SettingsIcon,
   KeyboardArrowDown as CollapseIcon,
-  KeyboardArrowUp as ExpandIcon
+  KeyboardArrowUp as ExpandIcon,
 } from '@mui/icons-material';
 import { Draggable } from 'react-beautiful-dnd';
 import { FormField, FormFieldType } from '../../models/types';
@@ -43,7 +43,7 @@ const FormFieldComponent: React.FC<FormFieldComponentProps> = ({
   onSelect,
   onDelete,
   onDuplicate,
-  onUpdate
+  onUpdate,
 }) => {
   const theme = useTheme();
   const [expanded, setExpanded] = React.useState(false);
@@ -91,11 +91,7 @@ const FormFieldComponent: React.FC<FormFieldComponentProps> = ({
         return (
           <FormControl fullWidth size="small">
             <InputLabel>{field.label}</InputLabel>
-            <Select
-              label={field.label}
-              disabled
-              value=""
-            >
+            <Select label={field.label} disabled value="">
               {field.options?.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
                   {option.label}
@@ -150,8 +146,8 @@ const FormFieldComponent: React.FC<FormFieldComponentProps> = ({
             position: 'relative',
             border: isSelected ? `2px solid ${theme.palette.primary.main}` : 'none',
             '&:hover': {
-              boxShadow: 3
-            }
+              boxShadow: 3,
+            },
           }}
           onClick={() => onSelect(field.id)}
         >
@@ -159,18 +155,14 @@ const FormFieldComponent: React.FC<FormFieldComponentProps> = ({
             <Box {...provided.dragHandleProps} sx={{ cursor: 'grab', mr: 1 }}>
               <DragIcon color="action" />
             </Box>
-            
+
             <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-              {fieldTypeIcons[field.type] && (
-                <Box sx={{ mr: 1 }}>
-                  {fieldTypeIcons[field.type]}
-                </Box>
-              )}
+              {fieldTypeIcons[field.type] && <Box sx={{ mr: 1 }}>{fieldTypeIcons[field.type]}</Box>}
               <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
                 {field.label || `Untitled ${field.type.replace(/([A-Z])/g, ' $1').trim()} Field`}
               </Typography>
             </Box>
-            
+
             <Box>
               <Tooltip title="Required Toggle">
                 <FormControlLabel
@@ -186,52 +178,59 @@ const FormFieldComponent: React.FC<FormFieldComponentProps> = ({
                   sx={{ mr: 1 }}
                 />
               </Tooltip>
-              
+
               <Tooltip title="Duplicate Field">
-                <IconButton size="small" onClick={(e) => {
-                  e.stopPropagation();
-                  onDuplicate(field.id);
-                }}>
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDuplicate(field.id);
+                  }}
+                >
                   <DuplicateIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
-              
+
               <Tooltip title="Delete Field">
-                <IconButton size="small" onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(field.id);
-                }}>
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(field.id);
+                  }}
+                >
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
-              
-              <Tooltip title={expanded ? "Collapse Field" : "Expand Field"}>
-                <IconButton size="small" onClick={(e) => {
-                  e.stopPropagation();
-                  setExpanded(!expanded);
-                }}>
+
+              <Tooltip title={expanded ? 'Collapse Field' : 'Expand Field'}>
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpanded(!expanded);
+                  }}
+                >
                   {expanded ? <CollapseIcon fontSize="small" /> : <ExpandIcon fontSize="small" />}
                 </IconButton>
               </Tooltip>
             </Box>
           </Box>
-          
+
           {field.description && (
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
               {field.description}
             </Typography>
           )}
-          
-          <Box sx={{ mt: 2 }}>
-            {renderFieldPreview()}
-          </Box>
-          
+
+          <Box sx={{ mt: 2 }}>{renderFieldPreview()}</Box>
+
           {expanded && isSelected && (
             <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
               <Typography variant="subtitle2" gutterBottom>
                 Field Properties
               </Typography>
-              
+
               <TextField
                 label="Field Label"
                 size="small"
@@ -240,7 +239,7 @@ const FormFieldComponent: React.FC<FormFieldComponentProps> = ({
                 onChange={(e) => onUpdate(field.id, { label: e.target.value })}
                 sx={{ mb: 2 }}
               />
-              
+
               <TextField
                 label="Description"
                 size="small"
@@ -249,7 +248,7 @@ const FormFieldComponent: React.FC<FormFieldComponentProps> = ({
                 onChange={(e) => onUpdate(field.id, { description: e.target.value })}
                 sx={{ mb: 2 }}
               />
-              
+
               <TextField
                 label="Placeholder"
                 size="small"
@@ -258,22 +257,26 @@ const FormFieldComponent: React.FC<FormFieldComponentProps> = ({
                 onChange={(e) => onUpdate(field.id, { placeholder: e.target.value })}
                 sx={{ mb: 2 }}
               />
-              
+
               <FormControl fullWidth size="small" sx={{ mb: 2 }}>
                 <InputLabel>Field Width</InputLabel>
                 <Select
                   value={field.width || 'full'}
                   label="Field Width"
-                  onChange={(e) => onUpdate(field.id, { width: e.target.value as 'full' | 'half' | 'third' })}
+                  onChange={(e) =>
+                    onUpdate(field.id, { width: e.target.value as 'full' | 'half' | 'third' })
+                  }
                 >
                   <MenuItem value="full">Full Width</MenuItem>
                   <MenuItem value="half">Half Width</MenuItem>
                   <MenuItem value="third">One Third</MenuItem>
                 </Select>
               </FormControl>
-              
+
               {/* Add more field-specific properties based on field type */}
-              {(field.type === 'SingleSelect' || field.type === 'MultiSelect' || field.type === 'RadioGroup') && (
+              {(field.type === 'SingleSelect' ||
+                field.type === 'MultiSelect' ||
+                field.type === 'RadioGroup') && (
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle2" gutterBottom>
                     Options
@@ -291,7 +294,7 @@ const FormFieldComponent: React.FC<FormFieldComponentProps> = ({
                         }}
                         sx={{ mr: 1 }}
                       />
-                      <IconButton 
+                      <IconButton
                         size="small"
                         onClick={() => {
                           const newOptions = [...(field.options || [])];
@@ -303,10 +306,16 @@ const FormFieldComponent: React.FC<FormFieldComponentProps> = ({
                       </IconButton>
                     </Box>
                   ))}
-                  <IconButton 
-                    size="small" 
+                  <IconButton
+                    size="small"
                     onClick={() => {
-                      const newOptions = [...(field.options || []), { value: `option${(field.options?.length || 0) + 1}`, label: `Option ${(field.options?.length || 0) + 1}` }];
+                      const newOptions = [
+                        ...(field.options || []),
+                        {
+                          value: `option${(field.options?.length || 0) + 1}`,
+                          label: `Option ${(field.options?.length || 0) + 1}`,
+                        },
+                      ];
                       onUpdate(field.id, { options: newOptions });
                     }}
                     sx={{ mt: 1 }}
@@ -323,4 +332,4 @@ const FormFieldComponent: React.FC<FormFieldComponentProps> = ({
   );
 };
 
-export default FormFieldComponent; 
+export default FormFieldComponent;

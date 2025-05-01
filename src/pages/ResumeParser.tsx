@@ -41,7 +41,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 
 import {
@@ -59,7 +59,7 @@ import {
   ExpandMore as ExpandMoreIcon,
   Warning as WarningIcon,
   Delete as DeleteIcon,
-  Compare as CompareIcon
+  Compare as CompareIcon,
 } from '@mui/icons-material';
 
 import { useResumeParsing } from '../contexts/ResumeParsingContext';
@@ -76,7 +76,7 @@ const DropZone = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
-  }
+  },
 }));
 
 const ResumeParser = () => {
@@ -91,7 +91,7 @@ const ResumeParser = () => {
     getAverageScores,
     getQualificationRate,
     detectEmploymentGaps,
-    getDuplicateCandidates
+    getDuplicateCandidates,
   } = useResumeParsing();
 
   const { candidates } = useCandidateContext();
@@ -111,7 +111,7 @@ const ResumeParser = () => {
   }>({
     open: false,
     type: 'resume',
-    id: null
+    id: null,
   });
   const [fileUploaded, setFileUploaded] = useState<File | null>(null);
   const [parsing, setParsing] = useState(false);
@@ -122,13 +122,15 @@ const ResumeParser = () => {
     gapPeriods: string[];
     totalGapMonths: number;
   } | null>(null);
-  const [duplicateCandidates, setDuplicateCandidates] = useState<Array<{
-    candidateId: number;
-    name: string;
-    similarity: number;
-  }>>([]);
+  const [duplicateCandidates, setDuplicateCandidates] = useState<
+    Array<{
+      candidateId: number;
+      name: string;
+      similarity: number;
+    }>
+  >([]);
   const [showDuplicatesDialog, setShowDuplicatesDialog] = useState(false);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handle tab change
@@ -138,9 +140,12 @@ const ResumeParser = () => {
 
   // Selected resume and screening result
   const selectedResume = selectedResumeId ? getParsedResume(selectedResumeId) : null;
-  const selectedScreeningResult = selectedResume && screeningJobId 
-    ? screeningResults.find(r => r.parsedResumeId === selectedResumeId && r.jobId === screeningJobId)
-    : null;
+  const selectedScreeningResult =
+    selectedResume && screeningJobId
+      ? screeningResults.find(
+          (r) => r.parsedResumeId === selectedResumeId && r.jobId === screeningJobId
+        )
+      : null;
 
   // Handle resume text change
   const handleResumeTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -166,48 +171,55 @@ const ResumeParser = () => {
       setError('Please provide resume text or upload a file');
       return;
     }
-    
+
     setParsing(true);
     setError(null);
-    
+
     try {
       // Parse the resume
       const result = await parseResume(resumeText);
       setParsedResult(result);
-      
+
       // Perform employment gap analysis
       if (result) {
         const gapAnalysis = detectEmploymentGaps(result);
         setEmploymentGapAnalysis(gapAnalysis);
-        
+
         // Check for potential duplicates
         const duplicates = getDuplicateCandidates();
         if (result.candidateId) {
           const candidateDuplicates = duplicates
-            .filter(d => d.candidateId === result.candidateId || d.duplicateIds.includes(result.candidateId))
-            .flatMap(d => {
+            .filter(
+              (d) =>
+                d.candidateId === result.candidateId || d.duplicateIds.includes(result.candidateId)
+            )
+            .flatMap((d) => {
               if (d.candidateId === result.candidateId) {
-                return d.duplicateIds.map(id => ({
+                return d.duplicateIds.map((id) => ({
                   candidateId: id,
-                  similarity: d.similarity
+                  similarity: d.similarity,
                 }));
               } else {
-                return [{
-                  candidateId: d.candidateId,
-                  similarity: d.similarity
-                }];
+                return [
+                  {
+                    candidateId: d.candidateId,
+                    similarity: d.similarity,
+                  },
+                ];
               }
             });
-          
+
           // Enrich with candidate names
-          const enrichedDuplicates = candidateDuplicates.map(dup => {
-            const candidate = candidates.find(c => c.id === dup.candidateId);
+          const enrichedDuplicates = candidateDuplicates.map((dup) => {
+            const candidate = candidates.find((c) => c.id === dup.candidateId);
             return {
               ...dup,
-              name: candidate ? `${candidate.personalInfo.firstName} ${candidate.personalInfo.lastName}` : `Candidate #${dup.candidateId}`
+              name: candidate
+                ? `${candidate.personalInfo.firstName} ${candidate.personalInfo.lastName}`
+                : `Candidate #${dup.candidateId}`,
             };
           });
-          
+
           setDuplicateCandidates(enrichedDuplicates);
         }
       }
@@ -222,7 +234,7 @@ const ResumeParser = () => {
   // Screen candidate against a job
   const handleScreenCandidate = async () => {
     if (!selectedResumeId || !screeningJobId) return;
-    
+
     setIsScreening(true);
     try {
       await screenCandidate(1, screeningJobId, selectedResumeId);
@@ -238,7 +250,7 @@ const ResumeParser = () => {
     setDetailsDialog({
       open: true,
       type,
-      id
+      id,
     });
   };
 
@@ -246,16 +258,19 @@ const ResumeParser = () => {
   const handleCloseDetails = () => {
     setDetailsDialog({
       ...detailsDialog,
-      open: false
+      open: false,
     });
   };
 
   // Dummy skill list with relevance scores
-  const skillList = selectedResume ? 
-    selectedResume.parsedData.skills.map(skill => ({
-      name: skill,
-      relevance: Math.random() * 100
-    })).sort((a, b) => b.relevance - a.relevance) : [];
+  const skillList = selectedResume
+    ? selectedResume.parsedData.skills
+        .map((skill) => ({
+          name: skill,
+          relevance: Math.random() * 100,
+        }))
+        .sort((a, b) => b.relevance - a.relevance)
+    : [];
 
   // Handle file upload button click
   const handleUploadClick = () => {
@@ -268,39 +283,45 @@ const ResumeParser = () => {
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
-    
+
     const file = files[0];
     setFileUploaded(file);
     setError(null);
-    
+
     // Read file content based on file type
     const reader = new FileReader();
-    
+
     // For PDF files, we need to use readAsArrayBuffer and then convert to text
     if (file.type === 'application/pdf') {
       try {
         setParsing(true);
-        
+
         // Show upload success message with actual file information
-        setResumeText(`Processing file: ${file.name} (${(file.size / 1024).toFixed(2)} KB)\n\nPDF parsing in progress... In a production environment, this file would be sent to a server for professional PDF parsing.\n\nFor this demo, we'll extract sample data from your resume in a moment.`);
-        
+        setResumeText(
+          `Processing file: ${file.name} (${(file.size / 1024).toFixed(2)} KB)\n\nPDF parsing in progress... In a production environment, this file would be sent to a server for professional PDF parsing.\n\nFor this demo, we'll extract sample data from your resume in a moment.`
+        );
+
         // Simulate a server response with a more informative message
         setTimeout(() => {
           setParsing(false);
           // Show a more personalized message that indicates this is simulated parsing
-          setResumeText(`# Resume extracted from: ${file.name}\n\n` +
-            `Note: This is a simulated parsing result for demonstration purposes.\n` +
-            `In a production environment, the actual content of your PDF would be parsed.\n\n` +
-            `John Doe\n` +
-            `Software Developer\n\n` +
-            `john.doe@example.com\n` +
-            `(555) 123-4567\n\n` +
-            `Summary:\n` +
-            `Experienced software developer with expertise in React, TypeScript, and Node.js.`);
+          setResumeText(
+            `# Resume extracted from: ${file.name}\n\n` +
+              `Note: This is a simulated parsing result for demonstration purposes.\n` +
+              `In a production environment, the actual content of your PDF would be parsed.\n\n` +
+              `John Doe\n` +
+              `Software Developer\n\n` +
+              `john.doe@example.com\n` +
+              `(555) 123-4567\n\n` +
+              `Summary:\n` +
+              `Experienced software developer with expertise in React, TypeScript, and Node.js.`
+          );
         }, 2000);
       } catch (err) {
         console.error('Error handling PDF file:', err);
-        setError(`Failed to parse PDF file: ${file.name}. Please try a different file or paste the content manually.`);
+        setError(
+          `Failed to parse PDF file: ${file.name}. Please try a different file or paste the content manually.`
+        );
         setParsing(false);
       }
     } else {
@@ -310,7 +331,9 @@ const ResumeParser = () => {
         setResumeText(content);
       };
       reader.onerror = () => {
-        setError(`Failed to read file: ${file.name}. Please try again or paste the content manually.`);
+        setError(
+          `Failed to read file: ${file.name}. Please try again or paste the content manually.`
+        );
       };
       reader.readAsText(file);
     }
@@ -329,11 +352,11 @@ const ResumeParser = () => {
   // Format date
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Present';
-    
+
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short' 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
     });
   };
 
@@ -348,11 +371,11 @@ const ResumeParser = () => {
           Extract candidate data from resumes and automatically screen against job requirements
         </Typography>
       </Box>
-      
+
       {/* Main Content Tabs */}
       <Paper sx={{ mb: 3 }}>
-        <Tabs 
-          value={activeTab} 
+        <Tabs
+          value={activeTab}
           onChange={handleTabChange}
           indicatorColor="primary"
           textColor="primary"
@@ -363,7 +386,7 @@ const ResumeParser = () => {
           <Tab label="Screening Results" />
         </Tabs>
       </Paper>
-      
+
       {/* Parse Resume Tab */}
       {activeTab === 0 && (
         <Grid container spacing={3}>
@@ -372,7 +395,7 @@ const ResumeParser = () => {
               <Typography variant="h6" gutterBottom>
                 Upload Resume
               </Typography>
-              
+
               <FormControlLabel
                 control={
                   <Switch
@@ -383,7 +406,7 @@ const ResumeParser = () => {
                 label="Show AI parsing details"
                 sx={{ mb: 2 }}
               />
-              
+
               <DropZone
                 onClick={() => document.getElementById('resume-upload')?.click()}
                 sx={{ mb: 2 }}
@@ -397,17 +420,19 @@ const ResumeParser = () => {
                 />
                 <UploadIcon fontSize="large" color="primary" />
                 <Typography variant="body1" sx={{ mt: 1 }}>
-                  {fileUploaded ? `File uploaded: ${fileUploaded.name}` : 'Click to upload resume or drag and drop'}
+                  {fileUploaded
+                    ? `File uploaded: ${fileUploaded.name}`
+                    : 'Click to upload resume or drag and drop'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   Supports PDF, DOC, DOCX, and TXT files
                 </Typography>
               </DropZone>
-              
+
               <Typography variant="subtitle2" gutterBottom>
                 Or paste resume text
               </Typography>
-              
+
               <TextField
                 fullWidth
                 multiline
@@ -418,11 +443,13 @@ const ResumeParser = () => {
                 variant="outlined"
                 sx={{ mb: 2 }}
               />
-              
+
               <Button
                 variant="contained"
                 fullWidth
-                startIcon={parsing ? <CircularProgress size={20} color="inherit" /> : <SearchIcon />}
+                startIcon={
+                  parsing ? <CircularProgress size={20} color="inherit" /> : <SearchIcon />
+                }
                 disabled={parsing || !resumeText.trim()}
                 onClick={handleParseResume}
               >
@@ -430,77 +457,76 @@ const ResumeParser = () => {
               </Button>
             </Paper>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             {selectedResume ? (
               <Paper sx={{ p: 3, height: '100%' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h6">
-                    Parsed Results
-                  </Typography>
-                  <Chip 
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 2,
+                  }}
+                >
+                  <Typography variant="h6">Parsed Results</Typography>
+                  <Chip
                     label={`Confidence: ${Math.round(selectedResume.confidence * 100)}%`}
                     color={selectedResume.confidence > 0.8 ? 'success' : 'warning'}
                   />
                 </Box>
-                
+
                 <Divider sx={{ mb: 2 }} />
-                
+
                 <List disablePadding>
                   <ListItem disablePadding sx={{ mb: 2 }}>
                     <ListItemIcon>
                       <PersonIcon color="primary" />
                     </ListItemIcon>
-                    <ListItemText 
-                      primary="Personal Information" 
+                    <ListItemText
+                      primary="Personal Information"
                       secondary={
                         <Box sx={{ mt: 1 }}>
-                          <Typography variant="body2">
-                            {selectedResume.parsedData.name}
-                          </Typography>
-                          <Typography variant="body2">
-                            {selectedResume.parsedData.email}
-                          </Typography>
-                          <Typography variant="body2">
-                            {selectedResume.parsedData.phone}
-                          </Typography>
+                          <Typography variant="body2">{selectedResume.parsedData.name}</Typography>
+                          <Typography variant="body2">{selectedResume.parsedData.email}</Typography>
+                          <Typography variant="body2">{selectedResume.parsedData.phone}</Typography>
                           <Typography variant="body2">
                             {selectedResume.parsedData.location}
                           </Typography>
                         </Box>
-                      } 
+                      }
                     />
                   </ListItem>
-                  
+
                   <ListItem disablePadding sx={{ mb: 2 }}>
                     <ListItemIcon>
                       <SkillIcon color="primary" />
                     </ListItemIcon>
-                    <ListItemText 
-                      primary="Skills" 
+                    <ListItemText
+                      primary="Skills"
                       secondary={
                         <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                           {skillList.map((skill, index) => (
-                            <Chip 
-                              key={index} 
-                              label={skill.name} 
+                            <Chip
+                              key={index}
+                              label={skill.name}
                               size="small"
                               color={skill.relevance > 75 ? 'primary' : 'default'}
                               variant={skill.relevance > 50 ? 'filled' : 'outlined'}
                             />
                           ))}
                         </Box>
-                      } 
+                      }
                     />
                   </ListItem>
-                  
+
                   {showAIParsing && (
                     <ListItem disablePadding sx={{ mb: 2 }}>
                       <ListItemIcon>
                         <DescriptionIcon color="primary" />
                       </ListItemIcon>
-                      <ListItemText 
-                        primary="AI Processing Details" 
+                      <ListItemText
+                        primary="AI Processing Details"
                         secondary={
                           <Box sx={{ mt: 1 }}>
                             <Grid container spacing={1}>
@@ -508,9 +534,9 @@ const ResumeParser = () => {
                                 <Typography variant="caption" color="text.secondary">
                                   Entity extraction
                                 </Typography>
-                                <LinearProgress 
-                                  variant="determinate" 
-                                  value={92} 
+                                <LinearProgress
+                                  variant="determinate"
+                                  value={92}
                                   color="success"
                                   sx={{ height: 8, borderRadius: 5 }}
                                 />
@@ -519,9 +545,9 @@ const ResumeParser = () => {
                                 <Typography variant="caption" color="text.secondary">
                                   Skill classification
                                 </Typography>
-                                <LinearProgress 
-                                  variant="determinate" 
-                                  value={87} 
+                                <LinearProgress
+                                  variant="determinate"
+                                  value={87}
                                   color="success"
                                   sx={{ height: 8, borderRadius: 5 }}
                                 />
@@ -530,9 +556,9 @@ const ResumeParser = () => {
                                 <Typography variant="caption" color="text.secondary">
                                   Date extraction
                                 </Typography>
-                                <LinearProgress 
-                                  variant="determinate" 
-                                  value={94} 
+                                <LinearProgress
+                                  variant="determinate"
+                                  value={94}
                                   color="success"
                                   sx={{ height: 8, borderRadius: 5 }}
                                 />
@@ -541,42 +567,44 @@ const ResumeParser = () => {
                                 <Typography variant="caption" color="text.secondary">
                                   Resume structure
                                 </Typography>
-                                <LinearProgress 
-                                  variant="determinate" 
-                                  value={78} 
+                                <LinearProgress
+                                  variant="determinate"
+                                  value={78}
                                   color="primary"
                                   sx={{ height: 8, borderRadius: 5 }}
                                 />
                               </Grid>
                             </Grid>
                           </Box>
-                        } 
+                        }
                       />
                     </ListItem>
                   )}
                 </List>
-                
+
                 {/* Experience and Education - condensed for brevity */}
                 <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                  <Button 
+                  <Button
                     variant="outlined"
                     onClick={() => handleOpenDetails('resume', selectedResume.id)}
                     fullWidth
                   >
                     View Full Details
                   </Button>
-                  
+
                   <Button
                     variant="contained"
                     fullWidth
-                    startIcon={isScreening ? <CircularProgress size={20} color="inherit" /> : <MatchIcon />}
+                    startIcon={
+                      isScreening ? <CircularProgress size={20} color="inherit" /> : <MatchIcon />
+                    }
                     disabled={isScreening}
                     onClick={handleScreenCandidate}
                   >
                     Screen Candidate
                   </Button>
                 </Box>
-                
+
                 {/* Job ID Input for Screening */}
                 <TextField
                   fullWidth
@@ -588,32 +616,39 @@ const ResumeParser = () => {
                   size="small"
                   helperText="Enter the Job ID to screen this candidate against"
                 />
-                
+
                 {/* Screening Result (if available) */}
                 {selectedScreeningResult && (
                   <Card variant="outlined" sx={{ mt: 2 }}>
                     <CardContent>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          mb: 1,
+                        }}
+                      >
                         <Typography variant="subtitle1">
                           Screening Result - Job #{selectedScreeningResult.jobId}
                         </Typography>
-                        <Chip 
+                        <Chip
                           label={selectedScreeningResult.qualified ? 'Qualified' : 'Not Qualified'}
                           color={selectedScreeningResult.qualified ? 'success' : 'error'}
                           size="small"
                         />
                       </Box>
-                      
+
                       <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                         <Typography variant="body2" sx={{ mr: 1 }}>
                           Match Score:
                         </Typography>
-                        <LinearProgress 
-                          variant="determinate" 
-                          value={selectedScreeningResult.overallScore} 
-                          sx={{ 
+                        <LinearProgress
+                          variant="determinate"
+                          value={selectedScreeningResult.overallScore}
+                          sx={{
                             flexGrow: 1,
-                            height: 8, 
+                            height: 8,
                             borderRadius: 5,
                             backgroundColor: 'action.disabledBackground',
                           }}
@@ -623,9 +658,9 @@ const ResumeParser = () => {
                           {selectedScreeningResult.overallScore}%
                         </Typography>
                       </Box>
-                      
-                      <Button 
-                        size="small" 
+
+                      <Button
+                        size="small"
                         onClick={() => handleOpenDetails('screening', selectedScreeningResult.id)}
                         sx={{ mt: 1 }}
                       >
@@ -636,7 +671,16 @@ const ResumeParser = () => {
                 )}
               </Paper>
             ) : (
-              <Paper sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <Paper
+                sx={{
+                  p: 3,
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
                 <DescriptionIcon fontSize="large" color="disabled" sx={{ mb: 2 }} />
                 <Typography variant="body1" color="text.secondary">
                   Upload or paste a resume to see parsed results
@@ -649,7 +693,7 @@ const ResumeParser = () => {
           </Grid>
         </Grid>
       )}
-      
+
       {/* Parsed Resumes Tab */}
       {activeTab === 1 && (
         <Paper sx={{ p: 0 }}>
@@ -697,14 +741,19 @@ const ResumeParser = () => {
                             <Chip key={index} label={skill} size="small" />
                           ))}
                           {resume.parsedData.skills.length > 3 && (
-                            <Chip label={`+${resume.parsedData.skills.length - 3}`} size="small" variant="outlined" />
+                            <Chip
+                              label={`+${resume.parsedData.skills.length - 3}`}
+                              size="small"
+                              variant="outlined"
+                            />
                           )}
                         </Box>
                       </TableCell>
                       <TableCell>
                         {resume.parsedData.experience.length > 0 ? (
                           <Typography variant="body2">
-                            {resume.parsedData.experience[0].title} at {resume.parsedData.experience[0].company}
+                            {resume.parsedData.experience[0].title} at{' '}
+                            {resume.parsedData.experience[0].company}
                           </Typography>
                         ) : (
                           <Typography variant="body2" color="text.secondary">
@@ -715,7 +764,8 @@ const ResumeParser = () => {
                       <TableCell>
                         {resume.parsedData.education.length > 0 ? (
                           <Typography variant="body2">
-                            {resume.parsedData.education[0].degree} in {resume.parsedData.education[0].field}
+                            {resume.parsedData.education[0].degree} in{' '}
+                            {resume.parsedData.education[0].field}
                           </Typography>
                         ) : (
                           <Typography variant="body2" color="text.secondary">
@@ -723,19 +773,17 @@ const ResumeParser = () => {
                           </Typography>
                         )}
                       </TableCell>
+                      <TableCell>{new Date(resume.uploadDate).toLocaleDateString()}</TableCell>
                       <TableCell>
-                        {new Date(resume.uploadDate).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <Chip 
+                        <Chip
                           label={`${Math.round(resume.confidence * 100)}%`}
                           color={resume.confidence > 0.8 ? 'success' : 'warning'}
                           size="small"
                         />
                       </TableCell>
                       <TableCell>
-                        <Button 
-                          variant="outlined" 
+                        <Button
+                          variant="outlined"
                           size="small"
                           onClick={() => handleOpenDetails('resume', resume.id)}
                         >
@@ -750,7 +798,7 @@ const ResumeParser = () => {
           </TableContainer>
         </Paper>
       )}
-      
+
       {/* Screening Results Tab */}
       {activeTab === 2 && (
         <Paper sx={{ p: 0 }}>
@@ -803,13 +851,13 @@ const ResumeParser = () => {
                         <TableCell>#{result.jobId}</TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <LinearProgress 
-                              variant="determinate" 
-                              value={result.overallScore} 
-                              sx={{ 
-                                width: 60, 
-                                height: 8, 
-                                borderRadius: 5 
+                            <LinearProgress
+                              variant="determinate"
+                              value={result.overallScore}
+                              sx={{
+                                width: 60,
+                                height: 8,
+                                borderRadius: 5,
                               }}
                               color={result.overallScore > 70 ? 'success' : 'warning'}
                             />
@@ -820,13 +868,13 @@ const ResumeParser = () => {
                         </TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <LinearProgress 
-                              variant="determinate" 
-                              value={result.skillMatch.score} 
-                              sx={{ 
-                                width: 60, 
-                                height: 8, 
-                                borderRadius: 5 
+                            <LinearProgress
+                              variant="determinate"
+                              value={result.skillMatch.score}
+                              sx={{
+                                width: 60,
+                                height: 8,
+                                borderRadius: 5,
                               }}
                               color={result.skillMatch.score > 70 ? 'success' : 'warning'}
                             />
@@ -837,13 +885,13 @@ const ResumeParser = () => {
                         </TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <LinearProgress 
-                              variant="determinate" 
-                              value={result.experienceMatch.score} 
-                              sx={{ 
-                                width: 60, 
-                                height: 8, 
-                                borderRadius: 5 
+                            <LinearProgress
+                              variant="determinate"
+                              value={result.experienceMatch.score}
+                              sx={{
+                                width: 60,
+                                height: 8,
+                                borderRadius: 5,
                               }}
                               color={result.experienceMatch.score > 70 ? 'success' : 'warning'}
                             />
@@ -853,15 +901,15 @@ const ResumeParser = () => {
                           </Box>
                         </TableCell>
                         <TableCell>
-                          <Chip 
+                          <Chip
                             label={result.qualified ? 'Qualified' : 'Not Qualified'}
                             color={result.qualified ? 'success' : 'error'}
                             size="small"
                           />
                         </TableCell>
                         <TableCell>
-                          <Button 
-                            variant="outlined" 
+                          <Button
+                            variant="outlined"
                             size="small"
                             onClick={() => handleOpenDetails('screening', result.id)}
                           >
@@ -877,14 +925,9 @@ const ResumeParser = () => {
           </TableContainer>
         </Paper>
       )}
-      
+
       {/* Details Dialogs */}
-      <Dialog 
-        open={detailsDialog.open} 
-        onClose={handleCloseDetails}
-        maxWidth="md"
-        fullWidth
-      >
+      <Dialog open={detailsDialog.open} onClose={handleCloseDetails} maxWidth="md" fullWidth>
         {detailsDialog.type === 'resume' && detailsDialog.id && (
           <Box>
             <DialogTitle>
@@ -903,7 +946,7 @@ const ResumeParser = () => {
             </DialogContent>
           </Box>
         )}
-        
+
         {detailsDialog.type === 'screening' && detailsDialog.id && (
           <Box>
             <DialogTitle>
@@ -922,7 +965,7 @@ const ResumeParser = () => {
             </DialogContent>
           </Box>
         )}
-        
+
         <DialogActions>
           <Button onClick={handleCloseDetails}>Close</Button>
         </DialogActions>
@@ -931,4 +974,4 @@ const ResumeParser = () => {
   );
 };
 
-export default ResumeParser; 
+export default ResumeParser;

@@ -24,7 +24,7 @@ import {
   TableRow,
   Chip,
   Stack,
-  Alert
+  Alert,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -34,7 +34,7 @@ import {
   GroupAdd as GroupAddIcon,
   Videocam as VideocamIcon,
   Room as RoomIcon,
-  LocationOn as LocationOnIcon
+  LocationOn as LocationOnIcon,
 } from '@mui/icons-material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
@@ -73,7 +73,7 @@ const interviewTypes = [
   'Take-Home Assignment Review',
   'Pair Programming',
   'System Design',
-  'Final Round'
+  'Final Round',
 ];
 
 // Mock scheduled interviews
@@ -88,7 +88,7 @@ const initialInterviews = [
     interviewers: [1, 2],
     location: 'Video Call',
     notes: 'Focus on React and TypeScript skills',
-    status: 'Scheduled'
+    status: 'Scheduled',
   },
   {
     id: 2,
@@ -100,7 +100,7 @@ const initialInterviews = [
     interviewers: [1, 3],
     location: 'Office - Room 203',
     notes: 'Assess team fit and communication skills',
-    status: 'Scheduled'
+    status: 'Scheduled',
   },
   {
     id: 3,
@@ -112,8 +112,8 @@ const initialInterviews = [
     interviewers: [2, 4],
     location: 'Video Call',
     notes: 'Focus on backend technologies and system design',
-    status: 'Completed'
-  }
+    status: 'Completed',
+  },
 ];
 
 interface InterviewForm {
@@ -140,7 +140,7 @@ function InterviewScheduler() {
     end: null,
     interviewers: [],
     location: '',
-    notes: ''
+    notes: '',
   });
   const [isEdit, setIsEdit] = useState(false);
   const [currentId, setCurrentId] = useState<number | null>(null);
@@ -153,7 +153,7 @@ function InterviewScheduler() {
   useEffect(() => {
     if (id) {
       const candidateId = parseInt(id, 10);
-      if (!isNaN(candidateId) && candidates.some(c => c.id === candidateId)) {
+      if (!isNaN(candidateId) && candidates.some((c) => c.id === candidateId)) {
         // Open the dialog automatically with the candidate pre-selected
         setFormData({
           candidateId: candidateId,
@@ -163,7 +163,7 @@ function InterviewScheduler() {
           end: dayjs().add(1, 'hour'),
           interviewers: [],
           location: '',
-          notes: ''
+          notes: '',
         });
         setOpen(true);
       }
@@ -181,14 +181,14 @@ function InterviewScheduler() {
       end: dayjs().add(1, 'hour'),
       interviewers: [],
       location: '',
-      notes: ''
+      notes: '',
     });
     setOpen(true);
   };
 
   // Open dialog for editing
   const handleEditInterview = (id: number) => {
-    const interview = interviews.find(i => i.id === id);
+    const interview = interviews.find((i) => i.id === id);
     if (interview) {
       setIsEdit(true);
       setCurrentId(id);
@@ -200,7 +200,7 @@ function InterviewScheduler() {
         end: dayjs(interview.end),
         interviewers: interview.interviewers,
         location: interview.location,
-        notes: interview.notes
+        notes: interview.notes,
       });
       setOpen(true);
     }
@@ -208,7 +208,7 @@ function InterviewScheduler() {
 
   // Delete interview
   const handleDeleteInterview = (id: number) => {
-    setInterviews(interviews.filter(i => i.id !== id));
+    setInterviews(interviews.filter((i) => i.id !== id));
   };
 
   // Handle form field changes
@@ -216,7 +216,7 @@ function InterviewScheduler() {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -224,7 +224,7 @@ function InterviewScheduler() {
   const handleInterviewerChange = (e: any) => {
     setFormData({
       ...formData,
-      interviewers: e.target.value
+      interviewers: e.target.value,
     });
   };
 
@@ -232,7 +232,7 @@ function InterviewScheduler() {
   const handleDateChange = (dateField: 'start' | 'end', newDate: dayjs.Dayjs | null) => {
     setFormData({
       ...formData,
-      [dateField]: newDate
+      [dateField]: newDate,
     });
   };
 
@@ -265,7 +265,7 @@ function InterviewScheduler() {
     setTimeout(() => {
       if (isEdit && currentId) {
         setInterviews(
-          interviews.map(interview => 
+          interviews.map((interview) =>
             interview.id === currentId
               ? {
                   ...interview,
@@ -285,7 +285,7 @@ function InterviewScheduler() {
         setInterviews([
           ...interviews,
           {
-            id: Math.max(0, ...interviews.map(i => i.id)) + 1,
+            id: Math.max(0, ...interviews.map((i) => i.id)) + 1,
             candidateId: formData.candidateId as number,
             jobId: formData.jobId as number,
             interviewType: formData.interviewType,
@@ -294,14 +294,14 @@ function InterviewScheduler() {
             interviewers: formData.interviewers,
             location: formData.location,
             notes: formData.notes,
-            status: 'Scheduled'
-          }
+            status: 'Scheduled',
+          },
         ]);
       }
 
       setSuccess(true);
       setSubmitting(false);
-      
+
       setTimeout(() => {
         setSuccess(false);
         setOpen(false);
@@ -315,26 +315,28 @@ function InterviewScheduler() {
 
   // Helper to get candidate name by id
   const getCandidateName = (id: number) => {
-    const candidate = candidates.find(c => c.id === id);
+    const candidate = candidates.find((c) => c.id === id);
     return candidate ? candidate.name : 'Unknown';
   };
 
   // Helper to get job title by id
   const getJobTitle = (id: number) => {
-    const job = jobs.find(j => j.id === id);
+    const job = jobs.find((j) => j.id === id);
     return job ? job.title : 'Unknown';
   };
 
   // Helper to get interviewer names
   const getInterviewerNames = (ids: number[]) => {
-    return ids.map(id => {
-      const member = teamMembers.find(m => m.id === id);
-      return member ? member.name : 'Unknown';
-    }).join(', ');
+    return ids
+      .map((id) => {
+        const member = teamMembers.find((m) => m.id === id);
+        return member ? member.name : 'Unknown';
+      })
+      .join(', ');
   };
 
   // Filter interviews based on status
-  const filteredInterviews = interviews.filter(interview => {
+  const filteredInterviews = interviews.filter((interview) => {
     if (filterStatus === 'all') return true;
     return interview.status.toLowerCase() === filterStatus.toLowerCase();
   });
@@ -343,23 +345,18 @@ function InterviewScheduler() {
     <Box sx={{ maxWidth: 1200, mx: 'auto', py: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h5">Interview Scheduler</Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<AddIcon />}
-          onClick={handleNewInterview}
-        >
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleNewInterview}>
           Schedule Interview
         </Button>
       </Box>
 
       <Paper sx={{ mb: 3 }}>
         <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
-          <Typography variant="subtitle1" sx={{ mr: 2 }}>Filter by Status:</Typography>
+          <Typography variant="subtitle1" sx={{ mr: 2 }}>
+            Filter by Status:
+          </Typography>
           <FormControl size="small" sx={{ minWidth: 150 }}>
-            <Select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
+            <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
               <MenuItem value="all">All</MenuItem>
               <MenuItem value="scheduled">Scheduled</MenuItem>
               <MenuItem value="completed">Completed</MenuItem>
@@ -373,14 +370,30 @@ function InterviewScheduler() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell><strong>Candidate</strong></TableCell>
-              <TableCell><strong>Position</strong></TableCell>
-              <TableCell><strong>Type</strong></TableCell>
-              <TableCell><strong>Date & Time</strong></TableCell>
-              <TableCell><strong>Interviewers</strong></TableCell>
-              <TableCell><strong>Location</strong></TableCell>
-              <TableCell><strong>Status</strong></TableCell>
-              <TableCell><strong>Actions</strong></TableCell>
+              <TableCell>
+                <strong>Candidate</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Position</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Type</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Date & Time</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Interviewers</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Location</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Status</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Actions</strong>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -392,24 +405,34 @@ function InterviewScheduler() {
                   <TableCell>{interview.interviewType}</TableCell>
                   <TableCell>
                     {interview.start.toLocaleDateString()} <br />
-                    {interview.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {interview.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {interview.start.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}{' '}
+                    - {interview.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </TableCell>
                   <TableCell>{getInterviewerNames(interview.interviewers)}</TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      {interview.location.includes('Video') ? <VideocamIcon fontSize="small" sx={{ mr: 1 }} /> : <RoomIcon fontSize="small" sx={{ mr: 1 }} />}
+                      {interview.location.includes('Video') ? (
+                        <VideocamIcon fontSize="small" sx={{ mr: 1 }} />
+                      ) : (
+                        <RoomIcon fontSize="small" sx={{ mr: 1 }} />
+                      )}
                       {interview.location}
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Chip 
-                      label={interview.status} 
+                    <Chip
+                      label={interview.status}
                       color={
-                        interview.status === 'Scheduled' ? 'primary' : 
-                        interview.status === 'Completed' ? 'success' : 
-                        'default'
-                      } 
-                      size="small" 
+                        interview.status === 'Scheduled'
+                          ? 'primary'
+                          : interview.status === 'Completed'
+                            ? 'success'
+                            : 'default'
+                      }
+                      size="small"
                     />
                   </TableCell>
                   <TableCell>
@@ -437,9 +460,7 @@ function InterviewScheduler() {
 
       {/* Interview Form Dialog */}
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>
-          {isEdit ? 'Edit Interview' : 'Schedule New Interview'}
-        </DialogTitle>
+        <DialogTitle>{isEdit ? 'Edit Interview' : 'Schedule New Interview'}</DialogTitle>
         <DialogContent>
           {success && (
             <Alert severity="success" sx={{ mb: 2 }}>
@@ -535,13 +556,9 @@ function InterviewScheduler() {
                   renderValue={(selected) => (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                       {(selected as number[]).map((value) => {
-                        const member = teamMembers.find(m => m.id === value);
+                        const member = teamMembers.find((m) => m.id === value);
                         return (
-                          <Chip 
-                            key={value} 
-                            label={member ? member.name : 'Unknown'} 
-                            size="small" 
-                          />
+                          <Chip key={value} label={member ? member.name : 'Unknown'} size="small" />
                         );
                       })}
                     </Box>
@@ -565,9 +582,7 @@ function InterviewScheduler() {
                 onChange={handleChange}
                 placeholder="e.g., Video Call, Office - Room 203, etc."
                 InputProps={{
-                  startAdornment: (
-                    <LocationOnIcon sx={{ mr: 1, color: 'text.secondary' }} />
-                  ),
+                  startAdornment: <LocationOnIcon sx={{ mr: 1, color: 'text.secondary' }} />,
                 }}
               />
             </Box>
@@ -587,11 +602,7 @@ function InterviewScheduler() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button 
-            onClick={handleSubmit} 
-            variant="contained" 
-            disabled={submitting}
-          >
+          <Button onClick={handleSubmit} variant="contained" disabled={submitting}>
             {submitting ? 'Submitting...' : isEdit ? 'Update Interview' : 'Schedule Interview'}
           </Button>
         </DialogActions>
@@ -600,4 +611,4 @@ function InterviewScheduler() {
   );
 }
 
-export default InterviewScheduler; 
+export default InterviewScheduler;

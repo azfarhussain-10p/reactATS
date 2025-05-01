@@ -22,7 +22,7 @@ const JobDetailPage = () => {
     linkedInUrl: '',
     portfolioUrl: '',
     referredBy: '',
-    source: 'Career Page'
+    source: 'Career Page',
   });
   const [formErrors, setFormErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState(null);
@@ -30,20 +30,20 @@ const JobDetailPage = () => {
   // Helper function to format dates in a user-friendly way
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+
+    const options = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
     };
-    
+
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   // Calculate days ago from posted date
   const getDaysAgo = (dateString) => {
     if (!dateString) return 'N/A';
-    
+
     const posted = new Date(dateString);
     const today = new Date();
     const diffTime = Math.abs(today.getTime() - posted.getTime());
@@ -55,30 +55,32 @@ const JobDetailPage = () => {
     const fetchJobDetails = async () => {
       try {
         setLoading(true);
-        
+
         // Use jobsApi instead of careerApi until backend endpoints are ready
         const jobData = await jobsApi.getJobById(parseInt(id));
         setJob(jobData);
-        
+
         // Fetch related jobs from the same department
         if (jobData && jobData.department) {
           try {
-            const allJobs = await jobsApi.getAllJobs({ 
-              department: jobData.department 
+            const allJobs = await jobsApi.getAllJobs({
+              department: jobData.department,
             });
-            
+
             // Filter out the current job and limit to 3 related jobs
-            const related = allJobs.filter(relatedJob => 
-              relatedJob.id !== parseInt(id) && relatedJob.status === 'Active'
-            ).slice(0, 3);
-            
+            const related = allJobs
+              .filter(
+                (relatedJob) => relatedJob.id !== parseInt(id) && relatedJob.status === 'Active'
+              )
+              .slice(0, 3);
+
             setRelatedJobs(related);
           } catch (err) {
             console.error('Error fetching related jobs:', err);
             // Non-critical error, don't show to user
           }
         }
-        
+
         setLoading(false);
       } catch (err) {
         console.error('Error fetching job details:', err);
@@ -94,60 +96,60 @@ const JobDetailPage = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
-    
+
     // Clear the error for this field when the user types
     if (formErrors[name]) {
       setFormErrors({
         ...formErrors,
-        [name]: null
+        [name]: null,
       });
     }
   };
 
   const validateForm = () => {
     const errors = {};
-    
+
     if (!formData.firstName.trim()) errors.firstName = 'First name is required';
     if (!formData.lastName.trim()) errors.lastName = 'Last name is required';
-    
+
     if (!formData.email.trim()) {
       errors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       errors.email = 'Email is invalid';
     }
-    
+
     if (!formData.phone.trim()) {
       errors.phone = 'Phone number is required';
     }
-    
+
     if (!formData.resume.trim()) {
       errors.resume = 'Resume link is required';
     }
-    
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     try {
       setSubmitStatus('submitting');
-      
+
       const applicationData = {
         jobId: parseInt(id),
-        ...formData
+        ...formData,
       };
-      
+
       // Use applicationsApi instead of careerApi
       await applicationsApi.createApplication(applicationData);
-      
+
       setSubmitStatus('success');
       setFormData({
         firstName: '',
@@ -159,15 +161,14 @@ const JobDetailPage = () => {
         linkedInUrl: '',
         portfolioUrl: '',
         referredBy: '',
-        source: 'Career Page'
+        source: 'Career Page',
       });
-      
+
       // Hide form after successful submission
       setTimeout(() => {
         setShowApplicationForm(false);
         setSubmitStatus(null);
       }, 3000);
-      
     } catch (err) {
       console.error('Error submitting application:', err);
       setSubmitStatus('error');
@@ -221,7 +222,7 @@ const JobDetailPage = () => {
             <span className="back-arrow">←</span> Back to Jobs
           </button>
         </div>
-        
+
         <div className="job-header">
           <h1>{job.title}</h1>
           <div className="job-meta">
@@ -248,7 +249,7 @@ const JobDetailPage = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="job-content">
           <div className="job-section">
             <h2>Description</h2>
@@ -256,7 +257,7 @@ const JobDetailPage = () => {
               <p>{job.description}</p>
             </div>
           </div>
-          
+
           <div className="job-section">
             <h2>Requirements</h2>
             <div className="job-requirements">
@@ -271,7 +272,7 @@ const JobDetailPage = () => {
               )}
             </div>
           </div>
-          
+
           <div className="job-section">
             <h2>Responsibilities</h2>
             <div className="job-responsibilities">
@@ -286,7 +287,7 @@ const JobDetailPage = () => {
               )}
             </div>
           </div>
-          
+
           {job.benefits && (
             <div className="job-section">
               <h2>Benefits</h2>
@@ -303,7 +304,7 @@ const JobDetailPage = () => {
               </div>
             </div>
           )}
-          
+
           {job.salary && (
             <div className="job-section">
               <h2>Compensation</h2>
@@ -313,26 +314,26 @@ const JobDetailPage = () => {
             </div>
           )}
         </div>
-        
+
         <div className="apply-section">
-          <button 
-            className="apply-button" 
-            onClick={toggleApplicationForm}
-          >
+          <button className="apply-button" onClick={toggleApplicationForm}>
             {showApplicationForm ? 'Hide Application Form' : 'Apply for this Position'}
           </button>
-          
+
           {showApplicationForm && (
             <div className="application-form-container">
               {submitStatus === 'success' ? (
                 <div className="success-message">
                   <h3>Application Submitted!</h3>
-                  <p>Thank you for your interest. We will review your application and contact you soon.</p>
+                  <p>
+                    Thank you for your interest. We will review your application and contact you
+                    soon.
+                  </p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="application-form">
                   <h3>Submit Your Application</h3>
-                  
+
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="firstName">First Name *</label>
@@ -344,7 +345,9 @@ const JobDetailPage = () => {
                         onChange={handleInputChange}
                         className={formErrors.firstName ? 'error' : ''}
                       />
-                      {formErrors.firstName && <div className="error-message">{formErrors.firstName}</div>}
+                      {formErrors.firstName && (
+                        <div className="error-message">{formErrors.firstName}</div>
+                      )}
                     </div>
                     <div className="form-group">
                       <label htmlFor="lastName">Last Name *</label>
@@ -356,10 +359,12 @@ const JobDetailPage = () => {
                         onChange={handleInputChange}
                         className={formErrors.lastName ? 'error' : ''}
                       />
-                      {formErrors.lastName && <div className="error-message">{formErrors.lastName}</div>}
+                      {formErrors.lastName && (
+                        <div className="error-message">{formErrors.lastName}</div>
+                      )}
                     </div>
                   </div>
-                  
+
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="email">Email *</label>
@@ -386,7 +391,7 @@ const JobDetailPage = () => {
                       {formErrors.phone && <div className="error-message">{formErrors.phone}</div>}
                     </div>
                   </div>
-                  
+
                   <div className="form-group">
                     <label htmlFor="resume">Resume Link *</label>
                     <input
@@ -400,7 +405,7 @@ const JobDetailPage = () => {
                     />
                     {formErrors.resume && <div className="error-message">{formErrors.resume}</div>}
                   </div>
-                  
+
                   <div className="form-group">
                     <label htmlFor="coverLetter">Cover Letter</label>
                     <textarea
@@ -411,7 +416,7 @@ const JobDetailPage = () => {
                       rows="4"
                     ></textarea>
                   </div>
-                  
+
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="linkedInUrl">LinkedIn URL</label>
@@ -434,7 +439,7 @@ const JobDetailPage = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="form-group">
                     <label htmlFor="referredBy">How did you hear about us?</label>
                     <input
@@ -445,24 +450,20 @@ const JobDetailPage = () => {
                       onChange={handleInputChange}
                     />
                   </div>
-                  
+
                   <div className="form-actions">
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       className="submit-button"
                       disabled={submitStatus === 'submitting'}
                     >
                       {submitStatus === 'submitting' ? 'Submitting...' : 'Submit Application'}
                     </button>
-                    <button 
-                      type="button" 
-                      className="cancel-button"
-                      onClick={toggleApplicationForm}
-                    >
+                    <button type="button" className="cancel-button" onClick={toggleApplicationForm}>
                       Cancel
                     </button>
                   </div>
-                  
+
                   {submitStatus === 'error' && (
                     <div className="error-message">
                       There was an error submitting your application. Please try again later.
@@ -473,14 +474,14 @@ const JobDetailPage = () => {
             </div>
           )}
         </div>
-        
+
         {relatedJobs.length > 0 && (
           <div className="related-jobs-section">
             <h2>Similar Positions</h2>
             <div className="related-jobs">
-              {relatedJobs.map(relatedJob => (
-                <div 
-                  key={relatedJob.id} 
+              {relatedJobs.map((relatedJob) => (
+                <div
+                  key={relatedJob.id}
                   className="related-job-card"
                   onClick={() => handleRelatedJobClick(relatedJob.id)}
                 >
@@ -495,25 +496,37 @@ const JobDetailPage = () => {
             </div>
           </div>
         )}
-        
+
         <div className="job-share-section">
           <h3>Share this Job</h3>
           <div className="share-buttons">
             <button
               className="share-button linkedin"
-              onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(`Job Opening: ${job.title}`)}`, '_blank')}
+              onClick={() =>
+                window.open(
+                  `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(`Job Opening: ${job.title}`)}`,
+                  '_blank'
+                )
+              }
             >
               LinkedIn
             </button>
             <button
               className="share-button twitter"
-              onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out this job opening: ${job.title}`)}&url=${encodeURIComponent(window.location.href)}`, '_blank')}
+              onClick={() =>
+                window.open(
+                  `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out this job opening: ${job.title}`)}&url=${encodeURIComponent(window.location.href)}`,
+                  '_blank'
+                )
+              }
             >
               Twitter
             </button>
             <button
               className="share-button email"
-              onClick={() => window.location.href = `mailto:?subject=${encodeURIComponent(`Job Opening: ${job.title}`)}&body=${encodeURIComponent(`Check out this job opening: ${window.location.href}`)}`}
+              onClick={() =>
+                (window.location.href = `mailto:?subject=${encodeURIComponent(`Job Opening: ${job.title}`)}&body=${encodeURIComponent(`Check out this job opening: ${window.location.href}`)}`)
+              }
             >
               Email
             </button>
@@ -524,4 +537,4 @@ const JobDetailPage = () => {
   );
 };
 
-export default JobDetailPage; 
+export default JobDetailPage;

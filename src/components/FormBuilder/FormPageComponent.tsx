@@ -1,18 +1,10 @@
 import React from 'react';
-import { 
-  Box, 
-  Paper, 
-  Typography, 
-  IconButton, 
-  TextField,
-  Divider,
-  useTheme
-} from '@mui/material';
-import { 
+import { Box, Paper, Typography, IconButton, TextField, Divider, useTheme } from '@mui/material';
+import {
   Delete as DeleteIcon,
   Edit as EditIcon,
   Save as SaveIcon,
-  Add as AddIcon
+  Add as AddIcon,
 } from '@mui/icons-material';
 import { Droppable } from 'react-beautiful-dnd';
 import FormFieldComponent from './FormFieldComponent';
@@ -40,7 +32,7 @@ const FormPageComponent: React.FC<FormPageComponentProps> = ({
   onFieldDuplicate,
   onFieldUpdate,
   onPageUpdate,
-  onPageDelete
+  onPageDelete,
 }) => {
   const theme = useTheme();
   const [editingTitle, setEditingTitle] = React.useState(false);
@@ -59,21 +51,21 @@ const FormPageComponent: React.FC<FormPageComponentProps> = ({
   };
 
   return (
-    <Paper 
-      elevation={2} 
-      sx={{ 
-        mb: 4, 
+    <Paper
+      elevation={2}
+      sx={{
+        mb: 4,
         overflow: 'hidden',
-        border: `1px solid ${theme.palette.divider}`
+        border: `1px solid ${theme.palette.divider}`,
       }}
     >
-      <Box 
-        sx={{ 
-          p: 2, 
+      <Box
+        sx={{
+          p: 2,
           bgcolor: theme.palette.primary.main,
           color: theme.palette.primary.contrastText,
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
       >
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
@@ -86,33 +78,41 @@ const FormPageComponent: React.FC<FormPageComponentProps> = ({
               onKeyDown={handleKeyDown}
               autoFocus
               InputProps={{
-                style: { color: theme.palette.primary.contrastText }
+                style: { color: theme.palette.primary.contrastText },
               }}
             />
           ) : (
             `Page ${pageIndex + 1}: ${page.title}`
           )}
         </Typography>
-        
+
         {editingTitle ? (
-          <IconButton size="small" onClick={handleTitleSave} sx={{ color: theme.palette.primary.contrastText }}>
+          <IconButton
+            size="small"
+            onClick={handleTitleSave}
+            sx={{ color: theme.palette.primary.contrastText }}
+          >
             <SaveIcon />
           </IconButton>
         ) : (
-          <IconButton size="small" onClick={() => setEditingTitle(true)} sx={{ color: theme.palette.primary.contrastText }}>
+          <IconButton
+            size="small"
+            onClick={() => setEditingTitle(true)}
+            sx={{ color: theme.palette.primary.contrastText }}
+          >
             <EditIcon />
           </IconButton>
         )}
-        
-        <IconButton 
-          size="small" 
+
+        <IconButton
+          size="small"
           onClick={onPageDelete}
           sx={{ color: theme.palette.primary.contrastText }}
         >
           <DeleteIcon />
         </IconButton>
       </Box>
-      
+
       {editingTitle && (
         <Box sx={{ p: 2, bgcolor: theme.palette.background.paper }}>
           <TextField
@@ -127,7 +127,7 @@ const FormPageComponent: React.FC<FormPageComponentProps> = ({
           />
         </Box>
       )}
-      
+
       {!editingTitle && page.description && (
         <Box sx={{ p: 2, bgcolor: theme.palette.background.paper }}>
           <Typography variant="body2" color="text.secondary">
@@ -135,9 +135,9 @@ const FormPageComponent: React.FC<FormPageComponentProps> = ({
           </Typography>
         </Box>
       )}
-      
+
       <Divider />
-      
+
       <Droppable droppableId={`page-${page.id}`}>
         {(provided, snapshot) => (
           <Box
@@ -147,7 +147,7 @@ const FormPageComponent: React.FC<FormPageComponentProps> = ({
               p: 3,
               minHeight: 200,
               bgcolor: snapshot.isDraggingOver ? 'action.hover' : theme.palette.background.paper,
-              transition: 'background-color 0.2s ease'
+              transition: 'background-color 0.2s ease',
             }}
           >
             {page.fields.length > 0 ? (
@@ -166,15 +166,15 @@ const FormPageComponent: React.FC<FormPageComponentProps> = ({
                   />
                 ))
             ) : (
-              <Box 
-                sx={{ 
-                  height: 150, 
-                  display: 'flex', 
-                  alignItems: 'center', 
+              <Box
+                sx={{
+                  height: 150,
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'center',
                   border: '2px dashed',
                   borderColor: 'divider',
-                  borderRadius: 1
+                  borderRadius: 1,
                 }}
               >
                 <Typography variant="body1" color="text.secondary">
@@ -193,4 +193,4 @@ const FormPageComponent: React.FC<FormPageComponentProps> = ({
   );
 };
 
-export default FormPageComponent; 
+export default FormPageComponent;

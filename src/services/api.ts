@@ -1,13 +1,13 @@
-import axios from "axios";
+import axios from 'axios';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: "http://localhost:80/api",
+  baseURL: 'http://localhost:80/api',
   headers: {
-    "Content-Type": "application/json",
-    "Cache-Control": "no-cache, no-store, must-revalidate",
-    Pragma: "no-cache",
-    Expires: "0",
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    Pragma: 'no-cache',
+    Expires: '0',
   },
 });
 
@@ -19,10 +19,7 @@ api.interceptors.request.use((config) => {
   } else {
     config.params = { _t: new Date().getTime() };
   }
-  console.log(
-    `API Request: ${config.method?.toUpperCase()} ${config.url}`,
-    config.params,
-  );
+  console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`, config.params);
   return config;
 });
 
@@ -33,12 +30,9 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error(
-      `API Error: ${error.response?.status} ${error.config?.url}`,
-      error,
-    );
+    console.error(`API Error: ${error.response?.status} ${error.config?.url}`, error);
     return Promise.reject(error);
-  },
+  }
 );
 
 // Jobs API service
@@ -46,10 +40,10 @@ export const jobsApi = {
   // Get all jobs with optional filtering
   getAllJobs: async (filters = {}) => {
     try {
-      const response = await api.get("/jobs", { params: filters });
+      const response = await api.get('/jobs', { params: filters });
       return response.data;
     } catch (error) {
-      console.error("Error fetching jobs:", error);
+      console.error('Error fetching jobs:', error);
       throw error;
     }
   },
@@ -68,10 +62,10 @@ export const jobsApi = {
   // Create new job
   createJob: async (jobData: any) => {
     try {
-      const response = await api.post("/jobs", jobData);
+      const response = await api.post('/jobs', jobData);
       return response.data;
     } catch (error) {
-      console.error("Error creating job:", error);
+      console.error('Error creating job:', error);
       throw error;
     }
   },
@@ -123,10 +117,10 @@ export const jobsApi = {
   // Get all unique departments
   getDepartments: async () => {
     try {
-      const response = await api.get("/jobs/departments");
+      const response = await api.get('/jobs/departments');
       return response.data;
     } catch (error) {
-      console.error("Error fetching departments:", error);
+      console.error('Error fetching departments:', error);
       throw error;
     }
   },
@@ -134,10 +128,10 @@ export const jobsApi = {
   // Get all unique locations
   getLocations: async () => {
     try {
-      const response = await api.get("/jobs/locations");
+      const response = await api.get('/jobs/locations');
       return response.data;
     } catch (error) {
-      console.error("Error fetching locations:", error);
+      console.error('Error fetching locations:', error);
       throw error;
     }
   },
@@ -145,10 +139,10 @@ export const jobsApi = {
   // Get all unique job types
   getJobTypes: async () => {
     try {
-      const response = await api.get("/jobs/types");
+      const response = await api.get('/jobs/types');
       return response.data;
     } catch (error) {
-      console.error("Error fetching job types:", error);
+      console.error('Error fetching job types:', error);
       throw error;
     }
   },
@@ -156,7 +150,7 @@ export const jobsApi = {
   // Get all available job statuses
   // Note: This is a local method as there's no API endpoint
   getJobStatuses: () => {
-    return ["Active", "On-Hold", "Closed", "Draft"];
+    return ['Active', 'On-Hold', 'Closed', 'Draft'];
   },
 };
 
@@ -165,10 +159,10 @@ export const applicationsApi = {
   // Get all applications with optional filtering
   getAllApplications: async (filters = {}) => {
     try {
-      const response = await api.get("/applications", { params: filters });
+      const response = await api.get('/applications', { params: filters });
       return response.data;
     } catch (error) {
-      console.error("Error fetching applications:", error);
+      console.error('Error fetching applications:', error);
       throw error;
     }
   },
@@ -187,10 +181,10 @@ export const applicationsApi = {
   // Create application
   createApplication: async (applicationData: any) => {
     try {
-      const response = await api.post("/applications", applicationData);
+      const response = await api.post('/applications', applicationData);
       return response.data;
     } catch (error) {
-      console.error("Error creating application:", error);
+      console.error('Error creating application:', error);
       throw error;
     }
   },
@@ -250,10 +244,10 @@ export const jobBoardsApi = {
   // Get all job boards
   getAllJobBoards: async () => {
     try {
-      const response = await api.get("/job-boards");
+      const response = await api.get('/job-boards');
       return response.data;
     } catch (error) {
-      console.error("Error fetching job boards:", error);
+      console.error('Error fetching job boards:', error);
       throw error;
     }
   },
@@ -283,10 +277,10 @@ export const jobBoardsApi = {
   // Create job board
   createJobBoard: async (jobBoardData: any) => {
     try {
-      const response = await api.post("/job-boards", jobBoardData);
+      const response = await api.post('/job-boards', jobBoardData);
       return response.data;
     } catch (error) {
-      console.error("Error creating job board:", error);
+      console.error('Error creating job board:', error);
       throw error;
     }
   },
@@ -333,15 +327,15 @@ export const careerApi = {
   getPublishedJobs: async (filters = {}) => {
     try {
       // Add status: published filter for public career site
-      const response = await api.get("/jobs/published", { 
-        params: { 
+      const response = await api.get('/jobs/published', {
+        params: {
           ...filters,
-          status: 'published'
-        } 
+          status: 'published',
+        },
       });
       return response.data;
     } catch (error) {
-      console.error("Error fetching published jobs:", error);
+      console.error('Error fetching published jobs:', error);
       throw error;
     }
   },
@@ -360,15 +354,15 @@ export const careerApi = {
   // Get featured jobs for career portal
   getFeaturedJobs: async (limit = 3) => {
     try {
-      const response = await api.get("/jobs/featured", { 
-        params: { 
+      const response = await api.get('/jobs/featured', {
+        params: {
           limit,
-          status: 'published'
-        } 
+          status: 'published',
+        },
       });
       return response.data;
     } catch (error) {
-      console.error("Error fetching featured jobs:", error);
+      console.error('Error fetching featured jobs:', error);
       throw error;
     }
   },
@@ -376,10 +370,10 @@ export const careerApi = {
   // Submit job application
   submitApplication: async (applicationData: any) => {
     try {
-      const response = await api.post("/applications/public/submit", applicationData);
+      const response = await api.post('/applications/public/submit', applicationData);
       return response.data;
     } catch (error) {
-      console.error("Error submitting application:", error);
+      console.error('Error submitting application:', error);
       throw error;
     }
   },
@@ -387,12 +381,12 @@ export const careerApi = {
   // Get application status (for candidates checking their application)
   getApplicationStatus: async (applicationId: string, email: string) => {
     try {
-      const response = await api.get("/applications/public/status", {
-        params: { applicationId, email }
+      const response = await api.get('/applications/public/status', {
+        params: { applicationId, email },
       });
       return response.data;
     } catch (error) {
-      console.error("Error checking application status:", error);
+      console.error('Error checking application status:', error);
       throw error;
     }
   },
@@ -400,10 +394,10 @@ export const careerApi = {
   // Get all public departments for career filter
   getPublicDepartments: async () => {
     try {
-      const response = await api.get("/jobs/public/departments");
+      const response = await api.get('/jobs/public/departments');
       return response.data;
     } catch (error) {
-      console.error("Error fetching public departments:", error);
+      console.error('Error fetching public departments:', error);
       throw error;
     }
   },
@@ -411,10 +405,10 @@ export const careerApi = {
   // Get all public locations for career filter
   getPublicLocations: async () => {
     try {
-      const response = await api.get("/jobs/public/locations");
+      const response = await api.get('/jobs/public/locations');
       return response.data;
     } catch (error) {
-      console.error("Error fetching public locations:", error);
+      console.error('Error fetching public locations:', error);
       throw error;
     }
   },
@@ -422,10 +416,10 @@ export const careerApi = {
   // Get all public job types for career filter
   getPublicJobTypes: async () => {
     try {
-      const response = await api.get("/jobs/public/types");
+      const response = await api.get('/jobs/public/types');
       return response.data;
     } catch (error) {
-      console.error("Error fetching public job types:", error);
+      console.error('Error fetching public job types:', error);
       throw error;
     }
   },
@@ -433,10 +427,10 @@ export const careerApi = {
   // Send contact form from careers page
   sendContactForm: async (formData: any) => {
     try {
-      const response = await api.post("/careers/contact", formData);
+      const response = await api.post('/careers/contact', formData);
       return response.data;
     } catch (error) {
-      console.error("Error sending contact form:", error);
+      console.error('Error sending contact form:', error);
       throw error;
     }
   },
@@ -444,10 +438,10 @@ export const careerApi = {
   // Get company information for careers page
   getCompanyInfo: async () => {
     try {
-      const response = await api.get("/company/public");
+      const response = await api.get('/company/public');
       return response.data;
     } catch (error) {
-      console.error("Error fetching company info:", error);
+      console.error('Error fetching company info:', error);
       throw error;
     }
   },
@@ -455,10 +449,10 @@ export const careerApi = {
   // Subscribe to job alerts
   subscribeToJobAlerts: async (email: string, preferences: any) => {
     try {
-      const response = await api.post("/careers/subscribe", { email, preferences });
+      const response = await api.post('/careers/subscribe', { email, preferences });
       return response.data;
     } catch (error) {
-      console.error("Error subscribing to job alerts:", error);
+      console.error('Error subscribing to job alerts:', error);
       throw error;
     }
   },
@@ -466,15 +460,15 @@ export const careerApi = {
   // Search jobs by keywords
   searchJobs: async (query: string) => {
     try {
-      const response = await api.get("/jobs/search", { 
-        params: { query, status: 'published' } 
+      const response = await api.get('/jobs/search', {
+        params: { query, status: 'published' },
       });
       return response.data;
     } catch (error) {
-      console.error("Error searching jobs:", error);
+      console.error('Error searching jobs:', error);
       throw error;
     }
-  }
+  },
 };
 
 export default {

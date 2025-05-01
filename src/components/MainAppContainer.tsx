@@ -35,11 +35,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ py: 3 }}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
     </div>
   );
 }
@@ -72,9 +68,9 @@ const MainAppContainer: React.FC = () => {
           <Typography variant="h4" component="h1" sx={{ my: 3 }}>
             React ATS - Enhanced Features
           </Typography>
-          <Tabs 
-            value={tabValue} 
-            onChange={handleTabChange} 
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
             aria-label="application features"
             sx={{ mb: 2 }}
           >
@@ -95,8 +91,8 @@ const MainAppContainer: React.FC = () => {
               Customizable Dashboards for Different User Roles
             </Typography>
             <Typography variant="body1" sx={{ mb: 3 }}>
-              Create and customize dashboards tailored to specific user roles. Drag and drop widgets, 
-              configure metrics, and save personalized views.
+              Create and customize dashboards tailored to specific user roles. Drag and drop
+              widgets, configure metrics, and save personalized views.
             </Typography>
             <CustomizableDashboard />
           </AdvancedDashboardProvider>
@@ -108,8 +104,8 @@ const MainAppContainer: React.FC = () => {
               Cost Per Hire Calculation and Analysis
             </Typography>
             <Typography variant="body1" sx={{ mb: 3 }}>
-              Track and analyze recruitment costs with detailed breakdowns by department, role, and cost category.
-              Compare against industry benchmarks and historical trends.
+              Track and analyze recruitment costs with detailed breakdowns by department, role, and
+              cost category. Compare against industry benchmarks and historical trends.
             </Typography>
             <CostPerHireAnalytics />
           </AnalyticsProvider>
@@ -128,17 +124,20 @@ const MainAppContainer: React.FC = () => {
                 <Box component="ul" sx={{ mb: 3, pl: 4 }}>
                   <Box component="li" sx={{ mb: 1 }}>
                     <Typography variant="body1">
-                      <strong>Talent Pool Segmentation:</strong> Create and manage dynamic candidate segments
+                      <strong>Talent Pool Segmentation:</strong> Create and manage dynamic candidate
+                      segments
                     </Typography>
                   </Box>
                   <Box component="li" sx={{ mb: 1 }}>
                     <Typography variant="body1">
-                      <strong>Candidate Relationship Tracking:</strong> Monitor all touchpoints and engagement levels
+                      <strong>Candidate Relationship Tracking:</strong> Monitor all touchpoints and
+                      engagement levels
                     </Typography>
                   </Box>
                   <Box component="li" sx={{ mb: 1 }}>
                     <Typography variant="body1">
-                      <strong>Automated Nurture Campaigns:</strong> Design multi-step candidate engagement flows
+                      <strong>Automated Nurture Campaigns:</strong> Design multi-step candidate
+                      engagement flows
                     </Typography>
                   </Box>
                   <Box component="li" sx={{ mb: 1 }}>
@@ -153,7 +152,8 @@ const MainAppContainer: React.FC = () => {
                   </Box>
                   <Box component="li" sx={{ mb: 1 }}>
                     <Typography variant="body1">
-                      <strong>Referral Program Management:</strong> Track and incentivize employee referrals
+                      <strong>Referral Program Management:</strong> Track and incentivize employee
+                      referrals
                     </Typography>
                   </Box>
                   <Box component="li" sx={{ mb: 1 }}>
@@ -163,13 +163,15 @@ const MainAppContainer: React.FC = () => {
                   </Box>
                   <Box component="li" sx={{ mb: 1 }}>
                     <Typography variant="body1">
-                      <strong>External CRM Integration:</strong> Connect with systems like Salesforce, HubSpot, etc.
+                      <strong>External CRM Integration:</strong> Connect with systems like
+                      Salesforce, HubSpot, etc.
                     </Typography>
                   </Box>
                 </Box>
                 <Typography variant="body1" sx={{ mb: 3, fontStyle: 'italic' }}>
-                  Note: This tab demonstrates the architecture and integration points for the CRM features.
-                  The actual UI components would be implemented based on specific design requirements.
+                  Note: This tab demonstrates the architecture and integration points for the CRM
+                  features. The actual UI components would be implemented based on specific design
+                  requirements.
                 </Typography>
                 <CRMIntegration />
               </CandidateRelationshipProvider>
@@ -195,12 +197,14 @@ const MainAppContainer: React.FC = () => {
                   </Box>
                   <Box component="li" sx={{ mb: 1 }}>
                     <Typography variant="body1">
-                      <strong>Cost-per-hire Calculations:</strong> Detailed cost tracking and analysis
+                      <strong>Cost-per-hire Calculations:</strong> Detailed cost tracking and
+                      analysis
                     </Typography>
                   </Box>
                   <Box component="li" sx={{ mb: 1 }}>
                     <Typography variant="body1">
-                      <strong>Recruiter Performance Analytics:</strong> Measure and optimize recruiter effectiveness
+                      <strong>Recruiter Performance Analytics:</strong> Measure and optimize
+                      recruiter effectiveness
                     </Typography>
                   </Box>
                   <Box component="li" sx={{ mb: 1 }}>
@@ -209,7 +213,7 @@ const MainAppContainer: React.FC = () => {
                     </Typography>
                   </Box>
                 </Box>
-                
+
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
                   <Tabs
                     value={analyticsTabValue}
@@ -220,19 +224,20 @@ const MainAppContainer: React.FC = () => {
                     <Tab label="Report Builder" />
                   </Tabs>
                 </Box>
-                
+
                 <Box role="tabpanel" hidden={analyticsTabValue !== 0}>
                   {analyticsTabValue === 0 && (
                     <>
                       <Typography variant="body1" sx={{ mb: 3, fontStyle: 'italic' }}>
-                        This tab demonstrates the architecture and integration points for the advanced analytics features.
-                        The actual UI components would be implemented based on specific design requirements.
+                        This tab demonstrates the architecture and integration points for the
+                        advanced analytics features. The actual UI components would be implemented
+                        based on specific design requirements.
                       </Typography>
                       <AdvancedAnalyticsIntegration />
                     </>
                   )}
                 </Box>
-                
+
                 <Box role="tabpanel" hidden={analyticsTabValue !== 1}>
                   {analyticsTabValue === 1 && (
                     <AdvancedDashboardProvider>
@@ -248,9 +253,12 @@ const MainAppContainer: React.FC = () => {
         <TabPanel value={tabValue} index={4}>
           <StructuredInterviewKitProvider>
             <Box sx={{ my: 2 }}>
-              <Typography variant="h5" gutterBottom>Structured Interview Kit</Typography>
+              <Typography variant="h5" gutterBottom>
+                Structured Interview Kit
+              </Typography>
               <Typography paragraph>
-                Create and manage standardized interview kits to ensure consistent candidate evaluation
+                Create and manage standardized interview kits to ensure consistent candidate
+                evaluation
               </Typography>
               <StructuredInterviewKit standalone={true} />
             </Box>
@@ -261,4 +269,4 @@ const MainAppContainer: React.FC = () => {
   );
 };
 
-export default MainAppContainer; 
+export default MainAppContainer;

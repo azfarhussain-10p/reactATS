@@ -1,18 +1,18 @@
 import React from 'react';
-import { 
-  Box, 
-  Typography, 
-  Divider, 
-  Paper, 
-  List, 
+import {
+  Box,
+  Typography,
+  Divider,
+  Paper,
+  List,
   ListItem,
   ListItemIcon,
   ListItemText,
   Tooltip,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { 
+import {
   TextFields as TextIcon,
   Subject as LongTextIcon,
   Email as EmailIcon,
@@ -28,7 +28,7 @@ import {
   Star as RatingIcon,
   Title as HeadingIcon,
   HorizontalRule as DividerIcon,
-  FormatListBulleted as MultiSelectIcon
+  FormatListBulleted as MultiSelectIcon,
 } from '@mui/icons-material';
 import { FormFieldType } from '../../models/types';
 
@@ -49,7 +49,7 @@ const fieldTypeIcons: Record<FormFieldType, React.ReactElement> = {
   Name: <NameIcon />,
   Rating: <RatingIcon />,
   Heading: <HeadingIcon />,
-  Divider: <DividerIcon />
+  Divider: <DividerIcon />,
 };
 
 // Field type descriptions
@@ -69,7 +69,7 @@ const fieldTypeDescriptions: Record<FormFieldType, string> = {
   Name: 'Name fields with first/last options',
   Rating: 'Star rating selection field',
   Heading: 'Section heading (non-input)',
-  Divider: 'Visual divider (non-input)'
+  Divider: 'Visual divider (non-input)',
 };
 
 // Group field types by category
@@ -77,7 +77,7 @@ const fieldGroups = {
   'Basic Fields': ['ShortText', 'LongText', 'Email', 'Phone', 'Number', 'Date'] as FormFieldType[],
   'Choice Fields': ['SingleSelect', 'MultiSelect', 'Checkbox', 'RadioGroup'] as FormFieldType[],
   'Advanced Fields': ['FileUpload', 'Address', 'Name', 'Rating'] as FormFieldType[],
-  'Layout Elements': ['Heading', 'Divider'] as FormFieldType[]
+  'Layout Elements': ['Heading', 'Divider'] as FormFieldType[],
 };
 
 interface FormBuilderSidebarProps {
@@ -96,7 +96,7 @@ const FormBuilderSidebar: React.FC<FormBuilderSidebarProps> = ({ onDragEnd }) =>
         bgcolor: 'background.paper',
         borderRight: 1,
         borderColor: 'divider',
-        p: 2
+        p: 2,
       }}
     >
       <Typography variant="h6" gutterBottom>
@@ -105,16 +105,16 @@ const FormBuilderSidebar: React.FC<FormBuilderSidebarProps> = ({ onDragEnd }) =>
       <Typography variant="body2" color="text.secondary" gutterBottom>
         Drag elements to add them to your form
       </Typography>
-      
+
       <Divider sx={{ my: 2 }} />
-      
+
       <DragDropContext onDragEnd={onDragEnd}>
         {Object.entries(fieldGroups).map(([groupName, fieldTypes]) => (
           <Box key={groupName} sx={{ mb: 3 }}>
             <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
               {groupName}
             </Typography>
-            
+
             <Droppable droppableId={`sidebar-${groupName}`} isDropDisabled={true}>
               {(provided) => (
                 <Paper
@@ -125,11 +125,7 @@ const FormBuilderSidebar: React.FC<FormBuilderSidebarProps> = ({ onDragEnd }) =>
                 >
                   <List disablePadding>
                     {fieldTypes.map((fieldType, index) => (
-                      <Draggable
-                        key={fieldType}
-                        draggableId={`new-${fieldType}`}
-                        index={index}
-                      >
+                      <Draggable key={fieldType} draggableId={`new-${fieldType}`} index={index}>
                         {(provided, snapshot) => (
                           <Tooltip title={fieldTypeDescriptions[fieldType]} placement="right">
                             <ListItem
@@ -170,4 +166,4 @@ const FormBuilderSidebar: React.FC<FormBuilderSidebarProps> = ({ onDragEnd }) =>
   );
 };
 
-export default FormBuilderSidebar; 
+export default FormBuilderSidebar;

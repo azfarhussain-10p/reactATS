@@ -11,10 +11,10 @@ export function useAnalyticsNavigation() {
   const goToAnalytics = (section?: string) => {
     // Navigate to the analytics page
     navigate('/analytics');
-    
+
     // Announce the navigation for screen readers
     announce(`Navigated to ${section ? `${section} in ` : ''}Analytics Dashboard`);
-    
+
     // Return a promise to indicate success
     return Promise.resolve(true);
   };
@@ -22,4 +22,4 @@ export function useAnalyticsNavigation() {
   return { goToAnalytics };
 }
 
-export default useAnalyticsNavigation; 
+export default useAnalyticsNavigation;

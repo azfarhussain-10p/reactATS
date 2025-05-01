@@ -36,16 +36,33 @@ The Job Draft & Publishing system enables recruiters and hiring managers to:
 3. **On-Hold**: Published but temporarily paused
 4. **Closed**: Job is no longer accepting applications
 
+## Status Impact on Applications
+
+The status of a job posting directly impacts application capabilities:
+
+| Job Status | Can Apply? | Visibility      | Notes                                      |
+| ---------- | ---------- | --------------- | ------------------------------------------ |
+| Draft      | No         | Internal only   | Not visible to candidates                  |
+| Active     | Yes        | Public          | Fully functional for applications          |
+| On-Hold    | No         | Public          | Visible but application button is disabled |
+| Closed     | No         | Public/Archived | Visible but application button is disabled |
+
+The system enforces these rules through:
+
+- UI controls: Apply button is only visible for Active jobs
+- API validation: Preventing application submissions to non-Active jobs
+- Notification: Users attempting to apply to non-Active jobs receive appropriate messages
+
 ## Deletion Rules
 
 The system enforces the following deletion rules:
 
 | Job Status | Can Delete? | Required Action Before Deletion |
-|------------|-------------|--------------------------------|
-| Draft      | Yes         | None                           |
-| Active     | No          | Must close job first           |
-| On-Hold    | No          | Must close job first           |
-| Closed     | Yes         | None                           |
+| ---------- | ----------- | ------------------------------- |
+| Draft      | Yes         | None                            |
+| Active     | No          | Must close job first            |
+| On-Hold    | No          | Must close job first            |
+| Closed     | Yes         | None                            |
 
 ## Visual Elements
 
@@ -64,6 +81,12 @@ The system enforces the following deletion rules:
   - Close button for Active/On-Hold jobs
   - Delete button (enabled only for Draft and Closed jobs)
 
+### Job Detail View
+
+- Status-appropriate action buttons:
+  - "Apply For This Job" button only visible for Active jobs
+  - Warning messages for jobs that cannot be applied to
+
 ### New Job Dialog
 
 - "Save as Draft" button with animated styling
@@ -77,12 +100,14 @@ The system enforces the following deletion rules:
 - Status-based rendering of UI elements and actions
 - Different validation rules for draft vs. published states
 - Status-appropriate action buttons
+- Conditional display of "Apply" functionality based on job status
 
 ### API Layer
 
 - Permission checks for deletion based on job status
 - Validation rules enforced on both client and server
 - Status tracking and transition handling
+- Application validation to prevent submissions to non-Active jobs
 
 ## Best Practices
 
@@ -90,6 +115,7 @@ The system enforces the following deletion rules:
 - Close jobs instead of deleting them to maintain historical data
 - Use the featured flag for high-priority positions
 - Regularly review draft jobs to either publish or remove them
+- When placing a job on hold, communicate status to existing applicants
 
 ## Related Features
 
@@ -97,7 +123,8 @@ The system enforces the following deletion rules:
 - [Job Board Integration](./job-board-integration.md)
 - [Careers Page](./careers-page.md)
 - [Job Performance Analytics](./job-performance.md)
+- [Application Process](./application-process.md)
 
 ---
 
-[← Back to Documentation Home](../../README.md) 
+[← Back to Documentation Home](../../README.md)

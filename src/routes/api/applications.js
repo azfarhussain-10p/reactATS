@@ -26,11 +26,11 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   try {
     const application = mockDataService.getApplicationById(parseInt(req.params.id));
-    
+
     if (!application) {
       return res.status(404).json({ message: 'Application not found' });
     }
-    
+
     res.json(application);
   } catch (error) {
     console.error(`Error getting application ${req.params.id}:`, error);
@@ -49,19 +49,21 @@ router.post('/', (req, res) => {
 
     // Simple validation
     if (!jobId || !firstName || !lastName || !email) {
-      return res.status(400).json({ message: 'Please provide jobId, firstName, lastName, and email' });
+      return res
+        .status(400)
+        .json({ message: 'Please provide jobId, firstName, lastName, and email' });
     }
-    
+
     const newApplication = mockDataService.createApplication(req.body);
-    
+
     res.status(201).json(newApplication);
   } catch (error) {
     console.error('Error creating application:', error);
-    
+
     if (error.message === 'Job not found') {
       return res.status(404).json({ message: 'Job not found' });
     }
-    
+
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -75,11 +77,11 @@ router.put('/:id', (req, res) => {
   try {
     const applicationId = parseInt(req.params.id);
     const updatedApplication = mockDataService.updateApplication(applicationId, req.body);
-    
+
     if (!updatedApplication) {
       return res.status(404).json({ message: 'Application not found' });
     }
-    
+
     res.json(updatedApplication);
   } catch (error) {
     console.error(`Error updating application ${req.params.id}:`, error);
@@ -96,13 +98,13 @@ router.patch('/:id/status', (req, res) => {
   try {
     const applicationId = parseInt(req.params.id);
     const { status } = req.body;
-    
+
     const updatedApplication = mockDataService.updateApplicationStatus(applicationId, status);
-    
+
     if (!updatedApplication) {
       return res.status(404).json({ message: 'Application not found' });
     }
-    
+
     res.json(updatedApplication);
   } catch (error) {
     console.error(`Error updating application ${req.params.id} status:`, error);
@@ -119,13 +121,13 @@ router.patch('/:id/stage', (req, res) => {
   try {
     const applicationId = parseInt(req.params.id);
     const { stage, notes } = req.body;
-    
+
     const updatedApplication = mockDataService.updateApplicationStage(applicationId, stage, notes);
-    
+
     if (!updatedApplication) {
       return res.status(404).json({ message: 'Application not found' });
     }
-    
+
     res.json(updatedApplication);
   } catch (error) {
     console.error(`Error updating application ${req.params.id} stage:`, error);
@@ -141,13 +143,13 @@ router.patch('/:id/stage', (req, res) => {
 router.delete('/:id', (req, res) => {
   try {
     const applicationId = parseInt(req.params.id);
-    
+
     const deletedApplication = mockDataService.deleteApplication(applicationId);
-    
+
     if (!deletedApplication) {
       return res.status(404).json({ message: 'Application not found' });
     }
-    
+
     res.json({ message: 'Application deleted', application: deletedApplication });
   } catch (error) {
     console.error(`Error deleting application ${req.params.id}:`, error);
@@ -155,4 +157,4 @@ router.delete('/:id', (req, res) => {
   }
 });
 
-export default router; 
+export default router;

@@ -1,25 +1,25 @@
-import React, { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import './index.css'
-import Routes from './routes/index'
-import { AuthProvider } from './contexts/AuthContext'
-import { CandidateProvider } from './contexts/CandidateContext'
-import { PipelineProvider } from './contexts/PipelineContext'
-import { EvaluationProvider } from './contexts/EvaluationContext'
-import { AnalyticsProvider } from './contexts/AnalyticsContext'
-import { JobPostingProvider } from './contexts/JobPostingContext'
-import { ResumeParsingProvider } from './contexts/ResumeParsingContext'
-import { StructuredInterviewKitProvider } from './contexts/StructuredInterviewKitContext'
-import { CollaborationProvider } from './contexts/CollaborationContext'
-import ScreenReaderAnnouncer from './components/ScreenReaderAnnouncer'
-import { setupOfflineFormSync } from './utils/offlineFormHandler'
+import React, { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import './index.css';
+import Routes from './routes/index';
+import { AuthProvider } from './contexts/AuthContext';
+import { CandidateProvider } from './contexts/CandidateContext';
+import { PipelineProvider } from './contexts/PipelineContext';
+import { EvaluationProvider } from './contexts/EvaluationContext';
+import { AnalyticsProvider } from './contexts/AnalyticsContext';
+import { JobPostingProvider } from './contexts/JobPostingContext';
+import { ResumeParsingProvider } from './contexts/ResumeParsingContext';
+import { StructuredInterviewKitProvider } from './contexts/StructuredInterviewKitContext';
+import { CollaborationProvider } from './contexts/CollaborationContext';
+import ScreenReaderAnnouncer from './components/ScreenReaderAnnouncer';
+import { setupOfflineFormSync } from './utils/offlineFormHandler';
 
-const container = document.getElementById('root')
-const root = createRoot(container!)
+const container = document.getElementById('root');
+const root = createRoot(container!);
 
 // Initialize offline form synchronization
-setupOfflineFormSync()
+setupOfflineFormSync();
 
 root.render(
   <StrictMode>
@@ -45,17 +45,18 @@ root.render(
         </CandidateProvider>
       </AuthProvider>
     </BrowserRouter>
-  </StrictMode>,
-)
+  </StrictMode>
+);
 
 // Register Service Worker for PWA support
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(registration => {
+    navigator.serviceWorker
+      .register('/service-worker.js')
+      .then((registration) => {
         console.log('Service Worker registered with scope:', registration.scope);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Service Worker registration failed:', error);
       });
   });

@@ -1,14 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Button, Card, CardActions, CardContent, Dialog, DialogActions,
-  DialogContent, DialogTitle, Divider, Grid, IconButton, List, ListItem,
-  ListItemIcon, ListItemText, Menu, MenuItem, Paper, TextField, Tooltip,
-  Typography, Chip, LinearProgress
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Paper,
+  TextField,
+  Tooltip,
+  Typography,
+  Chip,
+  LinearProgress,
 } from '@mui/material';
 import {
-  Description, Folder, Share, MoreVert, Delete, Edit, GetApp,
-  AccessTime, Person, Add, InsertDriveFile, CreateNewFolder, 
-  PictureAsPdf, Image, InsertChart, Code, Lock, LockOpen
+  Description,
+  Folder,
+  Share,
+  MoreVert,
+  Delete,
+  Edit,
+  GetApp,
+  AccessTime,
+  Person,
+  Add,
+  InsertDriveFile,
+  CreateNewFolder,
+  PictureAsPdf,
+  Image,
+  InsertChart,
+  Code,
+  Lock,
+  LockOpen,
 } from '@mui/icons-material';
 
 // Types for document management
@@ -56,7 +91,7 @@ const mockUsers: User[] = [
   currentUser,
   { id: 'user2', name: 'Jane Smith' },
   { id: 'user3', name: 'Robert Johnson' },
-  { id: 'user4', name: 'Emily Davis' }
+  { id: 'user4', name: 'Emily Davis' },
 ];
 
 const mockFolders: Folder[] = [
@@ -66,7 +101,7 @@ const mockFolders: Folder[] = [
     parentId: null,
     createdBy: 'user1',
     createdAt: new Date(2023, 5, 15),
-    permissions: [{ userId: 'user1', level: 'edit' }]
+    permissions: [{ userId: 'user1', level: 'edit' }],
   },
   {
     id: 'folder2',
@@ -76,9 +111,9 @@ const mockFolders: Folder[] = [
     createdAt: new Date(2023, 6, 10),
     permissions: [
       { userId: 'user1', level: 'edit' },
-      { userId: 'user2', level: 'edit' }
-    ]
-  }
+      { userId: 'user2', level: 'edit' },
+    ],
+  },
 ];
 
 const mockDocuments: Document[] = [
@@ -93,10 +128,10 @@ const mockDocuments: Document[] = [
     size: 256000,
     permissions: [
       { userId: 'user1', level: 'edit' },
-      { userId: 'user2', level: 'view' }
+      { userId: 'user2', level: 'view' },
     ],
     tags: ['template', 'interview'],
-    description: 'Standard script for structured interviews'
+    description: 'Standard script for structured interviews',
   },
   {
     id: 'doc2',
@@ -110,10 +145,10 @@ const mockDocuments: Document[] = [
     permissions: [
       { userId: 'user1', level: 'edit' },
       { userId: 'user2', level: 'edit' },
-      { userId: 'user3', level: 'view' }
+      { userId: 'user3', level: 'view' },
     ],
     tags: ['rubric', 'assessment', 'technical'],
-    description: 'Scoring criteria for technical interviews'
+    description: 'Scoring criteria for technical interviews',
   },
   {
     id: 'doc3',
@@ -127,22 +162,28 @@ const mockDocuments: Document[] = [
     permissions: [
       { userId: 'user1', level: 'edit' },
       { userId: 'user2', level: 'comment' },
-      { userId: 'user3', level: 'view' }
+      { userId: 'user3', level: 'view' },
     ],
     tags: ['behavioral', 'questions', 'guide'],
-    description: 'Guide for conducting behavioral interviews'
-  }
+    description: 'Guide for conducting behavioral interviews',
+  },
 ];
 
 // Helper functions
 const getDocumentIcon = (type: DocumentType) => {
   switch (type) {
-    case 'pdf': return <PictureAsPdf />;
-    case 'doc': return <Description />;
-    case 'image': return <Image />;
-    case 'spreadsheet': return <InsertChart />;
-    case 'code': return <Code />;
-    default: return <InsertDriveFile />;
+    case 'pdf':
+      return <PictureAsPdf />;
+    case 'doc':
+      return <Description />;
+    case 'image':
+      return <Image />;
+    case 'spreadsheet':
+      return <InsertChart />;
+    case 'code':
+      return <Code />;
+    default:
+      return <InsertDriveFile />;
   }
 };
 
@@ -156,7 +197,7 @@ const formatDate = (date: Date): string => {
   return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
   });
 };
 
@@ -174,7 +215,7 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  
+
   // Dialog states
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
@@ -185,21 +226,21 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
   const [fileDetailDialogOpen, setFileDetailDialogOpen] = useState(false);
 
   // Filter documents and folders based on current folder
-  const filteredDocuments = documents.filter(doc => doc.folderId === currentFolder);
-  const filteredFolders = folders.filter(folder => folder.parentId === currentFolder);
-  
+  const filteredDocuments = documents.filter((doc) => doc.folderId === currentFolder);
+  const filteredFolders = folders.filter((folder) => folder.parentId === currentFolder);
+
   // Breadcrumb navigation
   const getBreadcrumbPath = () => {
     if (!currentFolder) return [{ id: null, name: 'Root' }];
-    
+
     const path = [{ id: null, name: 'Root' }];
-    let current = folders.find(f => f.id === currentFolder);
-    
+    let current = folders.find((f) => f.id === currentFolder);
+
     if (current) {
       path.push({ id: current.id, name: current.name });
-      
+
       while (current && current.parentId) {
-        const parent = folders.find(f => f.id === current?.parentId);
+        const parent = folders.find((f) => f.id === current?.parentId);
         if (parent) {
           path.unshift({ id: parent.id, name: parent.name });
           current = parent;
@@ -208,7 +249,7 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
         }
       }
     }
-    
+
     return path;
   };
 
@@ -231,16 +272,16 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
   // Handle file upload
   const handleFileUpload = () => {
     setIsUploading(true);
-    
+
     // Simulate upload progress
     let progress = 0;
     const interval = setInterval(() => {
       progress += 10;
       setUploadProgress(progress);
-      
+
       if (progress >= 100) {
         clearInterval(interval);
-        
+
         // Create new document
         const newDoc: Document = {
           id: `doc${documents.length + 1}`,
@@ -253,9 +294,9 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
           size: 256000 + Math.floor(Math.random() * 1000000),
           permissions: [{ userId: currentUser.id, level: 'edit' }],
           tags: ['uploaded'],
-          description: 'Recently uploaded document'
+          description: 'Recently uploaded document',
         };
-        
+
         setDocuments([...documents, newDoc]);
         setIsUploading(false);
       }
@@ -271,9 +312,9 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
         parentId: currentFolder,
         createdBy: currentUser.id,
         createdAt: new Date(),
-        permissions: [{ userId: currentUser.id, level: 'edit' }]
+        permissions: [{ userId: currentUser.id, level: 'edit' }],
       };
-      
+
       setFolders([...folders, newFolder]);
       setNewFolderName('');
       setNewFolderDialogOpen(false);
@@ -283,44 +324,46 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
   // Handle sharing
   const handleShare = () => {
     if (selectedItem && userToShare) {
-      if ('folderId' in selectedItem) { // It's a document
-        const updatedDocs = documents.map(doc => {
+      if ('folderId' in selectedItem) {
+        // It's a document
+        const updatedDocs = documents.map((doc) => {
           if (doc.id === selectedItem.id) {
             // Remove existing permission for this user if it exists
-            const filteredPermissions = doc.permissions.filter(p => p.userId !== userToShare);
-            
+            const filteredPermissions = doc.permissions.filter((p) => p.userId !== userToShare);
+
             return {
               ...doc,
               permissions: [
                 ...filteredPermissions,
-                { userId: userToShare, level: permissionLevel }
-              ]
+                { userId: userToShare, level: permissionLevel },
+              ],
             };
           }
           return doc;
         });
-        
+
         setDocuments(updatedDocs);
-      } else { // It's a folder
-        const updatedFolders = folders.map(folder => {
+      } else {
+        // It's a folder
+        const updatedFolders = folders.map((folder) => {
           if (folder.id === selectedItem.id) {
             // Remove existing permission for this user if it exists
-            const filteredPermissions = folder.permissions.filter(p => p.userId !== userToShare);
-            
+            const filteredPermissions = folder.permissions.filter((p) => p.userId !== userToShare);
+
             return {
               ...folder,
               permissions: [
                 ...filteredPermissions,
-                { userId: userToShare, level: permissionLevel }
-              ]
+                { userId: userToShare, level: permissionLevel },
+              ],
             };
           }
           return folder;
         });
-        
+
         setFolders(updatedFolders);
       }
-      
+
       setShareDialogOpen(false);
       setUserToShare('');
       setPermissionLevel('view');
@@ -330,28 +373,32 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
   // Handle deletion
   const handleDelete = () => {
     if (selectedItem) {
-      if ('folderId' in selectedItem) { // It's a document
-        setDocuments(documents.filter(doc => doc.id !== selectedItem.id));
-      } else { // It's a folder
+      if ('folderId' in selectedItem) {
+        // It's a document
+        setDocuments(documents.filter((doc) => doc.id !== selectedItem.id));
+      } else {
+        // It's a folder
         // Delete folder and all its contents recursively
         const folderIdsToDelete = new Set<string>();
-        
+
         // Function to collect all folder IDs to delete
         const collectFolderIds = (folderId: string) => {
           folderIdsToDelete.add(folderId);
-          
+
           // Find child folders
-          const childFolders = folders.filter(f => f.parentId === folderId);
-          childFolders.forEach(child => collectFolderIds(child.id));
+          const childFolders = folders.filter((f) => f.parentId === folderId);
+          childFolders.forEach((child) => collectFolderIds(child.id));
         };
-        
+
         collectFolderIds(selectedItem.id);
-        
+
         // Filter out deleted folders and their documents
-        setFolders(folders.filter(folder => !folderIdsToDelete.has(folder.id)));
-        setDocuments(documents.filter(doc => !doc.folderId || !folderIdsToDelete.has(doc.folderId)));
+        setFolders(folders.filter((folder) => !folderIdsToDelete.has(folder.id)));
+        setDocuments(
+          documents.filter((doc) => !doc.folderId || !folderIdsToDelete.has(doc.folderId))
+        );
       }
-      
+
       setDeleteDialogOpen(false);
     }
   };
@@ -360,30 +407,32 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
   const renderItem = (item: Document | Folder) => {
     const isDocument = 'folderId' in item;
     const icon = isDocument ? getDocumentIcon((item as Document).type) : <Folder />;
-    
+
     const getPermissionIcon = () => {
-      const userPermission = isDocument 
-        ? (item as Document).permissions.find(p => p.userId === currentUser.id)
-        : (item as Folder).permissions.find(p => p.userId === currentUser.id);
-        
-      return userPermission?.level === 'edit' ? <LockOpen fontSize="small" /> : <Lock fontSize="small" />;
+      const userPermission = isDocument
+        ? (item as Document).permissions.find((p) => p.userId === currentUser.id)
+        : (item as Folder).permissions.find((p) => p.userId === currentUser.id);
+
+      return userPermission?.level === 'edit' ? (
+        <LockOpen fontSize="small" />
+      ) : (
+        <Lock fontSize="small" />
+      );
     };
-    
+
     return (
       <Card
         variant="outlined"
         sx={{
           mb: 1,
           '&:hover': { boxShadow: 2 },
-          cursor: isDocument ? 'default' : 'pointer'
+          cursor: isDocument ? 'default' : 'pointer',
         }}
         onClick={isDocument ? undefined : () => navigateToFolder((item as Folder).id)}
       >
         <CardContent sx={{ pb: 1 }}>
           <Box display="flex" alignItems="center">
-            <ListItemIcon sx={{ minWidth: 40 }}>
-              {icon}
-            </ListItemIcon>
+            <ListItemIcon sx={{ minWidth: 40 }}>{icon}</ListItemIcon>
             <Box flexGrow={1} overflow="hidden">
               <Typography variant="subtitle1" noWrap>
                 {item.name}
@@ -391,25 +440,27 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
               <Typography variant="body2" color="text.secondary" noWrap>
                 {isDocument ? (
                   <>
-                    {formatFileSize((item as Document).size)} • 
-                    Updated {formatDate((item as Document).updatedAt)}
+                    {formatFileSize((item as Document).size)} • Updated{' '}
+                    {formatDate((item as Document).updatedAt)}
                   </>
                 ) : (
                   <>Created {formatDate((item as Folder).createdAt)}</>
                 )}
               </Typography>
             </Box>
-            <Tooltip title={`You have ${
-              isDocument 
-                ? (item as Document).permissions.find(p => p.userId === currentUser.id)?.level
-                : (item as Folder).permissions.find(p => p.userId === currentUser.id)?.level
-            } permission`}>
+            <Tooltip
+              title={`You have ${
+                isDocument
+                  ? (item as Document).permissions.find((p) => p.userId === currentUser.id)?.level
+                  : (item as Folder).permissions.find((p) => p.userId === currentUser.id)?.level
+              } permission`}
+            >
               <Box ml={1}>{getPermissionIcon()}</Box>
             </Tooltip>
           </Box>
           {isDocument && (item as Document).tags.length > 0 && (
             <Box mt={1} display="flex" flexWrap="wrap" gap={0.5}>
-              {(item as Document).tags.map(tag => (
+              {(item as Document).tags.map((tag) => (
                 <Chip key={tag} label={tag} size="small" />
               ))}
             </Box>
@@ -417,7 +468,7 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
         </CardContent>
         <CardActions>
           <Tooltip title="Share">
-            <IconButton 
+            <IconButton
               size="small"
               onClick={(e) => {
                 e.stopPropagation();
@@ -436,7 +487,7 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
             </Tooltip>
           )}
           <Box flexGrow={1} />
-          <IconButton 
+          <IconButton
             size="small"
             onClick={(e) => {
               e.stopPropagation();
@@ -455,7 +506,7 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
       <Box mb={2} display="flex" justifyContent="space-between" alignItems="center">
         <Typography variant="h6">Document Sharing</Typography>
         <Box>
-          <Button 
+          <Button
             startIcon={<CreateNewFolder />}
             variant="outlined"
             size="small"
@@ -464,7 +515,7 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
           >
             New Folder
           </Button>
-          <Button 
+          <Button
             startIcon={<Add />}
             variant="contained"
             size="small"
@@ -475,7 +526,7 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
           </Button>
         </Box>
       </Box>
-      
+
       {/* Breadcrumb navigation */}
       <Box mb={2} display="flex" alignItems="center">
         {getBreadcrumbPath().map((item, index, arr) => (
@@ -489,12 +540,14 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
               {item.name}
             </Button>
             {index < arr.length - 1 && (
-              <Typography variant="body2" sx={{ mx: 0.5 }}>/</Typography>
+              <Typography variant="body2" sx={{ mx: 0.5 }}>
+                /
+              </Typography>
             )}
           </React.Fragment>
         ))}
       </Box>
-      
+
       {/* Upload progress indicator */}
       {isUploading && (
         <Box mb={2}>
@@ -504,14 +557,14 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
           <LinearProgress variant="determinate" value={uploadProgress} />
         </Box>
       )}
-      
+
       {/* Empty state */}
       {filteredFolders.length === 0 && filteredDocuments.length === 0 && !isUploading && (
-        <Box 
-          display="flex" 
-          flexDirection="column" 
-          alignItems="center" 
-          justifyContent="center" 
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
           py={4}
         >
           <Description sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
@@ -520,30 +573,28 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
             Upload files or create a new folder to get started
           </Typography>
           <Box display="flex" gap={1}>
-            <Button 
+            <Button
               startIcon={<CreateNewFolder />}
               variant="outlined"
               onClick={() => setNewFolderDialogOpen(true)}
             >
               New Folder
             </Button>
-            <Button 
-              startIcon={<Add />}
-              variant="contained"
-              onClick={handleFileUpload}
-            >
+            <Button startIcon={<Add />} variant="contained" onClick={handleFileUpload}>
               Upload File
             </Button>
           </Box>
         </Box>
       )}
-      
+
       {/* Folders grid */}
       {filteredFolders.length > 0 && (
         <>
-          <Typography variant="subtitle1" mb={1}>Folders</Typography>
+          <Typography variant="subtitle1" mb={1}>
+            Folders
+          </Typography>
           <Grid container spacing={2} mb={2}>
-            {filteredFolders.map(folder => (
+            {filteredFolders.map((folder) => (
               <Grid item xs={12} sm={6} md={4} key={folder.id}>
                 {renderItem(folder)}
               </Grid>
@@ -551,13 +602,15 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
           </Grid>
         </>
       )}
-      
+
       {/* Documents grid */}
       {filteredDocuments.length > 0 && (
         <>
-          <Typography variant="subtitle1" mb={1}>Documents</Typography>
+          <Typography variant="subtitle1" mb={1}>
+            Documents
+          </Typography>
           <Grid container spacing={2}>
-            {filteredDocuments.map(doc => (
+            {filteredDocuments.map((doc) => (
               <Grid item xs={12} sm={6} md={4} key={doc.id}>
                 {renderItem(doc)}
               </Grid>
@@ -565,14 +618,10 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
           </Grid>
         </>
       )}
-      
+
       {/* Context menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem 
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+        <MenuItem
           onClick={() => {
             if (selectedItem && 'folderId' in selectedItem) {
               setFileDetailDialogOpen(true);
@@ -586,26 +635,30 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
           </ListItemIcon>
           <ListItemText>View Details</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => {
-          setShareDialogOpen(true);
-          handleMenuClose();
-        }}>
+        <MenuItem
+          onClick={() => {
+            setShareDialogOpen(true);
+            handleMenuClose();
+          }}
+        >
           <ListItemIcon>
             <Share fontSize="small" />
           </ListItemIcon>
           <ListItemText>Share</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => {
-          setDeleteDialogOpen(true);
-          handleMenuClose();
-        }}>
+        <MenuItem
+          onClick={() => {
+            setDeleteDialogOpen(true);
+            handleMenuClose();
+          }}
+        >
           <ListItemIcon>
             <Delete fontSize="small" />
           </ListItemIcon>
           <ListItemText>Delete</ListItemText>
         </MenuItem>
       </Menu>
-      
+
       {/* New folder dialog */}
       <Dialog open={newFolderDialogOpen} onClose={() => setNewFolderDialogOpen(false)}>
         <DialogTitle>Create New Folder</DialogTitle>
@@ -621,10 +674,12 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setNewFolderDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleCreateFolder} variant="contained">Create</Button>
+          <Button onClick={handleCreateFolder} variant="contained">
+            Create
+          </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Share dialog */}
       <Dialog open={shareDialogOpen} onClose={() => setShareDialogOpen(false)}>
         <DialogTitle>Share with Team Member</DialogTitle>
@@ -640,11 +695,13 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
             value={userToShare}
             onChange={(e) => setUserToShare(e.target.value)}
           >
-            {mockUsers.filter(u => u.id !== currentUser.id).map(user => (
-              <MenuItem key={user.id} value={user.id}>
-                {user.name}
-              </MenuItem>
-            ))}
+            {mockUsers
+              .filter((u) => u.id !== currentUser.id)
+              .map((user) => (
+                <MenuItem key={user.id} value={user.id}>
+                  {user.name}
+                </MenuItem>
+              ))}
           </TextField>
           <TextField
             select
@@ -661,10 +718,12 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShareDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleShare} variant="contained">Share</Button>
+          <Button onClick={handleShare} variant="contained">
+            Share
+          </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Delete confirmation dialog */}
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
         <DialogTitle>Confirm Delete</DialogTitle>
@@ -682,14 +741,16 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDelete} color="error" variant="contained">Delete</Button>
+          <Button onClick={handleDelete} color="error" variant="contained">
+            Delete
+          </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* File details dialog */}
       {selectedItem && 'folderId' in selectedItem && (
-        <Dialog 
-          open={fileDetailDialogOpen} 
+        <Dialog
+          open={fileDetailDialogOpen}
           onClose={() => setFileDetailDialogOpen(false)}
           maxWidth="sm"
           fullWidth
@@ -702,35 +763,37 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
                 {selectedItem.name}
               </Typography>
             </Box>
-            
+
             <Typography variant="body2" mb={1}>
               <strong>Type:</strong> {(selectedItem as Document).type.toUpperCase()}
             </Typography>
-            
+
             <Typography variant="body2" mb={1}>
               <strong>Size:</strong> {formatFileSize((selectedItem as Document).size)}
             </Typography>
-            
+
             <Typography variant="body2" mb={1}>
-              <strong>Created:</strong> {formatDate((selectedItem as Document).createdAt)} by {
-                mockUsers.find(u => u.id === selectedItem.createdBy)?.name || 'Unknown'
-              }
+              <strong>Created:</strong> {formatDate((selectedItem as Document).createdAt)} by{' '}
+              {mockUsers.find((u) => u.id === selectedItem.createdBy)?.name || 'Unknown'}
             </Typography>
-            
+
             <Typography variant="body2" mb={1}>
               <strong>Last modified:</strong> {formatDate((selectedItem as Document).updatedAt)}
             </Typography>
-            
+
             <Typography variant="body2" mb={1}>
-              <strong>Description:</strong> {(selectedItem as Document).description || 'No description'}
+              <strong>Description:</strong>{' '}
+              {(selectedItem as Document).description || 'No description'}
             </Typography>
-            
+
             <Divider sx={{ my: 2 }} />
-            
-            <Typography variant="subtitle1" mb={1}>Shared with</Typography>
+
+            <Typography variant="subtitle1" mb={1}>
+              Shared with
+            </Typography>
             <List dense>
-              {(selectedItem as Document).permissions.map(permission => {
-                const user = mockUsers.find(u => u.id === permission.userId);
+              {(selectedItem as Document).permissions.map((permission) => {
+                const user = mockUsers.find((u) => u.id === permission.userId);
                 return (
                   <ListItem key={permission.userId}>
                     <ListItemIcon>
@@ -744,12 +807,14 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
                 );
               })}
             </List>
-            
+
             <Divider sx={{ my: 2 }} />
-            
-            <Typography variant="subtitle1" mb={1}>Tags</Typography>
+
+            <Typography variant="subtitle1" mb={1}>
+              Tags
+            </Typography>
             <Box display="flex" flexWrap="wrap" gap={1} mb={2}>
-              {(selectedItem as Document).tags.map(tag => (
+              {(selectedItem as Document).tags.map((tag) => (
                 <Chip key={tag} label={tag} />
               ))}
             </Box>
@@ -766,4 +831,4 @@ const DocumentSharing: React.FC<DocumentSharingProps> = ({ candidateId, jobId, t
   );
 };
 
-export default DocumentSharing; 
+export default DocumentSharing;

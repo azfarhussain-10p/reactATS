@@ -31,7 +31,7 @@ import {
   Divider,
   Badge,
   LinearProgress,
-  Grid
+  Grid,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -51,7 +51,7 @@ import {
   Edit as EditIcon,
   Search as SearchIcon,
   Star as StarIcon,
-  PersonSearch as PersonSearchIcon
+  PersonSearch as PersonSearchIcon,
 } from '@mui/icons-material';
 import { usePipeline } from '../contexts/PipelineContext';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -71,7 +71,7 @@ const mockCandidateApplications = [
     interviewDate: '2023-12-15T10:00:00',
     hasOverdueTasks: true,
     rating: 4.5,
-    flagged: false
+    flagged: false,
   },
   {
     id: 'app2',
@@ -85,11 +85,11 @@ const mockCandidateApplications = [
     interviewDate: '2023-12-16T14:00:00',
     hasOverdueTasks: false,
     rating: 0,
-    flagged: false
+    flagged: false,
   },
   {
     id: 'app3',
-    candidateId: 3, 
+    candidateId: 3,
     candidateName: 'Mike Johnson',
     candidateImage: '',
     stage: 'Applied',
@@ -99,7 +99,7 @@ const mockCandidateApplications = [
     interviewDate: null,
     hasOverdueTasks: true,
     rating: 0,
-    flagged: false
+    flagged: false,
   },
   {
     id: 'app4',
@@ -114,7 +114,7 @@ const mockCandidateApplications = [
     hasOverdueTasks: false,
     rating: 4.0,
     flagged: true,
-    flagReason: 'Salary expectations too high'
+    flagReason: 'Salary expectations too high',
   },
   {
     id: 'app5',
@@ -128,7 +128,7 @@ const mockCandidateApplications = [
     interviewDate: '2023-12-18T15:30:00',
     hasOverdueTasks: false,
     rating: 3.5,
-    flagged: false
+    flagged: false,
   },
   {
     id: 'app6',
@@ -142,37 +142,32 @@ const mockCandidateApplications = [
     interviewDate: null,
     hasOverdueTasks: false,
     rating: 0,
-    flagged: false
-  }
+    flagged: false,
+  },
 ];
 
 // Function to organize candidates by stage
 const organizeCandidatesByStage = (candidates, stages) => {
   const result = {};
-  
+
   // Initialize all stages with empty arrays
-  stages.forEach(stage => {
+  stages.forEach((stage) => {
     result[stage.id] = [];
   });
-  
+
   // Add candidates to their respective stages
-  candidates.forEach(candidate => {
+  candidates.forEach((candidate) => {
     if (result[candidate.stage]) {
       result[candidate.stage].push(candidate);
     }
   });
-  
+
   return result;
 };
 
 function RecruitmentPipeline() {
-  const { 
-    pipelines,
-    getDefaultPipeline,
-    tasks,
-    getTasksForStage
-  } = usePipeline();
-  
+  const { pipelines, getDefaultPipeline, tasks, getTasksForStage } = usePipeline();
+
   const [currentPipeline, setCurrentPipeline] = useState(getDefaultPipeline());
   const [candidatesByStage, setCandidatesByStage] = useState({});
   const [loading, setLoading] = useState(true);
@@ -186,87 +181,78 @@ function RecruitmentPipeline() {
   const [moveDialogOpen, setMoveDialogOpen] = useState(false);
   const [targetStage, setTargetStage] = useState('');
   const [showFlagged, setShowFlagged] = useState(false);
-  
+
   // Initialize candidates by stage
   useEffect(() => {
     setLoading(true);
     // In a real app, this would fetch from an API
-    const organized = organizeCandidatesByStage(
-      mockCandidateApplications,
-      currentPipeline.stages
-    );
+    const organized = organizeCandidatesByStage(mockCandidateApplications, currentPipeline.stages);
     setCandidatesByStage(organized);
     setFilteredCandidates(mockCandidateApplications);
     setLoading(false);
   }, [currentPipeline]);
-  
+
   // Apply filters
   useEffect(() => {
     let filtered = [...mockCandidateApplications];
-    
+
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(candidate => 
-        candidate.candidateName.toLowerCase().includes(term) ||
-        candidate.jobTitle.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (candidate) =>
+          candidate.candidateName.toLowerCase().includes(term) ||
+          candidate.jobTitle.toLowerCase().includes(term)
       );
     }
-    
+
     if (filterJob !== 'all') {
-      filtered = filtered.filter(candidate => 
-        candidate.jobTitle === filterJob
-      );
+      filtered = filtered.filter((candidate) => candidate.jobTitle === filterJob);
     }
-    
+
     if (showFlagged) {
-      filtered = filtered.filter(candidate => candidate.flagged);
+      filtered = filtered.filter((candidate) => candidate.flagged);
     }
-    
+
     setFilteredCandidates(filtered);
-    
-    const organized = organizeCandidatesByStage(
-      filtered,
-      currentPipeline.stages
-    );
+
+    const organized = organizeCandidatesByStage(filtered, currentPipeline.stages);
     setCandidatesByStage(organized);
   }, [searchTerm, filterJob, showFlagged, currentPipeline]);
-  
+
   // Handle candidate drag and drop
   const handleDragEnd = (result) => {
     const { destination, source, draggableId } = result;
-    
+
     // No destination or same destination = no change
-    if (!destination || 
-        (destination.droppableId === source.droppableId && 
-         destination.index === source.index)) {
+    if (
+      !destination ||
+      (destination.droppableId === source.droppableId && destination.index === source.index)
+    ) {
       return;
     }
-    
+
     // Find the candidate that was moved
-    const candidateApp = filteredCandidates.find(c => c.id === draggableId);
+    const candidateApp = filteredCandidates.find((c) => c.id === draggableId);
     if (!candidateApp) return;
-    
+
     // Update the candidate's stage
-    const updatedCandidates = filteredCandidates.map(c => {
+    const updatedCandidates = filteredCandidates.map((c) => {
       if (c.id === draggableId) {
         return { ...c, stage: destination.droppableId };
       }
       return c;
     });
-    
+
     // Update the state
     setFilteredCandidates(updatedCandidates);
-    
+
     // Reorganize candidates by stage
-    const organized = organizeCandidatesByStage(
-      updatedCandidates,
-      currentPipeline.stages
-    );
+    const organized = organizeCandidatesByStage(updatedCandidates, currentPipeline.stages);
     setCandidatesByStage(organized);
-    
+
     // In a real app, this would also make an API call to update the backend
   };
-  
+
   // Open candidate tasks dialog
   const handleOpenTasks = (candidate) => {
     setSelectedCandidate(candidate);
@@ -274,79 +260,73 @@ function RecruitmentPipeline() {
     setSelectedStageTasks(stageTasks);
     setShowTasksDialog(true);
   };
-  
+
   // Open candidate actions menu
   const handleOpenMenu = (event, candidate) => {
     setAnchorEl(event.currentTarget);
     setSelectedCandidate(candidate);
   };
-  
+
   // Close candidate actions menu
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
-  
+
   // Open the move candidate dialog
   const handleOpenMoveDialog = () => {
     setMoveDialogOpen(true);
     handleCloseMenu();
   };
-  
+
   // Move candidate to a different stage
   const handleMoveCandidate = () => {
     if (!targetStage || !selectedCandidate) return;
-    
+
     // Update the candidate's stage
-    const updatedCandidates = filteredCandidates.map(c => {
+    const updatedCandidates = filteredCandidates.map((c) => {
       if (c.id === selectedCandidate.id) {
         return { ...c, stage: targetStage };
       }
       return c;
     });
-    
+
     // Update the state
     setFilteredCandidates(updatedCandidates);
-    
+
     // Reorganize candidates by stage
-    const organized = organizeCandidatesByStage(
-      updatedCandidates,
-      currentPipeline.stages
-    );
+    const organized = organizeCandidatesByStage(updatedCandidates, currentPipeline.stages);
     setCandidatesByStage(organized);
-    
+
     setMoveDialogOpen(false);
     setTargetStage('');
-    
+
     // In a real app, this would also make an API call to update the backend
   };
-  
+
   // Flag or unflag a candidate
   const handleToggleFlag = () => {
     if (!selectedCandidate) return;
-    
+
     // Update the candidate's flagged status
-    const updatedCandidates = filteredCandidates.map(c => {
+    const updatedCandidates = filteredCandidates.map((c) => {
       if (c.id === selectedCandidate.id) {
         return { ...c, flagged: !c.flagged };
       }
       return c;
     });
-    
+
     // Update the state
     setFilteredCandidates(updatedCandidates);
-    
+
     // Reorganize candidates by stage
-    const organized = organizeCandidatesByStage(
-      updatedCandidates,
-      currentPipeline.stages
-    );
+    const organized = organizeCandidatesByStage(updatedCandidates, currentPipeline.stages);
     setCandidatesByStage(organized);
-    
+
     handleCloseMenu();
-    
+
     // In a real app, this would also make an API call to update the backend
   };
-  
+
   return (
     <Box sx={{ maxWidth: 1400, mx: 'auto', py: 3, px: { xs: 2, md: 3 } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap' }}>
@@ -358,7 +338,9 @@ function RecruitmentPipeline() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{
-              startAdornment: <SearchIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
+              startAdornment: (
+                <SearchIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
+              ),
             }}
           />
           <FormControl size="small" sx={{ minWidth: 150 }}>
@@ -367,19 +349,19 @@ function RecruitmentPipeline() {
               value={currentPipeline.id}
               label="Pipeline"
               onChange={(e) => {
-                const selected = pipelines.find(p => p.id === e.target.value);
+                const selected = pipelines.find((p) => p.id === e.target.value);
                 if (selected) setCurrentPipeline(selected);
               }}
             >
-              {pipelines.map(pipeline => (
+              {pipelines.map((pipeline) => (
                 <MenuItem key={pipeline.id} value={pipeline.id}>
                   {pipeline.name}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-          <Button 
-            startIcon={<FilterIcon />} 
+          <Button
+            startIcon={<FilterIcon />}
             variant={showFlagged ? 'contained' : 'outlined'}
             onClick={() => setShowFlagged(!showFlagged)}
             size="small"
@@ -388,14 +370,14 @@ function RecruitmentPipeline() {
           </Button>
         </Box>
       </Box>
-      
+
       {loading ? (
         <LinearProgress sx={{ mb: 2 }} />
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
           <Box sx={{ display: 'flex', overflowX: 'auto', pb: 2 }}>
             {currentPipeline.stages
-              .filter(stage => !['Rejected', 'Withdrawn'].includes(stage.id))
+              .filter((stage) => !['Rejected', 'Withdrawn'].includes(stage.id))
               .sort((a, b) => a.order - b.order)
               .map((stage) => (
                 <Box
@@ -439,7 +421,7 @@ function RecruitmentPipeline() {
                       </Tooltip>
                     )}
                   </Paper>
-                  
+
                   <Droppable droppableId={stage.id}>
                     {(provided) => (
                       <Paper
@@ -453,11 +435,7 @@ function RecruitmentPipeline() {
                       >
                         {candidatesByStage[stage.id]?.length > 0 ? (
                           candidatesByStage[stage.id].map((candidate, index) => (
-                            <Draggable
-                              key={candidate.id}
-                              draggableId={candidate.id}
-                              index={index}
-                            >
+                            <Draggable key={candidate.id} draggableId={candidate.id} index={index}>
                               {(provided, snapshot) => (
                                 <Card
                                   ref={provided.innerRef}
@@ -488,7 +466,9 @@ function RecruitmentPipeline() {
                                                   justifyContent: 'center',
                                                 }}
                                               >
-                                                <StarIcon sx={{ fontSize: 14, color: 'warning.main' }} />
+                                                <StarIcon
+                                                  sx={{ fontSize: 14, color: 'warning.main' }}
+                                                />
                                               </Box>
                                             </Tooltip>
                                           ) : null
@@ -518,9 +498,18 @@ function RecruitmentPipeline() {
                                         </IconButton>
                                       </Box>
                                     </Box>
-                                    
-                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
-                                      <Tooltip title={`${candidate.daysInStage} days in this stage`}>
+
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        mt: 1,
+                                      }}
+                                    >
+                                      <Tooltip
+                                        title={`${candidate.daysInStage} days in this stage`}
+                                      >
                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                           <TimeIcon fontSize="small" color="action" />
                                           <Typography variant="caption" sx={{ ml: 0.5 }}>
@@ -528,18 +517,22 @@ function RecruitmentPipeline() {
                                           </Typography>
                                         </Box>
                                       </Tooltip>
-                                      
+
                                       {candidate.interviewDate && (
-                                        <Tooltip title={`Interview: ${new Date(candidate.interviewDate).toLocaleString()}`}>
+                                        <Tooltip
+                                          title={`Interview: ${new Date(candidate.interviewDate).toLocaleString()}`}
+                                        >
                                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                             <CalendarIcon fontSize="small" color="primary" />
                                             <Typography variant="caption" sx={{ ml: 0.5 }}>
-                                              {new Date(candidate.interviewDate).toLocaleDateString()}
+                                              {new Date(
+                                                candidate.interviewDate
+                                              ).toLocaleDateString()}
                                             </Typography>
                                           </Box>
                                         </Tooltip>
                                       )}
-                                      
+
                                       {candidate.hasOverdueTasks && (
                                         <Tooltip title="Has overdue tasks">
                                           <WarningIcon fontSize="small" color="error" />
@@ -588,7 +581,7 @@ function RecruitmentPipeline() {
           </Box>
         </DragDropContext>
       )}
-      
+
       {/* Task dialog */}
       <Dialog
         open={showTasksDialog}
@@ -596,19 +589,14 @@ function RecruitmentPipeline() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>
-          Stage Tasks - {selectedCandidate?.candidateName}
-        </DialogTitle>
+        <DialogTitle>Stage Tasks - {selectedCandidate?.candidateName}</DialogTitle>
         <DialogContent>
           {selectedStageTasks.length > 0 ? (
             <List>
-              {selectedStageTasks.map(task => (
+              {selectedStageTasks.map((task) => (
                 <ListItem key={task.id}>
                   <ListItemIcon>
-                    <Checkbox
-                      edge="start"
-                      checked={task.completed}
-                    />
+                    <Checkbox edge="start" checked={task.completed} />
                   </ListItemIcon>
                   <ListItemText
                     primary={task.title}
@@ -637,13 +625,9 @@ function RecruitmentPipeline() {
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Actions Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleCloseMenu}
-      >
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}>
         <MenuItem onClick={handleOpenMoveDialog}>
           <ListItemIcon>
             <MoveIcon fontSize="small" />
@@ -652,9 +636,11 @@ function RecruitmentPipeline() {
         </MenuItem>
         <MenuItem onClick={handleToggleFlag}>
           <ListItemIcon>
-            <FlagIcon fontSize="small" color={selectedCandidate?.flagged ? "error" : "inherit"} />
+            <FlagIcon fontSize="small" color={selectedCandidate?.flagged ? 'error' : 'inherit'} />
           </ListItemIcon>
-          <ListItemText>{selectedCandidate?.flagged ? "Remove Flag" : "Flag Candidate"}</ListItemText>
+          <ListItemText>
+            {selectedCandidate?.flagged ? 'Remove Flag' : 'Flag Candidate'}
+          </ListItemText>
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
@@ -675,7 +661,7 @@ function RecruitmentPipeline() {
           <ListItemText>View Profile</ListItemText>
         </MenuItem>
       </Menu>
-      
+
       {/* Move Dialog */}
       <Dialog
         open={moveDialogOpen}
@@ -692,7 +678,7 @@ function RecruitmentPipeline() {
               onChange={(e) => setTargetStage(e.target.value)}
               label="Target Stage"
             >
-              {currentPipeline.stages.map(stage => (
+              {currentPipeline.stages.map((stage) => (
                 <MenuItem key={stage.id} value={stage.id}>
                   {stage.name}
                 </MenuItem>
@@ -702,11 +688,7 @@ function RecruitmentPipeline() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setMoveDialogOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
-            onClick={handleMoveCandidate}
-            disabled={!targetStage}
-          >
+          <Button variant="contained" onClick={handleMoveCandidate} disabled={!targetStage}>
             Move
           </Button>
         </DialogActions>
@@ -715,4 +697,4 @@ function RecruitmentPipeline() {
   );
 }
 
-export default RecruitmentPipeline; 
+export default RecruitmentPipeline;

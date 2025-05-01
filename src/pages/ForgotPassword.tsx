@@ -20,18 +20,18 @@ function ForgotPassword() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Reset status messages
     setError('');
     setSuccess('');
-    
+
     // Simple validation
     if (!email.trim()) {
       setError('Email is required');
       safeAnnounce('Password reset failed. Email is required.', 'assertive');
       return;
     }
-    
+
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -39,9 +39,9 @@ function ForgotPassword() {
       safeAnnounce('Password reset failed. Please enter a valid email address.', 'assertive');
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // In a real app, this would call an API to initiate password reset
       // For demo purposes, just show success message after a delay
@@ -68,26 +68,31 @@ function ForgotPassword() {
             <p className="form-description">
               Enter your email address and we'll send you instructions to reset your password.
             </p>
-            
-            {error && <div className="error-message" role="alert">{error}</div>}
-            {success && <div className="success-message" role="alert">{success}</div>}
-            
-            <input 
-              type="email" 
-              placeholder="Email Address" 
+
+            {error && (
+              <div className="error-message" role="alert">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="success-message" role="alert">
+                {success}
+              </div>
+            )}
+
+            <input
+              type="email"
+              placeholder="Email Address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               aria-label="Email Address"
             />
-            
-            <button 
-              type="submit" 
-              disabled={isSubmitting}
-            >
+
+            <button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Sending...' : 'Reset Password'}
             </button>
-            
+
             <div className="form-links">
               <Link to="/login">Back to Login</Link>
             </div>
@@ -98,4 +103,4 @@ function ForgotPassword() {
   );
 }
 
-export default ForgotPassword; 
+export default ForgotPassword;

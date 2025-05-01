@@ -1,9 +1,9 @@
 /**
  * React ATS Application - Routes Configuration
- * 
+ *
  * Copyright (c) 2024-2025 Syed Azfar Hussain - Principal Test Consultant at 10Pearls Pakistan
  * All rights reserved.
- * 
+ *
  * Licensed under the terms of 10Pearls proprietary license.
  * Unauthorized copying, redistribution, or use of this file is strictly prohibited.
  */
@@ -54,10 +54,10 @@ const AppRoutes = () => {
         {/* Public career pages */}
         <Route path="/careers" element={<CareerPage />} />
         <Route path="/careers/job/:id" element={<JobDetailPage />} />
-        
+
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        
+
         <Route element={<AuthCheck />}>
           <Route element={<DashboardLayout />}>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -71,7 +71,7 @@ const AppRoutes = () => {
             <Route path="/recruitment-pipeline" element={<RecruitmentPipeline />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/profile" element={<ProfilePage />} />
-            
+
             {/* Feature routes */}
             <Route path="/document-sharing" element={<DocumentSharingPage />} />
             <Route path="/skills-gap" element={<SkillsGapAnalysis />} />
@@ -80,17 +80,17 @@ const AppRoutes = () => {
             <Route path="/resume-parser" element={<ResumeParser />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/job-distribution" element={<JobDistribution />} />
-            
+
             {/* Admin routes */}
             <Route path="/settings" element={<Settings />} />
             <Route path="/user-management" element={<UserManagement />} />
           </Route>
         </Route>
-        
+
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   );
 };
 
-export default AppRoutes; 
+export default AppRoutes;

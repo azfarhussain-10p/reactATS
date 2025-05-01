@@ -13,6 +13,7 @@ The API is implemented using Express.js with a mock data service that simulates 
 ### Mock Data Service
 
 The application uses a `mockDataService` to handle data operations:
+
 - All data is loaded from JSON files at startup
 - Data is kept in memory for faster operations
 - All changes are persisted back to the JSON files
@@ -24,6 +25,7 @@ Authentication is partially implemented. Some endpoints require authentication w
 ## Jobs API
 
 ### Get All Jobs
+
 - **URL**: `/api/jobs`
 - **Method**: `GET`
 - **Query Parameters**:
@@ -36,24 +38,28 @@ Authentication is partially implemented. Some endpoints require authentication w
 - **Access**: Public
 
 ### Get All Departments
+
 - **URL**: `/api/jobs/departments`
 - **Method**: `GET`
 - **Response**: Array of unique department strings
 - **Access**: Public
 
 ### Get All Locations
+
 - **URL**: `/api/jobs/locations`
 - **Method**: `GET`
 - **Response**: Array of unique location strings
 - **Access**: Public
 
 ### Get All Job Types
+
 - **URL**: `/api/jobs/types`
 - **Method**: `GET`
 - **Response**: Array of unique job type strings
 - **Access**: Public
 
 ### Get Job by ID
+
 - **URL**: `/api/jobs/:id`
 - **Method**: `GET`
 - **Response**: Single job object
@@ -64,6 +70,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Create Job
+
 - **URL**: `/api/jobs`
 - **Method**: `POST`
 - **Body**:
@@ -89,6 +96,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Update Job
+
 - **URL**: `/api/jobs/:id`
 - **Method**: `PUT`
 - **Body**: Job object with updated fields
@@ -100,6 +108,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Update Job Status
+
 - **URL**: `/api/jobs/:id/status`
 - **Method**: `PATCH`
 - **Body**:
@@ -116,6 +125,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Toggle Featured Status
+
 - **URL**: `/api/jobs/:id/featured`
 - **Method**: `PATCH`
 - **Response**: Updated job object with toggled featured status
@@ -126,13 +136,16 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Delete Job
+
 - **URL**: `/api/jobs/:id`
 - **Method**: `DELETE`
 - **Response**:
   ```json
   {
     "message": "Job deleted",
-    "job": { /* deleted job object */ }
+    "job": {
+      /* deleted job object */
+    }
   }
   ```
 - **Access**: Private (requires authentication)
@@ -144,6 +157,7 @@ Authentication is partially implemented. Some endpoints require authentication w
 ## Applications API
 
 ### Get All Applications
+
 - **URL**: `/api/applications`
 - **Method**: `GET`
 - **Query Parameters**:
@@ -156,6 +170,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Get Application by ID
+
 - **URL**: `/api/applications/:id`
 - **Method**: `GET`
 - **Response**: Single application object
@@ -166,6 +181,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Create Application
+
 - **URL**: `/api/applications`
 - **Method**: `POST`
 - **Body**:
@@ -193,6 +209,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Update Application
+
 - **URL**: `/api/applications/:id`
 - **Method**: `PUT`
 - **Body**: Application object with updated fields
@@ -204,6 +221,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Update Application Status
+
 - **URL**: `/api/applications/:id/status`
 - **Method**: `PATCH`
 - **Body**:
@@ -220,6 +238,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Update Application Stage
+
 - **URL**: `/api/applications/:id/stage`
 - **Method**: `PATCH`
 - **Body**:
@@ -237,13 +256,16 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Delete Application
+
 - **URL**: `/api/applications/:id`
 - **Method**: `DELETE`
 - **Response**:
   ```json
   {
     "message": "Application deleted",
-    "application": { /* deleted application object */ }
+    "application": {
+      /* deleted application object */
+    }
   }
   ```
 - **Access**: Private (requires authentication)
@@ -255,6 +277,7 @@ Authentication is partially implemented. Some endpoints require authentication w
 ## Job Boards API
 
 ### Get All Job Boards
+
 - **URL**: `/api/job-boards`
 - **Method**: `GET`
 - **Response**: Array of job board objects
@@ -263,6 +286,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Get Job Board by ID
+
 - **URL**: `/api/job-boards/:id`
 - **Method**: `GET`
 - **Response**: Single job board object
@@ -273,6 +297,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Get Job Board by Slug
+
 - **URL**: `/api/job-boards/slug/:slug`
 - **Method**: `GET`
 - **Response**: Single job board object
@@ -282,6 +307,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Create Job Board
+
 - **URL**: `/api/job-boards`
 - **Method**: `POST`
 - **Body**:
@@ -310,6 +336,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Update Job Board
+
 - **URL**: `/api/job-boards/:id`
 - **Method**: `PUT`
 - **Body**: Job board object with updated fields
@@ -321,6 +348,7 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Update Job Board Status
+
 - **URL**: `/api/job-boards/:id/status`
 - **Method**: `PATCH`
 - **Body**:
@@ -337,19 +365,22 @@ Authentication is partially implemented. Some endpoints require authentication w
   - `500`: Server error
 
 ### Delete Job Board
+
 - **URL**: `/api/job-boards/:id`
 - **Method**: `DELETE`
 - **Response**:
   ```json
   {
     "message": "Job board deleted",
-    "jobBoard": { /* deleted job board object */ }
+    "jobBoard": {
+      /* deleted job board object */
+    }
   }
   ```
 - **Access**: Private (to be implemented with auth)
 - **Error Responses**:
   - `400`: Invalid job board ID
-  - `404`: Job board not found 
+  - `404`: Job board not found
   - `500`: Server error
 
 ## Frontend API Integration
@@ -377,7 +408,7 @@ useEffect(() => {
       setLoading(false);
     }
   };
-  
+
   fetchJobs();
 }, []);
 ```
@@ -392,6 +423,7 @@ All API endpoints implement proper error handling:
 - Error logging
 
 Example error response:
+
 ```json
 {
   "message": "Job not found"
@@ -406,4 +438,4 @@ The application uses the following mock data files:
 - `mockApplications.json`: Contains job applications
 - `mockJobBoards.json`: Contains job board configurations
 
-Each file contains an array of objects with the appropriate schema for that entity. 
+Each file contains an array of objects with the appropriate schema for that entity.

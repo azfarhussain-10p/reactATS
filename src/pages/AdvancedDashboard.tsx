@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Grid, 
-  Paper, 
-  Button, 
-  Tabs, 
-  Tab, 
-  Card, 
+import {
+  Box,
+  Typography,
+  Grid,
+  Paper,
+  Button,
+  Tabs,
+  Tab,
+  Card,
   CardContent,
   CardHeader,
   IconButton,
@@ -29,9 +29,9 @@ import {
   TableCell,
   Tooltip,
   CircularProgress,
-  Menu
+  Menu,
 } from '@mui/material';
-import { 
+import {
   MoreVert as MoreVertIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
@@ -44,25 +44,33 @@ import {
   TableChart as TableChartIcon,
   ShowChart as LineChartIcon,
   PieChart as PieChartIcon,
-  InsertChartOutlined as MetricIcon
+  InsertChartOutlined as MetricIcon,
 } from '@mui/icons-material';
 import { useAdvancedDashboard } from '../contexts/AdvancedDashboardContext';
 
 // Mock component for charts - in a real app, use a charting library like recharts, visx, or nivo
-function ChartPlaceholder({ type, title, height }: { type: string, title: string, height: number }) {
+function ChartPlaceholder({
+  type,
+  title,
+  height,
+}: {
+  type: string;
+  title: string;
+  height: number;
+}) {
   return (
-    <Box 
-      sx={{ 
-        height, 
-        display: 'flex', 
+    <Box
+      sx={{
+        height,
+        display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center', 
+        alignItems: 'center',
         justifyContent: 'center',
         bgcolor: 'background.paper',
         borderRadius: 1,
         p: 2,
         border: '1px dashed',
-        borderColor: 'divider'
+        borderColor: 'divider',
       }}
     >
       {type === 'bar' && <BarChartIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />}
@@ -78,9 +86,13 @@ function ChartPlaceholder({ type, title, height }: { type: string, title: string
 }
 
 // Widget component
-function DashboardWidget({ widget, onEdit, onDelete }: { 
-  widget: any; 
-  onEdit: (widgetId: string) => void; 
+function DashboardWidget({
+  widget,
+  onEdit,
+  onDelete,
+}: {
+  widget: any;
+  onEdit: (widgetId: string) => void;
   onDelete: (widgetId: string) => void;
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -113,11 +125,7 @@ function DashboardWidget({ widget, onEdit, onDelete }: {
             <IconButton aria-label="settings" onClick={handleMenuClick}>
               <MoreVertIcon />
             </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleMenuClose}
-            >
+            <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
               <MenuItem onClick={handleEdit}>
                 <EditIcon fontSize="small" sx={{ mr: 1 }} /> Edit
               </MenuItem>
@@ -140,29 +148,28 @@ function DashboardWidget({ widget, onEdit, onDelete }: {
       />
       <CardContent sx={{ flexGrow: 1, p: 1 }}>
         {widget.type === 'chart' && (
-          <ChartPlaceholder 
-            type={widget.settings?.chartType || 'bar'} 
-            title={widget.name} 
-            height={200} 
+          <ChartPlaceholder
+            type={widget.settings?.chartType || 'bar'}
+            title={widget.name}
+            height={200}
           />
         )}
         {widget.type === 'metric' && (
           <Box sx={{ textAlign: 'center', py: 2 }}>
             <Typography variant="h3" color="primary" gutterBottom>
-              {widget.dataSource === 'open_positions_count' ? '24' : 
-               widget.dataSource === 'time_to_fill' ? '32' :
-               widget.dataSource === 'cost_per_hire' ? '$3,250' : '42'}
+              {widget.dataSource === 'open_positions_count'
+                ? '24'
+                : widget.dataSource === 'time_to_fill'
+                  ? '32'
+                  : widget.dataSource === 'cost_per_hire'
+                    ? '$3,250'
+                    : '42'}
             </Typography>
             <Typography variant="body2" color="textSecondary">
               {widget.name}
             </Typography>
             {widget.settings?.showTrend && (
-              <Chip 
-                label="+12% vs previous period" 
-                color="success" 
-                size="small" 
-                sx={{ mt: 1 }} 
-              />
+              <Chip label="+12% vs previous period" color="success" size="small" sx={{ mt: 1 }} />
             )}
           </Box>
         )}
@@ -200,19 +207,19 @@ function DashboardWidget({ widget, onEdit, onDelete }: {
 }
 
 function AdvancedDashboard() {
-  const { 
-    dashboards, 
-    currentDashboard, 
-    setCurrentDashboard, 
-    userRole, 
-    setUserRole, 
+  const {
+    dashboards,
+    currentDashboard,
+    setCurrentDashboard,
+    userRole,
+    setUserRole,
     getDashboardsForRole,
     createDashboard,
     addWidget,
     removeWidget,
     calculateCostPerHire,
     calculateROI,
-    getTopPerformingRecruiters
+    getTopPerformingRecruiters,
   } = useAdvancedDashboard();
 
   const [availableDashboards, setAvailableDashboards] = useState<any[]>([]);
@@ -222,13 +229,13 @@ function AdvancedDashboard() {
     name: '',
     description: '',
     isDefault: false,
-    role: ''
+    role: '',
   });
   const [newWidgetForm, setNewWidgetForm] = useState({
     name: '',
     type: 'chart',
     dataSource: '',
-    chartType: 'bar'
+    chartType: 'bar',
   });
 
   useEffect(() => {
@@ -251,14 +258,14 @@ function AdvancedDashboard() {
       isDefault: newDashboardForm.isDefault,
       widgets: [],
       createdBy: userRole,
-      role: newDashboardForm.role || undefined
+      role: newDashboardForm.role || undefined,
     });
     setIsCreateDashboardDialogOpen(false);
     setNewDashboardForm({
       name: '',
       description: '',
       isDefault: false,
-      role: ''
+      role: '',
     });
   };
 
@@ -273,22 +280,22 @@ function AdvancedDashboard() {
         chartType: newWidgetForm.chartType,
         showLegend: true,
         colors: ['#1976d2', '#2196f3', '#64b5f6', '#bbdefb'],
-        showTrend: true
+        showTrend: true,
       },
       position: {
         x: 0,
         y: 0,
         width: 6,
-        height: 4
+        height: 4,
       },
-      permissions: [userRole]
+      permissions: [userRole],
     });
     setIsAddWidgetDialogOpen(false);
     setNewWidgetForm({
       name: '',
       type: 'chart',
       dataSource: '',
-      chartType: 'bar'
+      chartType: 'bar',
     });
   };
 
@@ -326,7 +333,7 @@ function AdvancedDashboard() {
               <MenuItem value="recruiter">Recruiter</MenuItem>
             </Select>
           </FormControl>
-          
+
           <FormControl sx={{ minWidth: 200 }}>
             <InputLabel id="dashboard-select-label">Dashboard</InputLabel>
             <Select
@@ -336,16 +343,16 @@ function AdvancedDashboard() {
               onChange={handleDashboardChange as any}
               size="small"
             >
-              {availableDashboards.map(dash => (
+              {availableDashboards.map((dash) => (
                 <MenuItem key={dash.id} value={dash.id}>
                   {dash.name}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-          
-          <Button 
-            variant="outlined" 
+
+          <Button
+            variant="outlined"
             size="small"
             startIcon={<AddIcon />}
             onClick={() => setIsCreateDashboardDialogOpen(true)}
@@ -357,15 +364,17 @@ function AdvancedDashboard() {
 
       {currentDashboard && (
         <>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box
+            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}
+          >
             <Box>
               <Typography variant="h5">{currentDashboard.name}</Typography>
               <Typography variant="body2" color="textSecondary">
                 {currentDashboard.description}
               </Typography>
             </Box>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               startIcon={<AddIcon />}
               onClick={() => setIsAddWidgetDialogOpen(true)}
             >
@@ -377,30 +386,48 @@ function AdvancedDashboard() {
             {/* Key Metrics */}
             <Grid item xs={12}>
               <Paper sx={{ p: 2, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>Key Recruitment Metrics</Typography>
+                <Typography variant="h6" gutterBottom>
+                  Key Recruitment Metrics
+                </Typography>
                 <Grid container spacing={3}>
                   <Grid item xs={12} md={3}>
                     <Box textAlign="center" p={2}>
-                      <Typography variant="body2" color="textSecondary">Average Cost per Hire</Typography>
-                      <Typography variant="h4" color="primary">${costPerHire.toFixed(0)}</Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        Average Cost per Hire
+                      </Typography>
+                      <Typography variant="h4" color="primary">
+                        ${costPerHire.toFixed(0)}
+                      </Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={12} md={3}>
                     <Box textAlign="center" p={2}>
-                      <Typography variant="body2" color="textSecondary">Time to Fill (Days)</Typography>
-                      <Typography variant="h4" color="primary">32</Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        Time to Fill (Days)
+                      </Typography>
+                      <Typography variant="h4" color="primary">
+                        32
+                      </Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={12} md={3}>
                     <Box textAlign="center" p={2}>
-                      <Typography variant="body2" color="textSecondary">ROI</Typography>
-                      <Typography variant="h4" color="primary">{roi.roi.toFixed(1)}x</Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        ROI
+                      </Typography>
+                      <Typography variant="h4" color="primary">
+                        {roi.roi.toFixed(1)}x
+                      </Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={12} md={3}>
                     <Box textAlign="center" p={2}>
-                      <Typography variant="body2" color="textSecondary">Cost Savings</Typography>
-                      <Typography variant="h4" color="primary">${(roi.costSavings / 1000).toFixed(0)}K</Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        Cost Savings
+                      </Typography>
+                      <Typography variant="h4" color="primary">
+                        ${(roi.costSavings / 1000).toFixed(0)}K
+                      </Typography>
                     </Box>
                   </Grid>
                 </Grid>
@@ -410,14 +437,14 @@ function AdvancedDashboard() {
             {/* Dashboard Widgets */}
             {currentDashboard.widgets.map((widget, index) => (
               <Grid item key={widget.id} xs={12} md={widget.position.width >= 6 ? 6 : 4}>
-                <DashboardWidget 
+                <DashboardWidget
                   widget={widget}
                   onEdit={handleEditWidget}
                   onDelete={handleDeleteWidget}
                 />
               </Grid>
             ))}
-            
+
             {/* Add placeholder widgets if no widgets exist */}
             {currentDashboard.widgets.length === 0 && (
               <>
@@ -453,8 +480,12 @@ function AdvancedDashboard() {
                           {topRecruiters.map((recruiter) => (
                             <TableRow key={recruiter.recruiterId}>
                               <TableCell>{recruiter.recruiterName}</TableCell>
-                              <TableCell align="right">{recruiter.metrics.candidatesHired}</TableCell>
-                              <TableCell align="right">{recruiter.metrics.timeToFill.toFixed(1)}</TableCell>
+                              <TableCell align="right">
+                                {recruiter.metrics.candidatesHired}
+                              </TableCell>
+                              <TableCell align="right">
+                                {recruiter.metrics.timeToFill.toFixed(1)}
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -473,11 +504,11 @@ function AdvancedDashboard() {
                         <Typography variant="body2" color="textSecondary">
                           Last 30 days
                         </Typography>
-                        <Chip 
-                          label="+5% vs previous period" 
-                          color="success" 
-                          size="small" 
-                          sx={{ mt: 1 }} 
+                        <Chip
+                          label="+5% vs previous period"
+                          color="success"
+                          size="small"
+                          sx={{ mt: 1 }}
                         />
                       </Box>
                     </CardContent>
@@ -510,8 +541,8 @@ function AdvancedDashboard() {
       )}
 
       {/* Create Dashboard Dialog */}
-      <Dialog 
-        open={isCreateDashboardDialogOpen} 
+      <Dialog
+        open={isCreateDashboardDialogOpen}
         onClose={() => setIsCreateDashboardDialogOpen(false)}
         maxWidth="sm"
         fullWidth
@@ -535,7 +566,9 @@ function AdvancedDashboard() {
             rows={2}
             variant="outlined"
             value={newDashboardForm.description}
-            onChange={(e) => setNewDashboardForm({ ...newDashboardForm, description: e.target.value })}
+            onChange={(e) =>
+              setNewDashboardForm({ ...newDashboardForm, description: e.target.value })
+            }
             sx={{ mb: 2 }}
           />
           <FormControl fullWidth sx={{ mb: 2 }}>
@@ -543,7 +576,9 @@ function AdvancedDashboard() {
             <Select
               value={newDashboardForm.role}
               label="Specific to Role (Optional)"
-              onChange={(e) => setNewDashboardForm({ ...newDashboardForm, role: e.target.value as string })}
+              onChange={(e) =>
+                setNewDashboardForm({ ...newDashboardForm, role: e.target.value as string })
+              }
             >
               <MenuItem value="">
                 <em>None (Available to all)</em>
@@ -557,7 +592,9 @@ function AdvancedDashboard() {
             <input
               type="checkbox"
               checked={newDashboardForm.isDefault}
-              onChange={(e) => setNewDashboardForm({ ...newDashboardForm, isDefault: e.target.checked })}
+              onChange={(e) =>
+                setNewDashboardForm({ ...newDashboardForm, isDefault: e.target.checked })
+              }
               id="default-dashboard-checkbox"
             />
             <InputLabel htmlFor="default-dashboard-checkbox" sx={{ ml: 1 }}>
@@ -567,8 +604,8 @@ function AdvancedDashboard() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsCreateDashboardDialogOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={handleCreateDashboard}
             disabled={!newDashboardForm.name}
           >
@@ -578,8 +615,8 @@ function AdvancedDashboard() {
       </Dialog>
 
       {/* Add Widget Dialog */}
-      <Dialog 
-        open={isAddWidgetDialogOpen} 
+      <Dialog
+        open={isAddWidgetDialogOpen}
         onClose={() => setIsAddWidgetDialogOpen(false)}
         maxWidth="sm"
         fullWidth
@@ -600,7 +637,9 @@ function AdvancedDashboard() {
             <Select
               value={newWidgetForm.type}
               label="Widget Type"
-              onChange={(e) => setNewWidgetForm({ ...newWidgetForm, type: e.target.value as string })}
+              onChange={(e) =>
+                setNewWidgetForm({ ...newWidgetForm, type: e.target.value as string })
+              }
             >
               <MenuItem value="chart">Chart</MenuItem>
               <MenuItem value="metric">Metric/KPI</MenuItem>
@@ -608,14 +647,16 @@ function AdvancedDashboard() {
               <MenuItem value="list">List</MenuItem>
             </Select>
           </FormControl>
-          
+
           {newWidgetForm.type === 'chart' && (
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Chart Type</InputLabel>
               <Select
                 value={newWidgetForm.chartType}
                 label="Chart Type"
-                onChange={(e) => setNewWidgetForm({ ...newWidgetForm, chartType: e.target.value as string })}
+                onChange={(e) =>
+                  setNewWidgetForm({ ...newWidgetForm, chartType: e.target.value as string })
+                }
               >
                 <MenuItem value="bar">Bar Chart</MenuItem>
                 <MenuItem value="line">Line Chart</MenuItem>
@@ -624,13 +665,15 @@ function AdvancedDashboard() {
               </Select>
             </FormControl>
           )}
-          
+
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel>Data Source</InputLabel>
             <Select
               value={newWidgetForm.dataSource}
               label="Data Source"
-              onChange={(e) => setNewWidgetForm({ ...newWidgetForm, dataSource: e.target.value as string })}
+              onChange={(e) =>
+                setNewWidgetForm({ ...newWidgetForm, dataSource: e.target.value as string })
+              }
             >
               <MenuItem value="time_to_hire_department">Time to Hire by Department</MenuItem>
               <MenuItem value="open_positions_count">Open Positions Count</MenuItem>
@@ -643,8 +686,8 @@ function AdvancedDashboard() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsAddWidgetDialogOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={handleAddWidget}
             disabled={!newWidgetForm.name || !newWidgetForm.dataSource}
           >
@@ -656,4 +699,4 @@ function AdvancedDashboard() {
   );
 }
 
-export default AdvancedDashboard; 
+export default AdvancedDashboard;

@@ -1,10 +1,10 @@
 /**
  * React ATS Application
  * Main App Component
- * 
+ *
  * Copyright (c) 2024-2025 Syed Azfar Hussain - Principal Test Consultant at 10Pearls Pakistan
  * All rights reserved.
- * 
+ *
  * Licensed under the terms of 10Pearls proprietary license.
  * Unauthorized copying, redistribution, or use of this file is strictly prohibited.
  */
@@ -16,7 +16,7 @@ import {
   createTheme,
   responsiveFontSizes,
   PaletteMode,
-  Box
+  Box,
 } from '@mui/material';
 import { AccessibilitySettings } from './components/AccessibilityMenu';
 import AccessibilityMenu from './components/AccessibilityMenu';
@@ -38,22 +38,23 @@ import { SecurityProvider } from './contexts/SecurityContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import AppRoutes from './routes';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { setupPeriodicHealthCheck } from './utils/apiHealthCheck';
 
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Get preferred mode from localStorage or system preference
   const [mode, setMode] = useState<PaletteMode>(() => {
     const savedMode = localStorage.getItem('darkMode');
     if (savedMode) {
       return savedMode === 'true' ? 'dark' : 'light';
     }
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches 
-      ? 'dark' 
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
       : 'light';
   });
-  
+
   const [accessibilitySettings, setAccessibilitySettings] = useState<AccessibilitySettings>(() => {
     // Try to load saved settings from localStorage
     const savedSettings = localStorage.getItem('accessibilitySettings');
@@ -72,6 +73,23 @@ function App() {
       fontSizeMultiplier: 1,
     };
   });
+
+  // Set up API health check when the app initializes
+  useEffect(() => {
+    // Setup periodic health checks every minute
+    const cancelHealthCheck = setupPeriodicHealthCheck(
+      { endpoint: '/api/health' },
+      60000, // Check every minute
+      (isHealthy) => {
+        console.log(`API health check: ${isHealthy ? 'Healthy' : 'Unhealthy'}`);
+      }
+    );
+
+    // Clean up when component unmounts
+    return () => {
+      cancelHealthCheck();
+    };
+  }, []);
 
   // Create a theme that respects accessibility settings and dark mode
   const theme = React.useMemo(() => {
@@ -97,20 +115,24 @@ function App() {
         success: {
           main: accessibilitySettings.highContrast ? '#008000' : '#2e7d32',
         },
-        background: isDarkMode ? {
-          default: '#121212',
-          paper: '#1e1e1e',
-        } : {
-          default: accessibilitySettings.highContrast ? '#FFFFFF' : '#f5f5f5',
-          paper: accessibilitySettings.highContrast ? '#FFFFFF' : '#ffffff',
-        },
-        text: isDarkMode ? {
-          primary: '#ffffff',
-          secondary: '#b0b0b0',
-        } : {
-          primary: accessibilitySettings.highContrast ? '#000000' : '#212121',
-          secondary: accessibilitySettings.highContrast ? '#444444' : '#757575',
-        },
+        background: isDarkMode
+          ? {
+              default: '#121212',
+              paper: '#1e1e1e',
+            }
+          : {
+              default: accessibilitySettings.highContrast ? '#FFFFFF' : '#f5f5f5',
+              paper: accessibilitySettings.highContrast ? '#FFFFFF' : '#ffffff',
+            },
+        text: isDarkMode
+          ? {
+              primary: '#ffffff',
+              secondary: '#b0b0b0',
+            }
+          : {
+              primary: accessibilitySettings.highContrast ? '#000000' : '#212121',
+              secondary: accessibilitySettings.highContrast ? '#444444' : '#757575',
+            },
       },
       typography: {
         fontSize: accessibilitySettings.largeText ? 16 : 14,
@@ -181,7 +203,7 @@ function App() {
               '100%': {
                 opacity: 0.6,
                 transform: 'scale(1)',
-              }
+              },
             },
             '@keyframes spin': {
               '0%': {
@@ -189,10 +211,12 @@ function App() {
               },
               '100%': {
                 transform: 'rotate(360deg)',
-              }
+              },
             },
             body: {
-              transition: accessibilitySettings.reducedMotion ? 'none' : 'background-color 0.3s ease-in-out, color 0.3s ease-in-out',
+              transition: accessibilitySettings.reducedMotion
+                ? 'none'
+                : 'background-color 0.3s ease-in-out, color 0.3s ease-in-out',
               '& *': {
                 transition: accessibilitySettings.reducedMotion ? 'none !important' : undefined,
                 animation: accessibilitySettings.reducedMotion ? 'none !important' : undefined,
@@ -206,12 +230,12 @@ function App() {
         },
       },
     });
-    
+
     // Apply responsive font sizes if largeText is enabled
     if (accessibilitySettings.largeText) {
       theme = responsiveFontSizes(theme);
     }
-    
+
     return theme;
   }, [accessibilitySettings, mode]);
 
@@ -223,31 +247,31 @@ function App() {
     } else {
       document.body.classList.remove('high-contrast');
     }
-    
+
     // Large text mode
     if (accessibilitySettings.largeText) {
       document.body.classList.add('large-text');
     } else {
       document.body.classList.remove('large-text');
     }
-    
+
     // Reduced motion
     if (accessibilitySettings.reducedMotion) {
       document.body.classList.add('reduced-motion');
     } else {
       document.body.classList.remove('reduced-motion');
     }
-    
+
     // Keyboard focus visibility
     if (accessibilitySettings.keyboardFocusVisible) {
       document.body.classList.add('keyboard-focus-visible');
     } else {
       document.body.classList.remove('keyboard-focus-visible');
     }
-    
+
     // Set CSS variables
     document.documentElement.style.setProperty(
-      '--font-size-multiplier', 
+      '--font-size-multiplier',
       accessibilitySettings.fontSizeMultiplier.toString()
     );
   }, [accessibilitySettings]);
@@ -284,7 +308,7 @@ function App() {
                               <EmailCampaignProvider>
                                 <FormBuilderProvider>
                                   <Box sx={{ position: 'fixed', top: 16, right: 16, zIndex: 1200 }}>
-                                    <AccessibilityMenu 
+                                    <AccessibilityMenu
                                       onChange={handleAccessibilityChange}
                                       initialSettings={accessibilitySettings}
                                     />
@@ -303,7 +327,7 @@ function App() {
             </ATSIntegrationProvider>
           </SecurityProvider>
         </AuthProvider>
-        
+
         {/* Skip links for keyboard users */}
         <a href="#main-content" className="skip-link">
           Skip to main content

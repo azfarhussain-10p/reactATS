@@ -23,14 +23,14 @@ interface SubmitState {
  */
 export const useOfflineAwareSubmit = (options: UseOfflineAwareSubmitOptions = {}) => {
   const { onSuccess, onError, onOfflineQueued } = options;
-  
+
   const [state, setState] = useState<SubmitState>({
     isLoading: false,
     isSuccess: false,
     isError: false,
     isOfflineQueued: false,
     error: null,
-    data: null
+    data: null,
   });
 
   const submit = useCallback(
@@ -41,17 +41,17 @@ export const useOfflineAwareSubmit = (options: UseOfflineAwareSubmitOptions = {}
         isError: false,
         isOfflineQueued: false,
         error: null,
-        data: null
+        data: null,
       });
-      
+
       try {
         const response = await offlineAwareApiCall<T>(url, method, data, customOptions);
-        
+
         // Check if this was queued for offline processing
         if (
-          response && 
-          typeof response === 'object' && 
-          'offlineQueued' in response && 
+          response &&
+          typeof response === 'object' &&
+          'offlineQueued' in response &&
           (response as any).offlineQueued === true
         ) {
           setState({
@@ -60,9 +60,9 @@ export const useOfflineAwareSubmit = (options: UseOfflineAwareSubmitOptions = {}
             isError: false,
             isOfflineQueued: true,
             error: null,
-            data: response
+            data: response,
           });
-          
+
           if (onOfflineQueued) {
             onOfflineQueued();
           }
@@ -73,14 +73,14 @@ export const useOfflineAwareSubmit = (options: UseOfflineAwareSubmitOptions = {}
             isError: false,
             isOfflineQueued: false,
             error: null,
-            data: response
+            data: response,
           });
-          
+
           if (onSuccess) {
             onSuccess(response);
           }
         }
-        
+
         return response;
       } catch (error) {
         setState({
@@ -89,13 +89,13 @@ export const useOfflineAwareSubmit = (options: UseOfflineAwareSubmitOptions = {}
           isError: true,
           isOfflineQueued: false,
           error,
-          data: null
+          data: null,
         });
-        
+
         if (onError) {
           onError(error);
         }
-        
+
         throw error;
       }
     },
@@ -104,8 +104,8 @@ export const useOfflineAwareSubmit = (options: UseOfflineAwareSubmitOptions = {}
 
   return {
     ...state,
-    submit
+    submit,
   };
 };
 
-export default useOfflineAwareSubmit; 
+export default useOfflineAwareSubmit;

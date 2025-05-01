@@ -30,7 +30,7 @@ import {
   IconButton,
   Tooltip,
   LinearProgress,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import {
   Refresh as RefreshIcon,
@@ -42,43 +42,43 @@ import {
   TimelineOutlined as TimelineIcon,
   BubbleChart as BubbleChartIcon,
   TrendingUp as TrendingUpIcon,
-  Science as ScienceIcon
+  Science as ScienceIcon,
 } from '@mui/icons-material';
 import { useAdvancedAnalytics } from '../contexts/AdvancedAnalyticsContext';
 import { useAnalytics } from '../contexts/AnalyticsContext';
 
 const mockCandidateData = {
-  id: "c-12345",
-  name: "Alex Johnson",
+  id: 'c-12345',
+  name: 'Alex Johnson',
   education: "Master's in Computer Science",
   years_experience: 6,
-  skills: ["React", "TypeScript", "Node.js", "AWS"],
-  previous_roles: ["Senior Frontend Developer", "Web Developer"],
+  skills: ['React', 'TypeScript', 'Node.js', 'AWS'],
+  previous_roles: ['Senior Frontend Developer', 'Web Developer'],
   interview_score: 8.5,
   technical_assessment: 92,
-  culture_fit: "Strong",
-  location: "Remote",
-  desired_salary: 120000
+  culture_fit: 'Strong',
+  location: 'Remote',
+  desired_salary: 120000,
 };
 
 const mockJobData = {
-  id: "j-7890",
-  title: "Senior Full Stack Developer",
-  department: "Engineering",
+  id: 'j-7890',
+  title: 'Senior Full Stack Developer',
+  department: 'Engineering',
   team_size: 8,
-  required_skills: ["React", "Node.js", "AWS", "MongoDB"],
+  required_skills: ['React', 'Node.js', 'AWS', 'MongoDB'],
   education_requirement: "Bachelor's in Computer Science or related field",
   experience_requirement: 5,
-  location: "Remote",
-  salary_range: [110000, 135000]
+  location: 'Remote',
+  salary_range: [110000, 135000],
 };
 
 const PredictiveAnalytics: React.FC = () => {
   const theme = useTheme();
-  const { 
-    predictiveModels, 
-    createPredictiveModel, 
-    trainModel, 
+  const {
+    predictiveModels,
+    createPredictiveModel,
+    trainModel,
     predictOutcome,
     visualizations,
     createVisualization,
@@ -87,9 +87,9 @@ const PredictiveAnalytics: React.FC = () => {
     runSegmentAnalysis,
     correlations,
     trends,
-    segments
+    segments,
   } = useAdvancedAnalytics();
-  
+
   const [activeTab, setActiveTab] = useState<'models' | 'visualizations' | 'analysis'>('models');
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
   const [isTraining, setIsTraining] = useState(false);
@@ -100,7 +100,7 @@ const PredictiveAnalytics: React.FC = () => {
   // For correlation analysis
   const [correlationFactors, setCorrelationFactors] = useState({
     factorA: 'years_experience',
-    factorB: 'time_to_hire'
+    factorB: 'time_to_hire',
   });
   const [isRunningAnalysis, setIsRunningAnalysis] = useState(false);
 
@@ -110,8 +110,8 @@ const PredictiveAnalytics: React.FC = () => {
     }
   }, [predictiveModels, selectedModelId]);
 
-  const selectedModel = selectedModelId 
-    ? predictiveModels.find(model => model.id === selectedModelId)
+  const selectedModel = selectedModelId
+    ? predictiveModels.find((model) => model.id === selectedModelId)
     : null;
 
   const handleModelSelection = (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -121,12 +121,12 @@ const PredictiveAnalytics: React.FC = () => {
 
   const handleTrainModel = async () => {
     if (!selectedModelId) return;
-    
+
     setIsTraining(true);
     try {
       await trainModel(selectedModelId);
     } catch (error) {
-      console.error("Error training model:", error);
+      console.error('Error training model:', error);
     } finally {
       setIsTraining(false);
     }
@@ -134,16 +134,16 @@ const PredictiveAnalytics: React.FC = () => {
 
   const handlePredictOutcome = async () => {
     if (!selectedModelId) return;
-    
+
     setIsPredicting(true);
     setPredictionResult(null);
-    
+
     try {
       const data = predictionInput === 'candidate' ? mockCandidateData : mockJobData;
       const result = await predictOutcome(selectedModelId, data);
       setPredictionResult(result);
     } catch (error) {
-      console.error("Error predicting outcome:", error);
+      console.error('Error predicting outcome:', error);
     } finally {
       setIsPredicting(false);
     }
@@ -152,12 +152,9 @@ const PredictiveAnalytics: React.FC = () => {
   const handleRunCorrelation = async () => {
     setIsRunningAnalysis(true);
     try {
-      await runCorrelationAnalysis(
-        correlationFactors.factorA,
-        correlationFactors.factorB
-      );
+      await runCorrelationAnalysis(correlationFactors.factorA, correlationFactors.factorB);
     } catch (error) {
-      console.error("Error running correlation analysis:", error);
+      console.error('Error running correlation analysis:', error);
     } finally {
       setIsRunningAnalysis(false);
     }
@@ -165,7 +162,7 @@ const PredictiveAnalytics: React.FC = () => {
 
   const renderPredictionResult = () => {
     if (!predictionResult) return null;
-    
+
     if (selectedModel?.type === 'hiring-success') {
       const { probability, confidence } = predictionResult;
       return (
@@ -178,10 +175,10 @@ const PredictiveAnalytics: React.FC = () => {
               <Typography variant="body1" gutterBottom>
                 Probability of successful hire: <strong>{(probability * 100).toFixed(1)}%</strong>
               </Typography>
-              <LinearProgress 
-                variant="determinate" 
-                value={probability * 100} 
-                color={probability > 0.7 ? "success" : "error"}
+              <LinearProgress
+                variant="determinate"
+                value={probability * 100}
+                color={probability > 0.7 ? 'success' : 'error'}
                 sx={{ height: 10, borderRadius: 5 }}
               />
             </Box>
@@ -190,8 +187,8 @@ const PredictiveAnalytics: React.FC = () => {
             </Typography>
             <Typography variant="body2" sx={{ mt: 2 }}>
               {probability > 0.7
-                ? "This candidate has a high probability of being a successful hire."
-                : "This candidate may not be the best fit for this position."}
+                ? 'This candidate has a high probability of being a successful hire.'
+                : 'This candidate may not be the best fit for this position.'}
             </Typography>
           </CardContent>
         </Card>
@@ -211,7 +208,8 @@ const PredictiveAnalytics: React.FC = () => {
               Estimated range: {rangeMin}-{rangeMax} days
             </Typography>
             <Typography variant="body2" sx={{ mt: 2 }}>
-              Based on historical data and the attributes of this position, we estimate it will take approximately {days} days to fill.
+              Based on historical data and the attributes of this position, we estimate it will take
+              approximately {days} days to fill.
             </Typography>
           </CardContent>
         </Card>
@@ -225,17 +223,19 @@ const PredictiveAnalytics: React.FC = () => {
               Candidate Quality Prediction
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-              <Box sx={{ 
-                position: 'relative',
-                display: 'inline-flex',
-                m: 2
-              }}>
-                <CircularProgress 
-                  variant="determinate" 
-                  value={score * 10} 
+              <Box
+                sx={{
+                  position: 'relative',
+                  display: 'inline-flex',
+                  m: 2,
+                }}
+              >
+                <CircularProgress
+                  variant="determinate"
+                  value={score * 10}
                   size={100}
                   thickness={5}
-                  color={score > 7 ? "success" : score > 5 ? "info" : "error"}
+                  color={score > 7 ? 'success' : score > 5 ? 'info' : 'error'}
                 />
                 <Box
                   sx={{
@@ -261,12 +261,12 @@ const PredictiveAnalytics: React.FC = () => {
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                 {topSkills.map((skill: string, index: number) => (
-                  <Chip 
-                    key={index} 
-                    label={skill} 
-                    color="primary" 
-                    variant="outlined" 
-                    size="small" 
+                  <Chip
+                    key={index}
+                    label={skill}
+                    color="primary"
+                    variant="outlined"
+                    size="small"
                     sx={{ m: 0.5 }}
                   />
                 ))}
@@ -276,16 +276,14 @@ const PredictiveAnalytics: React.FC = () => {
         </Card>
       );
     }
-    
+
     return (
       <Card sx={{ mt: 3 }}>
         <CardContent>
           <Typography variant="h6" gutterBottom>
             Prediction Result
           </Typography>
-          <pre style={{ overflow: 'auto' }}>
-            {JSON.stringify(predictionResult, null, 2)}
-          </pre>
+          <pre style={{ overflow: 'auto' }}>{JSON.stringify(predictionResult, null, 2)}</pre>
         </CardContent>
       </Card>
     );
@@ -308,14 +306,14 @@ const PredictiveAnalytics: React.FC = () => {
               onChange={handleModelSelection}
               disabled={predictiveModels.length === 0}
             >
-              {predictiveModels.map(model => (
+              {predictiveModels.map((model) => (
                 <MenuItem key={model.id} value={model.id}>
                   {model.name}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-          
+
           {selectedModel && (
             <>
               <Typography variant="subtitle1" gutterBottom>
@@ -323,34 +321,33 @@ const PredictiveAnalytics: React.FC = () => {
               </Typography>
               <List dense>
                 <ListItem>
-                  <ListItemText 
-                    primary="Type" 
-                    secondary={selectedModel.type.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase())} 
+                  <ListItemText
+                    primary="Type"
+                    secondary={selectedModel.type
+                      .replace('-', ' ')
+                      .replace(/\b\w/g, (c) => c.toUpperCase())}
                   />
                 </ListItem>
                 <ListItem>
-                  <ListItemText 
-                    primary="Accuracy" 
-                    secondary={`${(selectedModel.accuracy * 100).toFixed(1)}%`} 
+                  <ListItemText
+                    primary="Accuracy"
+                    secondary={`${(selectedModel.accuracy * 100).toFixed(1)}%`}
                   />
                 </ListItem>
                 <ListItem>
-                  <ListItemText 
-                    primary="Last Trained" 
-                    secondary={new Date(selectedModel.lastTrainedAt).toLocaleDateString()} 
+                  <ListItemText
+                    primary="Last Trained"
+                    secondary={new Date(selectedModel.lastTrainedAt).toLocaleDateString()}
                   />
                 </ListItem>
                 <ListItem>
-                  <ListItemText 
-                    primary="Description" 
-                    secondary={selectedModel.description} 
-                  />
+                  <ListItemText primary="Description" secondary={selectedModel.description} />
                 </ListItem>
               </List>
-              
+
               <Box sx={{ mt: 2 }}>
-                <Button 
-                  variant="outlined" 
+                <Button
+                  variant="outlined"
                   onClick={handleTrainModel}
                   disabled={isTraining}
                   startIcon={isTraining ? <CircularProgress size={20} /> : <ScienceIcon />}
@@ -370,26 +367,26 @@ const PredictiveAnalytics: React.FC = () => {
           <Typography variant="h6" gutterBottom>
             Prediction
           </Typography>
-          
+
           {selectedModel ? (
             <>
               <Box sx={{ mb: 3 }}>
                 <Typography variant="body2" color="text.secondary" paragraph>
                   Use this model to predict outcomes for new data.
                 </Typography>
-                
+
                 <FormControl component="fieldset" sx={{ mb: 2 }}>
                   <Typography variant="subtitle2" gutterBottom>
                     Select input data:
                   </Typography>
                   <Stack direction="row" spacing={2}>
-                    <Button 
+                    <Button
                       variant={predictionInput === 'candidate' ? 'contained' : 'outlined'}
                       onClick={() => setPredictionInput('candidate')}
                     >
                       Candidate Data
                     </Button>
-                    <Button 
+                    <Button
                       variant={predictionInput === 'job' ? 'contained' : 'outlined'}
                       onClick={() => setPredictionInput('job')}
                     >
@@ -397,15 +394,28 @@ const PredictiveAnalytics: React.FC = () => {
                     </Button>
                   </Stack>
                 </FormControl>
-                
-                <Box sx={{ maxHeight: 200, overflow: 'auto', bgcolor: 'grey.100', p: 2, borderRadius: 1, mb: 3 }}>
+
+                <Box
+                  sx={{
+                    maxHeight: 200,
+                    overflow: 'auto',
+                    bgcolor: 'grey.100',
+                    p: 2,
+                    borderRadius: 1,
+                    mb: 3,
+                  }}
+                >
                   <pre style={{ margin: 0 }}>
-                    {JSON.stringify(predictionInput === 'candidate' ? mockCandidateData : mockJobData, null, 2)}
+                    {JSON.stringify(
+                      predictionInput === 'candidate' ? mockCandidateData : mockJobData,
+                      null,
+                      2
+                    )}
                   </pre>
                 </Box>
-                
-                <Button 
-                  variant="contained" 
+
+                <Button
+                  variant="contained"
                   color="primary"
                   onClick={handlePredictOutcome}
                   disabled={isPredicting}
@@ -414,14 +424,12 @@ const PredictiveAnalytics: React.FC = () => {
                   {isPredicting ? 'Processing...' : 'Run Prediction'}
                 </Button>
               </Box>
-              
+
               {/* Display prediction results */}
               {renderPredictionResult()}
             </>
           ) : (
-            <Alert severity="info">
-              Please select a model from the list to make predictions.
-            </Alert>
+            <Alert severity="info">Please select a model from the list to make predictions.</Alert>
           )}
         </Paper>
       </Grid>
@@ -432,32 +440,32 @@ const PredictiveAnalytics: React.FC = () => {
     <Grid container spacing={3}>
       <Grid item xs={12}>
         <Paper sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h6">
-              Advanced Visualizations
-            </Typography>
+          <Box
+            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}
+          >
+            <Typography variant="h6">Advanced Visualizations</Typography>
             <Button
               variant="outlined"
               startIcon={<AddIcon />}
               onClick={() => {
                 createVisualization({
-                  name: "New Network Visualization",
-                  type: "network",
+                  name: 'New Network Visualization',
+                  type: 'network',
                   config: {
-                    nodeSize: "value",
-                    edgeWidth: "strength",
-                    colorBy: "group"
+                    nodeSize: 'value',
+                    edgeWidth: 'strength',
+                    colorBy: 'group',
                   },
-                  dataSource: "skills_relationships"
+                  dataSource: 'skills_relationships',
                 });
               }}
             >
               Create New
             </Button>
           </Box>
-          
+
           <Grid container spacing={3}>
-            {visualizations.map(viz => (
+            {visualizations.map((viz) => (
               <Grid item xs={12} md={6} key={viz.id}>
                 <Card>
                   <CardHeader
@@ -471,14 +479,14 @@ const PredictiveAnalytics: React.FC = () => {
                   />
                   <Divider />
                   <CardContent>
-                    <Box 
-                      sx={{ 
-                        height: 200, 
-                        bgcolor: 'grey.100', 
-                        display: 'flex', 
-                        justifyContent: 'center', 
+                    <Box
+                      sx={{
+                        height: 200,
+                        bgcolor: 'grey.100',
+                        display: 'flex',
+                        justifyContent: 'center',
                         alignItems: 'center',
-                        borderRadius: 1
+                        borderRadius: 1,
                       }}
                     >
                       {viz.type === 'network' && (
@@ -525,10 +533,12 @@ const PredictiveAnalytics: React.FC = () => {
             <Select
               value={correlationFactors.factorA}
               label="Factor A"
-              onChange={(e) => setCorrelationFactors({
-                ...correlationFactors,
-                factorA: e.target.value as string
-              })}
+              onChange={(e) =>
+                setCorrelationFactors({
+                  ...correlationFactors,
+                  factorA: e.target.value as string,
+                })
+              }
             >
               <MenuItem value="years_experience">Years of Experience</MenuItem>
               <MenuItem value="education_level">Education Level</MenuItem>
@@ -537,16 +547,18 @@ const PredictiveAnalytics: React.FC = () => {
               <MenuItem value="time_to_hire">Time to Hire</MenuItem>
             </Select>
           </FormControl>
-          
+
           <FormControl fullWidth sx={{ mb: 3 }}>
             <InputLabel>Factor B</InputLabel>
             <Select
               value={correlationFactors.factorB}
               label="Factor B"
-              onChange={(e) => setCorrelationFactors({
-                ...correlationFactors,
-                factorB: e.target.value as string
-              })}
+              onChange={(e) =>
+                setCorrelationFactors({
+                  ...correlationFactors,
+                  factorB: e.target.value as string,
+                })
+              }
             >
               <MenuItem value="performance_rating">Performance Rating</MenuItem>
               <MenuItem value="retention_months">Retention (Months)</MenuItem>
@@ -555,7 +567,7 @@ const PredictiveAnalytics: React.FC = () => {
               <MenuItem value="salary">Salary</MenuItem>
             </Select>
           </FormControl>
-          
+
           <Button
             variant="contained"
             onClick={handleRunCorrelation}
@@ -564,7 +576,7 @@ const PredictiveAnalytics: React.FC = () => {
           >
             {isRunningAnalysis ? 'Analyzing...' : 'Run Analysis'}
           </Button>
-          
+
           {/* Results */}
           {correlations.length > 0 && (
             <Box sx={{ mt: 3 }}>
@@ -584,11 +596,13 @@ const PredictiveAnalytics: React.FC = () => {
                   <TableBody>
                     {correlations.slice(0, 5).map((corr) => (
                       <TableRow key={corr.id}>
-                        <TableCell>{corr.factorA} vs {corr.factorB}</TableCell>
+                        <TableCell>
+                          {corr.factorA} vs {corr.factorB}
+                        </TableCell>
                         <TableCell align="right">
-                          <Chip 
-                            label={corr.coefficient.toFixed(3)} 
-                            color={Math.abs(corr.coefficient) > 0.5 ? "primary" : "default"}
+                          <Chip
+                            label={corr.coefficient.toFixed(3)}
+                            color={Math.abs(corr.coefficient) > 0.5 ? 'primary' : 'default'}
                             size="small"
                           />
                         </TableCell>
@@ -603,42 +617,36 @@ const PredictiveAnalytics: React.FC = () => {
           )}
         </Paper>
       </Grid>
-      
+
       {/* Trend Analysis */}
       <Grid item xs={12} md={6}>
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" gutterBottom>
             Trend Analysis
           </Typography>
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
             <FormControl sx={{ mr: 2, flexGrow: 1 }}>
               <InputLabel>Metric</InputLabel>
-              <Select
-                value="time_to_hire"
-                label="Metric"
-              >
+              <Select value="time_to_hire" label="Metric">
                 <MenuItem value="time_to_hire">Time to Hire</MenuItem>
                 <MenuItem value="cost_per_hire">Cost per Hire</MenuItem>
                 <MenuItem value="quality_of_hire">Quality of Hire</MenuItem>
                 <MenuItem value="retention_rate">Retention Rate</MenuItem>
               </Select>
             </FormControl>
-            
+
             <FormControl sx={{ width: 120 }}>
               <InputLabel>Period</InputLabel>
-              <Select
-                value="monthly"
-                label="Period"
-              >
+              <Select value="monthly" label="Period">
                 <MenuItem value="weekly">Weekly</MenuItem>
                 <MenuItem value="monthly">Monthly</MenuItem>
                 <MenuItem value="quarterly">Quarterly</MenuItem>
                 <MenuItem value="yearly">Yearly</MenuItem>
               </Select>
             </FormControl>
-            
-            <Button 
+
+            <Button
               sx={{ ml: 2 }}
               variant="contained"
               onClick={() => runTrendAnalysis('time_to_hire', 'monthly')}
@@ -646,20 +654,20 @@ const PredictiveAnalytics: React.FC = () => {
               Analyze
             </Button>
           </Box>
-          
+
           {/* Results */}
           {trends.length > 0 && (
             <Box sx={{ mt: 2 }}>
-              <Box 
-                sx={{ 
-                  height: 200, 
-                  bgcolor: 'grey.100', 
+              <Box
+                sx={{
+                  height: 200,
+                  bgcolor: 'grey.100',
                   borderRadius: 1,
                   p: 2,
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  flexDirection: 'column'
+                  flexDirection: 'column',
                 }}
               >
                 <TimelineIcon sx={{ fontSize: 60, color: 'primary.light', mb: 2 }} />
@@ -667,7 +675,7 @@ const PredictiveAnalytics: React.FC = () => {
                   Trend chart would render here in a real application
                 </Typography>
               </Box>
-              
+
               <Box sx={{ mt: 2 }}>
                 <Typography variant="subtitle2" gutterBottom>
                   Latest Analysis: {trends[0].name}
@@ -688,9 +696,7 @@ const PredictiveAnalytics: React.FC = () => {
                       <Typography variant="body2" color="text.secondary">
                         Data Points
                       </Typography>
-                      <Typography variant="h6">
-                        {trends[0].data.length}
-                      </Typography>
+                      <Typography variant="h6">{trends[0].data.length}</Typography>
                     </Paper>
                   </Grid>
                 </Grid>
@@ -699,14 +705,14 @@ const PredictiveAnalytics: React.FC = () => {
           )}
         </Paper>
       </Grid>
-      
+
       {/* Segment Analysis */}
       <Grid item xs={12}>
         <Paper sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h6">
-              Segment Analysis
-            </Typography>
+          <Box
+            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}
+          >
+            <Typography variant="h6">Segment Analysis</Typography>
             <Button
               variant="outlined"
               startIcon={<RefreshIcon />}
@@ -715,7 +721,7 @@ const PredictiveAnalytics: React.FC = () => {
               Run New Analysis
             </Button>
           </Box>
-          
+
           {segments.length > 0 ? (
             <TableContainer>
               <Table>
@@ -734,8 +740,12 @@ const PredictiveAnalytics: React.FC = () => {
                       <TableCell>{segment.name}</TableCell>
                       <TableCell align="right">{segment.count}</TableCell>
                       <TableCell align="right">{segment.metrics.avg_time_to_hire} days</TableCell>
-                      <TableCell align="right">{(segment.metrics.conversion_rate * 100).toFixed(1)}%</TableCell>
-                      <TableCell align="right">{(segment.metrics.offer_acceptance * 100).toFixed(1)}%</TableCell>
+                      <TableCell align="right">
+                        {(segment.metrics.conversion_rate * 100).toFixed(1)}%
+                      </TableCell>
+                      <TableCell align="right">
+                        {(segment.metrics.offer_acceptance * 100).toFixed(1)}%
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -758,27 +768,28 @@ const PredictiveAnalytics: React.FC = () => {
           Predictive Analytics & Machine Learning
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Use AI models to predict hiring outcomes, analyze trends, and gain insights from your recruitment data.
+          Use AI models to predict hiring outcomes, analyze trends, and gain insights from your
+          recruitment data.
         </Typography>
       </Box>
-      
+
       <Box sx={{ mb: 3 }}>
         <Stack direction="row" spacing={2}>
-          <Button 
+          <Button
             variant={activeTab === 'models' ? 'contained' : 'outlined'}
             onClick={() => setActiveTab('models')}
             startIcon={<ScienceIcon />}
           >
             Predictive Models
           </Button>
-          <Button 
+          <Button
             variant={activeTab === 'visualizations' ? 'contained' : 'outlined'}
             onClick={() => setActiveTab('visualizations')}
             startIcon={<BubbleChartIcon />}
           >
             Advanced Visualizations
           </Button>
-          <Button 
+          <Button
             variant={activeTab === 'analysis' ? 'contained' : 'outlined'}
             onClick={() => setActiveTab('analysis')}
             startIcon={<TimelineIcon />}
@@ -787,7 +798,7 @@ const PredictiveAnalytics: React.FC = () => {
           </Button>
         </Stack>
       </Box>
-      
+
       {activeTab === 'models' && renderModelsSection()}
       {activeTab === 'visualizations' && renderVisualizationsSection()}
       {activeTab === 'analysis' && renderDataAnalysisSection()}
@@ -795,4 +806,4 @@ const PredictiveAnalytics: React.FC = () => {
   );
 };
 
-export default PredictiveAnalytics; 
+export default PredictiveAnalytics;

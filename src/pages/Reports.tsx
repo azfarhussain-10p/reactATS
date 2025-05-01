@@ -15,11 +15,9 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
 } from '@mui/material';
-import {
-  TrendingUp as TrendingUpIcon
-} from '@mui/icons-material';
+import { TrendingUp as TrendingUpIcon } from '@mui/icons-material';
 
 // Mock data for recruitment metrics
 const recruitmentData = {
@@ -35,14 +33,14 @@ const recruitmentData = {
     { source: 'Indeed', count: 32, percentage: 25.0 },
     { source: 'Company Website', count: 21, percentage: 16.4 },
     { source: 'Referrals', count: 18, percentage: 14.1 },
-    { source: 'Other', count: 12, percentage: 9.3 }
+    { source: 'Other', count: 12, percentage: 9.3 },
   ],
   applicationsByDepartment: [
     { department: 'Engineering', count: 56, percentage: 43.8 },
     { department: 'Design', count: 24, percentage: 18.8 },
     { department: 'Marketing', count: 21, percentage: 16.4 },
     { department: 'Sales', count: 15, percentage: 11.7 },
-    { department: 'Operations', count: 12, percentage: 9.3 }
+    { department: 'Operations', count: 12, percentage: 9.3 },
   ],
   hiringTrends: [
     { month: 'Jan', applications: 14, hires: 1 },
@@ -52,14 +50,14 @@ const recruitmentData = {
     { month: 'May', applications: 20, hires: 2 },
     { month: 'Jun', applications: 24, hires: 3 },
     { month: 'Jul', applications: 29, hires: 2 },
-    { month: 'Aug', applications: 32, hires: 3 }
+    { month: 'Aug', applications: 32, hires: 3 },
   ],
   interviewMetrics: {
     totalScheduled: 98,
     completed: 86,
     cancelled: 12,
     passRate: 64, // percentage
-  }
+  },
 };
 
 // Timeframe options
@@ -67,7 +65,7 @@ const timeframeOptions = ['Last 30 Days', 'Last 90 Days', 'Last 6 Months', 'Last
 
 function Reports() {
   const [timeframe, setTimeframe] = useState('Last 30 Days');
-  
+
   // In a real app, this would filter based on the selected timeframe
   const handleTimeframeChange = (event: any) => {
     setTimeframe(event.target.value);
@@ -79,11 +77,7 @@ function Reports() {
         <Typography variant="h5">Recruitment Analytics</Typography>
         <FormControl size="small" sx={{ minWidth: 150 }}>
           <InputLabel>Timeframe</InputLabel>
-          <Select
-            value={timeframe}
-            onChange={handleTimeframeChange}
-            label="Timeframe"
-          >
+          <Select value={timeframe} onChange={handleTimeframeChange} label="Timeframe">
             {timeframeOptions.map((option) => (
               <MenuItem key={option} value={option}>
                 {option}
@@ -94,7 +88,9 @@ function Reports() {
       </Box>
 
       {/* Key Metrics */}
-      <Typography variant="h6" sx={{ mb: 2 }}>Key Metrics</Typography>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Key Metrics
+      </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', margin: -1, mb: 3 }}>
         <Box sx={{ width: { xs: '100%', sm: '50%', md: '25%' }, p: 1 }}>
           <Card>
@@ -102,9 +98,7 @@ function Reports() {
               <Typography color="text.secondary" gutterBottom>
                 Total Candidates
               </Typography>
-              <Typography variant="h4">
-                {recruitmentData.totalCandidates}
-              </Typography>
+              <Typography variant="h4">{recruitmentData.totalCandidates}</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                 <TrendingUpIcon color="success" fontSize="small" sx={{ mr: 0.5 }} />
                 <Typography variant="body2" color="success.main">
@@ -138,9 +132,7 @@ function Reports() {
               <Typography color="text.secondary" gutterBottom>
                 Conversion Rate
               </Typography>
-              <Typography variant="h4">
-                {recruitmentData.conversionRate}%
-              </Typography>
+              <Typography variant="h4">{recruitmentData.conversionRate}%</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                 <TrendingUpIcon color="success" fontSize="small" sx={{ mr: 0.5 }} />
                 <Typography variant="body2" color="success.main">
@@ -156,9 +148,7 @@ function Reports() {
               <Typography color="text.secondary" gutterBottom>
                 Open Positions
               </Typography>
-              <Typography variant="h4">
-                {recruitmentData.jobOpenings}
-              </Typography>
+              <Typography variant="h4">{recruitmentData.jobOpenings}</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                 <Typography variant="body2" color="text.secondary">
                   {recruitmentData.totalHired} hired this period
@@ -170,7 +160,9 @@ function Reports() {
       </Box>
 
       {/* Candidate Pipeline */}
-      <Typography variant="h6" sx={{ mb: 2 }}>Candidate Pipeline</Typography>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Candidate Pipeline
+      </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', margin: -1, mb: 3 }}>
         <Box sx={{ width: { xs: '100%', md: '66.666%' }, p: 1 }}>
           <Paper sx={{ p: 2 }}>
@@ -183,9 +175,7 @@ function Reports() {
                   <Typography variant="body2" color="text.secondary">
                     Total Candidates
                   </Typography>
-                  <Typography variant="h6">
-                    {recruitmentData.totalCandidates}
-                  </Typography>
+                  <Typography variant="h6">{recruitmentData.totalCandidates}</Typography>
                 </Box>
               </Box>
               <Box sx={{ width: { xs: '100%', sm: '25%' }, p: 1 }}>
@@ -196,7 +186,11 @@ function Reports() {
                   <Typography variant="h6">
                     {recruitmentData.inProgress}
                     <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                      ({Math.round(recruitmentData.inProgress / recruitmentData.totalCandidates * 100)}%)
+                      (
+                      {Math.round(
+                        (recruitmentData.inProgress / recruitmentData.totalCandidates) * 100
+                      )}
+                      %)
                     </Typography>
                   </Typography>
                 </Box>
@@ -209,7 +203,11 @@ function Reports() {
                   <Typography variant="h6" color="success.main">
                     {recruitmentData.totalHired}
                     <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                      ({Math.round(recruitmentData.totalHired / recruitmentData.totalCandidates * 100)}%)
+                      (
+                      {Math.round(
+                        (recruitmentData.totalHired / recruitmentData.totalCandidates) * 100
+                      )}
+                      %)
                     </Typography>
                   </Typography>
                 </Box>
@@ -222,15 +220,19 @@ function Reports() {
                   <Typography variant="h6" color="error.main">
                     {recruitmentData.totalRejected}
                     <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                      ({Math.round(recruitmentData.totalRejected / recruitmentData.totalCandidates * 100)}%)
+                      (
+                      {Math.round(
+                        (recruitmentData.totalRejected / recruitmentData.totalCandidates) * 100
+                      )}
+                      %)
                     </Typography>
                   </Typography>
                 </Box>
               </Box>
             </Box>
-            
+
             <Divider sx={{ my: 2 }} />
-            
+
             <Typography variant="subtitle1" gutterBottom>
               Interviews
             </Typography>
@@ -250,9 +252,7 @@ function Reports() {
                   <Typography variant="body2" color="text.secondary">
                     Completed
                   </Typography>
-                  <Typography variant="h6">
-                    {recruitmentData.interviewMetrics.completed}
-                  </Typography>
+                  <Typography variant="h6">{recruitmentData.interviewMetrics.completed}</Typography>
                 </Box>
               </Box>
               <Box sx={{ width: { xs: '100%', sm: '25%' }, p: 1 }}>
@@ -260,9 +260,7 @@ function Reports() {
                   <Typography variant="body2" color="text.secondary">
                     Cancelled
                   </Typography>
-                  <Typography variant="h6">
-                    {recruitmentData.interviewMetrics.cancelled}
-                  </Typography>
+                  <Typography variant="h6">{recruitmentData.interviewMetrics.cancelled}</Typography>
                 </Box>
               </Box>
               <Box sx={{ width: { xs: '100%', sm: '25%' }, p: 1 }}>
@@ -270,9 +268,7 @@ function Reports() {
                   <Typography variant="body2" color="text.secondary">
                     Pass Rate
                   </Typography>
-                  <Typography variant="h6">
-                    {recruitmentData.interviewMetrics.passRate}%
-                  </Typography>
+                  <Typography variant="h6">{recruitmentData.interviewMetrics.passRate}%</Typography>
                 </Box>
               </Box>
             </Box>
@@ -287,16 +283,22 @@ function Reports() {
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Typography variant="body2">Applied</Typography>
-                  <Typography variant="body2" fontWeight="bold">34</Typography>
+                  <Typography variant="body2" fontWeight="bold">
+                    34
+                  </Typography>
                 </Box>
                 <Box sx={{ width: '100%', bgcolor: 'grey.200', borderRadius: 1, height: 8 }}>
-                  <Box sx={{ width: '26.5%', bgcolor: 'primary.main', height: 8, borderRadius: 1 }} />
+                  <Box
+                    sx={{ width: '26.5%', bgcolor: 'primary.main', height: 8, borderRadius: 1 }}
+                  />
                 </Box>
               </Box>
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Typography variant="body2">Screening</Typography>
-                  <Typography variant="body2" fontWeight="bold">24</Typography>
+                  <Typography variant="body2" fontWeight="bold">
+                    24
+                  </Typography>
                 </Box>
                 <Box sx={{ width: '100%', bgcolor: 'grey.200', borderRadius: 1, height: 8 }}>
                   <Box sx={{ width: '18.75%', bgcolor: 'info.main', height: 8, borderRadius: 1 }} />
@@ -305,34 +307,48 @@ function Reports() {
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Typography variant="body2">Interview</Typography>
-                  <Typography variant="body2" fontWeight="bold">16</Typography>
+                  <Typography variant="body2" fontWeight="bold">
+                    16
+                  </Typography>
                 </Box>
                 <Box sx={{ width: '100%', bgcolor: 'grey.200', borderRadius: 1, height: 8 }}>
-                  <Box sx={{ width: '12.5%', bgcolor: 'warning.main', height: 8, borderRadius: 1 }} />
+                  <Box
+                    sx={{ width: '12.5%', bgcolor: 'warning.main', height: 8, borderRadius: 1 }}
+                  />
                 </Box>
               </Box>
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Typography variant="body2">Offer</Typography>
-                  <Typography variant="body2" fontWeight="bold">8</Typography>
+                  <Typography variant="body2" fontWeight="bold">
+                    8
+                  </Typography>
                 </Box>
                 <Box sx={{ width: '100%', bgcolor: 'grey.200', borderRadius: 1, height: 8 }}>
-                  <Box sx={{ width: '6.25%', bgcolor: 'secondary.main', height: 8, borderRadius: 1 }} />
+                  <Box
+                    sx={{ width: '6.25%', bgcolor: 'secondary.main', height: 8, borderRadius: 1 }}
+                  />
                 </Box>
               </Box>
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Typography variant="body2">Hired</Typography>
-                  <Typography variant="body2" fontWeight="bold">12</Typography>
+                  <Typography variant="body2" fontWeight="bold">
+                    12
+                  </Typography>
                 </Box>
                 <Box sx={{ width: '100%', bgcolor: 'grey.200', borderRadius: 1, height: 8 }}>
-                  <Box sx={{ width: '9.4%', bgcolor: 'success.main', height: 8, borderRadius: 1 }} />
+                  <Box
+                    sx={{ width: '9.4%', bgcolor: 'success.main', height: 8, borderRadius: 1 }}
+                  />
                 </Box>
               </Box>
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Typography variant="body2">Rejected</Typography>
-                  <Typography variant="body2" fontWeight="bold">42</Typography>
+                  <Typography variant="body2" fontWeight="bold">
+                    42
+                  </Typography>
                 </Box>
                 <Box sx={{ width: '100%', bgcolor: 'grey.200', borderRadius: 1, height: 8 }}>
                   <Box sx={{ width: '32.8%', bgcolor: 'error.main', height: 8, borderRadius: 1 }} />
@@ -344,16 +360,24 @@ function Reports() {
       </Box>
 
       {/* Source Metrics */}
-      <Typography variant="h6" sx={{ mb: 2 }}>Source & Department Analysis</Typography>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Source & Department Analysis
+      </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', margin: -1, mb: 3 }}>
         <Box sx={{ width: { xs: '100%', md: '50%' }, p: 1 }}>
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell><strong>Application Source</strong></TableCell>
-                  <TableCell align="right"><strong>Candidates</strong></TableCell>
-                  <TableCell align="right"><strong>Percentage</strong></TableCell>
+                  <TableCell>
+                    <strong>Application Source</strong>
+                  </TableCell>
+                  <TableCell align="right">
+                    <strong>Candidates</strong>
+                  </TableCell>
+                  <TableCell align="right">
+                    <strong>Percentage</strong>
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -373,9 +397,15 @@ function Reports() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell><strong>Department</strong></TableCell>
-                  <TableCell align="right"><strong>Candidates</strong></TableCell>
-                  <TableCell align="right"><strong>Percentage</strong></TableCell>
+                  <TableCell>
+                    <strong>Department</strong>
+                  </TableCell>
+                  <TableCell align="right">
+                    <strong>Candidates</strong>
+                  </TableCell>
+                  <TableCell align="right">
+                    <strong>Percentage</strong>
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -393,16 +423,26 @@ function Reports() {
       </Box>
 
       {/* Monthly Trends */}
-      <Typography variant="h6" sx={{ mb: 2 }}>Monthly Hiring Trends</Typography>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Monthly Hiring Trends
+      </Typography>
       <Paper sx={{ p: 2 }}>
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell><strong>Month</strong></TableCell>
-                <TableCell align="right"><strong>Applications</strong></TableCell>
-                <TableCell align="right"><strong>Hires</strong></TableCell>
-                <TableCell align="right"><strong>Conversion Rate</strong></TableCell>
+                <TableCell>
+                  <strong>Month</strong>
+                </TableCell>
+                <TableCell align="right">
+                  <strong>Applications</strong>
+                </TableCell>
+                <TableCell align="right">
+                  <strong>Hires</strong>
+                </TableCell>
+                <TableCell align="right">
+                  <strong>Conversion Rate</strong>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -417,17 +457,32 @@ function Reports() {
                 </TableRow>
               ))}
               <TableRow>
-                <TableCell><strong>Total</strong></TableCell>
-                <TableCell align="right"><strong>
-                  {recruitmentData.hiringTrends.reduce((sum, item) => sum + item.applications, 0)}
-                </strong></TableCell>
-                <TableCell align="right"><strong>
-                  {recruitmentData.hiringTrends.reduce((sum, item) => sum + item.hires, 0)}
-                </strong></TableCell>
-                <TableCell align="right"><strong>
-                  {(recruitmentData.hiringTrends.reduce((sum, item) => sum + item.hires, 0) / 
-                    recruitmentData.hiringTrends.reduce((sum, item) => sum + item.applications, 0) * 100).toFixed(1)}%
-                </strong></TableCell>
+                <TableCell>
+                  <strong>Total</strong>
+                </TableCell>
+                <TableCell align="right">
+                  <strong>
+                    {recruitmentData.hiringTrends.reduce((sum, item) => sum + item.applications, 0)}
+                  </strong>
+                </TableCell>
+                <TableCell align="right">
+                  <strong>
+                    {recruitmentData.hiringTrends.reduce((sum, item) => sum + item.hires, 0)}
+                  </strong>
+                </TableCell>
+                <TableCell align="right">
+                  <strong>
+                    {(
+                      (recruitmentData.hiringTrends.reduce((sum, item) => sum + item.hires, 0) /
+                        recruitmentData.hiringTrends.reduce(
+                          (sum, item) => sum + item.applications,
+                          0
+                        )) *
+                      100
+                    ).toFixed(1)}
+                    %
+                  </strong>
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -437,4 +492,4 @@ function Reports() {
   );
 }
 
-export default Reports; 
+export default Reports;
