@@ -41,11 +41,20 @@ const FORMS_STORE = 'forms';
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
+      .then(async (cache) => {
         console.log('Opened cache:', CACHE_NAME);
+
+        // First check if favicon already exists in the cache
+        const faviconCache = await cache.match('/favicon.ico');
+        
+        // Create filtered list of URLs to cache, removing favicon if it's already cached
+        const urlsToCache = faviconCache ? 
+          STATIC_CACHE_URLS.filter(url => url !== '/favicon.ico') : 
+          STATIC_CACHE_URLS;
+        
         // Use a more resilient approach that won't fail if some files don't exist
         return Promise.allSettled(
-          STATIC_CACHE_URLS.map(url => 
+          urlsToCache.map(url => 
             cache.add(url).catch(error => {
               console.warn(`Failed to cache ${url}: ${error.message}`);
               return null; // Don't fail the whole installation

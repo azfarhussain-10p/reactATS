@@ -20,6 +20,7 @@ This directory contains documentation for all major features in the ATS applicat
 - [Candidate Scoring](./candidate-scoring.md) - Evaluation and ranking system
 
 ### Job Management
+- [Job Draft & Publishing](./job-draft-publishing.md) - Draft and publishing workflow
 - [Job Distribution](./job-distribution.md) - Multi-platform job posting management
 - [Job Board Integration](./job-board-integration.md) - Third-party job board connections
 - [Job Performance Analytics](./job-performance.md) - Track job posting effectiveness

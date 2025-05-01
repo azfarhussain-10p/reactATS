@@ -28,6 +28,30 @@ const CareerPage = () => {
   const mainRef = useRef(null);
   const navigate = useNavigate();
 
+  // Helper function to format dates in a user-friendly way
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    
+    const options = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    };
+    
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Calculate days ago from posted date
+  const getDaysAgo = (dateString) => {
+    if (!dateString) return 'N/A';
+    
+    const posted = new Date(dateString);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - posted.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -40,7 +64,12 @@ const CareerPage = () => {
         let jobTypesData = [];
         
         try {
-          jobsData = await jobsApi.getAllJobs({ status: 'Active' });
+          // Only fetch ACTIVE jobs for careers page, not drafts
+          jobsData = await jobsApi.getPublishedJobs();
+          // Alternatively use the filter parameter:
+          // jobsData = await jobsApi.getAllJobs({ status: 'Active' });
+          // OR
+          // jobsData = await jobsApi.getAllJobs({ published: true });
         } catch (err) {
           console.error('Error fetching jobs:', err);
           // Continue with empty jobs array
@@ -443,7 +472,10 @@ const CareerPage = () => {
                 
                 <div className="job-card-footer">
                   <span className="posted-date">
-                    Posted: {new Date(job.publishedAt || job.createdAt || job.postedDate).toLocaleDateString()}
+                    Posted: {formatDate(job.publishedAt || job.createdAt || job.postedDate)}
+                  </span>
+                  <span className="days-ago">
+                    ({getDaysAgo(job.publishedAt || job.createdAt || job.postedDate)} days ago)
                   </span>
                   <button className="view-job-btn">View Details</button>
                 </div>

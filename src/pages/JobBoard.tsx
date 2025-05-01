@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Box, 
   Typography, 
@@ -38,8 +38,10 @@ import {
   ListItemText,
   Menu,
   ButtonGroup,
-  CircularProgress
+  CircularProgress,
+  alpha
 } from '@mui/material';
+import { yellow, purple, amber, deepPurple } from '@mui/material/colors';
 import { 
   Search as SearchIcon, 
   LocationOn as LocationIcon, 
@@ -72,7 +74,14 @@ import {
   FormatAlignCenter as FormatAlignCenterIcon,
   FormatAlignRight as FormatAlignRightIcon,
   FormatClear as FormatClearIcon,
-  Block as BlockIcon
+  Block as BlockIcon,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  Publish as PublishIcon,
+  Refresh as RefreshIcon,
+  Person as PersonIcon,
+  DateRange as DateRangeIcon,
+  RemoveFormatting as RemoveFormattingIcon
 } from '@mui/icons-material';
 import { jobsApi } from '../services/api';
 
@@ -243,14 +252,34 @@ const JobBoard: React.FC = () => {
     return diffDays;
   };
 
+  // Format date in a user-friendly way
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
+    
+    const options: Intl.DateTimeFormatOptions = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    };
+    
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
   // Fetch jobs from API
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         setLoading(true);
+        setError(null);
+        
+        // Fetch all jobs including drafts for the JobBoard page
         const jobsData = await jobsApi.getAllJobs();
         setJobs(jobsData);
         setFilteredJobs(jobsData);
+        
+        // Success message
+        console.log(`Loaded ${jobsData.length} jobs, including drafts`);
+        
         setLoading(false);
       } catch (err) {
         console.error('Error fetching jobs:', err);
@@ -273,14 +302,16 @@ const JobBoard: React.FC = () => {
       } catch (err) {
         console.error('Error fetching departments:', err);
         // Fallback to client-side filtering if API fails
-        const uniqueDepartments = Array.from(new Set(jobs.map(job => job.department)));
-        setDepartments(['All', ...uniqueDepartments]);
+        if (jobs.length > 0) {
+          const uniqueDepartments = Array.from(new Set(jobs.map(job => job.department)));
+          setDepartments(['All', ...uniqueDepartments]);
+        }
         setLoadingDropdowns(prev => ({ ...prev, departments: false }));
       }
     };
     
     fetchDepartments();
-  }, [jobs]);
+  }, []); // Remove jobs dependency to prevent infinite loop
 
   // Fetch locations from API
   useEffect(() => {
@@ -293,14 +324,16 @@ const JobBoard: React.FC = () => {
       } catch (err) {
         console.error('Error fetching locations:', err);
         // Fallback to client-side filtering if API fails
-        const uniqueLocations = Array.from(new Set(jobs.map(job => job.location)));
-        setLocations(['All', ...uniqueLocations]);
+        if (jobs.length > 0) {
+          const uniqueLocations = Array.from(new Set(jobs.map(job => job.location)));
+          setLocations(['All', ...uniqueLocations]);
+        }
         setLoadingDropdowns(prev => ({ ...prev, locations: false }));
       }
     };
     
     fetchLocations();
-  }, [jobs]);
+  }, []); // Remove jobs dependency to prevent infinite loop
 
   // Fetch job types from API
   useEffect(() => {
@@ -313,14 +346,16 @@ const JobBoard: React.FC = () => {
       } catch (err) {
         console.error('Error fetching job types:', err);
         // Fallback to client-side filtering if API fails
-        const uniqueTypes = Array.from(new Set(jobs.map(job => job.type)));
-        setTypes(['All', ...uniqueTypes]);
+        if (jobs.length > 0) {
+          const uniqueTypes = Array.from(new Set(jobs.map(job => job.type)));
+          setTypes(['All', ...uniqueTypes]);
+        }
         setLoadingDropdowns(prev => ({ ...prev, types: false }));
       }
     };
     
     fetchJobTypes();
-  }, [jobs]);
+  }, []); // Remove jobs dependency to prevent infinite loop
 
   // Fetch job statuses
   useEffect(() => {
@@ -396,16 +431,45 @@ const JobBoard: React.FC = () => {
   // Delete job
   const handleDeleteJob = (jobId: number, e: React.MouseEvent) => {
     e.stopPropagation();
+    const job = jobs.find(job => job.id === jobId);
+    
+    // Only allow deletion of Draft and Closed jobs
+    if (job && job.status === 'Active') {
+      setSnackbarMessage('Active jobs cannot be deleted. Please close the job first.');
+      setSnackbarOpen(true);
+      return;
+    }
+    
+    if (job && job.status === 'On-Hold') {
+      setSnackbarMessage('On-Hold jobs cannot be deleted. Please close the job first.');
+      setSnackbarOpen(true);
+      return;
+    }
+    
     setJobToDelete(jobId);
     setDeleteDialogOpen(true);
   };
 
   // Confirm job deletion
-  const confirmDeleteJob = () => {
+  const confirmDeleteJob = async () => {
     if (jobToDelete) {
-      setJobs(jobs.filter(job => job.id !== jobToDelete));
-      setDeleteDialogOpen(false);
-      setJobToDelete(null);
+      try {
+        // Use the API service to delete the job
+        await jobsApi.deleteJob(jobToDelete);
+        
+        // Update local state after successful deletion
+        setJobs(jobs.filter(job => job.id !== jobToDelete));
+        setSnackbarMessage('Job deleted successfully');
+        setSnackbarOpen(true);
+      } catch (error) {
+        // Show error message from API
+        setSnackbarMessage(error.message || 'Failed to delete job');
+        setSnackbarOpen(true);
+      } finally {
+        // Close the dialog regardless of outcome
+        setDeleteDialogOpen(false);
+        setJobToDelete(null);
+      }
     }
   };
 
@@ -448,33 +512,56 @@ const JobBoard: React.FC = () => {
 
   // Validate form fields
   const validateForm = (asDraft: boolean = false) => {
-    // For drafts, only title is required
+    // For draft jobs, minimal validation is required
     if (asDraft) {
-      const titleError = !newJobForm.title;
-      setFormErrors({
-        ...formErrors,
-        title: titleError
-      });
-      return !titleError;
+      // At minimum, require a title for drafts
+      if (!newJobForm.title || newJobForm.title.trim() === '') {
+        setFormErrors(prev => ({ ...prev, title: true }));
+        return false;
+      }
+      return true;
     }
-
-    // For publishing, all fields are required
+    
+    // For publishing, perform full validation
     const errors = {
-      title: !newJobForm.title,
-      department: !newJobForm.department,
-      location: !newJobForm.location,
-      description: !newJobForm.description,
-      responsibilities: !newJobForm.responsibilities,
-      requirements: !newJobForm.requirements,
-      experience: !newJobForm.experience,
-      skills: !newJobForm.skills,
-      salary: !newJobForm.salary,
-      benefits: !newJobForm.benefits
+      title: !newJobForm.title || newJobForm.title.trim() === '',
+      department: !newJobForm.department || newJobForm.department.trim() === '',
+      location: !newJobForm.location || newJobForm.location.trim() === '',
+      description: !newJobForm.description || newJobForm.description.trim() === '',
+      responsibilities: !newJobForm.responsibilities || newJobForm.responsibilities.trim() === '',
+      requirements: !newJobForm.requirements || newJobForm.requirements.trim() === '',
+      experience: false, // Optional
+      skills: false, // Optional
+      salary: false, // Optional
+      benefits: false // Optional
     };
     
     setFormErrors(errors);
-    return !Object.values(errors).some(error => error);
+    
+    // Check if any required fields are missing
+    return !Object.values(errors).some(error => error === true);
   };
+
+  // Memoize form validity to avoid unnecessary calls to validateForm during render
+  const isFormValid = useMemo(() => {
+    const errors = {
+      title: !newJobForm.title || newJobForm.title.trim() === '',
+      department: !newJobForm.department || newJobForm.department.trim() === '',
+      location: !newJobForm.location || newJobForm.location.trim() === '',
+      description: !newJobForm.description || newJobForm.description.trim() === '',
+      responsibilities: !newJobForm.responsibilities || newJobForm.responsibilities.trim() === '',
+      requirements: !newJobForm.requirements || newJobForm.requirements.trim() === '',
+    };
+    
+    return !Object.values(errors).some(error => error === true);
+  }, [
+    newJobForm.title,
+    newJobForm.department,
+    newJobForm.location,
+    newJobForm.description,
+    newJobForm.responsibilities,
+    newJobForm.requirements
+  ]);
 
   // Handle tab change
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -483,7 +570,16 @@ const JobBoard: React.FC = () => {
 
   // Handle opening the new job dialog
   const handleOpenNewJobDialog = () => {
-    // Reset form when opening the dialog
+    // Reset form first
+    resetForm();
+    setEditMode(false);
+    setEditJobId(null);
+    setActiveTab(0);
+    setNewJobDialogOpen(true);
+  };
+  
+  // Reset form function
+  const resetForm = () => {
     setNewJobForm({
       title: '',
       department: '',
@@ -510,17 +606,14 @@ const JobBoard: React.FC = () => {
       salary: false,
       benefits: false
     });
-    setEditMode(false);
-    setEditJobId(null);
     setActiveTab(0);
-    setNewJobDialogOpen(true);
   };
 
   // Edit an existing job
   const handleEditJob = (job: Job, e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // Only allow editing of draft jobs
+    // Only allow editing draft jobs
     if (job.status !== 'Draft') {
       setSnackbarMessage('Only draft jobs can be edited. Published jobs cannot be modified.');
       setSnackbarOpen(true);
@@ -561,93 +654,92 @@ const JobBoard: React.FC = () => {
 
   // Handle creating a new job
   const handleCreateNewJob = (asDraft: boolean = false) => {
-    if (!validateForm(asDraft)) {
-      return;
-    }
-
-    // Important - split the text inputs on newlines for requirements and responsibilities
-    const newJob: Job = {
-      id: Math.floor(Math.random() * 10000),
-      title: newJobForm.title,
-      department: newJobForm.department || '',
-      location: newJobForm.location || '',
-      type: newJobForm.type || 'Full-time',
-      experience: newJobForm.experience || '',
-      salary: newJobForm.salary || '',
-      description: newJobForm.description || '',
-      responsibilities: newJobForm.responsibilities 
-        ? newJobForm.responsibilities.split('\n').filter(item => item.trim() !== '')
-        : [],
-      requirements: newJobForm.requirements
-        ? newJobForm.requirements.split('\n').filter(item => item.trim() !== '')
-        : [],
-      benefits: newJobForm.benefits || '',
-      postedDate: new Date().toISOString().substring(0, 10),
-      status: asDraft ? 'Draft' : 'Active',
-      applicants: 0,
-      isFeatured: newJobForm.isFeatured || false
-    };
-
+    // Validate form based on whether saving as draft or publishing
+    const isValid = validateForm(asDraft);
+    if (!isValid) return;
+    
+    // If editing an existing job
     if (editMode && editJobId) {
-      // Update existing job
-      const jobToEdit = jobs.find(job => job.id === editJobId);
+      // Get the existing job
+      const existingJob = jobs.find(job => job.id === editJobId);
       
-      // Double-check that we're only editing a draft job
-      if (jobToEdit && jobToEdit.status !== 'Draft' && !asDraft) {
-        setSnackbarMessage('Only draft jobs can be published. This job has already been published.');
+      // Only allow editing draft jobs
+      if (existingJob && existingJob.status !== 'Draft') {
+        setSnackbarMessage('Only draft jobs can be edited. Published jobs cannot be modified.');
         setSnackbarOpen(true);
         return;
       }
       
-      setJobs(jobs.map(job => {
-        if (job.id === editJobId) {
-          return {
-            ...job,
-            title: newJob.title,
-            location: newJob.location,
-            department: newJob.department,
-            type: newJob.type,
-            experience: newJob.experience || 'Not specified',
-            salary: newJob.salary || 'Not specified',
-            description: newJob.description,
-            responsibilities: newJob.responsibilities,
-            requirements: newJob.requirements,
-            benefits: newJob.benefits,
-            status: asDraft ? 'Draft' : 'Active',
-            isFeatured: newJob.isFeatured
-          };
-        }
-        return job;
-      }));
+      const updatedJob: Partial<Job> = {
+        title: newJobForm.title,
+        department: newJobForm.department,
+        location: newJobForm.location,
+        type: newJobForm.type,
+        experience: newJobForm.experience,
+        salary: newJobForm.salary,
+        description: newJobForm.description,
+        responsibilities: newJobForm.responsibilities.split('\n').filter(item => item.trim() !== ''),
+        requirements: newJobForm.requirements.split('\n').filter(item => item.trim() !== ''),
+        benefits: newJobForm.benefits,
+        isFeatured: newJobForm.isFeatured,
+        status: asDraft ? 'Draft' : 'Active'
+      };
       
-      setSnackbarMessage(asDraft ? 'Job saved as draft' : 'Job published successfully!');
+      // Update the job in state
+      setJobs(prevJobs =>
+        prevJobs.map(job =>
+          job.id === editJobId ? { ...job, ...updatedJob } : job
+        )
+      );
+      
+      const message = asDraft 
+        ? `Job "${newJobForm.title}" saved as draft.` 
+        : `Job "${newJobForm.title}" updated and published.`;
+      setSnackbarMessage(message);
+      setSnackbarOpen(true);
     } else {
-      // Create new job
-    setJobs([...jobs, newJob]);
-      setSnackbarMessage(asDraft ? 'Job saved as draft' : 'New job posting created successfully!');
+      // Create a new job
+      const newJob: Omit<Job, 'id'> = {
+        title: newJobForm.title || 'Untitled Draft Job',
+        department: newJobForm.department || 'Unspecified',
+        location: newJobForm.location || 'Unspecified',
+        type: newJobForm.type || 'Full-time',
+        experience: newJobForm.experience || '',
+        salary: newJobForm.salary || '',
+        postedDate: new Date().toISOString().split('T')[0],
+        description: newJobForm.description || '',
+        responsibilities: newJobForm.responsibilities
+          ? newJobForm.responsibilities.split('\n').filter(item => item.trim() !== '')
+          : [],
+        requirements: newJobForm.requirements
+          ? newJobForm.requirements.split('\n').filter(item => item.trim() !== '')
+          : [],
+        benefits: newJobForm.benefits || '',
+        status: asDraft ? 'Draft' : 'Active',
+        applicants: 0,
+        isFeatured: newJobForm.isFeatured || false,
+        isBookmarked: false
+      };
+      
+      // In a real app, this would be an API call
+      const maxId = jobs.length > 0 ? Math.max(...jobs.map(job => job.id)) : 0;
+      const jobWithId = { ...newJob, id: maxId + 1 } as Job;
+      
+      setJobs(prevJobs => [...prevJobs, jobWithId]);
+      
+      // Set a success message
+      const message = asDraft 
+        ? `Job "${newJobForm.title || 'Untitled Job'}" saved as draft.` 
+        : `Job "${newJobForm.title}" published successfully.`;
+      setSnackbarMessage(message);
+      setSnackbarOpen(true);
     }
     
+    // Close the dialog and reset the form
     setNewJobDialogOpen(false);
-    setSnackbarOpen(true);
-    
-    // Reset form
-    setNewJobForm({
-      title: '',
-      department: '',
-      location: '',
-      type: 'Full-time',
-      description: '',
-      responsibilities: '',
-      requirements: '',
-      experience: '',
-      skills: '',
-      salary: '',
-      benefits: '',
-      isFeatured: false
-    });
+    resetForm();
     setEditMode(false);
     setEditJobId(null);
-    setActiveTab(0);
   };
 
   // Navigation to next tab
@@ -1211,6 +1303,281 @@ const JobBoard: React.FC = () => {
     ));
   };
 
+  // Render job cards
+  const renderJobCard = (job: Job) => {
+    const daysAgo = getDaysAgo(job.postedDate);
+    const isJobBookmarked = job.isBookmarked || false;
+    
+    return (
+      <Card 
+        key={job.id} 
+        sx={{ 
+          mb: 2,
+          position: 'relative',
+          borderLeft: job.isFeatured ? '4px solid #ffc107' : 'none',
+          opacity: job.status === 'Closed' ? 0.7 : 1
+        }}
+      >
+        {job.status === 'Draft' && (
+          <Chip 
+            label="DRAFT" 
+            color="warning" 
+            size="small" 
+            sx={{ 
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              fontWeight: 'bold',
+              zIndex: 1
+            }} 
+          />
+        )}
+        
+        <CardActionArea onClick={() => handleViewJobDetails(job)}>
+          <CardContent>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <Typography variant="h6" component="div">
+                {job.title}
+              </Typography>
+              <Box>
+                {job.status !== 'Draft' && (
+                  <Chip 
+                    label={job.status} 
+                    color={
+                      job.status === 'Active' ? 'success' : 
+                      job.status === 'On-Hold' ? 'warning' :
+                      job.status === 'Draft' ? 'default' :
+                      'error'
+                    }
+                    size="small"
+                    sx={{ mr: 1 }}
+                  />
+                )}
+                {job.isFeatured && (
+                  <Chip 
+                    icon={<StarIcon fontSize="small" sx={{ 
+                      color: amber[500],
+                      animation: 'pulse 1.5s infinite',
+                      '@keyframes pulse': {
+                        '0%': { opacity: 0.7 },
+                        '50%': { opacity: 1 },
+                        '100%': { opacity: 0.7 },
+                      }
+                    }} />} 
+                    label="Featured" 
+                    size="small" 
+                    sx={{ 
+                      background: `linear-gradient(45deg, ${deepPurple[700]} 0%, ${purple[500]} 100%)`,
+                      color: '#ffffff',
+                      fontWeight: 'bold',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                      '&:hover': {
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                      },
+                      transition: 'all 0.3s ease',
+                      '& .MuiChip-label': {
+                        color: '#ffffff'
+                      },
+                      '& .MuiChip-icon': {
+                        color: amber[500]
+                      }
+                    }}
+                  />
+                )}
+              </Box>
+            </Box>
+            
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1, color: 'text.secondary' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <LocationIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <Typography variant="body2">{job.location}</Typography>
+              </Box>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <BusinessIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <Typography variant="body2">{job.department}</Typography>
+              </Box>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <SalaryIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <Typography variant="body2">{job.salary || 'Not specified'}</Typography>
+              </Box>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <PeopleIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <Typography variant="body2">{job.applicants} applicants</Typography>
+              </Box>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <DateIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <Typography variant="body2">
+                  {job.status === 'Draft' ? 'Not published yet' : (
+                    <>
+                      Posted on {formatDate(job.postedDate)} <span style={{ color: '#757575', fontSize: '0.9em' }}>({daysAgo} {daysAgo === 1 ? 'day' : 'days'} ago)</span>
+                    </>
+                  )}
+                </Typography>
+              </Box>
+            </Box>
+            
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 1 }}>
+              {job.description.length > 120 ? `${job.description.substring(0, 120)}...` : job.description}
+            </Typography>
+          </CardContent>
+        </CardActionArea>
+        
+        <CardActions>
+          <ButtonGroup variant="text" size="small">
+            {job.status === 'Draft' ? (
+              <>
+                <Button 
+                  startIcon={<EditIcon />}
+                  onClick={(e) => handleEditJob(job, e)}
+                >
+                  Edit
+                </Button>
+                <Button 
+                  startIcon={<PlayArrowIcon />}
+                  onClick={(e) => handlePublishDraft(job, e)}
+                  color="success"
+                >
+                  Publish
+                </Button>
+              </>
+            ) : (
+              <Button 
+                startIcon={<VisibilityIcon />}
+                onClick={() => handleViewJobDetails(job)}
+              >
+                View
+              </Button>
+            )}
+            
+            {job.status === 'Active' ? (
+              <>
+                <Button 
+                  startIcon={<PauseIcon />}
+                  onClick={(e) => toggleJobStatus(job.id, 'On-Hold', e)}
+                  color="warning"
+                >
+                  Pause
+                </Button>
+                <Button 
+                  startIcon={<BlockIcon />}
+                  onClick={(e) => toggleJobStatus(job.id, 'Closed', e)}
+                  color="error"
+                >
+                  Close
+                </Button>
+              </>
+            ) : job.status === 'On-Hold' ? (
+              <>
+                <Button 
+                  startIcon={<PlayArrowIcon />}
+                  onClick={(e) => toggleJobStatus(job.id, 'Active', e)}
+                  color="success"
+                >
+                  Activate
+                </Button>
+                <Button 
+                  startIcon={<BlockIcon />}
+                  onClick={(e) => toggleJobStatus(job.id, 'Closed', e)}
+                  color="error"
+                >
+                  Close
+                </Button>
+              </>
+            ) : null}
+            
+            <Button 
+              startIcon={<ShareIcon />}
+              onClick={(e) => handleOpenShareDialog(job, e)}
+            >
+              Share
+            </Button>
+            
+            <IconButton 
+              size="small" 
+              onClick={(e) => handleToggleBookmark(job.id, e)}
+              color={isJobBookmarked ? "primary" : "default"}
+              aria-label={isJobBookmarked ? "Remove bookmark" : "Bookmark job"}
+            >
+              {isJobBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+            </IconButton>
+          </ButtonGroup>
+          
+          <Box sx={{ flexGrow: 1 }} />
+          
+          <Tooltip title={job.isFeatured ? "Remove from featured" : "Mark as featured"}>
+            <IconButton 
+              size="small" 
+              onClick={(e) => toggleJobFeatured(job.id, e)}
+              sx={{ 
+                color: job.isFeatured ? amber[500] : 'inherit',
+                transition: 'transform 0.2s ease, color 0.2s ease',
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                  color: job.isFeatured ? amber[600] : amber[300]
+                }
+              }}
+            >
+              {job.isFeatured ? <StarIcon /> : <StarBorderIcon />}
+            </IconButton>
+          </Tooltip>
+          
+          <Tooltip title="Delete job">
+            <IconButton 
+              size="small" 
+              onClick={(e) => handleDeleteJob(job.id, e)}
+              color="error"
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        </CardActions>
+      </Card>
+    );
+  };
+
+  // Add new method to publish a draft job
+  const handlePublishDraft = (job: Job, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
+    
+    // In a real application, this would be an API call
+    // Check if the job is complete enough to be published
+    const requiredFields = ['title', 'department', 'location', 'type', 'description', 'responsibilities', 'requirements'];
+    const missingFields = requiredFields.filter(field => 
+      !job[field as keyof Job] || 
+      (Array.isArray(job[field as keyof Job]) && (job[field as keyof Job] as any[]).length === 0) ||
+      (typeof job[field as keyof Job] === 'string' && (job[field as keyof Job] as string).trim() === '')
+    );
+    
+    if (missingFields.length > 0) {
+      setSnackbarMessage(`Cannot publish incomplete job. Missing: ${missingFields.join(', ')}`);
+      setSnackbarOpen(true);
+      
+      // Open the edit form to allow the user to complete the job
+      handleEditJob(job, e);
+      return;
+    }
+    
+    // Update the job status to Active and set posted date to today
+    setJobs(prevJobs =>
+      prevJobs.map(j =>
+        j.id === job.id
+          ? {
+              ...j,
+              status: 'Active',
+              postedDate: new Date().toISOString().split('T')[0]
+            }
+          : j
+      )
+    );
+    
+    setSnackbarMessage(`Job "${job.title}" has been published successfully.`);
+    setSnackbarOpen(true);
+  };
+
   return (
     <Box sx={{ padding: 3 }}>
       {loading ? (
@@ -1337,242 +1704,7 @@ const JobBoard: React.FC = () => {
             {filteredJobs.length > 0 ? (
               filteredJobs.map(job => (
                 <Grid item xs={12} md={6} lg={4} key={job.id}>
-                  <Card 
-                    elevation={job.isFeatured ? 3 : 1}
-                    sx={{ 
-                      height: '100%', 
-                      display: 'flex', 
-                      flexDirection: 'column',
-                      position: 'relative',
-                      border: job.isFeatured ? '1px solid #f0c14b' : 'none',
-                      opacity: job.status === 'Draft' ? 0.7 : 1
-                    }}
-                  >
-                    {job.isFeatured && (
-                      <Chip 
-                        label="Featured" 
-                        color="primary" 
-                        size="small" 
-                        sx={{ 
-                          position: 'absolute', 
-                          top: 10, 
-                          right: 10,
-                          bgcolor: '#f0c14b',
-                          color: 'black'
-                        }} 
-                      />
-                    )}
-                    {job.status === 'Draft' && (
-                      <Chip 
-                        label="Draft" 
-                        color="info" 
-                        size="small" 
-                        sx={{ 
-                          position: 'absolute', 
-                          top: job.isFeatured ? 40 : 10, 
-                          right: 10
-                        }} 
-                      />
-                    )}
-                    <CardActionArea onClick={() => handleViewJobDetails(job)}>
-                      <CardContent sx={{ flexGrow: 1, pt: 3 }}>
-                        <Box display="flex" justifyContent="space-between" alignItems="start">
-                          <Typography variant="h6" gutterBottom>{job.title}</Typography>
-                        </Box>
-                        
-                        <Box display="flex" alignItems="center" mb={1}>
-                          <LocationIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {job.location}
-                          </Typography>
-                        </Box>
-                        
-                        <Box display="flex" alignItems="center" mb={1}>
-                          <BusinessIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {job.department}
-                          </Typography>
-                        </Box>
-                        
-                        <Box display="flex" alignItems="center" mb={1}>
-                          <SalaryIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {job.salary}
-                          </Typography>
-                        </Box>
-                        
-                        <Divider sx={{ my: 1 }} />
-                        
-                        <Typography variant="body2" color="text.secondary" paragraph sx={{ 
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical',
-                          mb: 1
-                        }}>
-                          {job.description}
-                        </Typography>
-                        
-                        <Stack 
-                          direction="row" 
-                          spacing={1} 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                          }}
-                        >
-                          <Chip 
-                            label={job.type} 
-                            size="small" 
-                            variant="outlined" 
-                          />
-                          <Chip 
-                            label={`${job.experience}`} 
-                            size="small" 
-                            variant="outlined" 
-                          />
-                          <ButtonGroup 
-                            size="small" 
-                            aria-label="job status" 
-                            sx={{ mb: 1 }}
-                            disableRipple
-                          >
-                            <Button 
-                              size="small"
-                              variant={job.status === 'Active' ? 'contained' : 'outlined'}
-                              color="success"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                toggleJobStatus(job.id, 'Active', e);
-                              }}
-                              sx={{ fontSize: '0.7rem', py: 0 }}
-                              disabled={job.status === 'Draft'}
-                              disableRipple
-                            >
-                              Active
-                            </Button>
-                            <Button 
-                              size="small"
-                              variant={job.status === 'On-Hold' ? 'contained' : 'outlined'}
-                              color="warning"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                toggleJobStatus(job.id, 'On-Hold', e);
-                              }}
-                              sx={{ fontSize: '0.7rem', py: 0 }}
-                              disabled={job.status === 'Draft'}
-                              disableRipple
-                            >
-                              On-Hold
-                            </Button>
-                            <Button 
-                              size="small"
-                              variant={job.status === 'Closed' ? 'contained' : 'outlined'}
-                              color="error"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                toggleJobStatus(job.id, 'Closed', e);
-                              }}
-                              sx={{ fontSize: '0.7rem', py: 0 }}
-                              disabled={job.status === 'Draft'}
-                              disableRipple
-                            >
-                              Closed
-                            </Button>
-                          </ButtonGroup>
-                        </Stack>
-
-                        <Box display="flex" justifyContent="space-between" alignItems="center">
-                          <Box display="flex" alignItems="center">
-                            <PeopleIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
-                            <Typography variant="body2" color="text.secondary">
-                              {job.applicants} applicants
-                            </Typography>
-                          </Box>
-                          
-                          <Box display="flex" alignItems="center">
-                            <DateIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
-                            <Typography variant="body2" color="text.secondary">
-                              Posted: {new Date(job.postedDate).toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric'
-                              })}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </CardContent>
-                    </CardActionArea>
-                    
-                    <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
-                      <Button 
-                        size="small" 
-                        color="primary" 
-                        startIcon={<VisibilityIcon />}
-                        onClick={() => handleViewJobDetails(job)}
-                      >
-                        View Details
-                      </Button>
-                      
-                      <Box>
-                        <Tooltip title={job.isBookmarked ? "Remove Bookmark" : "Bookmark"}>
-                          <IconButton 
-                            size="small" 
-                            onClick={(e) => handleToggleBookmark(job.id, e)}
-                            color={job.isBookmarked ? "primary" : "default"}
-                          >
-                            {job.isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-                          </IconButton>
-                        </Tooltip>
-                        
-                        <Tooltip title={job.isFeatured ? "Remove Featured" : "Mark as Featured"}>
-                          <IconButton 
-                            size="small"
-                            color={job.isFeatured ? "warning" : "default"}
-                            onClick={(e) => toggleJobFeatured(job.id, e)}
-                          >
-                            {job.isFeatured ? <StarIcon /> : <StarBorderIcon />}
-                          </IconButton>
-                        </Tooltip>
-
-                        {job.status === 'Draft' && (
-                          <Tooltip title="Edit Draft">
-                            <IconButton 
-                              size="small"
-                              color="primary"
-                              onClick={(e) => handleEditJob(job, e)}
-                            >
-                              <EditIcon />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                        
-                        <Tooltip title="Share">
-                          <IconButton 
-                            size="small"
-                            onClick={(e) => handleOpenShareDialog(job, e)}
-                            disabled={job.status === 'Draft'}
-                          >
-                            <ShareIcon />
-                          </IconButton>
-                        </Tooltip>
-                        
-                        <Tooltip title="Delete">
-                          <IconButton 
-                            size="small"
-                            color="error"
-                            onClick={(e) => handleDeleteJob(job.id, e)}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                    </CardActions>
-                  </Card>
+                  {renderJobCard(job)}
                 </Grid>
               ))
             ) : (
@@ -1678,6 +1810,13 @@ const JobBoard: React.FC = () => {
                         <Box display="flex" alignItems="center" mb={1}>
                           <Typography variant="body2">
                             <strong>Status:</strong> {selectedJob.status}
+                          </Typography>
+                        </Box>
+                        
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <DateIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                          <Typography variant="body2">
+                            <strong>Posted:</strong> {selectedJob.status === 'Draft' ? 'Not published yet' : formatDate(selectedJob.postedDate)}
                           </Typography>
                         </Box>
                       </Paper>
@@ -1850,13 +1989,51 @@ const JobBoard: React.FC = () => {
                         <Switch
                           checked={newJobForm.isFeatured}
                           onChange={handleSwitchChange}
-                          color="primary"
+                          sx={{
+                            '& .MuiSwitch-switchBase.Mui-checked': {
+                              color: amber[500],
+                              '&:hover': {
+                                backgroundColor: alpha(amber[500], 0.1),
+                              }
+                            },
+                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                              backgroundColor: deepPurple[500],
+                            },
+                            '& .MuiSwitch-thumb': {
+                              boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
+                            }
+                          }}
                         />
                       }
                       label={
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          {newJobForm.isFeatured ? <StarIcon color="warning" sx={{ mr: 1 }} /> : <StarBorderIcon sx={{ mr: 1 }} />}
-                          {newJobForm.isFeatured ? "Featured Job" : "Standard Job"}
+                          {newJobForm.isFeatured ? (
+                            <StarIcon sx={{ 
+                              mr: 1, 
+                              color: amber[500],
+                              animation: 'pulse 1.5s infinite',
+                              '@keyframes pulse': {
+                                '0%': { opacity: 0.7 },
+                                '50%': { opacity: 1 },
+                                '100%': { opacity: 0.7 },
+                              }
+                            }} />
+                          ) : (
+                            <StarBorderIcon sx={{ mr: 1 }} />
+                          )}
+                          <Typography 
+                            variant="body1" 
+                            sx={{ 
+                              fontWeight: newJobForm.isFeatured ? 'bold' : 'normal',
+                              background: newJobForm.isFeatured ? 
+                                `linear-gradient(45deg, ${deepPurple[700]} 30%, ${purple[500]} 90%)` : 
+                                'inherit',
+                              WebkitBackgroundClip: newJobForm.isFeatured ? 'text' : 'inherit',
+                              WebkitTextFillColor: newJobForm.isFeatured ? 'transparent' : 'inherit',
+                            }}
+                          >
+                            {newJobForm.isFeatured ? "Featured Job" : "Standard Job"}
+                          </Typography>
                         </Box>
                       }
                     />
@@ -2070,45 +2247,131 @@ const JobBoard: React.FC = () => {
               )}
             </Box>
           </DialogContent>
-          <DialogActions sx={{ px: 3, py: 2, justifyContent: 'space-between' }}>
-            <Box>
-              {activeTab > 0 && (
-                <Button onClick={handlePrevTab} sx={{ mr: 1 }}>
-                  Previous
-                </Button>
-              )}
-              <Button 
-                variant="outlined" 
-                color="primary"
-                onClick={() => handleCreateNewJob(true)}
-              >
-                {editMode ? 'Update as Draft' : 'Save as Draft'}
-              </Button>
-            </Box>
+          <DialogActions sx={{ 
+            px: 3, 
+            py: 2, 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            borderTop: '1px solid rgba(0, 0, 0, 0.12)' 
+          }}>
             <Box>
               <Button 
                 onClick={() => setNewJobDialogOpen(false)} 
-                sx={{ mr: 1 }}
+                color="inherit"
               >
                 Cancel
               </Button>
-              {activeTab < 3 ? (
-            <Button 
-              variant="contained" 
-              color="primary"
-                  onClick={handleNextTab}
-            >
-                  Next
-            </Button>
-              ) : (
+            </Box>
+
+            <Box display="flex" gap={1}>
+              {activeTab > 0 && (
                 <Button 
-                  variant="contained" 
-                  color="primary"
-                  onClick={() => handleCreateNewJob(false)}
+                  onClick={handlePrevTab}
+                  startIcon={<KeyboardArrowLeft />}
+                  variant="outlined"
                 >
-                  {editMode ? 'Update Job' : 'Publish Job'}
+                  Previous
                 </Button>
               )}
+              
+              {activeTab < 3 && (
+                <Button 
+                  onClick={handleNextTab}
+                  endIcon={<KeyboardArrowRight />}
+                  variant="outlined"
+                >
+                  Next
+                </Button>
+              )}
+              
+              {/* Draft and Publish buttons */}
+              <Box sx={{ ml: 1 }}>
+                <ButtonGroup variant="contained">
+                  <Button
+                    onClick={() => handleCreateNewJob(true)}
+                    startIcon={<CloudUploadIcon 
+                      sx={{ 
+                        animation: 'float 3s ease-in-out infinite',
+                        '@keyframes float': {
+                          '0%, 100%': { transform: 'translateY(0)' },
+                          '50%': { transform: 'translateY(-3px)' }
+                        }
+                      }}
+                    />}
+                    sx={{ 
+                      background: `linear-gradient(45deg, ${amber[700]} 0%, ${amber[500]} 100%)`,
+                      color: 'white',
+                      fontWeight: 'bold',
+                      boxShadow: '0 3px 5px 2px rgba(255, 193, 7, 0.3)',
+                      '&:hover': {
+                        background: `linear-gradient(45deg, ${amber[800]} 0%, ${amber[600]} 100%)`,
+                        boxShadow: '0 4px 8px 2px rgba(255, 193, 7, 0.4)',
+                        transform: 'translateY(-2px)'
+                      },
+                      transition: 'all 0.3s ease',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: '-100%',
+                        width: '100%',
+                        height: '100%',
+                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                        transition: '0.5s',
+                      },
+                      '&:hover::after': {
+                        left: '100%'
+                      }
+                    }}
+                  >
+                    Save as Draft
+                  </Button>
+                  <Button
+                    onClick={() => handleCreateNewJob(false)}
+                    startIcon={<PublishIcon 
+                      sx={{ 
+                        animation: 'rise 2s ease-in-out infinite',
+                        '@keyframes rise': {
+                          '0%, 100%': { transform: 'translateY(0)' },
+                          '50%': { transform: 'translateY(-3px)' }
+                        }
+                      }}
+                    />}
+                    sx={{ 
+                      background: 'linear-gradient(45deg, #2e7d32 0%, #4caf50 100%)',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      boxShadow: '0 3px 5px 2px rgba(76, 175, 80, 0.3)',
+                      '&:hover': {
+                        background: 'linear-gradient(45deg, #1b5e20 0%, #388e3c 100%)',
+                        boxShadow: '0 4px 8px 2px rgba(76, 175, 80, 0.4)',
+                        transform: 'translateY(-2px)'
+                      },
+                      transition: 'all 0.3s ease',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: '-100%',
+                        width: '100%',
+                        height: '100%',
+                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                        transition: '0.5s',
+                      },
+                      '&:hover::after': {
+                        left: '100%'
+                      }
+                    }}
+                    disabled={!isFormValid}
+                  >
+                    Publish Job
+                  </Button>
+                </ButtonGroup>
+              </Box>
             </Box>
           </DialogActions>
         </Dialog>

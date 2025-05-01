@@ -111,4 +111,104 @@ docs/
 ## 📝 Contributing to Documentation
 - [Style Guide](/docs/guides/contributing/style-guide.md)
 - [Documentation Templates](/docs/guides/contributing/templates.md)
-- [Contribution Process](/docs/guides/contributing/guidelines.md) 
+- [Contribution Process](/docs/guides/contributing/guidelines.md)
+
+# Documentation Navigation Map
+
+This document provides a comprehensive overview of all documentation resources available for the ATS application.
+
+## Quick Start
+
+If you're new to the documentation:
+
+1. [User Guide](./guides/USER_GUIDE.md) - Comprehensive user guide for all roles
+2. [Quick Start Guide](./guides/quick-start.md) - Get up and running quickly
+3. [Feature Overview](./features/README.md) - Explore all available features
+4. [API Documentation](./api/README.md) - Understanding the API architecture
+5. [Component Library](./components/README.md) - UI component documentation
+
+## Documentation Structure
+
+The documentation is organized into the following sections:
+
+### User Guides
+
+- [Complete User Guide](./guides/USER_GUIDE.md) - Comprehensive guide for all users
+- [Quick Start Guide](./guides/quick-start.md) - Get up and running quickly
+- [Installation Guide](./guides/installation.md) - Setup instructions
+- [Configuration Guide](./guides/configuration.md) - Configuration options
+
+Role-specific guides:
+- [Administrator Guide](./guides/admin/admin-guide.md)
+- [Recruiter Guide](./guides/recruiter/recruiter-guide.md)
+- [Hiring Manager Guide](./guides/hiring-manager/hiring-manager-guide.md)
+- [Interviewer Guide](./guides/interviewer/interviewer-guide.md)
+
+### Feature Documentation
+
+Core Features:
+- [Job Draft & Publishing](./features/job-draft-publishing.md) - Draft and publishing system
+- [Offline Support](./features/OFFLINE_CAPABILITIES.md) - Working without internet
+- [Authentication & Security](./features/auth-flow.md) - Identity and access management
+- [Candidate Pipeline](./features/candidate-pipeline.md) - Applicant tracking workflow
+- [Interview Management](./features/structured-interviews.md) - Structured interview process
+
+Advanced Features:
+- [Analytics Dashboard](./features/analytics-dashboard.md) - Recruitment metrics
+- [Job Board Integration](./features/job-board-integration.md) - External job posting
+- [Document Sharing](./features/document-sharing.md) - File management
+- [Dynamic Forms](./features/dynamic-forms.md) - Custom form builder
+
+### API Documentation
+
+- [API Overview](./api/README.md) - API architecture and principles
+- [Authentication APIs](./api/endpoints/auth/login.md) - Identity management
+- [Job APIs](./api/endpoints/jobs/create.md) - Job management
+- [Candidate APIs](./api/endpoints/candidates/create.md) - Candidate management
+- [Interview APIs](./api/endpoints/interviews/schedule.md) - Interview scheduling
+
+### Component Documentation
+
+- [Component Overview](./components/README.md) - Component architecture
+- [Layout Components](./components/layout/Layout.md) - Page structure
+- [Form Components](./components/form/FormField.md) - Data collection
+- [Interview Components](./components/interview/StructuredInterviewKit.md) - Interview tools
+- [Analytics Components](./components/analytics/ReportBuilder.md) - Data visualization
+
+### Technical Documentation
+
+- [Database Structure](./technical/database-structure.md) - Data model
+- [Security Implementation](./technical/security.md) - Security measures
+- [Performance Optimization](./technical/performance.md) - Speed and reliability
+- [Integration Framework](./technical/integrations.md) - Third-party connections
+
+## Feature Guides by User Role
+
+### For Recruiters
+
+- [Job Creation & Management](./features/job-draft-publishing.md) - Create and manage job listings
+- [Candidate Sourcing](./features/candidate-pipeline.md#sourcing) - Find qualified candidates
+- [Interview Scheduling](./features/interview-scheduling.md) - Coordinate interviews
+- [Applicant Tracking](./features/candidate-pipeline.md) - Track candidate progress
+
+### For Hiring Managers
+
+- [Job Requisition](./features/job-distribution.md#requisition) - Request new positions
+- [Candidate Review](./features/candidate-pipeline.md#review) - Evaluate applicants
+- [Team Collaboration](./features/team-messaging.md) - Collaborate with recruiters
+- [Hiring Decisions](./features/decision-making.md) - Select final candidates
+
+### For Administrators
+
+- [User Management](./guides/admin/user-management.md) - Manage system users
+- [System Configuration](./guides/admin/system-config.md) - Configure system settings
+- [Integration Setup](./guides/admin/integration-setup.md) - Connect external services
+- [Security Controls](./guides/admin/security-controls.md) - Manage security settings
+
+## Common Tasks
+
+- [Creating a Job Posting](./guides/USER_GUIDE.md#creating-a-new-job-posting) - Post new positions
+- [Managing Job Drafts](./features/job-draft-publishing.md#draft-mode) - Work with draft jobs
+- [Reviewing Applications](./guides/USER_GUIDE.md#candidate-management) - Process applications
+- [Scheduling Interviews](./guides/USER_GUIDE.md#interview-management) - Set up interviews
+- [Generating Reports](./guides/USER_GUIDE.md#reporting-and-analytics) - Create custom reports 

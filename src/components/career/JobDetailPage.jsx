@@ -27,6 +27,30 @@ const JobDetailPage = () => {
   const [formErrors, setFormErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState(null);
 
+  // Helper function to format dates in a user-friendly way
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    
+    const options = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    };
+    
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Calculate days ago from posted date
+  const getDaysAgo = (dateString) => {
+    if (!dateString) return 'N/A';
+    
+    const posted = new Date(dateString);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - posted.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
@@ -216,7 +240,10 @@ const JobDetailPage = () => {
             <div className="job-meta-item">
               <span className="meta-label">Posted:</span>
               <span className="meta-value">
-                {new Date(job.publishedAt || job.createdAt || job.postedDate).toLocaleDateString()}
+                {formatDate(job.publishedAt || job.createdAt || job.postedDate)}
+                <span className="days-ago">
+                  ({getDaysAgo(job.publishedAt || job.createdAt || job.postedDate)} days ago)
+                </span>
               </span>
             </div>
           </div>

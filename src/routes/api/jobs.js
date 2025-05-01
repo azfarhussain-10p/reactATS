@@ -169,9 +169,20 @@ router.post('/', authenticate, async (req, res) => {
       });
     }
     
-    const newJob = mockDataService.createJob(req.body);
+    // Determine if this is a draft or published job
+    const isDraft = req.body.isDraft === true || req.body.status === 'Draft';
+    const status = isDraft ? 'Draft' : 'Active';
     
-    logger.info(`Successfully created new job with ID: ${newJob.id}`);
+    // Create the job with the appropriate status
+    const jobData = {
+      ...req.body,
+      status: status,
+      postedDate: new Date().toISOString().split('T')[0] // Set posted date for all jobs
+    };
+    
+    const newJob = mockDataService.createJob(jobData);
+    
+    logger.info(`Successfully created new job with ID: ${newJob.id} as ${status}`);
     res.status(201).json(newJob);
   } catch (error) {
     logger.error('Error creating job:', error);
@@ -210,6 +221,16 @@ router.put('/:id', authenticate, async (req, res) => {
         message: 'Job not found', 
         details: `No job exists with ID ${jobId}`,
         code: 'JOB_NOT_FOUND'
+      });
+    }
+    
+    // Check if the job is in draft status - only draft jobs can be edited
+    if (existingJob.status !== 'Draft') {
+      logger.warn(`Update failed: Job ${jobId} is not in draft status`);
+      return res.status(403).json({ 
+        message: 'Cannot update published job', 
+        details: 'Only draft jobs can be edited. Published jobs cannot be modified.',
+        code: 'JOB_NOT_EDITABLE'
       });
     }
     
@@ -356,6 +377,136 @@ router.delete('/:id', authenticate, async (req, res) => {
       message: 'Failed to delete job',
       details: error.message,
       code: 'JOB_DELETE_ERROR'
+    });
+  }
+});
+
+/**
+ * @route   POST /api/jobs/:id/save-draft
+ * @desc    Save a job as a draft
+ * @access  Private
+ */
+router.post('/:id/save-draft', authenticate, async (req, res) => {
+  try {
+    const jobId = parseInt(req.params.id);
+    logger.info(`Saving job ${jobId} as draft`);
+    
+    if (isNaN(jobId)) {
+      logger.warn(`Invalid job ID provided: ${req.params.id}`);
+      return res.status(400).json({ 
+        message: 'Invalid job ID', 
+        details: 'Job ID must be a number',
+        code: 'INVALID_JOB_ID'
+      });
+    }
+    
+    // Check if the job exists
+    const existingJob = mockDataService.getJobById(jobId);
+    if (!existingJob) {
+      logger.warn(`Draft save failed: Job not found with ID: ${jobId}`);
+      return res.status(404).json({ 
+        message: 'Job not found', 
+        details: `No job exists with ID ${jobId}`,
+        code: 'JOB_NOT_FOUND'
+      });
+    }
+    
+    // Only change to draft status if not already a draft
+    if (existingJob.status === 'Draft') {
+      logger.info(`Job ${jobId} is already a draft`);
+      return res.json(existingJob);
+    }
+    
+    // Update with the provided data and set status to draft
+    const updatedData = {
+      ...req.body,
+      status: 'Draft',
+      postedDate: null  // Clear posted date for drafts
+    };
+    
+    const updatedJob = mockDataService.updateJob(jobId, updatedData);
+    
+    logger.info(`Successfully saved job ${jobId} as draft`);
+    res.json(updatedJob);
+  } catch (error) {
+    logger.error(`Error saving job ${req.params.id} as draft:`, error);
+    res.status(500).json({ 
+      message: 'Failed to save job as draft',
+      details: error.message,
+      code: 'JOB_DRAFT_SAVE_ERROR'
+    });
+  }
+});
+
+/**
+ * @route   POST /api/jobs/:id/publish
+ * @desc    Publish a draft job
+ * @access  Private
+ */
+router.post('/:id/publish', authenticate, async (req, res) => {
+  try {
+    const jobId = parseInt(req.params.id);
+    logger.info(`Publishing job ${jobId}`);
+    
+    if (isNaN(jobId)) {
+      logger.warn(`Invalid job ID provided: ${req.params.id}`);
+      return res.status(400).json({ 
+        message: 'Invalid job ID', 
+        details: 'Job ID must be a number',
+        code: 'INVALID_JOB_ID'
+      });
+    }
+    
+    // Check if the job exists
+    const existingJob = mockDataService.getJobById(jobId);
+    if (!existingJob) {
+      logger.warn(`Publish failed: Job not found with ID: ${jobId}`);
+      return res.status(404).json({ 
+        message: 'Job not found', 
+        details: `No job exists with ID ${jobId}`,
+        code: 'JOB_NOT_FOUND'
+      });
+    }
+    
+    // Only allow publishing drafts
+    if (existingJob.status !== 'Draft') {
+      logger.warn(`Publish failed: Job ${jobId} is not a draft`);
+      return res.status(400).json({ 
+        message: 'Cannot publish job', 
+        details: 'Only draft jobs can be published',
+        code: 'JOB_NOT_DRAFT'
+      });
+    }
+    
+    // Validate that all required fields are filled before publishing
+    const requiredFields = ['title', 'department', 'location', 'type', 'description', 'responsibilities', 'requirements'];
+    const missingFields = requiredFields.filter(field => !existingJob[field] || 
+      (typeof existingJob[field] === 'string' && existingJob[field].trim() === '') ||
+      (Array.isArray(existingJob[field]) && existingJob[field].length === 0));
+    
+    if (missingFields.length > 0) {
+      logger.warn(`Publish failed: Job ${jobId} is missing required fields: ${missingFields.join(', ')}`);
+      return res.status(400).json({ 
+        message: 'Cannot publish incomplete job', 
+        details: `The following required fields are missing: ${missingFields.join(', ')}`,
+        code: 'JOB_INCOMPLETE'
+      });
+    }
+    
+    // Update job to published status
+    const updatedJob = mockDataService.updateJob(jobId, { 
+      status: 'Active',
+      postedDate: new Date().toISOString().split('T')[0]  // Set posted date to current date
+    });
+    
+    logger.info(`Successfully published job ${jobId}`);
+    res.json(updatedJob);
+  } catch (error) {
+    logger.error(`Error publishing job ${req.params.id}:`, error);
+    res.status(500).json({ 
+      message: 'Failed to publish job',
+      details: error.message,
+      code: 'JOB_PUBLISH_ERROR'
     });
   }
 });

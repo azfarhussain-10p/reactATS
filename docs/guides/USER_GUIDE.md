@@ -201,6 +201,40 @@ Administrators can customize the recruitment pipeline by:
 
 ![Job Creation Form](../assets/screenshots/job-creation-form.png)
 
+### Draft & Publishing System
+
+The ATS provides a flexible draft and publishing system for job postings:
+
+#### Draft Mode
+- **Save as Draft**: Only requires a job title
+- **Visibility**: Draft jobs are only visible on the internal JobBoard
+- **Editing**: Full editing capabilities while in draft status
+- **Visual Indicator**: Clear "DRAFT" tag in a distinctive purple color
+- **Publishing**: Convert to published status with the "Publish" button once all required fields are completed
+
+#### Published Jobs
+- **Status Options**: Active, On-Hold, Closed
+- **Visibility**: Published jobs appear on both the JobBoard and public Careers Page
+- **Editing Restrictions**: Published jobs cannot be edited to maintain data integrity
+- **Status Management**:
+  - Use the "Pause" button to change a job from Active to On-Hold
+  - Use the "Activate" button to change a job from On-Hold to Active
+  - Use the "Close" button to change a job from Active/On-Hold to Closed
+
+#### Job Deletion Rules
+- **Draft Jobs**: Can be deleted at any time
+- **Published Jobs**: Active and On-Hold jobs cannot be deleted
+- **Closed Jobs**: Can be deleted after they are closed
+- **Best Practice**: Close jobs instead of deleting them to maintain historical data
+
+### Featured Jobs
+
+Mark important job postings as featured to give them greater visibility:
+
+- **Visual Enhancement**: Featured jobs display a special purple gradient tag with a star icon
+- **Priority**: Featured jobs appear at the top of job listings
+- **Enable Feature**: Use the star toggle button or the Featured switch in the job form
+
 ### Job Posting Templates
 
 Save time by creating templates for similar positions:
@@ -215,8 +249,7 @@ Save time by creating templates for similar positions:
 
 Monitor and manage your active job postings:
 - View applicant metrics and pipeline status
-- Edit or update posting details
-- Extend or close application periods
+- Change job status (Active, On-Hold, Closed)
 - Clone positions for similar roles
 - Archive jobs for future reference
 
