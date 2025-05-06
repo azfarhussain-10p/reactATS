@@ -58,6 +58,10 @@ const JobDetailPage = () => {
 
         // Use jobsApi instead of careerApi until backend endpoints are ready
         const jobData = await jobsApi.getJobById(parseInt(id));
+
+        // Ensure we have the most up-to-date data, especially for featured status
+        console.log(`Fetched job data for job ID ${id}:`, jobData);
+
         setJob(jobData);
 
         // Fetch related jobs from the same department
@@ -90,6 +94,12 @@ const JobDetailPage = () => {
     };
 
     fetchJobDetails();
+
+    // Force refresh on id change to ensure we always have the latest data
+    return () => {
+      // Cleanup function
+      console.log('Cleaning up job detail view');
+    };
   }, [id]);
 
   const handleInputChange = (e) => {
@@ -224,7 +234,14 @@ const JobDetailPage = () => {
         </div>
 
         <div className="job-header">
-          <h1>{job.title}</h1>
+          <div className="title-container">
+            <h1>{job.title}</h1>
+            {job.isFeatured && (
+              <span className="featured-badge">
+                <span className="star-icon">★</span> Featured
+              </span>
+            )}
+          </div>
           <div className="job-meta">
             <div className="job-meta-item">
               <span className="meta-label">Department:</span>

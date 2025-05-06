@@ -540,14 +540,11 @@ const JobBoard: React.FC = () => {
 
   // Validate form fields
   const validateForm = (asDraft: boolean = false) => {
-    // For draft jobs, minimal validation is required
+    // For draft jobs, only validate the title field
     if (asDraft) {
-      // At minimum, require a title for drafts
-      if (!newJobForm.title || newJobForm.title.trim() === '') {
-        setFormErrors((prev) => ({ ...prev, title: true }));
-        return false;
-      }
-      return true;
+      const titleEmpty = !newJobForm.title || newJobForm.title.trim() === '';
+      setFormErrors((prev) => ({ ...prev, title: titleEmpty }));
+      return !titleEmpty;
     }
 
     // For publishing, perform full validation
@@ -701,20 +698,25 @@ const JobBoard: React.FC = () => {
 
   // Handle creating a new job
   const handleCreateNewJob = (asDraft: boolean = false) => {
-    // For drafts, no confirmation needed, proceed directly
-    if (asDraft) {
-      saveOrUpdateJob(true);
-      return;
-    }
+    // Validate the form based on whether it's a draft or publish
+    const isValid = validateForm(asDraft);
 
-    // For publishing, validate first
-    const isValid = validateForm(false);
     if (!isValid) {
-      // Show a warning message if attempting to publish without filling all required fields
-      setSnackbarMessage('Please fill in all required fields before publishing.');
+      // Show appropriate error message
+      const message = asDraft
+        ? 'A job title is required, even for drafts.'
+        : 'Please fill in all required fields before publishing.';
+
+      setSnackbarMessage(message);
       setSnackbarOpen(true);
 
-      // Check which tab has validation errors and navigate to it
+      // For drafts, just go to the first tab
+      if (asDraft) {
+        setActiveTab(0);
+        return;
+      }
+
+      // For publishing, check which tab has errors
       if (formErrors.title || formErrors.department || formErrors.location) {
         setActiveTab(0); // Job Summary tab
       } else if (formErrors.description || formErrors.responsibilities) {
@@ -724,6 +726,12 @@ const JobBoard: React.FC = () => {
       } else if (formErrors.salary || formErrors.benefits) {
         setActiveTab(3); // Salary & Benefits tab
       }
+      return;
+    }
+
+    // If this is a draft save, just save directly
+    if (asDraft) {
+      saveOrUpdateJob(true);
       return;
     }
 
@@ -1433,7 +1441,30 @@ const JobBoard: React.FC = () => {
   // Toggle job feature status
   const toggleJobFeatured = (jobId: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    setJobs(jobs.map((job) => (job.id === jobId ? { ...job, isFeatured: !job.isFeatured } : job)));
+    // Get the current featured status to toggle
+    const job = jobs.find((j) => j.id === jobId);
+    const newFeaturedStatus = job ? !job.isFeatured : false;
+
+    // Update the main jobs list
+    const updatedJobs = jobs.map((job) =>
+      job.id === jobId ? { ...job, isFeatured: newFeaturedStatus } : job
+    );
+    setJobs(updatedJobs);
+
+    // Update filtered jobs list to ensure consistency in the UI
+    setFilteredJobs((prevFilteredJobs) =>
+      prevFilteredJobs.map((job) =>
+        job.id === jobId ? { ...job, isFeatured: newFeaturedStatus } : job
+      )
+    );
+
+    // Also update selectedJob if it's the one being toggled
+    if (selectedJob && selectedJob.id === jobId) {
+      setSelectedJob({ ...selectedJob, isFeatured: newFeaturedStatus });
+    }
+
+    // Log the change for debugging
+    console.log(`Job ${jobId} featured status changed to: ${newFeaturedStatus}`);
   };
 
   // Render job cards
@@ -1939,7 +1970,46 @@ const JobBoard: React.FC = () => {
               <>
                 <DialogTitle>
                   <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Typography variant="h6">{selectedJob.title}</Typography>
+                    <Box display="flex" alignItems="center">
+                      <Typography variant="h6">{selectedJob.title}</Typography>
+                      {selectedJob.isFeatured && (
+                        <Chip
+                          icon={
+                            <StarIcon
+                              fontSize="small"
+                              sx={{
+                                color: amber[500],
+                                animation: 'pulse 1.5s infinite',
+                                '@keyframes pulse': {
+                                  '0%': { opacity: 0.7 },
+                                  '50%': { opacity: 1 },
+                                  '100%': { opacity: 0.7 },
+                                },
+                              }}
+                            />
+                          }
+                          label="Featured"
+                          size="small"
+                          sx={{
+                            ml: 1,
+                            background: `linear-gradient(45deg, ${deepPurple[700]} 0%, ${purple[500]} 100%)`,
+                            color: '#ffffff',
+                            fontWeight: 'bold',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                            '&:hover': {
+                              boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                            },
+                            transition: 'all 0.3s ease',
+                            '& .MuiChip-label': {
+                              color: '#ffffff',
+                            },
+                            '& .MuiChip-icon': {
+                              color: amber[500],
+                            },
+                          }}
+                        />
+                      )}
+                    </Box>
                     <IconButton onClick={() => setJobDetailOpen(false)} size="small">
                       <CloseIcon />
                     </IconButton>
@@ -2597,6 +2667,7 @@ const JobBoard: React.FC = () => {
                           left: '100%',
                         },
                       }}
+                      disabled={!newJobForm.title || newJobForm.title.trim() === ''}
                     >
                       Save as Draft
                     </Button>

@@ -129,9 +129,15 @@ export default function DashboardLayout({
       ariaLabel: 'Navigate to candidates list',
     },
     {
-      text: 'Job Board',
+      text: 'Job Openings',
       icon: <WorkIcon />,
       path: '/job-openings',
+      ariaLabel: 'Navigate to job openings',
+    },
+    {
+      text: 'Job Board',
+      icon: <WorkIcon />,
+      path: '/job-board',
       ariaLabel: 'Navigate to job board',
     },
     {

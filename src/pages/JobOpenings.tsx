@@ -223,6 +223,7 @@ const JobOpenings: React.FC = () => {
     });
 
     setFilteredJobs(result);
+    console.log('Filtered jobs updated:', result);
   }, [jobs, searchTerm, departmentFilter, locationFilter, typeFilter]);
 
   return (
@@ -474,6 +475,7 @@ const JobOpenings: React.FC = () => {
                       color="primary"
                       variant="contained"
                       sx={{ flexGrow: 1, mr: 1 }}
+                      href={`/careers/job/${job.id}`}
                     >
                       Apply Now
                     </Button>
