@@ -1801,183 +1801,521 @@ const JobBoard: React.FC = () => {
     setJobToPublish(null);
   };
 
+  // Add event listener for custom event to open new job dialog
+  useEffect(() => {
+    const handleOpenNewJobEvent = () => {
+      handleOpenNewJobDialog();
+    };
+
+    // Listen for the custom event on the tabpanel element
+    const tabPanelElement = document.getElementById('job-management-tabpanel-0');
+    if (tabPanelElement) {
+      tabPanelElement.addEventListener('openNewJobDialog', handleOpenNewJobEvent);
+    }
+
+    // Cleanup event listener on component unmount
+    return () => {
+      if (tabPanelElement) {
+        tabPanelElement.removeEventListener('openNewJobDialog', handleOpenNewJobEvent);
+      }
+    };
+  }, []);
+
   return (
-    <Box sx={{ padding: 3 }}>
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-          <CircularProgress />
-        </Box>
-      ) : error ? (
-        <Paper sx={{ p: 3, mb: 3, bgcolor: '#FFF4F4' }}>
-          <Typography color="error">{error}</Typography>
-          <Button variant="contained" sx={{ mt: 2 }} onClick={() => window.location.reload()}>
-            Retry
-          </Button>
-        </Paper>
-      ) : (
-        <Box>
-          {/* Control Panel */}
-          <Box mb={3} display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h4">Job Board ({filteredJobs.length} Jobs)</Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<AddIcon />}
-              onClick={handleOpenNewJobDialog}
-            >
-              Post New Job
-            </Button>
-          </Box>
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        overflow: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <Box sx={{ p: { xs: 1, sm: 2 } }}>
+        {/* Filter and search section */}
+        <Box
+          sx={{
+            mb: 2,
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'flex-start', md: 'center' },
+            justifyContent: 'space-between',
+            gap: 2,
+          }}
+        >
+          {/* Search field */}
+          <TextField
+            size="small"
+            placeholder="Search jobs..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ minWidth: 200, maxWidth: { xs: '100%', md: 250 } }}
+          />
 
-          {/* Filters and Search */}
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid component="div" item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  placeholder="Search jobs by title or description"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                  size="small"
-                />
-              </Grid>
-
-              <Grid component="div" item xs={12} md={8}>
-                <Grid container spacing={2}>
-                  <Grid component="div" item xs={12} sm={3}>
-                    <FormControl fullWidth size="small">
-                      <InputLabel>Department</InputLabel>
-                      <Select
-                        value={departmentFilter}
-                        label="Department"
-                        onChange={(e) => setDepartmentFilter(e.target.value)}
-                        endAdornment={
-                          loadingDropdowns.departments && (
-                            <CircularProgress size={20} sx={{ mr: 2 }} />
-                          )
-                        }
-                      >
-                        {departments.map((dept) => (
-                          <MenuItem key={dept} value={dept}>
-                            {dept}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid component="div" item xs={12} sm={3}>
-                    <FormControl fullWidth size="small">
-                      <InputLabel>Location</InputLabel>
-                      <Select
-                        value={locationFilter}
-                        label="Location"
-                        onChange={(e) => setLocationFilter(e.target.value)}
-                        endAdornment={
-                          loadingDropdowns.locations && (
-                            <CircularProgress size={20} sx={{ mr: 2 }} />
-                          )
-                        }
-                      >
-                        {locations.map((loc) => (
-                          <MenuItem key={loc} value={loc}>
-                            {loc}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid component="div" item xs={12} sm={3}>
-                    <FormControl fullWidth size="small">
-                      <InputLabel>Job Type</InputLabel>
-                      <Select
-                        value={typeFilter}
-                        label="Job Type"
-                        onChange={(e) => setTypeFilter(e.target.value)}
-                        endAdornment={
-                          loadingDropdowns.types && <CircularProgress size={20} sx={{ mr: 2 }} />
-                        }
-                      >
-                        {types.map((type) => (
-                          <MenuItem key={type} value={type}>
-                            {type}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid component="div" item xs={12} sm={3}>
-                    <FormControl fullWidth size="small">
-                      <InputLabel>Status</InputLabel>
-                      <Select
-                        value={statusFilter}
-                        label="Status"
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                      >
-                        {statuses.map((status) => (
-                          <MenuItem key={status} value={status}>
-                            {status}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Paper>
-
-          {/* Job Listings */}
-          <Grid container spacing={3}>
-            {filteredJobs.length > 0 ? (
-              filteredJobs.map((job) => (
-                <Grid item xs={12} md={6} lg={4} key={job.id}>
-                  {renderJobCard(job)}
-                </Grid>
-              ))
-            ) : (
-              <Grid item xs={12}>
-                <Paper sx={{ p: 3, textAlign: 'center' }}>
-                  <Typography variant="h6" color="text.secondary">
-                    No jobs found matching your criteria
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    Try adjusting your filters or search terms
-                  </Typography>
-                </Paper>
-              </Grid>
-            )}
-          </Grid>
-
-          {/* Job Detail Dialog */}
-          <Dialog
-            open={jobDetailOpen}
-            onClose={() => setJobDetailOpen(false)}
-            fullWidth
-            maxWidth="md"
-            scroll="paper"
+          {/* Filters */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: 1,
+              width: { xs: '100%', md: 'auto' },
+            }}
           >
-            {selectedJob && (
-              <>
-                <DialogTitle>
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Box display="flex" alignItems="center">
-                      <Typography variant="h6">{selectedJob.title}</Typography>
-                      {selectedJob.isFeatured && (
-                        <Chip
-                          icon={
+            <Grid component="div" item xs={12} sm={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Department</InputLabel>
+                <Select
+                  value={departmentFilter}
+                  label="Department"
+                  onChange={(e) => setDepartmentFilter(e.target.value)}
+                  endAdornment={
+                    loadingDropdowns.departments && <CircularProgress size={20} sx={{ mr: 2 }} />
+                  }
+                >
+                  {departments.map((dept) => (
+                    <MenuItem key={dept} value={dept}>
+                      {dept}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid component="div" item xs={12} sm={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Location</InputLabel>
+                <Select
+                  value={locationFilter}
+                  label="Location"
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                  endAdornment={
+                    loadingDropdowns.locations && <CircularProgress size={20} sx={{ mr: 2 }} />
+                  }
+                >
+                  {locations.map((loc) => (
+                    <MenuItem key={loc} value={loc}>
+                      {loc}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid component="div" item xs={12} sm={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Job Type</InputLabel>
+                <Select
+                  value={typeFilter}
+                  label="Job Type"
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  endAdornment={
+                    loadingDropdowns.types && <CircularProgress size={20} sx={{ mr: 2 }} />
+                  }
+                >
+                  {types.map((type) => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid component="div" item xs={12} sm={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={statusFilter}
+                  label="Status"
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  {statuses.map((status) => (
+                    <MenuItem key={status} value={status}>
+                      {status}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Box>
+        </Box>
+
+        {/* Job Listings */}
+        <Grid container spacing={3}>
+          {filteredJobs.length > 0 ? (
+            filteredJobs.map((job) => (
+              <Grid item xs={12} md={6} lg={4} key={job.id}>
+                {renderJobCard(job)}
+              </Grid>
+            ))
+          ) : (
+            <Grid item xs={12}>
+              <Paper sx={{ p: 3, textAlign: 'center' }}>
+                <Typography variant="h6" color="text.secondary">
+                  No jobs found matching your criteria
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Try adjusting your filters or search terms
+                </Typography>
+              </Paper>
+            </Grid>
+          )}
+        </Grid>
+
+        {/* Job Detail Dialog */}
+        <Dialog
+          open={jobDetailOpen}
+          onClose={() => setJobDetailOpen(false)}
+          fullWidth
+          maxWidth="md"
+          scroll="paper"
+        >
+          {selectedJob && (
+            <>
+              <DialogTitle>
+                <Box display="flex" justifyContent="space-between" alignItems="center">
+                  <Box display="flex" alignItems="center">
+                    <Typography variant="h6">{selectedJob.title}</Typography>
+                    {selectedJob.isFeatured && (
+                      <Chip
+                        icon={
+                          <StarIcon
+                            fontSize="small"
+                            sx={{
+                              color: amber[500],
+                              animation: 'pulse 1.5s infinite',
+                              '@keyframes pulse': {
+                                '0%': { opacity: 0.7 },
+                                '50%': { opacity: 1 },
+                                '100%': { opacity: 0.7 },
+                              },
+                            }}
+                          />
+                        }
+                        label="Featured"
+                        size="small"
+                        sx={{
+                          ml: 1,
+                          background: `linear-gradient(45deg, ${deepPurple[700]} 0%, ${purple[500]} 100%)`,
+                          color: '#ffffff',
+                          fontWeight: 'bold',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                          '&:hover': {
+                            boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                          },
+                          transition: 'all 0.3s ease',
+                          '& .MuiChip-label': {
+                            color: '#ffffff',
+                          },
+                          '& .MuiChip-icon': {
+                            color: amber[500],
+                          },
+                        }}
+                      />
+                    )}
+                  </Box>
+                  <IconButton onClick={() => setJobDetailOpen(false)} size="small">
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+              </DialogTitle>
+              <DialogContent dividers>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={8}>
+                    <Box mb={3}>
+                      <Typography variant="h6" gutterBottom>
+                        Job Summary
+                      </Typography>
+                      <Typography variant="body1" paragraph>
+                        {selectedJob.description}
+                      </Typography>
+                    </Box>
+
+                    <Box mb={3}>
+                      <Typography variant="h6" gutterBottom>
+                        Responsibilities
+                      </Typography>
+                      {renderFormattedContent(selectedJob.responsibilities)}
+                    </Box>
+
+                    <Box mb={3}>
+                      <Typography variant="h6" gutterBottom>
+                        Candidate Requirements
+                      </Typography>
+                      {renderFormattedContent(selectedJob.requirements)}
+                    </Box>
+
+                    {/* Benefits section */}
+                    <Box mb={3}>
+                      <Typography variant="h6" gutterBottom>
+                        Compensation and Benefits
+                      </Typography>
+                      {selectedJob.benefits ? (
+                        renderFormattedContent(selectedJob.benefits)
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          No benefits specified
+                        </Typography>
+                      )}
+                    </Box>
+                  </Grid>
+
+                  <Grid item xs={12} md={4}>
+                    <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+                      <Typography variant="subtitle1" gutterBottom>
+                        Job Information
+                      </Typography>
+
+                      <Box display="flex" alignItems="center" mb={1}>
+                        <LocationIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                        <Typography variant="body2">
+                          <strong>Location:</strong> {selectedJob.location}
+                        </Typography>
+                      </Box>
+
+                      <Box display="flex" alignItems="center" mb={1}>
+                        <BusinessIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                        <Typography variant="body2">
+                          <strong>Department:</strong> {selectedJob.department}
+                        </Typography>
+                      </Box>
+
+                      <Box display="flex" alignItems="center" mb={1}>
+                        <SalaryIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                        <Typography variant="body2">
+                          <strong>Salary:</strong> {selectedJob.salary}
+                        </Typography>
+                      </Box>
+
+                      <Box display="flex" alignItems="center" mb={1}>
+                        <Typography variant="body2">
+                          <strong>Type:</strong> {selectedJob.type}
+                        </Typography>
+                      </Box>
+
+                      <Box display="flex" alignItems="center" mb={1}>
+                        <Typography variant="body2">
+                          <strong>Experience:</strong> {selectedJob.experience}
+                        </Typography>
+                      </Box>
+
+                      <Box display="flex" alignItems="center" mb={1}>
+                        <Typography variant="body2">
+                          <strong>Status:</strong> {selectedJob.status}
+                        </Typography>
+                      </Box>
+
+                      <Box display="flex" alignItems="center" mb={1}>
+                        <DateIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                        <Typography variant="body2">
+                          <strong>Posted:</strong>{' '}
+                          {selectedJob.status === 'Draft'
+                            ? 'Not published yet'
+                            : formatDate(selectedJob.postedDate)}
+                        </Typography>
+                      </Box>
+                    </Paper>
+
+                    <Stack spacing={1}>
+                      {selectedJob.status === 'Active' && (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          fullWidth
+                          onClick={() => handleOpenApplyDialog(selectedJob)}
+                        >
+                          Apply For This Job
+                        </Button>
+                      )}
+                      <Button
+                        variant="outlined"
+                        startIcon={
+                          selectedJob.isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />
+                        }
+                        fullWidth
+                        onClick={(e) => handleToggleBookmark(selectedJob.id, e)}
+                      >
+                        {selectedJob.isBookmarked ? 'Saved' : 'Save Job'}
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        startIcon={<ShareIcon />}
+                        fullWidth
+                        onClick={(e) => handleOpenShareDialog(selectedJob)}
+                      >
+                        Share Job
+                      </Button>
+                    </Stack>
+                  </Grid>
+                </Grid>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setJobDetailOpen(false)}>Close</Button>
+              </DialogActions>
+            </>
+          )}
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Are you sure you want to delete this job posting? This action cannot be undone.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button onClick={confirmDeleteJob} color="error" variant="contained">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Post New Job Dialog - Redesigned with tabs and more space */}
+        <Dialog
+          open={newJobDialogOpen}
+          onClose={() => setNewJobDialogOpen(false)}
+          fullWidth
+          maxWidth="lg"
+          PaperProps={{
+            sx: { minHeight: '80vh' },
+          }}
+        >
+          <DialogTitle>
+            {editMode ? 'Edit Job' : 'Post New Job'}
+            <IconButton
+              aria-label="close"
+              onClick={() => setNewJobDialogOpen(false)}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent dividers>
+            <Box sx={{ width: '100%' }}>
+              <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                <Tabs
+                  value={activeTab}
+                  onChange={handleTabChange}
+                  variant="scrollable"
+                  scrollButtons="auto"
+                  aria-label="job creation tabs"
+                >
+                  <Tab label="Job Summary" />
+                  <Tab label="Job Outline" />
+                  <Tab label="Qualifications & Experience" />
+                  <Tab label="Salary & Benefits" />
+                </Tabs>
+              </Box>
+
+              {/* Tab 1: Job Summary */}
+              {activeTab === 0 && (
+                <Box sx={{ p: 1 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Basic Job Information
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    label="Job Title"
+                    name="title"
+                    margin="normal"
+                    required
+                    value={newJobForm.title}
+                    onChange={handleFormChange}
+                    error={formErrors.title}
+                    helperText={formErrors.title ? 'Job title is required' : ''}
+                  />
+
+                  <Grid container spacing={2} sx={{ mt: 1 }}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Department"
+                        name="department"
+                        required
+                        value={newJobForm.department}
+                        onChange={handleFormChange}
+                        error={formErrors.department}
+                        helperText={formErrors.department ? 'Department is required' : ''}
+                        placeholder="e.g., Engineering, Marketing, HR"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Location"
+                        name="location"
+                        required
+                        value={newJobForm.location}
+                        onChange={handleFormChange}
+                        error={formErrors.location}
+                        helperText={formErrors.location ? 'Location is required' : ''}
+                        placeholder="e.g., New York, Remote, San Francisco"
+                      />
+                    </Grid>
+                  </Grid>
+
+                  <FormControl fullWidth margin="normal">
+                    <InputLabel>Job Type</InputLabel>
+                    <Select
+                      label="Job Type"
+                      name="type"
+                      value={newJobForm.type}
+                      onChange={handleFormChange}
+                      required
+                    >
+                      <MenuItem value="Full-time">Full-time</MenuItem>
+                      <MenuItem value="Part-time">Part-time</MenuItem>
+                      <MenuItem value="Contract">Contract</MenuItem>
+                      <MenuItem value="Temporary">Temporary</MenuItem>
+                      <MenuItem value="Internship">Internship</MenuItem>
+                    </Select>
+                  </FormControl>
+
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle1" gutterBottom>
+                      Featured Status
+                    </Typography>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={newJobForm.isFeatured}
+                          onChange={handleSwitchChange}
+                          sx={{
+                            '& .MuiSwitch-switchBase.Mui-checked': {
+                              color: amber[500],
+                              '&:hover': {
+                                backgroundColor: alpha(amber[500], 0.1),
+                              },
+                            },
+                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                              backgroundColor: deepPurple[500],
+                            },
+                            '& .MuiSwitch-thumb': {
+                              boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
+                            },
+                          }}
+                        />
+                      }
+                      label={
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          {newJobForm.isFeatured ? (
                             <StarIcon
-                              fontSize="small"
                               sx={{
+                                mr: 1,
                                 color: amber[500],
                                 animation: 'pulse 1.5s infinite',
                                 '@keyframes pulse': {
@@ -1987,989 +2325,651 @@ const JobBoard: React.FC = () => {
                                 },
                               }}
                             />
-                          }
-                          label="Featured"
-                          size="small"
-                          sx={{
-                            ml: 1,
-                            background: `linear-gradient(45deg, ${deepPurple[700]} 0%, ${purple[500]} 100%)`,
-                            color: '#ffffff',
-                            fontWeight: 'bold',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                            '&:hover': {
-                              boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-                            },
-                            transition: 'all 0.3s ease',
-                            '& .MuiChip-label': {
-                              color: '#ffffff',
-                            },
-                            '& .MuiChip-icon': {
-                              color: amber[500],
-                            },
-                          }}
-                        />
-                      )}
-                    </Box>
-                    <IconButton onClick={() => setJobDetailOpen(false)} size="small">
-                      <CloseIcon />
-                    </IconButton>
-                  </Box>
-                </DialogTitle>
-                <DialogContent dividers>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={8}>
-                      <Box mb={3}>
-                        <Typography variant="h6" gutterBottom>
-                          Job Summary
-                        </Typography>
-                        <Typography variant="body1" paragraph>
-                          {selectedJob.description}
-                        </Typography>
-                      </Box>
-
-                      <Box mb={3}>
-                        <Typography variant="h6" gutterBottom>
-                          Responsibilities
-                        </Typography>
-                        {renderFormattedContent(selectedJob.responsibilities)}
-                      </Box>
-
-                      <Box mb={3}>
-                        <Typography variant="h6" gutterBottom>
-                          Candidate Requirements
-                        </Typography>
-                        {renderFormattedContent(selectedJob.requirements)}
-                      </Box>
-
-                      {/* Benefits section */}
-                      <Box mb={3}>
-                        <Typography variant="h6" gutterBottom>
-                          Compensation and Benefits
-                        </Typography>
-                        {selectedJob.benefits ? (
-                          renderFormattedContent(selectedJob.benefits)
-                        ) : (
-                          <Typography variant="body2" color="text.secondary">
-                            No benefits specified
-                          </Typography>
-                        )}
-                      </Box>
-                    </Grid>
-
-                    <Grid item xs={12} md={4}>
-                      <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-                        <Typography variant="subtitle1" gutterBottom>
-                          Job Information
-                        </Typography>
-
-                        <Box display="flex" alignItems="center" mb={1}>
-                          <LocationIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                          <Typography variant="body2">
-                            <strong>Location:</strong> {selectedJob.location}
-                          </Typography>
-                        </Box>
-
-                        <Box display="flex" alignItems="center" mb={1}>
-                          <BusinessIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                          <Typography variant="body2">
-                            <strong>Department:</strong> {selectedJob.department}
-                          </Typography>
-                        </Box>
-
-                        <Box display="flex" alignItems="center" mb={1}>
-                          <SalaryIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                          <Typography variant="body2">
-                            <strong>Salary:</strong> {selectedJob.salary}
-                          </Typography>
-                        </Box>
-
-                        <Box display="flex" alignItems="center" mb={1}>
-                          <Typography variant="body2">
-                            <strong>Type:</strong> {selectedJob.type}
-                          </Typography>
-                        </Box>
-
-                        <Box display="flex" alignItems="center" mb={1}>
-                          <Typography variant="body2">
-                            <strong>Experience:</strong> {selectedJob.experience}
-                          </Typography>
-                        </Box>
-
-                        <Box display="flex" alignItems="center" mb={1}>
-                          <Typography variant="body2">
-                            <strong>Status:</strong> {selectedJob.status}
-                          </Typography>
-                        </Box>
-
-                        <Box display="flex" alignItems="center" mb={1}>
-                          <DateIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                          <Typography variant="body2">
-                            <strong>Posted:</strong>{' '}
-                            {selectedJob.status === 'Draft'
-                              ? 'Not published yet'
-                              : formatDate(selectedJob.postedDate)}
-                          </Typography>
-                        </Box>
-                      </Paper>
-
-                      <Stack spacing={1}>
-                        {selectedJob.status === 'Active' && (
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            fullWidth
-                            onClick={() => handleOpenApplyDialog(selectedJob)}
+                          ) : (
+                            <StarBorderIcon sx={{ mr: 1 }} />
+                          )}
+                          <Typography
+                            variant="body1"
+                            sx={{
+                              fontWeight: newJobForm.isFeatured ? 'bold' : 'normal',
+                              background: newJobForm.isFeatured
+                                ? `linear-gradient(45deg, ${deepPurple[700]} 30%, ${purple[500]} 90%)`
+                                : 'inherit',
+                              WebkitBackgroundClip: newJobForm.isFeatured ? 'text' : 'inherit',
+                              WebkitTextFillColor: newJobForm.isFeatured
+                                ? 'transparent'
+                                : 'inherit',
+                            }}
                           >
-                            Apply For This Job
-                          </Button>
-                        )}
-                        <Button
-                          variant="outlined"
-                          startIcon={
-                            selectedJob.isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />
-                          }
-                          fullWidth
-                          onClick={(e) => handleToggleBookmark(selectedJob.id, e)}
-                        >
-                          {selectedJob.isBookmarked ? 'Saved' : 'Save Job'}
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          startIcon={<ShareIcon />}
-                          fullWidth
-                          onClick={(e) => handleOpenShareDialog(selectedJob)}
-                        >
-                          Share Job
-                        </Button>
-                      </Stack>
-                    </Grid>
-                  </Grid>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={() => setJobDetailOpen(false)}>Close</Button>
-                </DialogActions>
-              </>
-            )}
-          </Dialog>
+                            {newJobForm.isFeatured ? 'Featured Job' : 'Standard Job'}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </Box>
+                </Box>
+              )}
 
-          {/* Delete Confirmation Dialog */}
-          <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-            <DialogTitle>Confirm Deletion</DialogTitle>
-            <DialogContent>
-              <Typography>
-                Are you sure you want to delete this job posting? This action cannot be undone.
-              </Typography>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-              <Button onClick={confirmDeleteJob} color="error" variant="contained">
-                Delete
-              </Button>
-            </DialogActions>
-          </Dialog>
+              {/* Tab 2: Job Outline */}
+              {activeTab === 1 && (
+                <Box sx={{ p: 1 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Job Description and Responsibilities
+                  </Typography>
 
-          {/* Post New Job Dialog - Redesigned with tabs and more space */}
-          <Dialog
-            open={newJobDialogOpen}
-            onClose={() => setNewJobDialogOpen(false)}
-            fullWidth
-            maxWidth="lg"
-            PaperProps={{
-              sx: { minHeight: '80vh' },
+                  <Box sx={{ position: 'relative', mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="description">
+                        Job Description
+                        <Typography component="span" color="error">
+                          *
+                        </Typography>
+                      </Typography>
+                      <Tooltip title="Provide a comprehensive overview of the job, including its purpose, main duties, and how it fits into the organization">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                    {renderTextEditorToolbar('description', 'Job Description')}
+                    <TextField
+                      id="description"
+                      fullWidth
+                      name="description"
+                      multiline
+                      rows={8}
+                      required
+                      value={newJobForm.description}
+                      onChange={handleFormChange}
+                      error={formErrors.description}
+                      helperText={
+                        formErrors.description
+                          ? 'Job description is required'
+                          : 'Max 2000 characters'
+                      }
+                      inputProps={{ maxLength: 2000 }}
+                    />
+                  </Box>
+
+                  <Box sx={{ position: 'relative' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="responsibilities">
+                        Responsibilities
+                        <Typography component="span" color="error">
+                          *
+                        </Typography>
+                      </Typography>
+                      <Tooltip title="List the key responsibilities for this position, enter each responsibility on a new line">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                    {renderTextEditorToolbar('responsibilities', 'Responsibilities')}
+                    <TextField
+                      id="responsibilities"
+                      fullWidth
+                      name="responsibilities"
+                      multiline
+                      rows={8}
+                      value={newJobForm.responsibilities}
+                      onChange={handleFormChange}
+                      placeholder="Enter each responsibility on a new line"
+                      helperText={
+                        formErrors.responsibilities
+                          ? 'Responsibilities are required'
+                          : 'Max 1000 characters'
+                      }
+                      inputProps={{ maxLength: 1000 }}
+                      required
+                      error={formErrors.responsibilities}
+                    />
+                  </Box>
+                </Box>
+              )}
+
+              {/* Tab 3: Qualifications & Experience */}
+              {activeTab === 2 && (
+                <Box sx={{ p: 1 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Candidate Requirements
+                  </Typography>
+
+                  <Box sx={{ position: 'relative', mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="experience">
+                        Experience Required
+                        <Typography component="span" color="error">
+                          *
+                        </Typography>
+                      </Typography>
+                      <Tooltip title="Specify the years of experience needed for this position">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                    <TextField
+                      id="experience"
+                      fullWidth
+                      name="experience"
+                      margin="normal"
+                      value={newJobForm.experience}
+                      onChange={handleFormChange}
+                      placeholder="e.g., 3-5 years in similar role"
+                      helperText={
+                        formErrors.experience ? 'Experience is required' : 'Max 100 characters'
+                      }
+                      inputProps={{ maxLength: 100 }}
+                      required
+                      error={formErrors.experience}
+                    />
+                  </Box>
+
+                  <Box sx={{ position: 'relative', mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="requirements">
+                        Qualifications
+                        <Typography component="span" color="error">
+                          *
+                        </Typography>
+                      </Typography>
+                      <Tooltip title="List the qualifications required for this position, such as education, certifications, or knowledge areas">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                    {renderTextEditorToolbar('requirements', 'Qualifications')}
+                    <TextField
+                      id="requirements"
+                      fullWidth
+                      name="requirements"
+                      multiline
+                      rows={6}
+                      value={newJobForm.requirements}
+                      onChange={handleFormChange}
+                      placeholder="Enter each qualification on a new line"
+                      helperText={
+                        formErrors.requirements
+                          ? 'Qualifications are required'
+                          : 'Max 1000 characters'
+                      }
+                      inputProps={{ maxLength: 1000 }}
+                      required
+                      error={formErrors.requirements}
+                    />
+                  </Box>
+
+                  <Box sx={{ position: 'relative' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="skills">
+                        Skills
+                        <Typography component="span" color="error">
+                          *
+                        </Typography>
+                      </Typography>
+                      <Tooltip title="Specify technical or soft skills needed for the role, one per line">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                    {renderTextEditorToolbar('skills', 'Skills')}
+                    <TextField
+                      id="skills"
+                      fullWidth
+                      name="skills"
+                      multiline
+                      rows={4}
+                      value={newJobForm.skills}
+                      onChange={handleFormChange}
+                      placeholder="Enter each skill on a new line"
+                      helperText={formErrors.skills ? 'Skills are required' : 'Max 500 characters'}
+                      inputProps={{ maxLength: 500 }}
+                      required
+                      error={formErrors.skills}
+                    />
+                  </Box>
+                </Box>
+              )}
+
+              {/* Tab 4: Salary & Benefits */}
+              {activeTab === 3 && (
+                <Box sx={{ p: 1 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Compensation and Benefits
+                  </Typography>
+
+                  <Box sx={{ position: 'relative', mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="salary">
+                        Salary Range
+                        <Typography component="span" color="error">
+                          *
+                        </Typography>
+                      </Typography>
+                      <Tooltip title="Provide a salary range to attract the right candidates">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                    <TextField
+                      id="salary"
+                      fullWidth
+                      name="salary"
+                      margin="normal"
+                      value={newJobForm.salary}
+                      onChange={handleSalaryChange}
+                      placeholder="e.g., $80,000 - $100,000"
+                      helperText={formErrors.salary ? 'Salary is required' : 'Max 100 characters'}
+                      inputProps={{ maxLength: 100 }}
+                      required
+                      error={formErrors.salary}
+                    />
+                  </Box>
+
+                  <Box sx={{ position: 'relative' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" component="label" htmlFor="benefits">
+                        Benefits
+                        <Typography component="span" color="error">
+                          *
+                        </Typography>
+                      </Typography>
+                      <Tooltip title="List benefits such as healthcare, 401k, time off, work-from-home options, etc.">
+                        <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
+                      </Tooltip>
+                    </Box>
+                    {renderTextEditorToolbar('benefits', 'Benefits')}
+                    <TextField
+                      id="benefits"
+                      fullWidth
+                      name="benefits"
+                      multiline
+                      rows={8}
+                      value={newJobForm.benefits}
+                      onChange={handleFormChange}
+                      placeholder="Enter each benefit on a new line"
+                      helperText={
+                        formErrors.benefits ? 'Benefits are required' : 'Max 1000 characters'
+                      }
+                      inputProps={{ maxLength: 1000 }}
+                      required
+                      error={formErrors.benefits}
+                    />
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          </DialogContent>
+          <DialogActions
+            sx={{
+              px: 3,
+              py: 2,
+              display: 'flex',
+              justifyContent: 'space-between',
+              borderTop: '1px solid rgba(0, 0, 0, 0.12)',
             }}
           >
-            <DialogTitle>
-              {editMode ? 'Edit Job' : 'Post New Job'}
-              <IconButton
-                aria-label="close"
-                onClick={() => setNewJobDialogOpen(false)}
-                sx={{
-                  position: 'absolute',
-                  right: 8,
-                  top: 8,
-                  color: (theme) => theme.palette.grey[500],
-                }}
-              >
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
-            <DialogContent dividers>
-              <Box sx={{ width: '100%' }}>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-                  <Tabs
-                    value={activeTab}
-                    onChange={handleTabChange}
-                    variant="scrollable"
-                    scrollButtons="auto"
-                    aria-label="job creation tabs"
-                  >
-                    <Tab label="Job Summary" />
-                    <Tab label="Job Outline" />
-                    <Tab label="Qualifications & Experience" />
-                    <Tab label="Salary & Benefits" />
-                  </Tabs>
-                </Box>
+            <Box>
+              <Button onClick={() => setNewJobDialogOpen(false)} color="inherit">
+                Cancel
+              </Button>
+            </Box>
 
-                {/* Tab 1: Job Summary */}
-                {activeTab === 0 && (
-                  <Box sx={{ p: 1 }}>
-                    <Typography variant="h6" gutterBottom>
-                      Basic Job Information
+            <Box display="flex" gap={1}>
+              {activeTab > 0 && (
+                <Button
+                  onClick={handlePrevTab}
+                  startIcon={<KeyboardArrowLeft />}
+                  variant="outlined"
+                >
+                  Previous
+                </Button>
+              )}
+
+              {activeTab < 3 && (
+                <Button onClick={handleNextTab} endIcon={<KeyboardArrowRight />} variant="outlined">
+                  Next
+                </Button>
+              )}
+
+              {/* Draft and Publish buttons */}
+              <Box sx={{ ml: 1 }}>
+                <ButtonGroup variant="contained">
+                  <Button
+                    onClick={() => handleCreateNewJob(true)}
+                    startIcon={
+                      <CloudUploadIcon
+                        sx={{
+                          animation: 'float 3s ease-in-out infinite',
+                          '@keyframes float': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-3px)' },
+                          },
+                        }}
+                      />
+                    }
+                    sx={{
+                      background: `linear-gradient(45deg, ${amber[700]} 0%, ${amber[500]} 100%)`,
+                      color: 'white',
+                      fontWeight: 'bold',
+                      boxShadow: '0 3px 5px 2px rgba(255, 193, 7, 0.3)',
+                      '&:hover': {
+                        background: `linear-gradient(45deg, ${amber[800]} 0%, ${amber[600]} 100%)`,
+                        boxShadow: '0 4px 8px 2px rgba(255, 193, 7, 0.4)',
+                        transform: 'translateY(-2px)',
+                      },
+                      transition: 'all 0.3s ease',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: '-100%',
+                        width: '100%',
+                        height: '100%',
+                        background:
+                          'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                        transition: '0.5s',
+                      },
+                      '&:hover::after': {
+                        left: '100%',
+                      },
+                    }}
+                    disabled={!newJobForm.title || newJobForm.title.trim() === ''}
+                  >
+                    Save as Draft
+                  </Button>
+                  <Button
+                    onClick={() => handleCreateNewJob(false)}
+                    startIcon={
+                      <PublishIcon
+                        sx={{
+                          animation: 'rise 2s ease-in-out infinite',
+                          '@keyframes rise': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-3px)' },
+                          },
+                        }}
+                      />
+                    }
+                    sx={{
+                      background: 'linear-gradient(45deg, #2e7d32 0%, #4caf50 100%)',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      boxShadow: '0 3px 5px 2px rgba(76, 175, 80, 0.3)',
+                      '&:hover': {
+                        background: 'linear-gradient(45deg, #1b5e20 0%, #388e3c 100%)',
+                        boxShadow: '0 4px 8px 2px rgba(76, 175, 80, 0.4)',
+                        transform: 'translateY(-2px)',
+                      },
+                      transition: 'all 0.3s ease',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: '-100%',
+                        width: '100%',
+                        height: '100%',
+                        background:
+                          'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                        transition: '0.5s',
+                      },
+                      '&:hover::after': {
+                        left: '100%',
+                      },
+                    }}
+                    disabled={!isFormValid}
+                  >
+                    Publish Job
+                  </Button>
+                </ButtonGroup>
+              </Box>
+            </Box>
+          </DialogActions>
+        </Dialog>
+
+        {/* Share Job Dialog */}
+        <Dialog
+          open={shareDialogOpen}
+          onClose={() => setShareDialogOpen(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle>Share Job</DialogTitle>
+          <DialogContent>
+            {jobToShare && (
+              <>
+                <Typography variant="subtitle1" gutterBottom>
+                  Sharing: {jobToShare.title}
+                </Typography>
+                <TextField
+                  fullWidth
+                  label="Email Address"
+                  type="email"
+                  margin="normal"
+                  value={emailTo}
+                  onChange={(e) => setEmailTo(e.target.value)}
+                  required
+                />
+                <TextField
+                  fullWidth
+                  label="Message (Optional)"
+                  margin="normal"
+                  multiline
+                  rows={4}
+                  value={shareMessage}
+                  onChange={(e) => setShareMessage(e.target.value)}
+                  placeholder="Check out this job opportunity that might interest you!"
+                />
+              </>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShareDialogOpen(false)}>Cancel</Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleShareJob}
+              disabled={!emailTo}
+            >
+              Share
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Apply For Job Dialog */}
+        <Dialog
+          open={applyDialogOpen}
+          onClose={() => setApplyDialogOpen(false)}
+          fullWidth
+          maxWidth="md"
+        >
+          <DialogTitle>Apply For Job</DialogTitle>
+          <DialogContent>
+            {jobToApply && (
+              <>
+                <Typography variant="subtitle1" gutterBottom>
+                  Applying for: {jobToApply.title}
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField fullWidth label="First Name" margin="normal" required />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField fullWidth label="Last Name" margin="normal" required />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField fullWidth label="Email" type="email" margin="normal" required />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField fullWidth label="Phone" margin="normal" required />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                      Resume/CV
                     </Typography>
+                    <Button
+                      variant="outlined"
+                      component="label"
+                      startIcon={<CloudUploadIcon />}
+                      fullWidth
+                    >
+                      Upload Resume
+                      <input type="file" hidden />
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                      Cover Letter (Optional)
+                    </Typography>
+                    <Button
+                      variant="outlined"
+                      component="label"
+                      startIcon={<CloudUploadIcon />}
+                      fullWidth
+                    >
+                      Upload Cover Letter
+                      <input type="file" hidden />
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      label="Job Title"
-                      name="title"
+                      label="Additional Information"
                       margin="normal"
-                      required
-                      value={newJobForm.title}
-                      onChange={handleFormChange}
-                      error={formErrors.title}
-                      helperText={formErrors.title ? 'Job title is required' : ''}
+                      multiline
+                      rows={4}
+                      placeholder="Include any additional information you'd like to share with the hiring team."
                     />
+                  </Grid>
+                </Grid>
+              </>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setApplyDialogOpen(false)}>Cancel</Button>
+            <Button variant="contained" color="primary" onClick={handleApplyForJob}>
+              Submit Application
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-                    <Grid container spacing={2} sx={{ mt: 1 }}>
-                      <Grid item xs={12} sm={6}>
-                        <TextField
-                          fullWidth
-                          label="Department"
-                          name="department"
-                          required
-                          value={newJobForm.department}
-                          onChange={handleFormChange}
-                          error={formErrors.department}
-                          helperText={formErrors.department ? 'Department is required' : ''}
-                          placeholder="e.g., Engineering, Marketing, HR"
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <TextField
-                          fullWidth
-                          label="Location"
-                          name="location"
-                          required
-                          value={newJobForm.location}
-                          onChange={handleFormChange}
-                          error={formErrors.location}
-                          helperText={formErrors.location ? 'Location is required' : ''}
-                          placeholder="e.g., New York, Remote, San Francisco"
-                        />
-                      </Grid>
-                    </Grid>
+        {/* Preview Dialog */}
+        <Dialog
+          open={previewDialogOpen}
+          onClose={() => setPreviewDialogOpen(false)}
+          fullWidth
+          maxWidth="md"
+        >
+          <DialogTitle>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6">Preview: {previewTitle}</Typography>
+              <IconButton onClick={() => setPreviewDialogOpen(false)} size="small">
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent dividers>
+            <Box sx={{ p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+              <div dangerouslySetInnerHTML={{ __html: previewContent }} />
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setPreviewDialogOpen(false)}>Close</Button>
+          </DialogActions>
+        </Dialog>
 
-                    <FormControl fullWidth margin="normal">
-                      <InputLabel>Job Type</InputLabel>
-                      <Select
-                        label="Job Type"
-                        name="type"
-                        value={newJobForm.type}
-                        onChange={handleFormChange}
-                        required
-                      >
-                        <MenuItem value="Full-time">Full-time</MenuItem>
-                        <MenuItem value="Part-time">Part-time</MenuItem>
-                        <MenuItem value="Contract">Contract</MenuItem>
-                        <MenuItem value="Temporary">Temporary</MenuItem>
-                        <MenuItem value="Internship">Internship</MenuItem>
-                      </Select>
-                    </FormControl>
+        {/* Publish Confirmation Dialog */}
+        <Dialog
+          open={publishConfirmDialogOpen}
+          onClose={() => setPublishConfirmDialogOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>
+            <Box display="flex" alignItems="center" gap={1}>
+              <PublishIcon color="warning" />
+              <Typography variant="h6">Publish Job Confirmation</Typography>
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ mb: 2 }}>
+              <Alert severity="warning" sx={{ mb: 2 }}>
+                <AlertTitle>Publishing is a one-way action</AlertTitle>
+                Once a job is published, it <strong>cannot be edited</strong>. You will only be able
+                to change its status (Active, On-Hold, or Closed) after publishing.
+              </Alert>
 
-                    <Box sx={{ mt: 2 }}>
-                      <Typography variant="subtitle1" gutterBottom>
-                        Featured Status
-                      </Typography>
-                      <FormControlLabel
-                        control={
-                          <Switch
-                            checked={newJobForm.isFeatured}
-                            onChange={handleSwitchChange}
-                            sx={{
-                              '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: amber[500],
-                                '&:hover': {
-                                  backgroundColor: alpha(amber[500], 0.1),
-                                },
-                              },
-                              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                backgroundColor: deepPurple[500],
-                              },
-                              '& .MuiSwitch-thumb': {
-                                boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
-                              },
-                            }}
-                          />
-                        }
-                        label={
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            {newJobForm.isFeatured ? (
-                              <StarIcon
-                                sx={{
-                                  mr: 1,
-                                  color: amber[500],
-                                  animation: 'pulse 1.5s infinite',
-                                  '@keyframes pulse': {
-                                    '0%': { opacity: 0.7 },
-                                    '50%': { opacity: 1 },
-                                    '100%': { opacity: 0.7 },
-                                  },
-                                }}
-                              />
-                            ) : (
-                              <StarBorderIcon sx={{ mr: 1 }} />
-                            )}
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                fontWeight: newJobForm.isFeatured ? 'bold' : 'normal',
-                                background: newJobForm.isFeatured
-                                  ? `linear-gradient(45deg, ${deepPurple[700]} 30%, ${purple[500]} 90%)`
-                                  : 'inherit',
-                                WebkitBackgroundClip: newJobForm.isFeatured ? 'text' : 'inherit',
-                                WebkitTextFillColor: newJobForm.isFeatured
-                                  ? 'transparent'
-                                  : 'inherit',
-                              }}
-                            >
-                              {newJobForm.isFeatured ? 'Featured Job' : 'Standard Job'}
-                            </Typography>
-                          </Box>
-                        }
-                      />
-                    </Box>
-                  </Box>
-                )}
+              {jobToPublish && (
+                <Typography variant="body1">
+                  Are you sure you want to publish "<strong>{jobToPublish.job.title}</strong>"?
+                </Typography>
+              )}
+            </Box>
 
-                {/* Tab 2: Job Outline */}
-                {activeTab === 1 && (
-                  <Box sx={{ p: 1 }}>
-                    <Typography variant="h6" gutterBottom>
-                      Job Description and Responsibilities
-                    </Typography>
-
-                    <Box sx={{ position: 'relative', mb: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="subtitle1" component="label" htmlFor="description">
-                          Job Description
-                          <Typography component="span" color="error">
-                            *
-                          </Typography>
-                        </Typography>
-                        <Tooltip title="Provide a comprehensive overview of the job, including its purpose, main duties, and how it fits into the organization">
-                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                        </Tooltip>
-                      </Box>
-                      {renderTextEditorToolbar('description', 'Job Description')}
-                      <TextField
-                        id="description"
-                        fullWidth
-                        name="description"
-                        multiline
-                        rows={8}
-                        required
-                        value={newJobForm.description}
-                        onChange={handleFormChange}
-                        error={formErrors.description}
-                        helperText={
-                          formErrors.description
-                            ? 'Job description is required'
-                            : 'Max 2000 characters'
-                        }
-                        inputProps={{ maxLength: 2000 }}
-                      />
-                    </Box>
-
-                    <Box sx={{ position: 'relative' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Typography
-                          variant="subtitle1"
-                          component="label"
-                          htmlFor="responsibilities"
-                        >
-                          Responsibilities
-                          <Typography component="span" color="error">
-                            *
-                          </Typography>
-                        </Typography>
-                        <Tooltip title="List the key responsibilities for this position, enter each responsibility on a new line">
-                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                        </Tooltip>
-                      </Box>
-                      {renderTextEditorToolbar('responsibilities', 'Responsibilities')}
-                      <TextField
-                        id="responsibilities"
-                        fullWidth
-                        name="responsibilities"
-                        multiline
-                        rows={8}
-                        value={newJobForm.responsibilities}
-                        onChange={handleFormChange}
-                        placeholder="Enter each responsibility on a new line"
-                        helperText={
-                          formErrors.responsibilities
-                            ? 'Responsibilities are required'
-                            : 'Max 1000 characters'
-                        }
-                        inputProps={{ maxLength: 1000 }}
-                        required
-                        error={formErrors.responsibilities}
-                      />
-                    </Box>
-                  </Box>
-                )}
-
-                {/* Tab 3: Qualifications & Experience */}
-                {activeTab === 2 && (
-                  <Box sx={{ p: 1 }}>
-                    <Typography variant="h6" gutterBottom>
-                      Candidate Requirements
-                    </Typography>
-
-                    <Box sx={{ position: 'relative', mb: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="subtitle1" component="label" htmlFor="experience">
-                          Experience Required
-                          <Typography component="span" color="error">
-                            *
-                          </Typography>
-                        </Typography>
-                        <Tooltip title="Specify the years of experience needed for this position">
-                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                        </Tooltip>
-                      </Box>
-                      <TextField
-                        id="experience"
-                        fullWidth
-                        name="experience"
-                        margin="normal"
-                        value={newJobForm.experience}
-                        onChange={handleFormChange}
-                        placeholder="e.g., 3-5 years in similar role"
-                        helperText={
-                          formErrors.experience ? 'Experience is required' : 'Max 100 characters'
-                        }
-                        inputProps={{ maxLength: 100 }}
-                        required
-                        error={formErrors.experience}
-                      />
-                    </Box>
-
-                    <Box sx={{ position: 'relative', mb: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="subtitle1" component="label" htmlFor="requirements">
-                          Qualifications
-                          <Typography component="span" color="error">
-                            *
-                          </Typography>
-                        </Typography>
-                        <Tooltip title="List the qualifications required for this position, such as education, certifications, or knowledge areas">
-                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                        </Tooltip>
-                      </Box>
-                      {renderTextEditorToolbar('requirements', 'Qualifications')}
-                      <TextField
-                        id="requirements"
-                        fullWidth
-                        name="requirements"
-                        multiline
-                        rows={6}
-                        value={newJobForm.requirements}
-                        onChange={handleFormChange}
-                        placeholder="Enter each qualification on a new line"
-                        helperText={
-                          formErrors.requirements
-                            ? 'Qualifications are required'
-                            : 'Max 1000 characters'
-                        }
-                        inputProps={{ maxLength: 1000 }}
-                        required
-                        error={formErrors.requirements}
-                      />
-                    </Box>
-
-                    <Box sx={{ position: 'relative' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="subtitle1" component="label" htmlFor="skills">
-                          Skills
-                          <Typography component="span" color="error">
-                            *
-                          </Typography>
-                        </Typography>
-                        <Tooltip title="Specify technical or soft skills needed for the role, one per line">
-                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                        </Tooltip>
-                      </Box>
-                      {renderTextEditorToolbar('skills', 'Skills')}
-                      <TextField
-                        id="skills"
-                        fullWidth
-                        name="skills"
-                        multiline
-                        rows={4}
-                        value={newJobForm.skills}
-                        onChange={handleFormChange}
-                        placeholder="Enter each skill on a new line"
-                        helperText={
-                          formErrors.skills ? 'Skills are required' : 'Max 500 characters'
-                        }
-                        inputProps={{ maxLength: 500 }}
-                        required
-                        error={formErrors.skills}
-                      />
-                    </Box>
-                  </Box>
-                )}
-
-                {/* Tab 4: Salary & Benefits */}
-                {activeTab === 3 && (
-                  <Box sx={{ p: 1 }}>
-                    <Typography variant="h6" gutterBottom>
-                      Compensation and Benefits
-                    </Typography>
-
-                    <Box sx={{ position: 'relative', mb: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="subtitle1" component="label" htmlFor="salary">
-                          Salary Range
-                          <Typography component="span" color="error">
-                            *
-                          </Typography>
-                        </Typography>
-                        <Tooltip title="Provide a salary range to attract the right candidates">
-                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                        </Tooltip>
-                      </Box>
-                      <TextField
-                        id="salary"
-                        fullWidth
-                        name="salary"
-                        margin="normal"
-                        value={newJobForm.salary}
-                        onChange={handleSalaryChange}
-                        placeholder="e.g., $80,000 - $100,000"
-                        helperText={formErrors.salary ? 'Salary is required' : 'Max 100 characters'}
-                        inputProps={{ maxLength: 100 }}
-                        required
-                        error={formErrors.salary}
-                      />
-                    </Box>
-
-                    <Box sx={{ position: 'relative' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="subtitle1" component="label" htmlFor="benefits">
-                          Benefits
-                          <Typography component="span" color="error">
-                            *
-                          </Typography>
-                        </Typography>
-                        <Tooltip title="List benefits such as healthcare, 401k, time off, work-from-home options, etc.">
-                          <InfoIcon fontSize="small" color="action" sx={{ ml: 1 }} />
-                        </Tooltip>
-                      </Box>
-                      {renderTextEditorToolbar('benefits', 'Benefits')}
-                      <TextField
-                        id="benefits"
-                        fullWidth
-                        name="benefits"
-                        multiline
-                        rows={8}
-                        value={newJobForm.benefits}
-                        onChange={handleFormChange}
-                        placeholder="Enter each benefit on a new line"
-                        helperText={
-                          formErrors.benefits ? 'Benefits are required' : 'Max 1000 characters'
-                        }
-                        inputProps={{ maxLength: 1000 }}
-                        required
-                        error={formErrors.benefits}
-                      />
-                    </Box>
-                  </Box>
-                )}
-              </Box>
-            </DialogContent>
-            <DialogActions
+            <Box
               sx={{
-                px: 3,
-                py: 2,
-                display: 'flex',
-                justifyContent: 'space-between',
-                borderTop: '1px solid rgba(0, 0, 0, 0.12)',
+                mt: 2,
+                bgcolor: '#ffffff',
+                p: 2,
+                borderRadius: 1,
+                border: '1px solid #e0e0e0',
               }}
             >
-              <Box>
-                <Button onClick={() => setNewJobDialogOpen(false)} color="inherit">
-                  Cancel
-                </Button>
-              </Box>
-
-              <Box display="flex" gap={1}>
-                {activeTab > 0 && (
-                  <Button
-                    onClick={handlePrevTab}
-                    startIcon={<KeyboardArrowLeft />}
-                    variant="outlined"
-                  >
-                    Previous
-                  </Button>
-                )}
-
-                {activeTab < 3 && (
-                  <Button
-                    onClick={handleNextTab}
-                    endIcon={<KeyboardArrowRight />}
-                    variant="outlined"
-                  >
-                    Next
-                  </Button>
-                )}
-
-                {/* Draft and Publish buttons */}
-                <Box sx={{ ml: 1 }}>
-                  <ButtonGroup variant="contained">
-                    <Button
-                      onClick={() => handleCreateNewJob(true)}
-                      startIcon={
-                        <CloudUploadIcon
-                          sx={{
-                            animation: 'float 3s ease-in-out infinite',
-                            '@keyframes float': {
-                              '0%, 100%': { transform: 'translateY(0)' },
-                              '50%': { transform: 'translateY(-3px)' },
-                            },
-                          }}
-                        />
-                      }
-                      sx={{
-                        background: `linear-gradient(45deg, ${amber[700]} 0%, ${amber[500]} 100%)`,
-                        color: 'white',
-                        fontWeight: 'bold',
-                        boxShadow: '0 3px 5px 2px rgba(255, 193, 7, 0.3)',
-                        '&:hover': {
-                          background: `linear-gradient(45deg, ${amber[800]} 0%, ${amber[600]} 100%)`,
-                          boxShadow: '0 4px 8px 2px rgba(255, 193, 7, 0.4)',
-                          transform: 'translateY(-2px)',
-                        },
-                        transition: 'all 0.3s ease',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        '&::after': {
-                          content: '""',
-                          position: 'absolute',
-                          top: 0,
-                          left: '-100%',
-                          width: '100%',
-                          height: '100%',
-                          background:
-                            'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                          transition: '0.5s',
-                        },
-                        '&:hover::after': {
-                          left: '100%',
-                        },
-                      }}
-                      disabled={!newJobForm.title || newJobForm.title.trim() === ''}
-                    >
-                      Save as Draft
-                    </Button>
-                    <Button
-                      onClick={() => handleCreateNewJob(false)}
-                      startIcon={
-                        <PublishIcon
-                          sx={{
-                            animation: 'rise 2s ease-in-out infinite',
-                            '@keyframes rise': {
-                              '0%, 100%': { transform: 'translateY(0)' },
-                              '50%': { transform: 'translateY(-3px)' },
-                            },
-                          }}
-                        />
-                      }
-                      sx={{
-                        background: 'linear-gradient(45deg, #2e7d32 0%, #4caf50 100%)',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        boxShadow: '0 3px 5px 2px rgba(76, 175, 80, 0.3)',
-                        '&:hover': {
-                          background: 'linear-gradient(45deg, #1b5e20 0%, #388e3c 100%)',
-                          boxShadow: '0 4px 8px 2px rgba(76, 175, 80, 0.4)',
-                          transform: 'translateY(-2px)',
-                        },
-                        transition: 'all 0.3s ease',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        '&::after': {
-                          content: '""',
-                          position: 'absolute',
-                          top: 0,
-                          left: '-100%',
-                          width: '100%',
-                          height: '100%',
-                          background:
-                            'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                          transition: '0.5s',
-                        },
-                        '&:hover::after': {
-                          left: '100%',
-                        },
-                      }}
-                      disabled={!isFormValid}
-                    >
-                      Publish Job
-                    </Button>
-                  </ButtonGroup>
-                </Box>
-              </Box>
-            </DialogActions>
-          </Dialog>
-
-          {/* Share Job Dialog */}
-          <Dialog
-            open={shareDialogOpen}
-            onClose={() => setShareDialogOpen(false)}
-            fullWidth
-            maxWidth="sm"
-          >
-            <DialogTitle>Share Job</DialogTitle>
-            <DialogContent>
-              {jobToShare && (
-                <>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Sharing: {jobToShare.title}
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    label="Email Address"
-                    type="email"
-                    margin="normal"
-                    value={emailTo}
-                    onChange={(e) => setEmailTo(e.target.value)}
-                    required
-                  />
-                  <TextField
-                    fullWidth
-                    label="Message (Optional)"
-                    margin="normal"
-                    multiline
-                    rows={4}
-                    value={shareMessage}
-                    onChange={(e) => setShareMessage(e.target.value)}
-                    placeholder="Check out this job opportunity that might interest you!"
-                  />
-                </>
-              )}
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setShareDialogOpen(false)}>Cancel</Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleShareJob}
-                disabled={!emailTo}
+              <Typography
+                variant="subtitle2"
+                gutterBottom
+                sx={{ color: '#000000', fontWeight: 600, fontSize: '1rem' }}
               >
-                Share
-              </Button>
-            </DialogActions>
-          </Dialog>
+                What happens after publishing:
+              </Typography>
 
-          {/* Apply For Job Dialog */}
-          <Dialog
-            open={applyDialogOpen}
-            onClose={() => setApplyDialogOpen(false)}
-            fullWidth
-            maxWidth="md"
-          >
-            <DialogTitle>Apply For Job</DialogTitle>
-            <DialogContent>
-              {jobToApply && (
-                <>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Applying for: {jobToApply.title}
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <TextField fullWidth label="First Name" margin="normal" required />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField fullWidth label="Last Name" margin="normal" required />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField fullWidth label="Email" type="email" margin="normal" required />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField fullWidth label="Phone" margin="normal" required />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
-                        Resume/CV
-                      </Typography>
-                      <Button
-                        variant="outlined"
-                        component="label"
-                        startIcon={<CloudUploadIcon />}
-                        fullWidth
-                      >
-                        Upload Resume
-                        <input type="file" hidden />
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
-                        Cover Letter (Optional)
-                      </Typography>
-                      <Button
-                        variant="outlined"
-                        component="label"
-                        startIcon={<CloudUploadIcon />}
-                        fullWidth
-                      >
-                        Upload Cover Letter
-                        <input type="file" hidden />
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        fullWidth
-                        label="Additional Information"
-                        margin="normal"
-                        multiline
-                        rows={4}
-                        placeholder="Include any additional information you'd like to share with the hiring team."
-                      />
-                    </Grid>
-                  </Grid>
-                </>
-              )}
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setApplyDialogOpen(false)}>Cancel</Button>
-              <Button variant="contained" color="primary" onClick={handleApplyForJob}>
-                Submit Application
-              </Button>
-            </DialogActions>
-          </Dialog>
-
-          {/* Preview Dialog */}
-          <Dialog
-            open={previewDialogOpen}
-            onClose={() => setPreviewDialogOpen(false)}
-            fullWidth
-            maxWidth="md"
-          >
-            <DialogTitle>
-              <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Typography variant="h6">Preview: {previewTitle}</Typography>
-                <IconButton onClick={() => setPreviewDialogOpen(false)} size="small">
-                  <CloseIcon />
-                </IconButton>
-              </Box>
-            </DialogTitle>
-            <DialogContent dividers>
-              <Box sx={{ p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-                <div dangerouslySetInnerHTML={{ __html: previewContent }} />
-              </Box>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setPreviewDialogOpen(false)}>Close</Button>
-            </DialogActions>
-          </Dialog>
-
-          {/* Publish Confirmation Dialog */}
-          <Dialog
-            open={publishConfirmDialogOpen}
-            onClose={() => setPublishConfirmDialogOpen(false)}
-            maxWidth="sm"
-            fullWidth
-          >
-            <DialogTitle>
-              <Box display="flex" alignItems="center" gap={1}>
-                <PublishIcon color="warning" />
-                <Typography variant="h6">Publish Job Confirmation</Typography>
-              </Box>
-            </DialogTitle>
-            <DialogContent>
-              <Box sx={{ mb: 2 }}>
-                <Alert severity="warning" sx={{ mb: 2 }}>
-                  <AlertTitle>Publishing is a one-way action</AlertTitle>
-                  Once a job is published, it <strong>cannot be edited</strong>. You will only be
-                  able to change its status (Active, On-Hold, or Closed) after publishing.
-                </Alert>
-
-                {jobToPublish && (
-                  <Typography variant="body1">
-                    Are you sure you want to publish "<strong>{jobToPublish.job.title}</strong>"?
-                  </Typography>
-                )}
-              </Box>
-
-              <Box
-                sx={{
-                  mt: 2,
-                  bgcolor: '#ffffff',
-                  p: 2,
-                  borderRadius: 1,
-                  border: '1px solid #e0e0e0',
-                }}
-              >
-                <Typography
-                  variant="subtitle2"
-                  gutterBottom
-                  sx={{ color: '#000000', fontWeight: 600, fontSize: '1rem' }}
-                >
-                  What happens after publishing:
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, mt: 1 }}>
+                <CheckIcon style={{ color: '#2e7d32', marginRight: '12px' }} fontSize="small" />
+                <Typography sx={{ color: '#000000', fontWeight: 500 }}>
+                  Job becomes immediately visible to applicants
                 </Typography>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, mt: 1 }}>
-                  <CheckIcon style={{ color: '#2e7d32', marginRight: '12px' }} fontSize="small" />
-                  <Typography sx={{ color: '#000000', fontWeight: 500 }}>
-                    Job becomes immediately visible to applicants
-                  </Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <CheckIcon style={{ color: '#2e7d32', marginRight: '12px' }} fontSize="small" />
-                  <Typography sx={{ color: '#000000', fontWeight: 500 }}>
-                    Applications can be received
-                  </Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <BlockIcon style={{ color: '#d32f2f', marginRight: '12px' }} fontSize="small" />
-                  <Typography sx={{ color: '#000000', fontWeight: 500 }}>
-                    Job content cannot be modified
-                  </Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <InfoIcon style={{ color: '#0288d1', marginRight: '12px' }} fontSize="small" />
-                  <Typography sx={{ color: '#000000', fontWeight: 500 }}>
-                    Status can be changed (Active, On-Hold, Closed)
-                  </Typography>
-                </Box>
               </Box>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setPublishConfirmDialogOpen(false)}>Cancel</Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={confirmPublishJob}
-                startIcon={<PublishIcon />}
-              >
-                Publish Job
-              </Button>
-            </DialogActions>
-          </Dialog>
 
-          {/* Snackbar for notifications */}
-          <Snackbar
-            open={snackbarOpen}
-            autoHideDuration={6000}
-            onClose={() => setSnackbarOpen(false)}
-            message={snackbarMessage}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          />
-        </Box>
-      )}
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <CheckIcon style={{ color: '#2e7d32', marginRight: '12px' }} fontSize="small" />
+                <Typography sx={{ color: '#000000', fontWeight: 500 }}>
+                  Applications can be received
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <BlockIcon style={{ color: '#d32f2f', marginRight: '12px' }} fontSize="small" />
+                <Typography sx={{ color: '#000000', fontWeight: 500 }}>
+                  Job content cannot be modified
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <InfoIcon style={{ color: '#0288d1', marginRight: '12px' }} fontSize="small" />
+                <Typography sx={{ color: '#000000', fontWeight: 500 }}>
+                  Status can be changed (Active, On-Hold, Closed)
+                </Typography>
+              </Box>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setPublishConfirmDialogOpen(false)}>Cancel</Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={confirmPublishJob}
+              startIcon={<PublishIcon />}
+            >
+              Publish Job
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Snackbar for notifications */}
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={() => setSnackbarOpen(false)}
+          message={snackbarMessage}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        />
+      </Box>
     </Box>
   );
 };

@@ -113,8 +113,8 @@ const Dashboard: React.FC = () => {
   // Helper functions for navigation
   const navigateTo = (path: string) => {
     console.log(`Navigating to: ${path}`);
-    if (path === '/jobs/create') {
-      navigate('/job-openings');
+    if (path === '/job-board') {
+      navigate('/job-board');
     } else if (path === '/schedule-interview') {
       navigate('/interviews');
     } else {
@@ -258,7 +258,7 @@ const Dashboard: React.FC = () => {
                     boxShadow: 3,
                   },
                 }}
-                onClick={() => navigateTo('/jobs/create')}
+                onClick={() => navigateTo('/job-board')}
               >
                 <Box
                   sx={{
@@ -271,10 +271,10 @@ const Dashboard: React.FC = () => {
                   <WorkIcon sx={{ fontSize: 40, color: '#1976d2' }} />
                 </Box>
                 <Typography variant="h6" gutterBottom>
-                  Post Job
+                  Job Management
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Create and publish a new job opening
+                  Manage and publish job openings
                 </Typography>
               </Card>
             </Grid>

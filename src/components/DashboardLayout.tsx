@@ -129,22 +129,10 @@ export default function DashboardLayout({
       ariaLabel: 'Navigate to candidates list',
     },
     {
-      text: 'Job Openings',
-      icon: <WorkIcon />,
-      path: '/job-openings',
-      ariaLabel: 'Navigate to job openings',
-    },
-    {
-      text: 'Job Board',
+      text: 'Job Management',
       icon: <WorkIcon />,
       path: '/job-board',
-      ariaLabel: 'Navigate to job board',
-    },
-    {
-      text: 'Job Distribution',
-      icon: <ShareIcon />,
-      path: '/job-distribution',
-      ariaLabel: 'Navigate to job distribution',
+      ariaLabel: 'Navigate to job management',
     },
     {
       text: 'Interviews',
@@ -206,7 +194,13 @@ export default function DashboardLayout({
       <Divider />
       <List>
         {navigationItems.map((item) => {
-          const isActive = location.pathname.startsWith(item.path);
+          // For Job Management, check if path starts with any of the job-related paths
+          const isActive =
+            item.text === 'Job Management'
+              ? ['/job-board', '/job-openings', '/job-distribution'].some((path) =>
+                  location.pathname.startsWith(path)
+                )
+              : location.pathname.startsWith(item.path);
 
           return (
             <ListItem key={item.text} disablePadding>

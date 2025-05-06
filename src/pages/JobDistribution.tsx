@@ -480,7 +480,7 @@ const mockDistributionHistory: DistributionHistory[] = [
 // Main component
 const JobDistribution: React.FC = () => {
   // State
-  const [activeTab, setActiveTab] = useState<TabValue>('boards');
+  const [currentTab, setCurrentTab] = useState<TabValue>('boards');
   const [jobBoards, setJobBoards] = useState<JobBoard[]>(mockJobBoards);
   const [jobs, setJobs] = useState<Job[]>(mockJobs);
   const [distributionHistory, setDistributionHistory] =
@@ -525,7 +525,7 @@ const JobDistribution: React.FC = () => {
 
   // Handle tab change
   const handleTabChange = (_event: React.SyntheticEvent, newValue: TabValue) => {
-    setActiveTab(newValue);
+    setCurrentTab(newValue);
   };
 
   // Handle search change
@@ -804,360 +804,460 @@ const JobDistribution: React.FC = () => {
   };
 
   return (
-    <Box sx={{ padding: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Job Distribution
-      </Typography>
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        overflow: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <Box sx={{ p: { xs: 1, sm: 2 } }}>
+        {/* Tabs for different views */}
+        <Box sx={{ mb: 3 }}>
+          <Tabs
+            value={currentTab}
+            onChange={handleTabChange}
+            aria-label="job distribution tabs"
+            sx={{ borderBottom: 1, borderColor: 'divider' }}
+          >
+            <Tab value="boards" label="Job Boards" />
+            <Tab value="distribution" label="Distribution" />
+            <Tab value="history" label="History" />
+          </Tabs>
+        </Box>
 
-      <Grid container spacing={3}>
-        {/* Overview Cards */}
-        <Grid component="div" item xs={12} md={4}>
-          <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
-            <Typography variant="h6" gutterBottom>
-              Total Distributions
-            </Typography>
-            <Typography variant="h3" color="primary">
-              {distributionHistory.length}
-            </Typography>
-          </Paper>
-        </Grid>
+        {/* Search and filters */}
+        <Box
+          sx={{
+            mb: 2,
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'flex-start', md: 'center' },
+            justifyContent: 'space-between',
+            gap: 2,
+          }}
+        >
+          <TextField
+            size="small"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ minWidth: 200, maxWidth: { xs: '100%', md: 250 } }}
+          />
 
-        <Grid component="div" item xs={12} md={4}>
-          <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
-            <Typography variant="h6" gutterBottom>
-              Connected Platforms
-            </Typography>
-            <Typography variant="h3" color="primary">
-              {jobBoards.filter((board) => board.status === 'Connected').length}
-            </Typography>
-          </Paper>
-        </Grid>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: 1,
+              width: { xs: '100%', md: 'auto' },
+            }}
+          >
+            <FormControl fullWidth>
+              <InputLabel>Type</InputLabel>
+              <Select value={typeFilter} onChange={handleTypeFilterChange} label="Type">
+                <MenuItem value="All">All</MenuItem>
+                <MenuItem value="Premium">Premium</MenuItem>
+                <MenuItem value="Free">Free</MenuItem>
+                <MenuItem value="Paid">Paid</MenuItem>
+              </Select>
+            </FormControl>
 
-        <Grid component="div" item xs={12} md={4}>
-          <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
-            <Typography variant="h6" gutterBottom>
-              Total Applications
-            </Typography>
-            <Typography variant="h3" color="primary">
-              {distributionHistory.reduce((sum, item) => sum + item.applicants, 0)}
-            </Typography>
-          </Paper>
-        </Grid>
+            <FormControl fullWidth>
+              <InputLabel>Status</InputLabel>
+              <Select value={statusFilter} onChange={handleStatusFilterChange} label="Status">
+                <MenuItem value="All">All</MenuItem>
+                <MenuItem value="Connected">Connected</MenuItem>
+                <MenuItem value="Disconnected">Disconnected</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </Box>
 
-        {/* Job Boards Section */}
-        <Grid component="div" item xs={12}>
-          <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-            <Box
-              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
-            >
-              <Typography variant="h6">Connected Job Boards</Typography>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleOpenAddBoardDialog}
-              >
-                Add Platform
-              </Button>
-            </Box>
+        {/* Tab content */}
+        {currentTab === 'boards' && (
+          <Grid container spacing={3}>
+            {/* Overview Cards */}
+            <Grid component="div" item xs={12} md={4}>
+              <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
+                <Typography variant="h6" gutterBottom>
+                  Total Distributions
+                </Typography>
+                <Typography variant="h3" color="primary">
+                  {distributionHistory.length}
+                </Typography>
+              </Paper>
+            </Grid>
 
-            <Grid container spacing={2}>
-              {filteredBoards.map((board) => (
-                <Grid component="div" item xs={12} sm={6} md={4} lg={3} key={board.id}>
-                  <Card
-                    sx={{
-                      height: '100%',
-                      borderLeft: `4px solid ${board.color}`,
-                      opacity: board.status === 'Connected' ? 1 : 0.6,
-                    }}
+            <Grid component="div" item xs={12} md={4}>
+              <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
+                <Typography variant="h6" gutterBottom>
+                  Connected Platforms
+                </Typography>
+                <Typography variant="h3" color="primary">
+                  {jobBoards.filter((board) => board.status === 'Connected').length}
+                </Typography>
+              </Paper>
+            </Grid>
+
+            <Grid component="div" item xs={12} md={4}>
+              <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
+                <Typography variant="h6" gutterBottom>
+                  Total Applications
+                </Typography>
+                <Typography variant="h3" color="primary">
+                  {distributionHistory.reduce((sum, item) => sum + item.applicants, 0)}
+                </Typography>
+              </Paper>
+            </Grid>
+
+            {/* Job Boards Section */}
+            <Grid component="div" item xs={12}>
+              <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 2,
+                  }}
+                >
+                  <Typography variant="h6">Connected Job Boards</Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={handleOpenAddBoardDialog}
                   >
-                    <CardContent>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            bgcolor: board.color,
-                            color: 'white',
-                            width: 36,
-                            height: 36,
-                            borderRadius: '50%',
-                            mr: 1,
-                          }}
-                        >
-                          <PlatformIcon platform={board.id} />
-                        </Box>
-                        <Typography variant="h6">{board.name}</Typography>
-                      </Box>
+                    Add Platform
+                  </Button>
+                </Box>
 
-                      <Box
+                <Grid container spacing={2}>
+                  {filteredBoards.map((board) => (
+                    <Grid component="div" item xs={12} sm={6} md={4} lg={3} key={board.id}>
+                      <Card
                         sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
+                          height: '100%',
+                          borderLeft: `4px solid ${board.color}`,
+                          opacity: board.status === 'Connected' ? 1 : 0.6,
                         }}
                       >
-                        <StatusLabel status={board.status} type="board" />
-
-                        <Box>
-                          <IconButton size="small" onClick={() => handleOpenEditDialog(board)}>
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          {board.id !== 'linkedin' && (
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={() => handleOpenDeleteConfirm(board.id)}
+                        <CardContent>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                bgcolor: board.color,
+                                color: 'white',
+                                width: 36,
+                                height: 36,
+                                borderRadius: '50%',
+                                mr: 1,
+                              }}
                             >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          )}
-                        </Box>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Paper>
-        </Grid>
+                              <PlatformIcon platform={board.id} />
+                            </Box>
+                            <Typography variant="h6">{board.name}</Typography>
+                          </Box>
 
-        {/* Jobs for Distribution */}
-        <Grid component="div" item xs={12}>
-          <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Jobs Available for Distribution
-            </Typography>
-
-            <Grid container spacing={2}>
-              {jobs
-                .filter((job) => job.status === 'Active')
-                .map((job) => (
-                  <Grid item xs={12} sm={6} md={4} key={job.id}>
-                    <Card sx={{ height: '100%' }}>
-                      <CardContent>
-                        <Typography variant="h6" gutterBottom>
-                          {job.title}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                          Department: {job.department}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                          Status: {job.status}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                          Applicants:{' '}
-                          {job.distribution.filter((dist) => dist.status === 'Published').length}
-                        </Typography>
-
-                        <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-                          <Button
-                            variant="outlined"
-                            onClick={() => handleOpenDistributeDialog(job)}
-                            sx={{ flexGrow: 1 }}
-                          >
-                            Distribution
-                          </Button>
-                          <Button
-                            variant="contained"
-                            startIcon={<ShareIcon />}
-                            onClick={() => {
-                              // Make sure we have a job selected and boards to distribute to
-                              const connectedBoardIds = jobBoards
-                                .filter((board) => board.status === 'Connected')
-                                .map((board) => board.id);
-
-                              if (connectedBoardIds.length === 0) {
-                                setAlertMessage(
-                                  'No connected job boards available. Please connect at least one job board first.'
-                                );
-                                setAlertSeverity('error');
-                                setIsAlertOpen(true);
-                                return;
-                              }
-
-                              // Set the selected job and boards, then call the distribute function
-                              setSelectedJob(job);
-                              setSelectedBoards(connectedBoardIds);
-
-                              // Directly call the distribution function without opening the dialog
-                              const updatedJobs = jobs.map((j) => {
-                                if (j.id === job.id) {
-                                  // Create new distribution entries for all connected boards
-                                  const updatedDistribution = [...j.distribution];
-
-                                  connectedBoardIds.forEach((boardId) => {
-                                    // Check if board already exists in distribution
-                                    const existingIndex = updatedDistribution.findIndex(
-                                      (dist) => dist.boardId === boardId
-                                    );
-
-                                    if (existingIndex >= 0) {
-                                      // Update existing distribution
-                                      updatedDistribution[existingIndex] = {
-                                        ...updatedDistribution[existingIndex],
-                                        status: 'Published',
-                                        postedDate: new Date().toISOString().split('T')[0],
-                                        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                                          .toISOString()
-                                          .split('T')[0],
-                                        applicants: 0,
-                                        views: 0,
-                                        clicks: 0,
-                                        cost:
-                                          jobBoards.find((board) => board.id === boardId)?.cost ||
-                                          0,
-                                      };
-                                    } else {
-                                      // Add new distribution
-                                      updatedDistribution.push({
-                                        boardId,
-                                        status: 'Published',
-                                        postedDate: new Date().toISOString().split('T')[0],
-                                        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                                          .toISOString()
-                                          .split('T')[0],
-                                        applicants: 0,
-                                        views: 0,
-                                        clicks: 0,
-                                        cost:
-                                          jobBoards.find((board) => board.id === boardId)?.cost ||
-                                          0,
-                                      });
-                                    }
-                                  });
-
-                                  return {
-                                    ...j,
-                                    distribution: updatedDistribution,
-                                  };
-                                }
-                                return j;
-                              });
-
-                              // Update job distribution history
-                              const newHistoryEntries: DistributionHistory[] = [];
-
-                              connectedBoardIds.forEach((boardId) => {
-                                const board = jobBoards.find((b) => b.id === boardId);
-                                if (!board) return;
-
-                                newHistoryEntries.push({
-                                  id: distributionHistory.length + newHistoryEntries.length + 1,
-                                  jobId: job.id,
-                                  jobTitle: job.title,
-                                  boardId,
-                                  boardName: board.name,
-                                  status: 'Published',
-                                  postedDate: new Date().toISOString().split('T')[0],
-                                  expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                                    .toISOString()
-                                    .split('T')[0],
-                                  applicants: 0,
-                                  views: 0,
-                                  clicks: 0,
-                                  cost: board.cost,
-                                });
-                              });
-
-                              // Update state
-                              setJobs(updatedJobs);
-                              setDistributionHistory([
-                                ...distributionHistory,
-                                ...newHistoryEntries,
-                              ]);
-
-                              // Show success message
-                              setAlertMessage(
-                                `Job "${job.title}" successfully distributed to ${connectedBoardIds.length} job boards.`
-                              );
-                              setAlertSeverity('success');
-                              setIsAlertOpen(true);
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
                             }}
                           >
-                            Quick Publish
-                          </Button>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-            </Grid>
-          </Paper>
-        </Grid>
+                            <StatusLabel status={board.status} type="board" />
 
-        {/* Distribution History */}
-        <Grid component="div" item xs={12}>
-          <Paper elevation={2} sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Distribution History
-            </Typography>
-
-            {distributionHistory.map((dist) => (
-              <Card sx={{ mb: 2 }} key={dist.id}>
-                <CardContent>
-                  <Grid container spacing={2}>
-                    <Grid component="div" item xs={12} md={4}>
-                      <Typography variant="h6">{dist.jobTitle}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Distributed on: {dist.date || dist.postedDate}
-                      </Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
-                        {dist.platforms?.map((platform, idx) => (
-                          <Chip key={idx} label={platform} size="small" variant="outlined" />
-                        ))}
-                      </Box>
+                            <Box>
+                              <IconButton size="small" onClick={() => handleOpenEditDialog(board)}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                              {board.id !== 'linkedin' && (
+                                <IconButton
+                                  size="small"
+                                  color="error"
+                                  onClick={() => handleOpenDeleteConfirm(board.id)}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              )}
+                            </Box>
+                          </Box>
+                        </CardContent>
+                      </Card>
                     </Grid>
+                  ))}
+                </Grid>
+              </Paper>
+            </Grid>
 
-                    <Grid component="div" item xs={12} md={6}>
+            {/* Jobs for Distribution */}
+            <Grid component="div" item xs={12}>
+              <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  Jobs Available for Distribution
+                </Typography>
+
+                <Grid container spacing={2}>
+                  {jobs
+                    .filter((job) => job.status === 'Active')
+                    .map((job) => (
+                      <Grid item xs={12} sm={6} md={4} key={job.id}>
+                        <Card sx={{ height: '100%' }}>
+                          <CardContent>
+                            <Typography variant="h6" gutterBottom>
+                              {job.title}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                              Department: {job.department}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                              Status: {job.status}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                              Applicants:{' '}
+                              {
+                                job.distribution.filter((dist) => dist.status === 'Published')
+                                  .length
+                              }
+                            </Typography>
+
+                            <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                              <Button
+                                variant="outlined"
+                                onClick={() => handleOpenDistributeDialog(job)}
+                                sx={{ flexGrow: 1 }}
+                              >
+                                Distribution
+                              </Button>
+                              <Button
+                                variant="contained"
+                                startIcon={<ShareIcon />}
+                                onClick={() => {
+                                  // Make sure we have a job selected and boards to distribute to
+                                  const connectedBoardIds = jobBoards
+                                    .filter((board) => board.status === 'Connected')
+                                    .map((board) => board.id);
+
+                                  if (connectedBoardIds.length === 0) {
+                                    setAlertMessage(
+                                      'No connected job boards available. Please connect at least one job board first.'
+                                    );
+                                    setAlertSeverity('error');
+                                    setIsAlertOpen(true);
+                                    return;
+                                  }
+
+                                  // Set the selected job and boards, then call the distribute function
+                                  setSelectedJob(job);
+                                  setSelectedBoards(connectedBoardIds);
+
+                                  // Directly call the distribution function without opening the dialog
+                                  const updatedJobs = jobs.map((j) => {
+                                    if (j.id === job.id) {
+                                      // Create new distribution entries for all connected boards
+                                      const updatedDistribution = [...j.distribution];
+
+                                      connectedBoardIds.forEach((boardId) => {
+                                        // Check if board already exists in distribution
+                                        const existingIndex = updatedDistribution.findIndex(
+                                          (dist) => dist.boardId === boardId
+                                        );
+
+                                        if (existingIndex >= 0) {
+                                          // Update existing distribution
+                                          updatedDistribution[existingIndex] = {
+                                            ...updatedDistribution[existingIndex],
+                                            status: 'Published',
+                                            postedDate: new Date().toISOString().split('T')[0],
+                                            expiryDate: new Date(
+                                              Date.now() + 30 * 24 * 60 * 60 * 1000
+                                            )
+                                              .toISOString()
+                                              .split('T')[0],
+                                            applicants: 0,
+                                            views: 0,
+                                            clicks: 0,
+                                            cost:
+                                              jobBoards.find((board) => board.id === boardId)
+                                                ?.cost || 0,
+                                          };
+                                        } else {
+                                          // Add new distribution
+                                          updatedDistribution.push({
+                                            boardId,
+                                            status: 'Published',
+                                            postedDate: new Date().toISOString().split('T')[0],
+                                            expiryDate: new Date(
+                                              Date.now() + 30 * 24 * 60 * 60 * 1000
+                                            )
+                                              .toISOString()
+                                              .split('T')[0],
+                                            applicants: 0,
+                                            views: 0,
+                                            clicks: 0,
+                                            cost:
+                                              jobBoards.find((board) => board.id === boardId)
+                                                ?.cost || 0,
+                                          });
+                                        }
+                                      });
+
+                                      return {
+                                        ...j,
+                                        distribution: updatedDistribution,
+                                      };
+                                    }
+                                    return j;
+                                  });
+
+                                  // Update job distribution history
+                                  const newHistoryEntries: DistributionHistory[] = [];
+
+                                  connectedBoardIds.forEach((boardId) => {
+                                    const board = jobBoards.find((b) => b.id === boardId);
+                                    if (!board) return;
+
+                                    newHistoryEntries.push({
+                                      id: distributionHistory.length + newHistoryEntries.length + 1,
+                                      jobId: job.id,
+                                      jobTitle: job.title,
+                                      boardId,
+                                      boardName: board.name,
+                                      status: 'Published',
+                                      postedDate: new Date().toISOString().split('T')[0],
+                                      expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                                        .toISOString()
+                                        .split('T')[0],
+                                      applicants: 0,
+                                      views: 0,
+                                      clicks: 0,
+                                      cost: board.cost,
+                                    });
+                                  });
+
+                                  // Update state
+                                  setJobs(updatedJobs);
+                                  setDistributionHistory([
+                                    ...distributionHistory,
+                                    ...newHistoryEntries,
+                                  ]);
+
+                                  // Show success message
+                                  setAlertMessage(
+                                    `Job "${job.title}" successfully distributed to ${connectedBoardIds.length} job boards.`
+                                  );
+                                  setAlertSeverity('success');
+                                  setIsAlertOpen(true);
+                                }}
+                              >
+                                Quick Publish
+                              </Button>
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))}
+                </Grid>
+              </Paper>
+            </Grid>
+
+            {/* Distribution History */}
+            <Grid component="div" item xs={12}>
+              <Paper elevation={2} sx={{ p: 2 }}>
+                <Typography variant="h6" gutterBottom>
+                  Distribution History
+                </Typography>
+
+                {distributionHistory.map((dist) => (
+                  <Card sx={{ mb: 2 }} key={dist.id}>
+                    <CardContent>
                       <Grid container spacing={2}>
-                        <Grid component="div" item xs={4}>
-                          <Typography variant="subtitle2" align="center">
-                            Views
+                        <Grid component="div" item xs={12} md={4}>
+                          <Typography variant="h6">{dist.jobTitle}</Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Distributed on: {dist.date || dist.postedDate}
                           </Typography>
-                          <Typography variant="h6" align="center">
-                            {dist.views}
-                          </Typography>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
+                            {dist.platforms?.map((platform, idx) => (
+                              <Chip key={idx} label={platform} size="small" variant="outlined" />
+                            ))}
+                          </Box>
                         </Grid>
-                        <Grid component="div" item xs={4}>
-                          <Typography variant="subtitle2" align="center">
-                            Clicks
-                          </Typography>
-                          <Typography variant="h6" align="center">
-                            {dist.clicks}
-                          </Typography>
+
+                        <Grid component="div" item xs={12} md={6}>
+                          <Grid container spacing={2}>
+                            <Grid component="div" item xs={4}>
+                              <Typography variant="subtitle2" align="center">
+                                Views
+                              </Typography>
+                              <Typography variant="h6" align="center">
+                                {dist.views}
+                              </Typography>
+                            </Grid>
+                            <Grid component="div" item xs={4}>
+                              <Typography variant="subtitle2" align="center">
+                                Clicks
+                              </Typography>
+                              <Typography variant="h6" align="center">
+                                {dist.clicks}
+                              </Typography>
+                            </Grid>
+                            <Grid component="div" item xs={4}>
+                              <Typography variant="subtitle2" align="center">
+                                Applications
+                              </Typography>
+                              <Typography variant="h6" align="center" color="primary">
+                                {dist.applicants}
+                              </Typography>
+                            </Grid>
+                          </Grid>
                         </Grid>
-                        <Grid component="div" item xs={4}>
-                          <Typography variant="subtitle2" align="center">
-                            Applications
-                          </Typography>
-                          <Typography variant="h6" align="center" color="primary">
-                            {dist.applicants}
-                          </Typography>
+
+                        <Grid
+                          component="div"
+                          item
+                          xs={12}
+                          md={2}
+                          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}
+                        >
+                          <Chip
+                            icon={dist.status === 'Published' ? <CheckCircleIcon /> : <ErrorIcon />}
+                            label={dist.status === 'Published' ? 'Complete' : 'Failed'}
+                            color={dist.status === 'Published' ? 'success' : 'error'}
+                          />
                         </Grid>
                       </Grid>
-                    </Grid>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Paper>
+            </Grid>
+          </Grid>
+        )}
 
-                    <Grid
-                      component="div"
-                      item
-                      xs={12}
-                      md={2}
-                      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}
-                    >
-                      <Chip
-                        icon={dist.status === 'Published' ? <CheckCircleIcon /> : <ErrorIcon />}
-                        label={dist.status === 'Published' ? 'Complete' : 'Failed'}
-                        color={dist.status === 'Published' ? 'success' : 'error'}
-                      />
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-            ))}
-          </Paper>
-        </Grid>
-      </Grid>
+        {currentTab === 'distribution' && (
+          // Implementation for distribution tab
+          <div>Distribution tab content</div>
+        )}
+
+        {currentTab === 'history' && (
+          // Implementation for history tab
+          <div>History tab content</div>
+        )}
+      </Box>
 
       {/* Distribute Job Dialog */}
       <Dialog

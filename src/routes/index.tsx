@@ -34,6 +34,8 @@ import TaskDemo from '../pages/TaskDemo';
 import CareerPage from '../components/career/CareerPage';
 import JobDetailPage from '../components/career/JobDetailPage';
 import JobOpenings from '../pages/JobOpenings';
+// Import the new JobManagement component
+import JobManagement from '../pages/JobManagement';
 
 // Define roles and permissions for routes
 const ROLES = {
@@ -104,26 +106,37 @@ const AppRoutes = () => {
 
         {/* Job management routes - restricted by role/permission */}
         <Route
-          path="/job-openings"
-          element={
-            <SecureRoute
-              requiredPermissions={[PERMISSIONS.VIEW_JOBS]}
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
-            >
-              <JobOpenings />
-            </SecureRoute>
-          }
-        />
-
-        {/* Job Board for management */}
-        <Route
           path="/job-board"
           element={
             <SecureRoute
               requiredPermissions={[PERMISSIONS.VIEW_JOBS]}
               requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
             >
-              <JobBoard />
+              <JobManagement />
+            </SecureRoute>
+          }
+        />
+
+        <Route
+          path="/job-openings"
+          element={
+            <SecureRoute
+              requiredPermissions={[PERMISSIONS.VIEW_JOBS]}
+              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
+            >
+              <JobManagement />
+            </SecureRoute>
+          }
+        />
+
+        <Route
+          path="/job-distribution"
+          element={
+            <SecureRoute
+              requiredPermissions={[PERMISSIONS.VIEW_JOBS]}
+              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}
+            >
+              <JobManagement />
             </SecureRoute>
           }
         />
@@ -332,15 +345,6 @@ const AppRoutes = () => {
           element={
             <SecureRoute requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER, ROLES.HIRING_MANAGER]}>
               <SkillsGapAnalysis />
-            </SecureRoute>
-          }
-        />
-
-        <Route
-          path="/job-distribution"
-          element={
-            <SecureRoute requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}>
-              <JobDistribution />
             </SecureRoute>
           }
         />

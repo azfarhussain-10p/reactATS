@@ -227,286 +227,306 @@ const JobOpenings: React.FC = () => {
   }, [jobs, searchTerm, departmentFilter, locationFilter, typeFilter]);
 
   return (
-    <Box>
-      <Box mb={3} display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h4">Job Openings</Typography>
-      </Box>
-
-      {/* Error display */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
-
-      {/* Filters and Search */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={4}>
-            <TextField
-              fullWidth
-              placeholder="Search jobs by title or description"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-              size="small"
-            />
-          </Grid>
-
-          <Grid item xs={12} md={8}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Department</InputLabel>
-                  <Select
-                    value={departmentFilter}
-                    label="Department"
-                    onChange={(e: SelectChangeEvent) => setDepartmentFilter(e.target.value)}
-                  >
-                    {departments.map((dept, index) => (
-                      <MenuItem key={index} value={dept}>
-                        {dept}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12} sm={4}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Location</InputLabel>
-                  <Select
-                    value={locationFilter}
-                    label="Location"
-                    onChange={(e: SelectChangeEvent) => setLocationFilter(e.target.value)}
-                  >
-                    {locations.map((loc, index) => (
-                      <MenuItem key={index} value={loc}>
-                        {loc}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12} sm={4}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Job Type</InputLabel>
-                  <Select
-                    value={typeFilter}
-                    label="Job Type"
-                    onChange={(e: SelectChangeEvent) => setTypeFilter(e.target.value)}
-                  >
-                    {types.map((type, index) => (
-                      <MenuItem key={index} value={type}>
-                        {type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {/* Loading indicator */}
-      {loading && (
-        <Box display="flex" justifyContent="center" my={4}>
-          <CircularProgress />
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        overflow: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <Box sx={{ p: { xs: 1, sm: 2 } }}>
+        <Box mb={3} display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h4">Job Openings</Typography>
         </Box>
-      )}
 
-      {/* Job Listings */}
-      {!loading && (
-        <Grid container spacing={3}>
-          {filteredJobs.length > 0 ? (
-            filteredJobs.map((job) => (
-              <Grid item xs={12} md={6} lg={4} key={job.id}>
-                <Card
-                  elevation={job.isFeatured ? 3 : 1}
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'relative',
-                    border: job.isFeatured ? '1px solid #f0c14b' : 'none',
-                  }}
+        {/* Error display */}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
+
+        {/* Filters and Search */}
+        <Box
+          sx={{
+            mb: 2,
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'flex-start', md: 'center' },
+            justifyContent: 'space-between',
+            gap: 2,
+          }}
+        >
+          <TextField
+            size="small"
+            placeholder="Search jobs..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ minWidth: 200, maxWidth: { xs: '100%', md: 250 } }}
+          />
+
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: 1,
+              width: { xs: '100%', md: 'auto' },
+            }}
+          >
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Department</InputLabel>
+                <Select
+                  value={departmentFilter}
+                  label="Department"
+                  onChange={(e: SelectChangeEvent) => setDepartmentFilter(e.target.value)}
                 >
-                  {/* Status tags container */}
-                  <Box
+                  {departments.map((dept, index) => (
+                    <MenuItem key={index} value={dept}>
+                      {dept}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Location</InputLabel>
+                <Select
+                  value={locationFilter}
+                  label="Location"
+                  onChange={(e: SelectChangeEvent) => setLocationFilter(e.target.value)}
+                >
+                  {locations.map((loc, index) => (
+                    <MenuItem key={index} value={loc}>
+                      {loc}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Job Type</InputLabel>
+                <Select
+                  value={typeFilter}
+                  label="Job Type"
+                  onChange={(e: SelectChangeEvent) => setTypeFilter(e.target.value)}
+                >
+                  {types.map((type, index) => (
+                    <MenuItem key={index} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Box>
+        </Box>
+
+        {/* Loading indicator */}
+        {loading && (
+          <Box display="flex" justifyContent="center" my={4}>
+            <CircularProgress />
+          </Box>
+        )}
+
+        {/* Job Listings */}
+        {!loading && (
+          <Grid container spacing={3}>
+            {filteredJobs.length > 0 ? (
+              filteredJobs.map((job) => (
+                <Grid item xs={12} md={6} lg={4} key={job.id}>
+                  <Card
+                    elevation={job.isFeatured ? 3 : 1}
                     sx={{
-                      position: 'absolute',
-                      top: 10,
-                      right: 10,
+                      height: '100%',
                       display: 'flex',
-                      flexDirection: 'row-reverse',
-                      gap: 1,
-                      zIndex: 1,
+                      flexDirection: 'column',
+                      position: 'relative',
+                      border: job.isFeatured ? '1px solid #f0c14b' : 'none',
                     }}
                   >
-                    {job.status === 'Draft' && (
-                      <Chip
-                        label="DRAFT"
-                        color="warning"
-                        size="small"
-                        sx={{
-                          fontWeight: 'bold',
-                        }}
-                      />
-                    )}
-
-                    {job.status === 'Active' && (
-                      <Chip label="Active" color="success" size="small" />
-                    )}
-
-                    {job.isFeatured && (
-                      <Chip
-                        icon={
-                          <StarIcon
-                            fontSize="small"
-                            sx={{
-                              color: amber[500],
-                              animation: 'pulse 1.5s infinite',
-                              '@keyframes pulse': {
-                                '0%': { opacity: 0.7 },
-                                '50%': { opacity: 1 },
-                                '100%': { opacity: 0.7 },
-                              },
-                            }}
-                          />
-                        }
-                        label="Featured"
-                        size="small"
-                        sx={{
-                          background: `linear-gradient(45deg, ${deepPurple[700]} 0%, ${purple[500]} 100%)`,
-                          color: '#ffffff',
-                          fontWeight: 'bold',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                          '&:hover': {
-                            boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-                          },
-                          transition: 'all 0.3s ease',
-                          '& .MuiChip-label': {
-                            color: '#ffffff',
-                          },
-                          '& .MuiChip-icon': {
-                            color: amber[500],
-                          },
-                        }}
-                      />
-                    )}
-                  </Box>
-
-                  <CardActionArea sx={{ flexGrow: 1 }}>
-                    <CardContent sx={{ flexGrow: 1, pt: 3 }}>
-                      <Box display="flex" justifyContent="space-between" alignItems="start">
-                        <Typography variant="h6" gutterBottom>
-                          {job.title}
-                        </Typography>
-                      </Box>
-
-                      <Box display="flex" alignItems="center" mb={1}>
-                        <LocationIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                        <Typography variant="body2" color="text.secondary">
-                          {job.location}
-                        </Typography>
-                      </Box>
-
-                      <Box display="flex" alignItems="center" mb={1}>
-                        <BusinessIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                        <Typography variant="body2" color="text.secondary">
-                          {job.department}
-                        </Typography>
-                      </Box>
-
-                      <Box display="flex" alignItems="center" mb={1}>
-                        <SalaryIcon fontSize="small" color="action" sx={{ mr: 1 }} />
-                        <Typography variant="body2" color="text.secondary">
-                          {job.salary}
-                        </Typography>
-                      </Box>
-
-                      <Divider sx={{ my: 1 }} />
-
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        paragraph
-                        sx={{
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical',
-                          mb: 1,
-                        }}
-                      >
-                        {job.description}
-                      </Typography>
-
-                      <Box display="flex" justifyContent="space-between" alignItems="center">
-                        <Box display="flex" alignItems="center">
-                          <PeopleIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {job.applicants} applicants
-                          </Typography>
-                        </Box>
-
-                        <Box display="flex" alignItems="center">
-                          <DateIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
-                          <Typography variant="body2" color="text.secondary">
-                            Posted: {formatDate(job.postedDate)}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </CardContent>
-                  </CardActionArea>
-
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 1, pt: 0 }}>
-                    <Button
-                      size="small"
-                      color="primary"
-                      variant="contained"
-                      sx={{ flexGrow: 1, mr: 1 }}
-                      href={`/careers/job/${job.id}`}
+                    {/* Status tags container */}
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        display: 'flex',
+                        flexDirection: 'row-reverse',
+                        gap: 1,
+                        zIndex: 1,
+                      }}
                     >
-                      Apply Now
-                    </Button>
+                      {job.status === 'Draft' && (
+                        <Chip
+                          label="DRAFT"
+                          color="warning"
+                          size="small"
+                          sx={{
+                            fontWeight: 'bold',
+                          }}
+                        />
+                      )}
 
-                    <Tooltip title={job.isBookmarked ? 'Remove Bookmark' : 'Bookmark'}>
-                      <IconButton
+                      {job.status === 'Active' && (
+                        <Chip label="Active" color="success" size="small" />
+                      )}
+
+                      {job.isFeatured && (
+                        <Chip
+                          icon={
+                            <StarIcon
+                              fontSize="small"
+                              sx={{
+                                color: amber[500],
+                                animation: 'pulse 1.5s infinite',
+                                '@keyframes pulse': {
+                                  '0%': { opacity: 0.7 },
+                                  '50%': { opacity: 1 },
+                                  '100%': { opacity: 0.7 },
+                                },
+                              }}
+                            />
+                          }
+                          label="Featured"
+                          size="small"
+                          sx={{
+                            background: `linear-gradient(45deg, ${deepPurple[700]} 0%, ${purple[500]} 100%)`,
+                            color: '#ffffff',
+                            fontWeight: 'bold',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                            '&:hover': {
+                              boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                            },
+                            transition: 'all 0.3s ease',
+                            '& .MuiChip-label': {
+                              color: '#ffffff',
+                            },
+                            '& .MuiChip-icon': {
+                              color: amber[500],
+                            },
+                          }}
+                        />
+                      )}
+                    </Box>
+
+                    <CardActionArea sx={{ flexGrow: 1 }}>
+                      <CardContent sx={{ flexGrow: 1, pt: 3 }}>
+                        <Box display="flex" justifyContent="space-between" alignItems="start">
+                          <Typography variant="h6" gutterBottom>
+                            {job.title}
+                          </Typography>
+                        </Box>
+
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <LocationIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {job.location}
+                          </Typography>
+                        </Box>
+
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <BusinessIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {job.department}
+                          </Typography>
+                        </Box>
+
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <SalaryIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {job.salary}
+                          </Typography>
+                        </Box>
+
+                        <Divider sx={{ my: 1 }} />
+
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          paragraph
+                          sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical',
+                            mb: 1,
+                          }}
+                        >
+                          {job.description}
+                        </Typography>
+
+                        <Box display="flex" justifyContent="space-between" alignItems="center">
+                          <Box display="flex" alignItems="center">
+                            <PeopleIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
+                            <Typography variant="body2" color="text.secondary">
+                              {job.applicants} applicants
+                            </Typography>
+                          </Box>
+
+                          <Box display="flex" alignItems="center">
+                            <DateIcon fontSize="small" color="action" sx={{ mr: 0.5 }} />
+                            <Typography variant="body2" color="text.secondary">
+                              Posted: {formatDate(job.postedDate)}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </CardActionArea>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 1, pt: 0 }}>
+                      <Button
                         size="small"
-                        onClick={(e) => handleToggleBookmark(job.id, e)}
-                        color={job.isBookmarked ? 'primary' : 'default'}
+                        color="primary"
+                        variant="contained"
+                        sx={{ flexGrow: 1, mr: 1 }}
+                        href={`/careers/job/${job.id}`}
                       >
-                        {job.isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                </Card>
+                        Apply Now
+                      </Button>
+
+                      <Tooltip title={job.isBookmarked ? 'Remove Bookmark' : 'Bookmark'}>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => handleToggleBookmark(job.id, e)}
+                          color={job.isBookmarked ? 'primary' : 'default'}
+                        >
+                          {job.isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  </Card>
+                </Grid>
+              ))
+            ) : (
+              <Grid item xs={12}>
+                <Paper sx={{ p: 3, textAlign: 'center' }}>
+                  <Typography variant="h6" color="text.secondary">
+                    No jobs found matching your criteria
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    Try adjusting your filters or search terms
+                  </Typography>
+                </Paper>
               </Grid>
-            ))
-          ) : (
-            <Grid item xs={12}>
-              <Paper sx={{ p: 3, textAlign: 'center' }}>
-                <Typography variant="h6" color="text.secondary">
-                  No jobs found matching your criteria
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Try adjusting your filters or search terms
-                </Typography>
-              </Paper>
-            </Grid>
-          )}
-        </Grid>
-      )}
+            )}
+          </Grid>
+        )}
+      </Box>
     </Box>
   );
 };
