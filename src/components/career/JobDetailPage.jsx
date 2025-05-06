@@ -194,6 +194,14 @@ const JobDetailPage = () => {
     navigate('/careers');
   };
 
+  // Function to handle "Apply with CV" button
+  const handleApplyWithCV = () => {
+    // Save the job ID in session storage to pre-select it after registration
+    sessionStorage.setItem('applyToJobId', id);
+    // Navigate to the CV registration page
+    navigate('/careers/register');
+  };
+
   if (loading) {
     return (
       <div className="job-detail-page">
@@ -332,190 +340,13 @@ const JobDetailPage = () => {
           )}
         </div>
 
-        <div className="apply-section">
-          <button className="apply-button" onClick={toggleApplicationForm}>
-            {showApplicationForm ? 'Hide Application Form' : 'Apply for this Position'}
+        <div className="job-actions">
+          <button className="apply-button" onClick={() => setShowApplicationForm(true)}>
+            Apply Now
           </button>
-
-          {showApplicationForm && (
-            <div className="application-form-container">
-              {submitStatus === 'success' ? (
-                <div className="success-message">
-                  <h3>Application Submitted!</h3>
-                  <p>
-                    Thank you for your interest. We will review your application and contact you
-                    soon.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="application-form">
-                  <h3>Submit Your Application</h3>
-
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="firstName">First Name *</label>
-                      <input
-                        type="text"
-                        id="firstName"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        className={formErrors.firstName ? 'error' : ''}
-                      />
-                      {formErrors.firstName && (
-                        <div className="error-message">{formErrors.firstName}</div>
-                      )}
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="lastName">Last Name *</label>
-                      <input
-                        type="text"
-                        id="lastName"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleInputChange}
-                        className={formErrors.lastName ? 'error' : ''}
-                      />
-                      {formErrors.lastName && (
-                        <div className="error-message">{formErrors.lastName}</div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="email">Email *</label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className={formErrors.email ? 'error' : ''}
-                      />
-                      {formErrors.email && <div className="error-message">{formErrors.email}</div>}
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="phone">Phone *</label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        className={formErrors.phone ? 'error' : ''}
-                      />
-                      {formErrors.phone && <div className="error-message">{formErrors.phone}</div>}
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="resume">Resume Link *</label>
-                    <input
-                      type="url"
-                      id="resume"
-                      name="resume"
-                      placeholder="Link to your resume (Google Drive, Dropbox, etc.)"
-                      value={formData.resume}
-                      onChange={handleInputChange}
-                      className={formErrors.resume ? 'error' : ''}
-                    />
-                    {formErrors.resume && <div className="error-message">{formErrors.resume}</div>}
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="coverLetter">Cover Letter</label>
-                    <textarea
-                      id="coverLetter"
-                      name="coverLetter"
-                      value={formData.coverLetter}
-                      onChange={handleInputChange}
-                      rows="4"
-                    ></textarea>
-                  </div>
-
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="linkedInUrl">LinkedIn URL</label>
-                      <input
-                        type="url"
-                        id="linkedInUrl"
-                        name="linkedInUrl"
-                        value={formData.linkedInUrl}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="portfolioUrl">Portfolio URL</label>
-                      <input
-                        type="url"
-                        id="portfolioUrl"
-                        name="portfolioUrl"
-                        value={formData.portfolioUrl}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="referredBy">How did you hear about us?</label>
-                    <input
-                      type="text"
-                      id="referredBy"
-                      name="referredBy"
-                      value={formData.referredBy}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="form-actions">
-                    <button
-                      type="submit"
-                      className="submit-button"
-                      disabled={submitStatus === 'submitting'}
-                    >
-                      {submitStatus === 'submitting' ? 'Submitting...' : 'Submit Application'}
-                    </button>
-                    <button type="button" className="cancel-button" onClick={toggleApplicationForm}>
-                      Cancel
-                    </button>
-                  </div>
-
-                  {submitStatus === 'error' && (
-                    <div className="error-message">
-                      There was an error submitting your application. Please try again later.
-                    </div>
-                  )}
-                </form>
-              )}
-            </div>
-          )}
-        </div>
-
-        {relatedJobs.length > 0 && (
-          <div className="related-jobs-section">
-            <h2>Similar Positions</h2>
-            <div className="related-jobs">
-              {relatedJobs.map((relatedJob) => (
-                <div
-                  key={relatedJob.id}
-                  className="related-job-card"
-                  onClick={() => handleRelatedJobClick(relatedJob.id)}
-                >
-                  <h3>{relatedJob.title}</h3>
-                  <div className="related-job-details">
-                    <span>{relatedJob.location}</span>
-                    <span>{relatedJob.type}</span>
-                  </div>
-                  <button className="view-job-btn">View Details</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="job-share-section">
-          <h3>Share this Job</h3>
+          <button className="apply-with-cv-button" onClick={handleApplyWithCV}>
+            Apply with CV
+          </button>
           <div className="share-buttons">
             <button
               className="share-button linkedin"
@@ -549,6 +380,181 @@ const JobDetailPage = () => {
             </button>
           </div>
         </div>
+
+        {showApplicationForm && (
+          <div className="application-form-container">
+            {submitStatus === 'success' ? (
+              <div className="success-message">
+                <h3>Application Submitted!</h3>
+                <p>
+                  Thank you for your interest. We will review your application and contact you soon.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="application-form">
+                <h3>Submit Your Application</h3>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="firstName">First Name *</label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      className={formErrors.firstName ? 'error' : ''}
+                    />
+                    {formErrors.firstName && (
+                      <div className="error-message">{formErrors.firstName}</div>
+                    )}
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="lastName">Last Name *</label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      className={formErrors.lastName ? 'error' : ''}
+                    />
+                    {formErrors.lastName && (
+                      <div className="error-message">{formErrors.lastName}</div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="email">Email *</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className={formErrors.email ? 'error' : ''}
+                    />
+                    {formErrors.email && <div className="error-message">{formErrors.email}</div>}
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="phone">Phone *</label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className={formErrors.phone ? 'error' : ''}
+                    />
+                    {formErrors.phone && <div className="error-message">{formErrors.phone}</div>}
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="resume">Resume Link *</label>
+                  <input
+                    type="url"
+                    id="resume"
+                    name="resume"
+                    placeholder="Link to your resume (Google Drive, Dropbox, etc.)"
+                    value={formData.resume}
+                    onChange={handleInputChange}
+                    className={formErrors.resume ? 'error' : ''}
+                  />
+                  {formErrors.resume && <div className="error-message">{formErrors.resume}</div>}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="coverLetter">Cover Letter</label>
+                  <textarea
+                    id="coverLetter"
+                    name="coverLetter"
+                    value={formData.coverLetter}
+                    onChange={handleInputChange}
+                    rows="4"
+                  ></textarea>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="linkedInUrl">LinkedIn URL</label>
+                    <input
+                      type="url"
+                      id="linkedInUrl"
+                      name="linkedInUrl"
+                      value={formData.linkedInUrl}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="portfolioUrl">Portfolio URL</label>
+                    <input
+                      type="url"
+                      id="portfolioUrl"
+                      name="portfolioUrl"
+                      value={formData.portfolioUrl}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="referredBy">How did you hear about us?</label>
+                  <input
+                    type="text"
+                    id="referredBy"
+                    name="referredBy"
+                    value={formData.referredBy}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="form-actions">
+                  <button
+                    type="submit"
+                    className="submit-button"
+                    disabled={submitStatus === 'submitting'}
+                  >
+                    {submitStatus === 'submitting' ? 'Submitting...' : 'Submit Application'}
+                  </button>
+                  <button type="button" className="cancel-button" onClick={toggleApplicationForm}>
+                    Cancel
+                  </button>
+                </div>
+
+                {submitStatus === 'error' && (
+                  <div className="error-message">
+                    There was an error submitting your application. Please try again later.
+                  </div>
+                )}
+              </form>
+            )}
+          </div>
+        )}
+
+        {relatedJobs.length > 0 && (
+          <div className="related-jobs-section">
+            <h2>Similar Positions</h2>
+            <div className="related-jobs">
+              {relatedJobs.map((relatedJob) => (
+                <div
+                  key={relatedJob.id}
+                  className="related-job-card"
+                  onClick={() => handleRelatedJobClick(relatedJob.id)}
+                >
+                  <h3>{relatedJob.title}</h3>
+                  <div className="related-job-details">
+                    <span>{relatedJob.location}</span>
+                    <span>{relatedJob.type}</span>
+                  </div>
+                  <button className="view-job-btn">View Details</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

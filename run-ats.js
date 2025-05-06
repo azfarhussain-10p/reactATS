@@ -104,6 +104,68 @@ function checkAPIHealth(port, endpoint = '/health', maxRetries = 10, retryInterv
   });
 }
 
+// Check if CV parsing server is available
+function checkCVParsingServerHealth(
+  port,
+  endpoint = '/api/parse-cv/status',
+  maxRetries = 5,
+  retryInterval = 1000
+) {
+  return new Promise((resolve) => {
+    let retries = 0;
+
+    function attemptConnection() {
+      console.log(`Checking CV Parsing Server health (attempt ${retries + 1}/${maxRetries})...`);
+
+      const req = http.request(
+        {
+          hostname: 'localhost',
+          port: port,
+          path: endpoint,
+          method: 'GET',
+          timeout: 2000, // 2 second timeout
+        },
+        (res) => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            console.log(`✅ CV Parsing Server is healthy! (Status: ${res.statusCode})`);
+            resolve(true);
+          } else {
+            console.log(
+              `CV Parsing Server health check returned status ${res.statusCode}, retrying...`
+            );
+            retryConnection();
+          }
+        }
+      );
+
+      req.on('error', (error) => {
+        console.log(`CV Parsing Server health check failed: ${error.message}`);
+        retryConnection();
+      });
+
+      req.on('timeout', () => {
+        console.log('CV Parsing Server health check timed out');
+        req.destroy();
+        retryConnection();
+      });
+
+      req.end();
+    }
+
+    function retryConnection() {
+      retries++;
+      if (retries < maxRetries) {
+        setTimeout(attemptConnection, retryInterval);
+      } else {
+        console.warn('⚠️ Max retries reached. CV Parsing Server may not be available.');
+        resolve(false);
+      }
+    }
+
+    attemptConnection();
+  });
+}
+
 async function startApplication() {
   try {
     console.log('🚀 Starting ATS Application...');
@@ -111,6 +173,24 @@ async function startApplication() {
     // Make sure ports are clear
     await checkAndKillPort(3001); // API Server
     await checkAndKillPort(3000); // Frontend
+    await checkAndKillPort(5001); // CV Parsing Server
+
+    // Start the CV parsing server
+    console.log('📄 Starting CV Parsing Server...');
+    const cvParsingProcess = spawn('node', ['server/index.js'], {
+      stdio: 'inherit',
+      shell: true,
+      env: { ...process.env, PORT: 5001 },
+    });
+
+    // Give the CV parsing server a moment to start
+    console.log('⏳ Waiting for CV Parsing Server to initialize...');
+    let isCVParsingServerHealthy = false;
+    try {
+      isCVParsingServerHealthy = await checkCVParsingServerHealth(5001);
+    } catch (error) {
+      console.warn('CV Parsing Server health check failed, but continuing startup process');
+    }
 
     // Start the backend server in one terminal
     console.log('📡 Starting API Server...');
@@ -134,24 +214,37 @@ async function startApplication() {
     const frontendProcess = spawn('npm', ['run', 'dev'], {
       stdio: 'inherit',
       shell: true,
-      env: { ...process.env, BROWSER: 'none', VITE_API_URL: 'http://localhost:3001/api' }, // Set API URL for frontend
+      env: {
+        ...process.env,
+        BROWSER: 'none',
+        VITE_API_URL: 'http://localhost:3001/api',
+        VITE_CV_PARSING_URL: 'http://localhost:5001',
+      }, // Set API URLs for frontend
     });
 
     console.log('✅ ATS Application started!');
     console.log('🌐 API Server: http://localhost:3001');
     console.log('🌐 Frontend: http://localhost:3000');
+    console.log('🌐 CV Parsing Server: http://localhost:5001');
 
     if (!isApiHealthy) {
       console.log('⚠️ API may not be fully initialized. Some features might not work immediately.');
     }
 
-    console.log('📝 Press Ctrl+C to stop both servers');
+    if (!isCVParsingServerHealthy) {
+      console.log(
+        '⚠️ CV Parsing Server may not be fully initialized. CV parsing features might not work immediately.'
+      );
+    }
+
+    console.log('📝 Press Ctrl+C to stop all servers');
 
     // Handle graceful shutdown
     process.on('SIGINT', () => {
       console.log('🛑 Shutting down ATS application...');
       apiProcess.kill();
       frontendProcess.kill();
+      cvParsingProcess.kill();
       process.exit(0);
     });
 
@@ -159,26 +252,44 @@ async function startApplication() {
     apiProcess.on('error', (error) => {
       console.error(`API Server error: ${error.message}`);
       frontendProcess.kill();
+      cvParsingProcess.kill();
       process.exit(1);
     });
 
     frontendProcess.on('error', (error) => {
       console.error(`Frontend error: ${error.message}`);
       apiProcess.kill();
+      cvParsingProcess.kill();
       process.exit(1);
+    });
+
+    cvParsingProcess.on('error', (error) => {
+      console.error(`CV Parsing Server error: ${error.message}`);
+      // Don't exit - CV parsing server is optional
+      console.warn(
+        '⚠️ CV Parsing Server failed to start. CV parsing will use client-side fallback.'
+      );
     });
 
     // If either process exits, shut everything down
     apiProcess.on('close', (code) => {
       console.log(`API Server exited with code ${code}`);
       frontendProcess.kill();
+      cvParsingProcess.kill();
       process.exit(code || 0);
     });
 
     frontendProcess.on('close', (code) => {
       console.log(`Frontend exited with code ${code}`);
       apiProcess.kill();
+      cvParsingProcess.kill();
       process.exit(code || 0);
+    });
+
+    cvParsingProcess.on('close', (code) => {
+      console.log(`CV Parsing Server exited with code ${code}`);
+      // Don't exit - CV parsing server is optional
+      console.warn('⚠️ CV Parsing Server stopped. CV parsing will use client-side fallback.');
     });
   } catch (error) {
     console.error('Failed to start ATS application:', error);

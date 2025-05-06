@@ -89,6 +89,16 @@ docs/generated/
 # Temp files for resume uploads
 uploads/
 resume_uploads/
+server/uploads/
+temp_uploads/
+tmp/
+
+# CV Parsing temporary files
+*.pdf.tmp
+*.docx.tmp
+*.doc.tmp
+*.txt.tmp
+parsed_data_cache/
 
 # Auth tokens for development
 .auth_tokens

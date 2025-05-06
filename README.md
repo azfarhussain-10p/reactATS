@@ -8,6 +8,12 @@ Welcome to the documentation for our Applicant Tracking System (ATS). This compr
 
 - [ATS Application (React + TypeScript + Vite)](#ats-application-react--typescript--vite)
   - [Table of Contents](#table-of-contents)
+  - [🚀 Getting Started](#-getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Running the Application](#running-the-application)
+    - [Environment Variables](#environment-variables)
+    - [Verifying Your Setup](#verifying-your-setup)
   - [📚 Documentation Sections](#-documentation-sections)
     - [📖 User Guides](#-user-guides)
     - [🔧 Features](#-features)
@@ -31,7 +37,119 @@ Welcome to the documentation for our Applicant Tracking System (ATS). This compr
   - [🤝 Contributing](#-contributing)
   - [📅 Version History](#-version-history)
   - [📝 License](#-license)
+  - [Features](#features)
   - [ESLint Configuration](#eslint-configuration)
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v16 or later)
+- npm (v7 or later)
+- Git
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/your-username/React-ATS.git
+   cd React-ATS
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+### Running the Application
+
+The application consists of three main components:
+
+- Frontend (React application)
+- API Server (Express server)
+- CV Parsing Server (Express server for document parsing)
+
+**Recommended method:**
+
+```bash
+node run-ats.js
+```
+
+This is the primary method to run the complete application. The `run-ats.js` script:
+
+- Automatically checks and frees required ports (3000, 3001, 5001)
+- Starts all three components in the correct order
+- Performs health checks to ensure services are running properly
+- Sets up environment variables for each component
+- Provides graceful shutdown handling
+- Displays friendly URLs for all services
+
+**Alternative methods:**
+
+You can also run these components using npm scripts:
+
+```bash
+npm run start:all
+```
+
+**Run components individually:**
+
+1. Start the CV Parsing Server:
+
+   ```bash
+   node server/index.js
+   ```
+
+2. Start the API Server:
+
+   ```bash
+   npm run server
+   ```
+
+3. Start the Frontend Development Server:
+   ```bash
+   npm run dev
+   ```
+
+The application will be available at:
+
+- Frontend: http://localhost:3000
+- API Server: http://localhost:3001
+- CV Parsing Server: http://localhost:5001
+
+### Environment Variables
+
+Create a `.env` file in the root directory with the following content:
+
+```
+VITE_API_URL=http://localhost:3001/api
+VITE_CV_PARSING_URL=http://localhost:5001
+```
+
+> **Note**: The CV parsing functionality requires the CV parsing server to be running on port 5001. If you experience a 503 error when parsing CVs, make sure the CV parsing server is running. See [CV Parsing Documentation](./docs/features/cv-parsing.md) for more details.
+
+### Verifying Your Setup
+
+We've included test scripts to help you verify your setup is working correctly:
+
+**Verify All Components**
+
+```bash
+node test-app.js
+```
+
+This script checks if all components (frontend, API server, and CV parsing server) are running correctly.
+
+**Verify CV Parsing Server Only**
+
+```bash
+node server/test-server.js
+```
+
+This script specifically checks if the CV parsing server is running and responding correctly.
+
+If you encounter any issues, the test scripts will provide guidance on what might be wrong and how to fix it.
 
 ## 📚 Documentation Sections
 
@@ -43,6 +161,7 @@ Get started with our user-friendly guides:
 - [Quick Start Guide](./docs/guides/quick-start.md) - Get up and running quickly
 - [Installation Guide](./docs/guides/installation.md) - Setup instructions
 - [Configuration Guide](./docs/guides/configuration.md) - Configuration details
+- [CV Parsing Guide](./docs/guides/cv-parsing-guide.md) - Guide for using CV parsing functionality
 
 Role-specific guides:
 
@@ -60,6 +179,7 @@ Core Features:
 - [Offline Support](./docs/features/OFFLINE_CAPABILITIES.md)
 - [Authentication & Security](./docs/features/auth-flow.md)
 - [Candidate Management](./docs/features/candidate-pipeline.md)
+- [CV Parsing](./docs/features/cv-parsing.md) - Automated resume data extraction
 - [Interview Management](./docs/features/structured-interviews.md)
 
 Job Management:
@@ -101,6 +221,7 @@ Services:
 
 - [API Service](./docs/api/services/api-service.md)
 - [Cache Service](./docs/api/services/cache-service.md)
+- [CV Parsing Service](./docs/api/services/cv-parsing-service.md) - Resume parsing service
 - [Security Service](./docs/api/services/security-service.md)
 - [Performance Monitor](./docs/api/services/performance-monitor-service.md)
 
@@ -110,6 +231,7 @@ Endpoints:
 - [Candidate APIs](./docs/api/endpoints/candidates/create.md)
 - [Job APIs](./docs/api/endpoints/jobs/create.md)
 - [Interview APIs](./docs/api/endpoints/interviews/schedule.md)
+- [CV Parsing APIs](./docs/api/endpoints/cv-parsing/parse-cv.md) - CV extraction endpoints
 
 ### [💾 Database Documentation](./docs/technical/database-structure.md)
 
@@ -313,10 +435,6 @@ This documentation is maintained alongside the ATS application. For the latest u
 
 This documentation is covered under the same license as the ATS application. See [LICENSE](./LICENSE) for more details.
 
----
-
-**Note**: This documentation is continuously updated. If you find any discrepancies or have suggestions for improvement, please follow our [contribution guidelines](./docs/guides/contributing/guidelines.md).
-
 ## Features
 
 - **Modern React Architecture**: Built with React 18, TypeScript, and Material UI v5
@@ -325,6 +443,9 @@ This documentation is covered under the same license as the ATS application. See
 - **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
 - **Dark/Light Theme**: Full theme support with easy customization
 - **Authentication & Authorization**: Complete user management with role-based access
+- **CV Parsing**: Automated extraction of candidate information from resume files
+- **Multi-format Support**: Parse PDF, DOC, DOCX, and TXT files
+- **Dual-layer Parsing**: Server-side parsing with client-side fallback
 
 ## ESLint Configuration
 
@@ -332,8 +453,8 @@ The project uses ESLint to maintain code quality and consistency. We've added a 
 
 To fix ESLint issues:
 
-1. Run the fix script: `node fix-eslint.js`
-2. For a complete check: `npx eslint --no-error-on-unmatched-pattern . --ext .js,.jsx,.ts,.tsx`
+1. Run the fix script: `npm run lint:fix`
+2. For a complete check: `npm run lint:check`
 
 If you want to properly fix all issues, follow these best practices:
 

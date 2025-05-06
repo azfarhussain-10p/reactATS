@@ -313,6 +313,9 @@ const CareerPage = () => {
               >
                 View Open Positions
               </button>
+              <button onClick={() => navigate('/careers/register')} className="register-button">
+                Register Your CV
+              </button>
             </div>
           </div>
           <div className="hero-blur-overlay"></div>
@@ -525,23 +528,10 @@ const CareerPage = () => {
           </div>
 
           <div className="join-team-cta">
-            <h3>Don't see what you're looking for?</h3>
-            <p>We're always looking for talented individuals to join our team</p>
-            <button
-              className="contact-us-btn"
-              onClick={() => {
-                // You can implement a modal or navigate to contact page
-                const formData = {
-                  name: prompt('Please enter your name:'),
-                  email: prompt('Please enter your email:'),
-                  message: prompt('Please enter your message:'),
-                };
-                if (formData.name && formData.email && formData.message) {
-                  handleContactSubmit(formData);
-                }
-              }}
-            >
-              Contact Us
+            <h3>Ready to take the next step?</h3>
+            <p>Register your CV in our system even if you don't see a perfect match today.</p>
+            <button onClick={() => navigate('/careers/register')} className="register-button-large">
+              Register Your CV
             </button>
           </div>
 

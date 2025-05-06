@@ -461,22 +461,62 @@
   color: #333;
 }
 
+.job-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+  margin: 30px 0;
+}
+
+.apply-button {
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.apply-button:hover {
+  background-color: #0d5cb3;
+}
+
+.apply-with-cv-button {
+  background-color: white;
+  color: #1976d2;
+  border: 1px solid #1976d2;
+  padding: 12px 30px;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.apply-with-cv-button:hover {
+  background-color: #e8f4ff;
+}
+
 .share-buttons {
   display: flex;
-  justify-content: center;
-  gap: 15px;
+  gap: 10px;
+  margin-left: auto;
 }
 
 .share-button {
-  padding: 10px 20px;
+  background-color: #f5f5f5;
   border: none;
-  border-radius: 5px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 0.9rem;
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: background-color 0.3s;
 }
 
 .share-button.linkedin {
@@ -495,8 +535,7 @@
 }
 
 .share-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  opacity: 0.9;
 }
 
 /* Subscription Form */

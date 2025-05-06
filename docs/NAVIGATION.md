@@ -35,6 +35,7 @@ docs/
 │   ├── README.md          # Features overview
 │   ├── auth-flow.md       # Authentication flow
 │   ├── candidate-pipeline.md
+│   ├── cv-parsing.md      # CV parsing system
 │   └── OFFLINE_CAPABILITIES.md
 │
 ├── guides/                 # User Guides
@@ -82,8 +83,9 @@ docs/
 ### Candidate Management
 
 1. [Candidate Pipeline](./features/candidate-pipeline.md)
-2. [Interview Process](./features/structured-interviews.md)
-3. [Offer Management](./features/offer-management.md)
+2. [CV Parsing](./features/cv-parsing.md)
+3. [Interview Process](./features/structured-interviews.md)
+4. [Offer Management](./features/offer-management.md)
 
 ### Job Management
 
@@ -168,6 +170,7 @@ Core Features:
 - [Offline Support](./features/OFFLINE_CAPABILITIES.md) - Working without internet
 - [Authentication & Security](./features/auth-flow.md) - Identity and access management
 - [Candidate Pipeline](./features/candidate-pipeline.md) - Applicant tracking workflow
+- [CV Parsing](./features/cv-parsing.md) - Resume data extraction
 - [Interview Management](./features/structured-interviews.md) - Structured interview process
 
 Advanced Features:
@@ -208,6 +211,7 @@ Advanced Features:
 
 - [Job Creation & Management](./features/job-draft-publishing.md) - Create and manage job listings
 - [Candidate Sourcing](./features/candidate-pipeline.md#sourcing) - Find qualified candidates
+- [CV Parsing & Processing](./features/cv-parsing.md) - Extract resume data
 - [Interview Scheduling](./features/interview-scheduling.md) - Coordinate interviews
 - [Applicant Tracking](./features/candidate-pipeline.md) - Track candidate progress
 
@@ -229,6 +233,7 @@ Advanced Features:
 
 - [Creating a Job Posting](./guides/USER_GUIDE.md#creating-a-new-job-posting) - Post new positions
 - [Managing Job Drafts](./features/job-draft-publishing.md#draft-mode) - Work with draft jobs
+- [Processing CV/Resumes](./features/cv-parsing.md) - Extract resume data
 - [Reviewing Applications](./guides/USER_GUIDE.md#candidate-management) - Process applications
 - [Scheduling Interviews](./guides/USER_GUIDE.md#interview-management) - Set up interviews
 - [Generating Reports](./guides/USER_GUIDE.md#reporting-and-analytics) - Create custom reports

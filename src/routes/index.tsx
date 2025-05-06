@@ -6,6 +6,7 @@ import CandidatesList from '../pages/CandidatesList';
 import CandidateProfile from '../pages/CandidateProfile';
 import InterviewScheduler from '../pages/InterviewScheduler';
 import AddCandidate from '../pages/AddCandidate';
+import CandidateRegistration from '../pages/CandidateRegistration';
 import CandidateEvaluation from '../pages/CandidateEvaluation';
 import RecruitmentPipeline from '../pages/RecruitmentPipeline';
 import InterviewerFeedbackForm from '../pages/InterviewerFeedbackForm';
@@ -60,6 +61,7 @@ const PERMISSIONS = {
   CONDUCT_INTERVIEWS: 'conduct:interviews',
   MANAGE_EVALUATIONS: 'manage:evaluations',
   VIEW_ANALYTICS: 'view:analytics',
+  ADD_CANDIDATE: 'add:candidates',
 };
 
 const AppRoutes = () => {
@@ -76,11 +78,12 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Public Career Pages */}
       <Route path="/careers" element={<CareerPage />} />
       <Route path="/careers/job/:id" element={<JobDetailPage />} />
+      <Route path="/careers/register" element={<CandidateRegistration />} />
       <Route path="/career" element={<Navigate to="/careers" replace />} />
 
       {/* Protected routes */}
@@ -155,6 +158,30 @@ const AppRoutes = () => {
         />
 
         <Route
+          path="/candidates/add"
+          element={
+            <SecureRoute
+              requiredPermissions={[PERMISSIONS.ADD_CANDIDATE]}
+              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}
+            >
+              <AddCandidate />
+            </SecureRoute>
+          }
+        />
+
+        <Route
+          path="/candidates/register"
+          element={
+            <SecureRoute
+              requiredPermissions={[PERMISSIONS.ADD_CANDIDATE]}
+              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}
+            >
+              <CandidateRegistration />
+            </SecureRoute>
+          }
+        />
+
+        <Route
           path="/candidates/:id"
           element={
             <SecureRoute
@@ -167,18 +194,6 @@ const AppRoutes = () => {
               ]}
             >
               <CandidateProfile />
-            </SecureRoute>
-          }
-        />
-
-        <Route
-          path="/candidates/add"
-          element={
-            <SecureRoute
-              requiredPermissions={[PERMISSIONS.EDIT_CANDIDATES]}
-              requiredRoles={[ROLES.ADMIN, ROLES.RECRUITER]}
-            >
-              <AddCandidate />
             </SecureRoute>
           }
         />
